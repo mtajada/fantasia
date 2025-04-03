@@ -1,23 +1,16 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "lib": ["deno.window"],
+    "lib": ["deno.window", /* "dom", "dom.iterable", "esnext" - Añadir si es necesario */],
     "strict": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsx": "react-jsx", // <-- Clave para React
+    "jsxImportSource": "react" // <-- Clave para React
   },
   "imports": {
     "npm:@google/generative-ai": "https://esm.sh/@google/generative-ai",
     "npm:uuid@9.0.0": "https://esm.sh/uuid@9.0.0",
     "@/": "./src/"
   },
-  "lint": {
-    "include": ["src/", "supabase/functions/"],
-    "rules": {
-      "tags": ["recommended"]
-    }
-  },
-  "fmt": {
-    "include": ["src/", "supabase/functions/"]
-  }
+  "lint": { /* ... */ },
+  "fmt": { /* ... */ }
 }

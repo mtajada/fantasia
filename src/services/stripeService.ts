@@ -12,6 +12,7 @@ export const getStripe = (): Promise<Stripe | null> => {
     const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
     if (!publishableKey) {
       console.error("VITE_STRIPE_PUBLISHABLE_KEY no está configurada en .env");
+      // Retorna una promesa rechazada o null, dependiendo de cómo quieras manejarlo
       return Promise.resolve(null);
     }
     stripePromise = loadStripe(publishableKey);
@@ -36,7 +37,8 @@ export const createCheckoutSession = async (
 
   try {
     // 1. Obtener la sesión actual de Supabase para el token
-    const { supabase } = await import('../supabaseClient');
+    // Añadir extensión .ts
+    const { supabase } = await import('../supabaseClient.ts');
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
     if (sessionError || !sessionData?.session) {
@@ -60,7 +62,7 @@ export const createCheckoutSession = async (
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'apikey': anonKey, // Necesaria para llamar a functions
+          'apikey': anonKey,
         },
         body: JSON.stringify({ item }),
       }
@@ -69,16 +71,24 @@ export const createCheckoutSession = async (
     const responseData = await response.json();
 
     if (!response.ok) {
-      console.error('Error en la respuesta de la Edge Function:', responseData);
-      throw new Error(responseData.error || `Error ${response.status}`);
+      console.error('Error en la respuesta de la Edge Function (create-checkout-session):', responseData);
+      // Usar el mensaje de error de la respuesta si existe, si no, un genérico
+      throw new Error(responseData.error || `Error ${response.status} del servidor`);
     }
 
     console.log('URL de checkout recibida:', responseData.url);
     return { url: responseData.url };
 
-  } catch (error) {
+  } catch (error) { // error es 'unknown'
     console.error('Error al llamar a la función create-checkout-session:', error);
-    return { error: `No se pudo iniciar el pago: ${error.message}` };
+    // Manejo seguro del tipo 'unknown'
+    let errorMessage = 'Error desconocido al iniciar el pago.';
+    if (error instanceof Error) {
+        errorMessage = error.message;
+    } else if (typeof error === 'string') {
+        errorMessage = error;
+    }
+    return { error: `No se pudo iniciar el pago: ${errorMessage}` };
   }
 };
 
@@ -96,7 +106,8 @@ export const createCustomerPortalSession = async (): Promise<CustomerPortalSessi
 
   try {
     // 1. Obtener la sesión actual de Supabase para el token
-    const { supabase } = await import('../supabaseClient');
+    // Añadir extensión .ts
+    const { supabase } = await import('../supabaseClient.ts');
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
     if (sessionError || !sessionData?.session) {
@@ -120,23 +131,32 @@ export const createCustomerPortalSession = async (): Promise<CustomerPortalSessi
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'apikey': anonKey, // Necesaria para llamar a functions
+          'apikey': anonKey,
         }
+        // No necesita body
       }
     );
 
     const responseData = await response.json();
 
     if (!response.ok) {
-      console.error('Error en la respuesta de la Edge Function:', responseData);
-      throw new Error(responseData.error || `Error ${response.status}`);
+      console.error('Error en la respuesta de la Edge Function (create-customer-portal-session):', responseData);
+      // Usar el mensaje de error de la respuesta si existe
+      throw new Error(responseData.error || `Error ${response.status} del servidor`);
     }
 
     console.log('URL del portal de cliente recibida:', responseData.url);
     return { url: responseData.url };
 
-  } catch (error) {
+  } catch (error) { // error es 'unknown'
     console.error('Error al llamar a la función create-customer-portal-session:', error);
-    return { error: `No se pudo acceder al portal de cliente: ${error.message}` };
+    // Manejo seguro del tipo 'unknown'
+    let errorMessage = 'Error desconocido al acceder al portal.';
+    if (error instanceof Error) {
+        errorMessage = error.message;
+    } else if (typeof error === 'string') {
+        errorMessage = error;
+    }
+    return { error: `No se pudo acceder al portal de cliente: ${errorMessage}` };
   }
 };

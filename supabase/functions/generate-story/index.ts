@@ -1,10 +1,16 @@
 import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 
 // Configuración de la API de Gemini
 const API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
+
+// Configuración de Supabase Admin Client
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
+const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY') || '';
+const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash-thinking-exp-01-21",
@@ -204,6 +210,101 @@ serve(async (req) => {
   }
 
   try {
+    // Obtener el usuario autenticado desde la solicitud
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'No se proporcionó token de autenticación' }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+
+    // Extraer el token JWT
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verificar el token y obtener el usuario
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Usuario no autenticado', details: authError }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+
+    // Obtener el perfil del usuario para verificar límites
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('subscription_status, monthly_stories_generated, last_story_reset_date')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Error al obtener perfil:', profileError);
+      return new Response(
+        JSON.stringify({ error: 'Error al verificar perfil de usuario', details: profileError }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
+    }
+
+    // Determinar si el usuario es premium
+    const isPremium = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
+    
+    // Inicializar contador de historias actual
+    let currentStoriesGenerated = profile?.monthly_stories_generated || 0;
+    
+    // Si NO es premium, verificar límites y posible reset mensual
+    if (!isPremium) {
+      const now = new Date();
+      const lastResetDate = profile?.last_story_reset_date ? new Date(profile.last_story_reset_date) : null;
+      
+      // Verificar si es necesario hacer reset mensual
+      if (!lastResetDate || 
+          lastResetDate.getMonth() !== now.getMonth() || 
+          lastResetDate.getFullYear() !== now.getFullYear()) {
+        
+        // Realizar reset mensual
+        const { error: resetError } = await supabaseAdmin
+          .from('profiles')
+          .update({ 
+            monthly_stories_generated: 0, 
+            last_story_reset_date: now.toISOString() 
+          })
+          .eq('id', user.id);
+        
+        if (resetError) {
+          console.error('Error al resetear contador mensual:', resetError);
+        } else {
+          // Actualizar variable local del contador
+          currentStoriesGenerated = 0;
+          console.log(`Reset mensual realizado para usuario ${user.id}`);
+        }
+      }
+      
+      // Verificar si el usuario ha alcanzado el límite mensual (después del posible reset)
+      if (currentStoriesGenerated >= 10) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Límite mensual de historias gratuitas alcanzado. Actualiza a Premium para generar más historias.' 
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 429, // Too Many Requests
+          }
+        );
+      }
+    }
+
+    // Procesar la solicitud normal
     const {
       options,
       language = "español",
