@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32">
+  <!-- Fondo del libro -->
+  <rect x="80" y="70" width="352" height="372" rx="20" ry="20" fill="#ff9a3c" stroke="#333" stroke-width="12"/>
+  <!-- Portada del libro -->
+  <path d="M100 70 H412 Q432 70 432 90 V422 Q432 442 412 442 H100 Q80 442 80 422 V90 Q80 70 100 70 Z" fill="#ffd8a8" stroke="#333" stroke-width="8"/>
+  <!-- Líneas del libro -->
+  <line x1="120" y1="150" x2="392" y2="150" stroke="#333" stroke-width="6"/>
+  <line x1="120" y1="200" x2="392" y2="200" stroke="#333" stroke-width="6"/>
+  <line x1="120" y1="250" x2="392" y2="250" stroke="#333" stroke-width="6"/>
+  <line x1="120" y1="300" x2="392" y2="300" stroke="#333" stroke-width="6"/>
+  <line x1="120" y1="350" x2="392" y2="350" stroke="#333" stroke-width="6"/>
+  <!-- Marca de página -->
+  <path d="M350 70 V150 L365 135 L380 150 V70 Z" fill="#ff5757" stroke="#333" stroke-width="3"/>
+</svg> 

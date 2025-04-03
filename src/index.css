@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 276 28% 95%;
+    --foreground: 276 30% 20%;
+
+    --card: 276 30% 96%;
+    --card-foreground: 276 30% 20%;
+
+    --popover: 276 30% 96%;
+    --popover-foreground: 276 30% 20%;
+
+    --primary: 276 30% 55%;
+    --primary-foreground: 276 30% 98%;
+
+    --secondary: 23 94% 67%;
+    --secondary-foreground: 23 10% 20%;
+
+    --muted: 276 15% 85%;
+    --muted-foreground: 276 10% 50%;
+
+    --accent: 23 94% 67%;
+    --accent-foreground: 23 10% 20%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 276 20% 85%;
+    --input: 276 20% 90%;
+    --ring: 276 30% 60%;
+
+    --radius: 0.75rem;
+
+    --story-purple-50: hsl(276, 25%, 95%);
+    --story-purple-100: hsl(276, 30%, 90%);
+    --story-purple-200: hsl(276, 30%, 80%);
+    --story-purple-300: hsl(276, 30%, 70%);
+    --story-purple-400: hsl(276, 30%, 60%);
+    --story-purple-500: hsl(276, 30%, 50%);
+
+    --story-orange-400: hsl(23, 94%, 67%);
+    --story-orange-500: hsl(23, 94%, 60%);
+  }
+
+  .dark {
+    --background: 276 30% 15%;
+    --foreground: 276 10% 90%;
+
+    --card: 276 30% 20%;
+    --card-foreground: 276 10% 90%;
+
+    --popover: 276 30% 20%;
+    --popover-foreground: 276 10% 90%;
+
+    --primary: 276 30% 65%;
+    --primary-foreground: 276 10% 98%;
+
+    --secondary: 23 94% 67%;
+    --secondary-foreground: 23 94% 15%;
+
+    --muted: 276 15% 25%;
+    --muted-foreground: 276 10% 60%;
+
+    --accent: 200 60% 50%;
+    --accent-foreground: 200 10% 90%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 276 15% 30%;
+    --input: 276 15% 30%;
+    --ring: 276 30% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply font-sans antialiased bg-background text-foreground min-h-screen overflow-x-hidden;
+    font-family: 'Poppins', sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
+@layer components {
+  .story-card {
+    @apply relative rounded-3xl bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-md shadow-lg border border-white/20 overflow-hidden transition-all duration-300 ease-in-out;
+  }
+
+  .glass-card {
+    @apply bg-white/15 backdrop-blur-md border border-white/20 rounded-3xl shadow-md;
+  }
+
+  .gradient-bg {
+    @apply bg-gradient-to-br from-story-purple-900 via-story-purple-800 to-story-purple-900;
+  }
+
+  .story-btn {
+    @apply rounded-2xl px-8 py-4 text-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2;
+  }
+
+  .story-btn-primary {
+    @apply story-btn bg-gradient-to-r from-story-orange-400 to-story-orange-500 text-white shadow-md hover:shadow-xl hover:from-story-orange-500 hover:to-story-orange-600 focus:ring-2 focus:ring-story-orange-200 focus:ring-offset-2 font-semibold;
+  }
+
+  .story-btn-secondary {
+    @apply story-btn bg-white/15 backdrop-blur-md text-white border border-white/30 hover:bg-white/25 hover:shadow-md hover:border-white/40;
+  }
+
+  /* Narrar con Voz & Volver al Inicio buttons */
+  .nav-button {
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all duration-300;
+    @apply bg-white/15 backdrop-blur-lg border border-white/20;
+    @apply hover:bg-white/25 hover:shadow-lg hover:border-white/30 hover:scale-105;
+    @apply active:scale-95 text-white font-medium;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  }
+  
+  .nav-button svg {
+    @apply transition-transform duration-300;
+  }
+  
+  .nav-button:hover svg {
+    @apply transform scale-110;
+  }
+
+  .story-input {
+    @apply w-full rounded-xl border border-white/20 bg-white/15 backdrop-blur-md px-4 py-3 text-black placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-story-orange-400/70 shadow-md;
+  }
+
+  /* Override for white background Select components */
+  .bg-white .SelectTrigger,
+  .bg-white .SelectContent,
+  .bg-white .SelectItem,
+  .SelectContent,
+  .story-input.bg-white {
+    @apply text-black font-medium;
+  }
+
+  /* Fix for SelectContent items */
+  .SelectItem {
+    @apply text-black;
+  }
+
+  /* Updated input styles for white backgrounds */
+  input.bg-white, 
+  select.bg-white, 
+  textarea.bg-white,
+  .bg-white input,
+  .bg-white select,
+  .bg-white textarea,
+  [data-theme="light"] input,
+  [data-theme="light"] select,
+  [data-theme="light"] textarea,
+  .SelectTrigger[style*="background: white"],
+  .SelectContent,
+  div[style*="background-color: white"] input,
+  div[style*="background-color: white"] select,
+  div[style*="background-color: white"] textarea,
+  div[style*="background: white"] input,
+  div[style*="background: white"] select,
+  div[style*="background: white"] textarea,
+  input[style*="background: white"],
+  select[style*="background: white"],
+  textarea[style*="background: white"] {
+    @apply text-black placeholder:text-gray-500;
+  }
+
+  .story-label {
+    @apply block text-base font-medium text-white mb-2;
+  }
+
+  .story-choice-card {
+    @apply relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-3 p-4 shadow-md hover:shadow-lg;
+  }
+
+  .story-page-container {
+    @apply min-h-screen w-full flex flex-col items-center justify-center p-6 relative overflow-hidden animate-fade-in;
+  }
+  
+  .page-transition-enter {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .page-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 500ms, transform 500ms;
+  }
+  
+  .page-transition-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .page-transition-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 500ms, transform 500ms;
+  }
+
+  .audio-player-controls {
+    @apply flex items-center justify-center gap-6 mt-6;
+  }
+
+  .audio-player-btn {
+    @apply w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:bg-white/20 active:bg-white/30 text-white;
+  }
+
+  .audio-player-progress {
+    @apply w-full h-2 bg-white/20 rounded-full overflow-hidden mt-4;
+  }
+  
+  .audio-player-progress-bar {
+    @apply h-full bg-story-orange-400;
+  }
+  
+  /* Custom animation for spinner */
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/* Print styles */
+@media print {
+  .gradient-bg {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .bg-white\/20, .bg-white\/15, .bg-white\/10 {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .text-white {
+    color: black !important;
+  }
+  
+  button, .story-btn {
+    display: none !important;
+  }
+}
+
+/* Fix high contrast */
+.text-white {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.story-choice-card:hover {
+  box-shadow: 0 0 0 2px rgba(244, 162, 97, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.voice-settings {
+  @apply mt-4;
+}
+
+.voice-settings select {
+  @apply bg-white/20 text-white rounded-lg px-4 py-2 backdrop-blur-md outline-none focus:ring-2 focus:ring-purple-300;
+}
+
+.voice-settings input[type="range"] {
+  @apply w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer;
+}
+
+.voice-settings input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 rounded-full bg-story-orange-400 cursor-pointer;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

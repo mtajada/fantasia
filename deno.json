@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "imports": {
+    "npm:@google/generative-ai": "https://esm.sh/@google/generative-ai",
+    "npm:uuid@9.0.0": "https://esm.sh/uuid@9.0.0",
+    "@/": "./src/"
+  }
+}
