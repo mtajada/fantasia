@@ -14,7 +14,7 @@ export type ProfileSettings = {
 
   // Campos de Límites/Créditos (ajusta tipos según nullability en tu DB)
   voice_credits?: number | null;
-  monthly_stories_created?: number | null;
+  monthly_stories_generated?: number | null;
   monthly_voice_generations_used?: number | null;
 };
 

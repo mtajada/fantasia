@@ -82,7 +82,7 @@ export const getUserProfile = async (userId: string): Promise<{ success: boolean
                 plan_id: data.plan_id,
                 current_period_end: data.current_period_end,
                 voice_credits: data.voice_credits,
-                monthly_stories_created: data.monthly_stories_created,
+                monthly_stories_generated: data.monthly_stories_generated,
                 monthly_voice_generations_used: data.monthly_voice_generations_used,
             };
             return { success: true, profile: profile };
