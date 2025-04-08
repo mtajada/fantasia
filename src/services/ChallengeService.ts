@@ -6,7 +6,7 @@ import {
   Story,
 } from "../types";
 import { v4 as uuidv4 } from "uuid";
-import { supabase } from "./supabase";
+import { supabase } from "../supabaseClient";
 
 // Helper function to generate UUID
 const generateId = () => uuidv4();

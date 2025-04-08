@@ -1,12 +1,12 @@
 import { Story, StoryChapter } from "../types";
-import { supabase } from "./supabase";
+import { supabase } from "../supabaseClient";
 
 export class StoryContinuationService {
   /**
    * Translate story duration from English to Spanish
    */
   private static translateDuration(duration: string): string {
-    switch(duration) {
+    switch (duration) {
       case 'short': return 'corta';
       case 'medium': return 'media';
       case 'long': return 'larga';
@@ -19,7 +19,7 @@ export class StoryContinuationService {
    */
   private static createSystemPrompt(story: Story): string {
     const durationInSpanish = this.translateDuration(story.options.duration);
-    
+
     return `Eres un experto narrador de cuentos infantiles. Tu tarea es continuar una historia existente de manera coherente y creativa.
     
 Debes asegurarte de:
@@ -37,7 +37,7 @@ Debes asegurarte de:
   private static createFreeContinuationPrompt(story: Story, previousChapters: StoryChapter[]): string {
     const previousContent = previousChapters.map(chapter => chapter.content).join("\n\n");
     const durationInSpanish = this.translateDuration(story.options.duration);
-    
+
     return `Continúa la siguiente historia de forma natural y coherente:
 
 ===HISTORIA PREVIA===
@@ -52,7 +52,7 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
    */
   private static createGuidedOptionsPrompt(previousChapters: StoryChapter[]): string {
     const previousContent = previousChapters.map(chapter => chapter.content).join("\n\n");
-    
+
     return `A partir de la siguiente historia, genera TRES opciones cortas para continuar al estilo "Elige tu propia aventura":
 
 ===HISTORIA PREVIA===
@@ -85,7 +85,7 @@ IMPORTANTE: Tu respuesta debe ser un objeto JSON válido y nada más. No incluya
   private static createDirectedContinuationPrompt(story: Story, previousChapters: StoryChapter[], userDirection: string): string {
     const previousContent = previousChapters.map(chapter => chapter.content).join("\n\n");
     const durationInSpanish = this.translateDuration(story.options.duration);
-    
+
     return `Continúa la siguiente historia siguiendo las indicaciones proporcionadas por el usuario:
 
 ===HISTORIA PREVIA===
@@ -105,7 +105,7 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
   private static createSpecificOptionPrompt(story: Story, previousChapters: StoryChapter[], optionIndex: number): string {
     const previousContent = previousChapters.map(chapter => chapter.content).join("\n\n");
     const durationInSpanish = this.translateDuration(story.options.duration);
-    
+
     return `Continúa la siguiente historia siguiendo la opción ${optionIndex + 1}:
 
 ===HISTORIA PREVIA===
@@ -122,7 +122,7 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
     try {
       console.log('StoryContinuationService: Iniciando generación de opciones de continuación...');
       console.log('Enviando solicitud a la Edge Function story-continuation (generateOptions)...');
-      
+
       const { data, error } = await supabase.functions.invoke('story-continuation', {
         body: {
           action: 'generateOptions',
@@ -130,16 +130,16 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
           chapters
         }
       });
-      
+
       if (error) {
         console.error('Error en Edge Function story-continuation:', error);
         throw error;
       }
-      
+
       if (!data || !data.options) {
         throw new Error('La respuesta de story-continuation no contiene opciones');
       }
-      
+
       return data;
     } catch (error) {
       console.error('Error al generar opciones de continuación:', error);
@@ -160,7 +160,7 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
   public static async generateFreeContinuation(story: Story, chapters: StoryChapter[]): Promise<string> {
     try {
       console.log('Enviando solicitud a la Edge Function story-continuation (freeContinuation)...');
-      
+
       const { data, error } = await supabase.functions.invoke('story-continuation', {
         body: {
           action: 'freeContinuation',
@@ -168,16 +168,16 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
           chapters
         }
       });
-      
+
       if (error) {
         console.error('Error en Edge Function story-continuation:', error);
         throw error;
       }
-      
+
       if (!data || !data.content) {
         throw new Error('La respuesta de story-continuation no contiene contenido');
       }
-      
+
       return data.content;
     } catch (error) {
       console.error('Error generating free continuation:', error);
@@ -191,7 +191,7 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
   public static async generateOptionContinuation(story: Story, chapters: StoryChapter[], optionIndex: number): Promise<string> {
     try {
       console.log('Enviando solicitud a la Edge Function story-continuation (optionContinuation)...');
-      
+
       const { data, error } = await supabase.functions.invoke('story-continuation', {
         body: {
           action: 'optionContinuation',
@@ -200,16 +200,16 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
           optionIndex
         }
       });
-      
+
       if (error) {
         console.error('Error en Edge Function story-continuation:', error);
         throw error;
       }
-      
+
       if (!data || !data.content) {
         throw new Error('La respuesta de story-continuation no contiene contenido');
       }
-      
+
       return data.content;
     } catch (error) {
       console.error('Error generating option continuation:', error);
@@ -223,7 +223,7 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
   public static async generateDirectedContinuation(story: Story, chapters: StoryChapter[], userDirection: string): Promise<string> {
     try {
       console.log('Enviando solicitud a la Edge Function story-continuation (directedContinuation)...');
-      
+
       const { data, error } = await supabase.functions.invoke('story-continuation', {
         body: {
           action: 'directedContinuation',
@@ -232,16 +232,16 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
           userDirection
         }
       });
-      
+
       if (error) {
         console.error('Error en Edge Function story-continuation:', error);
         throw error;
       }
-      
+
       if (!data || !data.content) {
         throw new Error('La respuesta de story-continuation no contiene contenido');
       }
-      
+
       return data.content;
     } catch (error) {
       console.error('Error generating directed continuation:', error);
@@ -255,23 +255,23 @@ La continuación debe tener una extensión comparable a la del capítulo anterio
   public static async generateChapterTitle(content: string): Promise<string> {
     try {
       console.log('Enviando solicitud a la Edge Function story-continuation (generateTitle)...');
-      
+
       const { data, error } = await supabase.functions.invoke('story-continuation', {
         body: {
           action: 'generateTitle',
           content
         }
       });
-      
+
       if (error) {
         console.error('Error en Edge Function story-continuation:', error);
         throw error;
       }
-      
+
       if (!data || !data.title) {
         throw new Error('La respuesta de story-continuation no contiene título');
       }
-      
+
       return data.title;
     } catch (error) {
       console.error('Error generating chapter title:', error);

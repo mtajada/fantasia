@@ -6,10 +6,8 @@ import {
   getUserProfile,
   syncQueue,
   syncUserProfile,
-  getUserStories,
-  getUserCharacters,
 } from "../../services/supabase";
-import { supabase } from "../../services/supabase";
+import { supabase } from "../../supabaseClient";
 
 // Estado inicial
 const initialState: Pick<UserState, "user" | "profileSettings"> = {
@@ -24,7 +22,7 @@ export const useUserStore = createPersistentStore<UserState>(
     loginUser: async (user: User) => {
       // Actualizar usuario en el store global
       setCurrentAuthUser(user.id);
-      
+
       // Establecer el usuario en el store
       set({ user });
 
@@ -39,7 +37,7 @@ export const useUserStore = createPersistentStore<UserState>(
         } else {
           console.log("No se encontró perfil para el usuario");
         }
-        
+
         // 2. Iniciar sincronización de otros datos
         syncAllUserData(user.id);
       } catch (error) {
@@ -50,18 +48,18 @@ export const useUserStore = createPersistentStore<UserState>(
     logoutUser: async () => {
       // Guardar una referencia al usuario actual antes de cerrar sesión
       const currentUser = get().user;
-      
+
       // Intentar sincronizar datos pendientes antes de cerrar sesión
       if (currentUser) {
         await syncQueue.processQueue();
       }
-      
+
       // Cerrar sesión en Supabase
       await logout();
-      
+
       // Limpiar el estado del store
       set({ user: null, profileSettings: null });
-      
+
       // Actualizar usuario en el store global (ningún usuario autenticado)
       setCurrentAuthUser(null);
     },
@@ -80,7 +78,6 @@ export const useUserStore = createPersistentStore<UserState>(
               id: user.id,
               language: settings.language,
               child_age: settings.childAge,
-              age_range: settings.ageRange,
               special_need: settings.specialNeed,
             });
           }
@@ -91,7 +88,6 @@ export const useUserStore = createPersistentStore<UserState>(
             id: user.id,
             language: settings.language,
             child_age: settings.childAge,
-            age_range: settings.ageRange,
             special_need: settings.specialNeed,
           });
         }
@@ -104,21 +100,21 @@ export const useUserStore = createPersistentStore<UserState>(
       try {
         // Forzar una actualización del cliente Supabase para evitar problemas con tokens antiguos
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         // Obtener el usuario actual con las credenciales actualizadas
         const { user, error } = await getCurrentUser();
-        
+
         if (user && !error) {
           // Actualizar el usuario en el store
           set({ user });
-          
+
           // Actualizar usuario en el store global
           setCurrentAuthUser(user.id);
-          
+
           // Si hay una sesión activa, cargar datos desde Supabase
           if (session) {
             console.log(`Sesión activa para usuario ${user.id}, cargando datos desde Supabase`);
-            
+
             try {
               // 1. Cargar perfil
               const { success, profile } = await getUserProfile(user.id);
@@ -128,7 +124,7 @@ export const useUserStore = createPersistentStore<UserState>(
               } else {
                 console.log("No se encontró perfil para el usuario:", user.id);
               }
-              
+
               // 2. Iniciar sincronización de otros datos
               syncAllUserData(user.id);
             } catch (profileError) {
@@ -158,16 +154,16 @@ export const useUserStore = createPersistentStore<UserState>(
 // Función para sincronizar todos los datos del usuario desde Supabase
 async function syncAllUserData(userId: string) {
   console.log(`Iniciando carga completa para usuario: ${userId}`);
-  
+
   // 1. Limpiar todos los datos locales primero
   const otherStores = [
-    {store: (await import('../stories/storiesStore')).useStoriesStore, method: 'loadStoriesFromSupabase'},
-    {store: (await import('../character/characterStore')).useCharacterStore, method: 'loadCharactersFromSupabase'},
+    { store: (await import('../stories/storiesStore')).useStoriesStore, method: 'loadStoriesFromSupabase' },
+    { store: (await import('../character/characterStore')).useCharacterStore, method: 'loadCharactersFromSupabase' },
     // Agrega otros stores aquí
   ];
-  
+
   // 2. Cargar secuencialmente
-  for (const {store, method} of otherStores) {
+  for (const { store, method } of otherStores) {
     try {
       console.log(`Cargando datos con método: ${method}`);
       await store.getState()[method](userId);
@@ -175,6 +171,7 @@ async function syncAllUserData(userId: string) {
       console.error(`Error cargando datos con ${method}:`, error);
     }
   }
-  
+
   console.log("Sincronización completa");
 }
+//NOTA MIGUEL. Si queremos llamar menos a la base de datos, a lo mejor podríamos cargar las historias y los personajes solo cuando pulsen "mis historias" o "mis personajes". No siempre. 
