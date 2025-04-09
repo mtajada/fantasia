@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { supabase } from '../supabaseClient';
 
 // Definir un tipo para las voces de OpenAI
@@ -27,17 +26,6 @@ export const OPENAI_VOICES = [
   { id: 'ash' as const, name: 'Ash', description: 'Ash (Juvenil)' },
   { id: 'ballad' as const, name: 'Ballad', description: 'Ballad (Emocional)' }
 ];
-
-// API Key para OpenAI (aplicación cliente)
-// Puedes reemplazar esto con tu propia API Key si es necesario 
-// TODO: Asegúrate de que este valor no se exponga en control de versiones!
-export const MANUAL_API_KEY = ""; // Por favor, añádela aquí si tienes problemas con las variables de entorno
-
-// Intentar obtener la API key de diferentes maneras
-const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || MANUAL_API_KEY;
-
-console.log('⚙️ Configuración de la API de OpenAI:');
-console.log('API Key encontrada:', API_KEY ? 'Sí' : 'No');
 
 // Función para obtener las voces disponibles
 export const getAvailableVoices = async () => {
