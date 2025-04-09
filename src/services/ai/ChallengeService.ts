@@ -4,11 +4,13 @@ import {
   ChallengeQuestion,
   ProfileSettings,
   Story,
-} from "../types";
+} from "../../types";
 
-import { supabase } from "../supabaseClient";
+import { supabase } from "../../supabaseClient";
 
-
+/**
+ * Servicio para interactuar con la Edge Function challenge
+ */
 export class ChallengeService {
   /**
    * Generates a challenge question based on the story

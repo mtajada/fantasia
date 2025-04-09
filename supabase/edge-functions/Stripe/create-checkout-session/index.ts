@@ -3,7 +3,7 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8'; // Usa una versión reciente
 import Stripe from 'https://esm.sh/stripe@14.13.0?target=deno'; // Usa una versión reciente compatible con Deno
-import { corsHeaders } from '../_shared/cors.ts'; // Importa las cabeceras CORS compartidas
+import { corsHeaders } from '../../_shared/cors.ts'; // Importa las cabeceras CORS compartidas
 
 console.log(`Function create-checkout-session initializing...`);
 

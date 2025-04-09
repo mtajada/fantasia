@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from 'npm:@google/generative-ai';
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
 // Configuración de la API de Gemini
 const API_KEY = Deno.env.get('GEMINI_API_KEY') || '';

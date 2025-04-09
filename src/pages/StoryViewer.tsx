@@ -14,7 +14,7 @@ import LanguageSelector from "../components/LanguageSelector";
 import ChallengeQuestion from "../components/ChallengeQuestion";
 import { toast } from "sonner";
 import { ChallengeCategory, ChallengeQuestion as ChallengeQuestionType, StoryChapter } from "../types";
-import { ChallengeService } from "../services/ChallengeService";
+import { ChallengeService } from "../services/ai/ChallengeService";
 
 export default function StoryViewer() {
   const { storyId } = useParams<{ storyId: string }>();

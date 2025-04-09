@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
-import { ChallengeService } from '../services/ChallengeService';
+import { ChallengeService } from '../services/ai/ChallengeService';
 
 interface LanguageSelectorProps {
   currentLanguage: string;
@@ -16,8 +16,17 @@ export default function LanguageSelector({
   onContinue,
   onBack
 }: LanguageSelectorProps) {
-  const languages = ChallengeService.getAvailableLanguages(currentLanguage);
+  const [languages, setLanguages] = useState<Array<{ code: string; name: string }>>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchLanguages() {
+      const availableLanguages = await ChallengeService.getAvailableLanguages(currentLanguage);
+      setLanguages(availableLanguages);
+    }
+    
+    fetchLanguages();
+  }, [currentLanguage]);
 
   const handleLanguageSelect = (languageCode: string) => {
     setSelectedLanguage(languageCode);

@@ -4,8 +4,8 @@ import { useStoriesStore } from "./storiesStore";
 import { useUserStore } from "../user/userStore";
 import { useCharacterStore } from "../character/characterStore";
 import { generateId } from "../core/utils";
-import { GenerateStoryService } from "../../services/GenerateStoryService";
-import { StoryContinuationService } from "../../services/StoryContinuationService";
+import { GenerateStoryService } from "../../services/ai/GenerateStoryService";
+import { StoryContinuationService } from "../../services/ai/StoryContinuationService";
 
 /**
  * Genera una historia completa a partir de las opciones proporcionadas

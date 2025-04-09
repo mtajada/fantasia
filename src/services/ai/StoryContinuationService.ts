@@ -1,5 +1,5 @@
-import { Story, StoryChapter } from "../types";
-import { supabase } from "../supabaseClient";
+import { Story, StoryChapter } from "../../types";
+import { supabase } from "../../supabaseClient";
 
 export class StoryContinuationService {
   /**

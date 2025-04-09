@@ -1,5 +1,5 @@
-import { StoryOptions } from "../types";
-import { supabase } from "../supabaseClient";
+import { StoryOptions } from "../../types";
+import { supabase } from "../../supabaseClient";
 
 interface GenerateStoryParams {
   options: Partial<StoryOptions>;

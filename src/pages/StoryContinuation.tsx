@@ -11,7 +11,7 @@ import StoryContinuationOptions from "../components/StoryContinuationOptions";
 import StoryContinuationCustomInput from "../components/StoryContinuationCustomInput";
 import { toast } from "sonner";
 import { StoryChapter as StoryChapterType } from "../types";
-import { StoryContinuationService } from "../services/StoryContinuationService";
+import { StoryContinuationService } from "../services/ai/StoryContinuationService";
 
 export default function StoryContinuation() {
   const { storyId } = useParams<{ storyId: string }>();
