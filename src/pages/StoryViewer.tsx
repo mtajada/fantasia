@@ -242,41 +242,47 @@ export default function StoryViewer() {
               </div>
 
               {/* Botones de Acción Principales */}
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <button
-                  onClick={handleShowChallenge}
-                  className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium text-black transition-all shadow-lg ${isLoadingQuestion ? 'bg-gray-300 cursor-not-allowed' : 'bg-story-orange-400 hover:bg-story-orange-300'}`}
-                  disabled={isLoadingQuestion}
-                >
-                  <Award size={24} className="mr-2" />
-                  {isLoadingQuestion ? "Generando..." : "Acepta el Reto"}
-                </button>
+              <div className="flex flex-col items-center space-y-5">
+                {/* Primera fila: Acepta el Reto y Continuar Historia */}
+                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                  <button
+                    onClick={handleShowChallenge}
+                    className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium text-black transition-all shadow-lg ${isLoadingQuestion ? 'bg-gray-300 cursor-not-allowed' : 'bg-story-orange-400 hover:bg-story-orange-300'}`}
+                    disabled={isLoadingQuestion}
+                  >
+                    <Award size={24} className="mr-2" />
+                    {isLoadingQuestion ? "Generando..." : "Acepta el Reto"}
+                  </button>
 
-                <button
-                  onClick={goToContinuationPage}
-                  disabled={!isAllowedToContinue}
-                  className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium transition-all shadow-lg ${isAllowedToContinue ? 'bg-purple-500 hover:bg-purple-400 text-white' : 'bg-gray-300 cursor-not-allowed text-gray-600'}`}
-                  title={!isAllowedToContinue ? "Límite de continuación gratuita alcanzado" : "Continuar la historia"}
-                >
-                  <BookOpen size={24} className="mr-2" />
-                  Continuar Historia
-                </button>
-
+                  <button
+                    onClick={goToContinuationPage}
+                    disabled={!isAllowedToContinue}
+                    className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium transition-all shadow-lg ${isAllowedToContinue ? 'bg-purple-500 hover:bg-purple-400 text-white' : 'bg-gray-300 cursor-not-allowed text-gray-600'}`}
+                    title={!isAllowedToContinue ? "Límite de continuación gratuita alcanzado" : "Continuar la historia"}
+                  >
+                    <BookOpen size={24} className="mr-2" />
+                    Continuar Historia
+                  </button>
+                </div>
+                
+                {/* Segunda fila: Narrar */}
                 <button
                   onClick={toggleAudioPlayer}
                   disabled={!isAllowedToGenerateVoice}
-                  className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium transition-all shadow-lg ${isAllowedToGenerateVoice ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-gray-300 cursor-not-allowed text-gray-600'}`}
+                  className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium transition-all shadow-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-gray-300 cursor-not-allowed text-gray-600'}`}
                   title={!isAllowedToGenerateVoice ? "Límite de voz o créditos agotados" : "Escuchar narración"}
                 >
                   <Volume2 size={24} className="mr-2" />
                   Narrar
                   {!isAllowedToGenerateVoice && <AlertCircle className="ml-1 h-4 w-4" />}
                 </button>
-              </div>
-              {/* Botón volver al inicio (opcional) */}
-              <div className="text-center mt-4">
-                <button onClick={() => navigate("/home")} className="text-white/60 hover:text-white text-sm inline-flex items-center gap-1">
-                  <Home size={16} /> Volver al Inicio
+                
+                {/* Tercera fila: Volver al Inicio */}
+                <button 
+                  onClick={() => navigate("/home")} 
+                  className="flex items-center justify-center px-6 py-3 rounded-lg font-medium bg-white/20 hover:bg-white/30 text-white transition-all shadow-md w-full sm:w-48"
+                >
+                  <Home size={20} className="mr-2" /> Volver al Inicio
                 </button>
               </div>
             </motion.div>
