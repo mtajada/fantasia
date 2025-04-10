@@ -8,6 +8,7 @@ import {
   syncUserProfile,
 } from "../../services/supabase";
 import { supabase } from "../../supabaseClient";
+import { useChaptersStore } from '../stories/chapters/chaptersStore';
 
 // Estado inicial
 const initialState: Pick<UserState, "user" | "profileSettings"> = {
@@ -71,7 +72,14 @@ export const useUserStore = createPersistentStore<UserState>(
       const user = get().user;
       if (user) {
         try {
-          const { success } = await syncUserProfile(user.id, settings);
+          // Solo enviar los campos editables por el usuario
+          const userEditableSettings = {
+            language: settings.language,
+            childAge: settings.childAge,
+            specialNeed: settings.specialNeed,
+          };
+          
+          const { success } = await syncUserProfile(user.id, userEditableSettings as ProfileSettings);
           if (!success) {
             // Si falla, agregarlo a la cola de sincronización
             syncQueue.addToQueue("profiles", "update", {
@@ -95,6 +103,51 @@ export const useUserStore = createPersistentStore<UserState>(
     },
 
     hasCompletedProfile: () => get().profileSettings !== null,
+
+    // --- Selectores Actualizados/Nuevos ---
+    isPremium: () => {
+      const status = get().profileSettings?.subscription_status;
+      return status === 'active' || status === 'trialing';
+    },
+
+    getRemainingMonthlyStories: () => {
+      const settings = get().profileSettings;
+      // Si es premium, devuelve infinito (o un número grande), si no, calcula el restante de 10.
+      if (get().isPremium() || !settings) return Infinity;
+      return Math.max(0, 10 - (settings.monthly_stories_generated || 0));
+    },
+
+    canCreateStory: () => {
+      return get().getRemainingMonthlyStories() > 0;
+    },
+
+    getRemainingMonthlyVoiceGenerations: () => {
+      const settings = get().profileSettings;
+      // Solo aplica a premium, devuelve 0 si no lo es.
+      if (!get().isPremium() || !settings) return 0;
+      // Asumiendo 20 generaciones gratis al mes
+      return Math.max(0, 20 - (settings.monthly_voice_generations_used || 0));
+    },
+
+    getAvailableVoiceCredits: () => {
+      return get().profileSettings?.voice_credits || 0;
+    },
+
+    canGenerateVoice: () => {
+      const remainingMonthly = get().getRemainingMonthlyVoiceGenerations();
+      const availableCredits = get().getAvailableVoiceCredits();
+      // Importante: Solo puede generar voz si es premium
+      return get().isPremium() && (remainingMonthly > 0 || availableCredits > 0);
+    },
+
+    canContinueStory: (storyId: string) => {
+      if (get().isPremium()) return true; // Premium puede continuar ilimitadamente
+
+      // Gratuito: obtener capítulos y contar
+      const chapters = useChaptersStore.getState().getChaptersByStoryId(storyId);
+      // Permite si hay menos de 2 capítulos (Cap 1 inicial + 1 continuación)
+      return chapters.length < 2;
+    },
 
     checkAuth: async () => {
       try {
@@ -174,4 +227,4 @@ async function syncAllUserData(userId: string) {
 
   console.log("Sincronización completa");
 }
-//NOTA MIGUEL. Si queremos llamar menos a la base de datos, a lo mejor podríamos cargar las historias y los personajes solo cuando pulsen "mis historias" o "mis personajes". No siempre. 
+//NOTA MIGUEL. Si queremos llamar menos a la base de datos, a lo mejor podríamos cargar las historias y los personajes solo cuando pulsen "mis historias" o "mis personajes". No siempre.

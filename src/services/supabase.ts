@@ -246,7 +246,6 @@ export const syncStory = async (userId: string, story: Story): Promise<{ success
             title: story.title,
             content: story.content,
             audio_url: story.audioUrl,
-            image_url: story.imageUrl,
             moral: story.options.moral,
             genre: story.options.genre,
             duration: story.options.duration,
@@ -282,12 +281,13 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
 
         const stories: Story[] = data ? data.map((story) => {
             const characterData = story.characters;
+            console.log(`[getUserStories_DEBUG] DB raw title for story ${story.id}: "${story.title}"`); // <-- ADD THIS
+
             return {
                 id: story.id,
-                title: story.title,
+                title: story.title || "Historia sin título",
                 content: story.content,
                 audioUrl: story.audio_url,
-                imageUrl: story.image_url,
                 options: {
                     moral: story.moral,
                     genre: story.genre,

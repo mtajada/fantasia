@@ -20,6 +20,15 @@ export interface UserState {
   setProfileSettings: (settings: ProfileSettings) => void;
   hasCompletedProfile: () => boolean;
   checkAuth: () => Promise<boolean>;
+  
+  // Nuevos selectores para suscripción y límites
+  isPremium: () => boolean;
+  getRemainingMonthlyStories: () => number;
+  canCreateStory: () => boolean;
+  getRemainingMonthlyVoiceGenerations: () => number;
+  getAvailableVoiceCredits: () => number;
+  canGenerateVoice: () => boolean;
+  canContinueStory: (storyId: string) => boolean;
 }
 
 export interface CharacterState {

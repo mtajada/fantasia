@@ -8,6 +8,7 @@ interface StoryContinuationOptionsProps {
   onSelectFree: () => void;
   onSelectCustom: () => void;
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
 export default function StoryContinuationOptions({
@@ -15,7 +16,8 @@ export default function StoryContinuationOptions({
   onSelectOption,
   onSelectFree,
   onSelectCustom,
-  isLoading = false
+  isLoading = false,
+  disabled = false
 }: StoryContinuationOptionsProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<{ summary: string }[]>([]);

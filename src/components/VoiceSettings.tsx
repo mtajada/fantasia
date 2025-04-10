@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Volume2, ChevronDown } from 'lucide-react';
+import { Volume2, ChevronDown, AlertCircle } from 'lucide-react';
 import { getAvailableVoices } from '../services/ai/ttsService';
+import { useUserStore } from '../store/user/userStore';
 
 interface Voice {
   id: string;
@@ -19,6 +20,14 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<Voice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Obtener selectores del userStore
+  const { 
+    isPremium, 
+    canGenerateVoice, 
+    getRemainingMonthlyVoiceGenerations, 
+    getAvailableVoiceCredits 
+  } = useUserStore();
 
   // Cargar las voces disponibles
   useEffect(() => {
@@ -57,6 +66,11 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
     setIsOpen(!isOpen);
   };
 
+  // Obtener información de límites
+  const remainingMonthly = getRemainingMonthlyVoiceGenerations();
+  const availableCredits = getAvailableVoiceCredits();
+  const canGenerate = canGenerateVoice();
+
   return (
     <div className={`voice-settings ${className}`}>
       <div className="text-center mb-2 text-white/90 text-sm font-medium">
@@ -93,6 +107,38 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
           </div>
         )}
       </div>
+      
+      {/* Información de límites de generación de voz */}
+      {isPremium() ? (
+        <div className="text-center text-sm text-white/80">
+          {canGenerate ? (
+            <div className="flex flex-col gap-1">
+              <div className="font-medium text-green-300">
+                {remainingMonthly > 0 ? (
+                  <span>Te quedan {remainingMonthly} generaciones gratuitas</span>
+                ) : (
+                  <span>Has usado todas tus generaciones mensuales</span>
+                )}
+              </div>
+              {availableCredits > 0 && (
+                <div className="text-purple-300">
+                  Tienes {availableCredits} créditos adicionales
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-amber-300">
+              <AlertCircle size={16} />
+              <span>Necesitas comprar más créditos para generar audio</span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-center text-sm text-amber-300 flex items-center justify-center gap-2">
+          <AlertCircle size={16} />
+          <span>Necesitas una suscripción premium para narrar historias</span>
+        </div>
+      )}
     </div>
   );
 }

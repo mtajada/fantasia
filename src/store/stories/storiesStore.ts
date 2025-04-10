@@ -1,5 +1,4 @@
 import { StoriesState } from "../types/storeTypes";
-import { Story } from "../../types";
 import { createPersistentStore } from "../core/createStore";
 import { getUserStories, syncQueue, syncStory } from "../../services/supabase";
 import { useUserStore } from "../user/userStore";
@@ -42,7 +41,6 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
               title: story.title,
               content: story.content,
               audio_url: story.audioUrl,
-              image_url: story.imageUrl,
               moral: story.options.moral,
               genre: story.options.genre,
               duration: story.options.duration,
@@ -62,15 +60,15 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
     loadStoriesFromSupabase: async (userId?: string) => {
       const user = useUserStore.getState().user;
       if (!user) return;
-      
+
       try {
         console.log(`Cargando historias para usuario ${user.id}`);
-        
+
         // IMPORTANTE: Limpiar antes de cargar
         set({ generatedStories: [] });
-        
+
         const { success, stories } = await getUserStories(user.id);
-        
+
         if (success && stories) {
           console.log(`Cargadas ${stories.length} historias de Supabase`);
           set({ generatedStories: stories });

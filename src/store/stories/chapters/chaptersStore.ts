@@ -1,5 +1,5 @@
 import { ChaptersState } from "../../types/storeTypes";
-import { StoryChapter, StoryWithChapters } from "../../../types";
+import { StoryWithChapters } from "../../../types";
 import { createPersistentStore } from "../../core/createStore";
 import { useStoriesStore } from "../storiesStore";
 import {
@@ -53,7 +53,6 @@ export const useChaptersStore = createPersistentStore<ChaptersState>(
             options: story.options,
             createdAt: story.createdAt,
             audioUrl: story.audioUrl,
-            imageUrl: story.imageUrl,
             chapters: [chapter],
           };
 
@@ -133,7 +132,6 @@ export const useChaptersStore = createPersistentStore<ChaptersState>(
                 options: story.options,
                 createdAt: story.createdAt,
                 audioUrl: story.audioUrl,
-                imageUrl: story.imageUrl,
                 chapters,
               };
 

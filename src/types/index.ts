@@ -2,19 +2,22 @@ export type ProfileSettings = {
   // Campos existentes
   language: string;
   childAge: number;
-  specialNeed?: string | null; // Hacer nullable explícitamente si puede ser NULL en DB
+  specialNeed?: string | null;
 
-  // --- Añadir los campos faltantes ---
-  // Campos de Stripe (ajusta tipos según nullability en tu DB)
+  // --- Campos de Stripe ---
   stripe_customer_id?: string | null;
-  subscription_status?: string | null; // e.g., 'free', 'active', 'past_due', 'canceled', etc.
+  subscription_status?: string | null;
   subscription_id?: string | null;
-  plan_id?: string | null; // ID del precio/plan de Stripe
-  current_period_end?: string | null; // Fecha ISO almacenada como TIMESTAMPTZ
+  plan_id?: string | null;
+  current_period_end?: string | null;
 
-  // Campos de Límites/Créditos (ajusta tipos según nullability en tu DB)
+  // --- Campos de Límites/Créditos ---
   voice_credits?: number | null;
   monthly_stories_generated?: number | null;
+  last_story_reset_date?: string | null;
+  period_start_date?: string | null;
+  
+  // --- Columna Nueva ---
   monthly_voice_generations_used?: number | null;
 };
 
@@ -52,7 +55,6 @@ export type Story = {
   title: string;
   content: string;
   audioUrl?: string;
-  imageUrl?: string;
   options: StoryOptions;
   createdAt: string;
 }
@@ -101,7 +103,6 @@ export type StoryWithChapters = {
   title: string;
   content: string;
   audioUrl?: string;
-  imageUrl?: string;
   options: StoryOptions;
   createdAt: string;
   chapters: StoryChapter[];

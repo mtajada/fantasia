@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Settings, BookMarked, LogOut, User } from "lucide-react";
+import { BookOpen, Settings, BookMarked, LogOut, User, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../store/user/userStore";
 import { useStoriesStore } from "../store/stories/storiesStore";
@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { hasCompletedProfile, profileSettings, user, logoutUser } = useUserStore();
+  const { hasCompletedProfile, profileSettings, user, logoutUser, canCreateStory, isPremium, getRemainingMonthlyStories } = useUserStore();
   const { generatedStories } = useStoriesStore();
   const { toast } = useToast();
   
@@ -26,6 +26,20 @@ export default function Home() {
       description: "Has cerrado sesión exitosamente",
     });
     navigate("/profile");
+  };
+
+  const handleNewStory = () => {
+    if (canCreateStory()) {
+      navigate("/duration");
+    } else {
+      toast({
+        title: "Límite de historias alcanzado",
+        description: isPremium() 
+          ? "Has alcanzado el límite de historias para tu plan premium. Contacta con soporte para más información."
+          : `Has alcanzado el límite mensual de historias gratuitas. Actualiza a premium para crear más historias.`,
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -82,10 +96,13 @@ export default function Home() {
             className="w-full space-y-4"
           >
             <StoryButton 
-              onClick={() => navigate("/duration")}
+              onClick={handleNewStory}
               isFullWidth
+              disabled={!canCreateStory()}
+              title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}
             >
               Generar una Nueva Historia
+              {!canCreateStory() && <AlertCircle className="ml-2 h-4 w-4" />}
             </StoryButton>
             
             <StoryButton 
