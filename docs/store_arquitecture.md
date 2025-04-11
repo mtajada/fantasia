@@ -104,6 +104,7 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `isGeneratingStory: boolean`: Flag for UI loading state during story generation.
 *   **Key Actions:**
     *   `addGeneratedStory(story)`: Adds a new story locally, calls `@services/supabase.syncStory`, uses `syncQueue` on failure.
+        *   **Note:** After this action is successfully called by `@store/stories/storyGenerator.ts`, the generator proceeds to create and save the initial chapter (Chapter 1) using `chaptersStore.addChapter`.
     *   `getStoryById(id)`: Retrieves a specific story from the local state.
     *   `loadStoriesFromSupabase(userId)`: Clears `generatedStories`, fetches via `@services/supabase.getUserStories`, updates state. Called by `syncAllUserData`.
 *   **Supabase Interaction:** Calls `syncStory`, `getUserStories`, `syncQueue`.
@@ -115,6 +116,7 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `storyChapters: StoryWithChapters[]`: An array where each element represents a story and contains an array of its `chapters`. (Note: This duplicates some story metadata; consider if just storing chapters grouped by `storyId` is sufficient).
 *   **Key Actions:**
     *   `addChapter(storyId, chapter)`: Adds a new chapter to the appropriate story in `storyChapters`, calls `@services/supabase.syncChapter`, uses `syncQueue` on failure.
+        *   **Note:** This action is called both by `@store/stories/storyGenerator.ts` (for the initial Chapter 1, using the story's title/content) and by `@pages/StoryContinuation.tsx` (for subsequent chapters). The logic for determining the correct `chapterNumber` (either `1` or based on `getChapterCountForStory`) resides in the calling code *before* this action is invoked.
     *   `getChaptersByStoryId(storyId)`: Retrieves chapters for a specific story.
     *   `loadChaptersFromSupabase(storyId)`: Fetches chapters for a *specific story* via `@services/supabase.getStoryChapters`. This is typically called on demand when viewing a story, *not* by `syncAllUserData` initially.
 *   **Supabase Interaction:** Calls `syncChapter`, `getStoryChapters`, `syncQueue`.

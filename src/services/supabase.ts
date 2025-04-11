@@ -314,6 +314,28 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
     }
 };
 
+/**
+ * Obtiene el número de capítulos existentes para una historia específica.
+ */
+export const getChapterCountForStory = async (storyId: string): Promise<{ count: number; error: Error | null }> => {
+    try {
+        const { count, error } = await supabase
+            .from('story_chapters')
+            .select('*', { count: 'exact', head: true }) // Solo necesitamos el conteo
+            .eq('story_id', storyId);
+
+        if (error) {
+            console.error('Error al contar capítulos:', error);
+            return { count: 0, error };
+        }
+
+        return { count: count ?? 0, error: null }; // Devuelve 0 si count es null
+
+    } catch (error: any) {
+        console.error('Error inesperado al contar capítulos:', error);
+        return { count: 0, error };
+    }
+};
 
 // --- Funciones para Capítulos ---
 

@@ -1,10 +1,10 @@
 // supabase/edge-functions/generate-story/index.ts
-// v3.2: Fix sintaxis (backticks escapados), pide JSON a la IA.
+// v3.3: Limpia ```json ... ``` antes de parsear, pide JSON a la IA.
 import { GoogleGenerativeAI } from 'npm:@google/generative-ai';
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
-// --- Configuración (sin cambios) ---
+// --- Configuración ---
 const API_KEY = Deno.env.get("GEMINI_API_KEY");
 if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -13,13 +13,13 @@ const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
 if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
 const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
 const modelName = "gemini-2.0-flash-thinking-exp-01-21";
-console.log(`generate-story v3.2: Using model: ${modelName}`);
+console.log(`generate-story v3.3: Using model: ${modelName}`);
 const model = genAI.getGenerativeModel({
   model: modelName
 });
-// --- Funciones Helper ---
+// --- Funciones Helper (createSystemPrompt, createUserPromptContent, cleanJsonValue: SIN CAMBIOS desde v3.2) ---
 function createSystemPrompt(language, childAge, specialNeed) {
-  console.log(`[Helper v3.2] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
+  console.log(`[Helper v3.3] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
   let base = `Eres un escritor experto de cuentos infantiles creativos y educativos. Escribe siempre en ${language}.`;
   base += ` El público objetivo son niños de ${childAge} años.`;
   if (specialNeed && specialNeed !== 'Ninguna') {
@@ -28,8 +28,8 @@ function createSystemPrompt(language, childAge, specialNeed) {
   base += ` Sé creativo, asegúrate de que la historia sea coherente y tenga una estructura narrativa clara (inicio, desarrollo, final).`;
   return base;
 }
-/** Pide JSON con title y content */ function createUserPromptContent({ options }) {
-  console.log(`[Helper v3.2] createUserPromptContent (JSON output): options=`, options);
+function createUserPromptContent({ options }) {
+  console.log(`[Helper v3.3] createUserPromptContent (JSON output): options=`, options);
   const char = options.character;
   const storyDuration = options.duration || 'medium';
   let request = `Crea un cuento infantil ${storyDuration}. Género: ${options.genre}. Moraleja o tema principal: ${options.moral}.`;
@@ -38,26 +38,23 @@ function createSystemPrompt(language, childAge, specialNeed) {
   if (char.hobbies?.length) request += `, le gusta ${char.hobbies.join(' y ')}`;
   if (char.personality) request += `, y tiene una personalidad ${char.personality}`;
   request += `.\n\n`;
-  // --- INSTRUCCIÓN DE FORMATO JSON ---
   request += `**Instrucciones de Respuesta MUY IMPORTANTES:**\n`;
   request += `1.  Genera un título corto y atractivo (máx 5-7 palabras) para el cuento.\n`;
   request += `2.  Genera el contenido completo del cuento, asegurando que tenga una longitud apropiada para una duración '${storyDuration}' y una estructura narrativa completa (inicio, desarrollo, final). NO lo cortes abruptamente.\n`;
   request += `3.  Responde **ÚNICA Y EXCLUSIVAMENTE** con un objeto JSON válido. Este JSON debe tener exactamente dos claves:\n`;
   request += `    *   \`"title"\`: Contiene el título generado como string.\n`;
   request += `    *   \`"content"\`: Contiene el texto completo del cuento generado como string.\n`;
-  // --- CORRECCIÓN DE SINTAXIS AQUÍ ---
-  request += `4.  **NO incluyas NADA antes ni después del objeto JSON.** No uses saltos de línea antes o después del JSON. No uses comillas externas alrededor del JSON. No uses formato markdown (\\\`\\\`\\\`json ... \\\`\\\`\\\`).\n`; // <<<<<< BACKTICKS ESCAPADOS
-  // ------------------------------------
+  request += `4.  **NO incluyas NADA antes ni después del objeto JSON.** No uses saltos de línea antes o después del JSON. No uses comillas externas alrededor del JSON. No uses formato markdown (\\\`\\\`\\\`json ... \\\`\\\`\\\`).\n`;
   request += `5.  Asegúrate de que el string dentro de la clave "content" sea coherente y completo.\n\n`;
   request += `Ejemplo de respuesta **VÁLIDA** (solo el JSON):\n`;
   request += `{"title": "El Título del Cuento", "content": "Érase una vez en un reino lejano..."}\n\n`;
   request += `Recuerda: SOLO el objeto JSON.`;
   return request;
 }
-/** Limpia valores string (ya no parsea estructura) */ function cleanJsonValue(text, type) {
+function cleanJsonValue(text, type) {
   const defaultText = type === 'title' ? `Aventura Inolvidable` : 'El cuento tiene un giro inesperado...';
   if (!text || typeof text !== 'string') {
-    console.warn(`[Helper v3.2] cleanJsonValue (${type}): Input text is empty or not a string. Returning default.`);
+    console.warn(`[Helper v3.3] cleanJsonValue (${type}): Input text is empty or not a string.`);
     return defaultText;
   }
   let cleaned = text.trim();
@@ -111,7 +108,7 @@ serve(async (req) => {
       }
     });
     userId = user.id;
-    console.log(`generate-story v3.2: User Auth: ${userId}`);
+    console.log(`generate-story v3.3: User Auth: ${userId}`);
     // --- 2. Perfil y Límites ---
     const { data: profile, error: profileError } = await supabaseAdmin.from('profiles').select('subscription_status, monthly_stories_generated').eq('id', userId).maybeSingle();
     if (profileError && profileError.code !== 'PGRST116') throw new Error(`Error perfil: ${profileError.message}`);
@@ -121,7 +118,7 @@ serve(async (req) => {
     const FREE_STORY_LIMIT = 10;
     if (!isPremiumUser) {
       userIdForIncrement = userId;
-      console.log(`generate-story v3.2: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
+      console.log(`generate-story v3.3: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
       if (currentStoriesGenerated >= FREE_STORY_LIMIT) return new Response(JSON.stringify({
         error: `Límite mensual (${FREE_STORY_LIMIT}) alcanzado.`
       }), {
@@ -132,13 +129,13 @@ serve(async (req) => {
         }
       });
     } else {
-      console.log(`generate-story v3.2: Premium user ${userId}.`);
+      console.log(`generate-story v3.3: Premium user ${userId}.`);
     }
     // --- 3. Body y Generación IA ---
     let params;
     try {
       params = await req.json();
-      console.log("--- DEBUG v3.2: Params Recibidos ---", {
+      console.log("--- DEBUG v3.3: Params Recibidos ---", {
         action: params?.action,
         options: params?.options
       });
@@ -146,13 +143,13 @@ serve(async (req) => {
         throw new Error("Parámetros inválidos/incompletos (character, language, childAge, duration).");
       }
     } catch (error) {
-      console.error(`[DEBUG v3.2] Failed to parse JSON body for user ${userId}. Error:`, error);
+      console.error(`[DEBUG v3.3] Failed to parse JSON body for user ${userId}. Error:`, error);
       throw new Error(`Invalid/empty JSON in body: ${error.message}.`);
     }
     const systemPrompt = createSystemPrompt(params.language, params.childAge, params.specialNeed);
     const userPrompt = createUserPromptContent(params);
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    console.log(`generate-story v3.2: Calling AI for ${userId} (expecting JSON)...`);
+    console.log(`generate-story v3.3: Calling AI for ${userId} (expecting JSON)...`);
     const generationConfig = {
       temperature: 0.8,
       topK: 40,
@@ -173,22 +170,36 @@ serve(async (req) => {
       generationConfig: generationConfig
     });
     const contentResponse = contentResult?.response;
-    const fullTextResponse = contentResponse?.text?.();
-    console.log(`[EDGE_FUNC_DEBUG v3.2] Raw AI response text (expected JSON string): ... ${fullTextResponse?.slice(-100) || '(No text received)'}`); // Log final
+    let fullTextResponse = contentResponse?.text?.(); // Respuesta esperada: solo un string JSON
+    console.log(`[EDGE_FUNC_DEBUG v3.3] Raw AI response text (before fence cleaning): ... ${fullTextResponse?.slice(-100) || '(No text received)'}`); // Log final
     if (!fullTextResponse || contentResponse?.promptFeedback?.blockReason) {
       console.error("AI Generation Error:", contentResponse?.promptFeedback);
       throw new Error(`Fallo al generar contenido JSON: ${contentResponse?.promptFeedback?.blockReason || 'Respuesta IA vacía/bloqueada'}`);
     }
+    // --- CORRECCIÓN: Limpiar delimitadores Markdown ANTES de parsear ---
+    const jsonRegex = /^```(?:json)?\s*([\s\S]*?)\s*```$/;
+    const match = fullTextResponse.match(jsonRegex);
+    let textToParse = fullTextResponse.trim();
+    if (match && match[1]) {
+      console.log("[DEBUG v3.3] Markdown fences detected in generate-story, extracting JSON content...");
+      textToParse = match[1].trim();
+    } else if (textToParse.startsWith('{') && textToParse.endsWith('}')) {
+      console.log("[DEBUG v3.3] No fences detected in generate-story, but looks like JSON. Proceeding.");
+    } else {
+      console.warn("[DEBUG v3.3] generate-story response doesn't look like JSON or JSON wrapped in fences. Parsing might fail.");
+    }
+    // --------------------------------------------------------------------
     // --- Parseo JSON y Limpieza ---
     let parsedResponse;
     try {
-      parsedResponse = JSON.parse(fullTextResponse);
+      parsedResponse = JSON.parse(textToParse); // <<< Usa textToParse limpio
       if (!parsedResponse || typeof parsedResponse !== 'object' || typeof parsedResponse.title !== 'string' || typeof parsedResponse.content !== 'string') {
         throw new Error("Parsed JSON structure invalid (missing 'title' or 'content' string).");
       }
     } catch (e) {
-      console.error("Failed to parse JSON response from AI:", e, "\nRaw Response was:", fullTextResponse);
-      throw new Error(`IA did not return valid JSON as requested. Received: ${fullTextResponse.substring(0, 200)}...`);
+      console.error("Failed to parse JSON response from AI (after attempting fence cleaning):", e, "\nText Attempted to Parse:", textToParse);
+      console.error("Original Raw Response was:", fullTextResponse);
+      throw new Error(`IA did not return valid JSON as requested, even after cleaning. Received (start): ${fullTextResponse.substring(0, 200)}...`);
     }
     const finalTitle = cleanJsonValue(parsedResponse.title, 'title');
     const finalContent = cleanJsonValue(parsedResponse.content, 'content');
@@ -199,15 +210,15 @@ serve(async (req) => {
       });
       throw new Error("Error interno: Título o contenido vacíos después de limpiar.");
     }
-    console.log(`generate-story v3.2: Final Title: "${finalTitle}", Content Length: ${finalContent.length}`);
+    console.log(`generate-story v3.3: Final Title: "${finalTitle}", Content Length: ${finalContent.length}`);
     // --- 4. Incrementar Contador ---
     if (userIdForIncrement) {
-      console.log(`generate-story v3.2: Incrementing count for ${userIdForIncrement}...`);
+      console.log(`generate-story v3.3: Incrementing count for ${userIdForIncrement}...`);
       const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
         user_uuid: userIdForIncrement
       });
       if (incrementError) console.error(`CRITICAL: Failed count increment for ${userIdForIncrement}: ${incrementError.message}`);
-      else console.log(`generate-story v3.2: Count incremented for ${userIdForIncrement}.`);
+      else console.log(`generate-story v3.3: Count incremented for ${userIdForIncrement}.`);
     }
     // --- 5. Respuesta Final ---
     return new Response(JSON.stringify({
@@ -222,7 +233,7 @@ serve(async (req) => {
     });
   } catch (error) {
     // --- Manejo de Errores ---
-    console.error(`Error in generate-story v3.2 (User: ${userId || 'UNKNOWN'}):`, error);
+    console.error(`Error in generate-story v3.3 (User: ${userId || 'UNKNOWN'}):`, error);
     let statusCode = 500;
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
@@ -241,5 +252,5 @@ serve(async (req) => {
         "Content-Type": "application/json"
       }
     });
-  }
-});
+  } // <--- End Catch Block
+}); // <--- End Serve

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Settings, BookMarked, LogOut, User, AlertCircle } from "lucide-react";
+import { BookOpen, Settings, BookMarked, LogOut, User, AlertCircle, Crown, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../store/user/userStore";
 import { useStoriesStore } from "../store/stories/storiesStore";
@@ -49,8 +49,29 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="absolute top-6 right-6 flex gap-4"
+          className="absolute top-6 right-6 flex gap-4 items-center"
         >
+          {/* Indicador de tipo de usuario (Premium o Gratuito) */}
+          {isPremium() ? (
+            <motion.div 
+              className="flex items-center gap-1 bg-gradient-to-r from-amber-400 to-amber-600 text-white px-3 py-1 rounded-full shadow-md text-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Crown className="h-3.5 w-3.5 text-white" />
+              <span className="font-bold">Premium</span>
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full shadow-md text-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Star className="h-3.5 w-3.5 text-white" />
+              <span className="font-medium">Free</span>
+            </motion.div>
+          )}
+          
           <button
             onClick={() => {
               console.log("Navegando a página de perfil");

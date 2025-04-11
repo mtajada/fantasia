@@ -16,6 +16,8 @@ import StoryContinuationCustomInput from "../components/StoryContinuationCustomI
 import { toast } from "sonner";
 import { Story, StoryChapter as StoryChapterType } from "../types"; // Importar Story
 import { StoryContinuationService } from "../services/ai/StoryContinuationService"; // Corrected path
+import { getChapterCountForStory } from "../services/supabase"; // <-- Removed supabase import
+import { generateId } from "../store/core/utils"; // <-- Importar generateId
 
 export default function StoryContinuation() {
   const { storyId } = useParams<{ storyId: string }>();
@@ -125,7 +127,7 @@ export default function StoryContinuation() {
   }, [chapters, story, shouldGenerateOptions, generateOptions, isAllowedToContinue]); // Incluir generateOptions y permiso
 
   // --- Función genérica para manejar la generación y guardado de capítulos ---
-  const handleGenerateAndSaveChapter = async (
+  const handleGenerateAndSaveChapter = useCallback(async (
     generationPromise: Promise<{ content: string; title: string }>, // Espera promesa con content y title
     generationMethod: StoryChapterType['generationMethod'],
     customInput?: string
@@ -139,28 +141,42 @@ export default function StoryContinuation() {
     toast.loading("Generando continuación...");
 
     try {
-      // 1. Llamar al servicio para obtener contenido Y título
+      // --- NUEVO: Obtener el conteo actual de capítulos desde Supabase ---
+      const { count: currentChapterCount, error: countError } = await getChapterCountForStory(storyId);
+
+      if (countError) {
+        throw new Error("Error al obtener el número de capítulos existentes.");
+      }
+
+      const nextChapterNumber = currentChapterCount + 1;
+      // --- FIN NUEVO ---
+
+      // 1. Llamar al servicio para obtener contenido Y título (como antes)
       const { content, title } = await generationPromise;
 
-      // 2. Crear el objeto nuevo capítulo
+      // 2. Crear el objeto nuevo capítulo CON EL NÚMERO CORRECTO
       const newChapter: StoryChapterType = {
-        chapterNumber: chapters.length + 1,
-        title: title || `Capítulo ${chapters.length + 1}`, // Usar título o default
+        chapterNumber: nextChapterNumber, // <--- USAR NÚMERO CALCULADO
+        title: title || `Capítulo ${nextChapterNumber}`, // Usar título o default con número correcto
         content: content,
         createdAt: new Date().toISOString(),
         generationMethod: generationMethod,
-        ...(customInput && { customInput: customInput }) // Añadir customInput si existe
+        ...(customInput && { customInput: customInput })
       };
 
-      // 3. Añadir al store (esto también lo sincroniza con Supabase)
+      // 3. Añadir al store (como antes)
       // Usamos await por si addChapter devuelve algo o queremos esperar la sincro (aunque no lo haga ahora)
       await addChapter(storyId, newChapter);
 
-      // 4. Actualizar estado local
+      // 4. Actualizar estado local (como antes)
+      // OJO: Podría haber una pequeña condición de carrera si addChapter actualiza el store
+      // y esta línea también lo hace. Sería ideal que addChapter manejara la actualización del store
+      // y esta línea se eliminara o se basara en la respuesta/efecto de addChapter.
+      // Por ahora, la dejamos, pero es un punto a revisar si causa problemas.
       const updatedChapters = [...chapters, newChapter];
       setChapters(updatedChapters); // Actualiza capítulos locales para UI
 
-      // 5. Feedback y Navegación
+      // 5. Feedback y Navegación (como antes)
       toast.dismiss(); // Quitar loading toast
       toast.success("¡Continuación generada con éxito!");
 
@@ -171,15 +187,16 @@ export default function StoryContinuation() {
       navigate(`/story/${storyId}?chapter=${newChapter.chapterNumber - 1}`); // Indice base 0
 
     } catch (error: any) {
-      console.error(`Error generating continuation (method: ${generationMethod}):`, error);
+      console.error("Error al generar continuación:", error);
       toast.dismiss();
-      toast.error("No se pudo generar la continuación", {
+      toast.error("Error al generar la continuación", {
         description: error?.message || "Inténtalo de nuevo.",
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [story, storyId, isAllowedToContinue, addChapter, chapters, navigate, /* getChapterCountForStory - no es dep directa si se importa */]); // Asegúrate de que las dependencias sean correctas
 
   // --- Manejadores específicos que llaman a la función genérica ---
   const handleSelectFree = () => {

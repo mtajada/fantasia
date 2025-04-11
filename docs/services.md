@@ -73,6 +73,7 @@ syncUserProfile, getUserProfile: CRUD para la tabla profiles. getUserProfile es 
 syncCharacter, getUserCharacters, deleteCharacter: CRUD para la tabla characters.
 syncStory, getUserStories: CRUD para la tabla stories (incluyendo join con characters).
 syncChapter, getStoryChapters: CRUD para la tabla story_chapters.
+getChapterCountForStory(storyId): Cuenta cuántos capítulos existen actualmente para una historia específica en la tabla story_chapters. Usado para determinar el número del siguiente capítulo.
 syncChallenge, getStoryChallenges: CRUD para challenges y challenge_questions.
 syncAudioFile, getUserAudios: CRUD para audio_files.
 setCurrentVoice, getCurrentVoice: CRUD para user_voices.
