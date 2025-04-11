@@ -264,7 +264,7 @@ export default function StoryViewer() {
                     Continuar Historia
                   </button>
                 </div>
-                
+
                 {/* Segunda fila: Narrar */}
                 <button
                   onClick={toggleAudioPlayer}
@@ -276,10 +276,10 @@ export default function StoryViewer() {
                   Narrar
                   {!isAllowedToGenerateVoice && <AlertCircle className="ml-1 h-4 w-4" />}
                 </button>
-                
+
                 {/* Tercera fila: Volver al Inicio */}
-                <button 
-                  onClick={() => navigate("/home")} 
+                <button
+                  onClick={() => navigate("/home")}
                   className="flex items-center justify-center px-6 py-3 rounded-lg font-medium bg-white/20 hover:bg-white/30 text-white transition-all shadow-md w-full sm:w-48"
                 >
                   <Home size={20} className="mr-2" /> Volver al Inicio

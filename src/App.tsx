@@ -33,6 +33,11 @@ import CharactersManagement from "./pages/CharactersManagement";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 
+// New Pages for Refactor
+import ProfileConfigPage from './pages/ProfileConfigPage';
+import SettingsPage from './pages/SettingsPage';
+import PlansPage from './pages/PlansPage';
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -51,11 +56,11 @@ const App = () => {
               <Route path="/error" element={<ErrorPage />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              
+
               {/* Payment routes */}
               <Route path="/payment-success" element={<AuthGuard><PaymentSuccess /></AuthGuard>} />
               <Route path="/payment-cancel" element={<AuthGuard><PaymentCancel /></AuthGuard>} />
-              
+
               {/* Protected routes */}
               <Route path="/profile" element={<AuthGuard><ProfileSetup /></AuthGuard>} />
               <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
@@ -74,6 +79,11 @@ const App = () => {
               <Route path="/story/:storyId/audio/:chapterId?" element={<AuthGuard><StoryAudioPage /></AuthGuard>} />
               <Route path="/story/:storyId/continue" element={<AuthGuard><StoryContinuation /></AuthGuard>} />
               <Route path="/stories" element={<AuthGuard><SavedStories /></AuthGuard>} />
+
+              {/* New Protected Routes */}
+              <Route path="/profile-config" element={<AuthGuard><ProfileConfigPage /></AuthGuard>} />
+              <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+              <Route path="/plans" element={<AuthGuard><PlansPage /></AuthGuard>} />
             </Routes>
           </AnimatePresence>
         </BrowserRouter>
