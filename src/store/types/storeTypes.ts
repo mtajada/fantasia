@@ -46,12 +46,14 @@ export interface CharacterState {
 
 export interface StoryOptionsState {
   currentStoryOptions: Partial<StoryOptions>;
+  additionalDetails?: string | null;
 
   updateStoryOptions: (options: Partial<StoryOptions>) => void;
   resetStoryOptions: () => void;
   setDuration: (duration: StoryDuration) => void;
   setMoral: (moral: string) => void;
   setGenre: (genre: string) => void;
+  setAdditionalDetails: (details?: string | null) => void;
 }
 
 export interface StoriesState {

@@ -28,8 +28,9 @@ function createSystemPrompt(language, childAge, specialNeed) {
   base += ` Sé creativo, asegúrate de que la historia sea coherente y tenga una estructura narrativa clara (inicio, desarrollo, final).`;
   return base;
 }
-function createUserPromptContent({ options }) {
-  console.log(`[Helper v3.5] createUserPromptContent (JSON output): options=`, options);
+
+function createUserPromptContent({ options, additionalDetails }) {
+  console.log(`[Helper v3.5] createUserPromptContent (JSON output): options=`, options, `details=`, additionalDetails);
   const char = options.character;
   const storyDuration = options.duration || 'medium';
   let request = `Crea un cuento infantil. Género: ${options.genre}. Moraleja: ${options.moral}. Personaje: ${char.name}`;
@@ -46,6 +47,11 @@ function createUserPromptContent({ options }) {
   } else {
     request += `    *   **Guía de Longitud (Media):** Apunta a una longitud **moderada de aproximadamente 1500 tokens** (unos 10+ párrafos). Buen equilibrio entre detalle y brevedad.\n`;
   }
+
+  if (additionalDetails && typeof additionalDetails === 'string' && additionalDetails.trim()) {
+    request += `\n**Instrucciones Adicionales del Usuario:**\n${additionalDetails.trim()}\n`;
+  }
+
   request += `2.  **Estructura COMPLETA (OBLIGATORIO):** Independientemente de la longitud, el cuento DEBE tener una estructura narrativa clara y completa: **inicio, desarrollo y final**. ¡NUNCA termines la historia abruptamente o a mitad de una frase! La coherencia y la finalización son más importantes que el conteo exacto de tokens.\n`;
   request += `3.  **Título:** Genera un título corto y atractivo (máx 5-7 palabras) para este cuento.\n`;
   request += `\n**Instrucciones de Formato de Respuesta (OBLIGATORIO):**\n`;
@@ -59,6 +65,7 @@ function createUserPromptContent({ options }) {
   request += `Recuerda: SOLO el objeto JSON.`;
   return request;
 }
+
 function cleanJsonValue(text, type) {
   const defaultText = type === 'title' ? `Aventura Inolvidable` : 'El cuento tiene un giro inesperado...';
   if (!text || typeof text !== 'string') {
@@ -142,21 +149,23 @@ serve(async (req) => {
     }
     // --- 3. Body y Generación IA ---
     let params;
+    let additionalDetails = null;
     try {
       params = await req.json();
+      additionalDetails = params?.additionalDetails;
       console.log("--- DEBUG v3.5: Params Recibidos ---", {
-        action: params?.action,
-        options: params?.options
+        options: params?.options,
+        additionalDetails: additionalDetails,
       });
       if (!params || typeof params !== 'object' || !params.options?.character || !params.language || params.childAge === undefined || !params.options?.duration) {
-        throw new Error("Parámetros inválidos/incompletos (character, language, childAge, duration).");
+        throw new Error("Parámetros inválidos/incompletos (character, language, childAge, duration). Los detalles adicionales son opcionales.");
       }
     } catch (error) {
       console.error(`[DEBUG v3.5] Failed to parse JSON body for user ${userId}. Error:`, error);
       throw new Error(`Invalid/empty JSON in body: ${error.message}.`);
     }
     const systemPrompt = createSystemPrompt(params.language, params.childAge, params.specialNeed);
-    const userPrompt = createUserPromptContent(params);
+    const userPrompt = createUserPromptContent({ options: params.options, additionalDetails });
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
     console.log(`generate-story v3.5: Calling AI for ${userId} (expecting JSON)...`);
     const generationConfig = {

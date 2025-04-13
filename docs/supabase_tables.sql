@@ -90,12 +90,15 @@ CREATE TABLE public.stories (
   genre text NULL,
   duration text NOT NULL,
   character_id uuid NULL,
+  additional_details TEXT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT stories_pkey PRIMARY KEY (id),
   CONSTRAINT stories_character_id_fkey FOREIGN KEY (character_id) REFERENCES characters(id),
   CONSTRAINT stories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
+
+COMMENT ON COLUMN public.stories.additional_details IS 'Detalles o instrucciones adicionales proporcionadas por el usuario para la generación inicial de la historia.';
 
 CREATE TABLE public.story_chapters (
   id uuid NOT NULL DEFAULT extensions.uuid_generate_v4(),

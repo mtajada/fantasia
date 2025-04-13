@@ -82,6 +82,12 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `canGenerateStory()`: Checks if the user (free or premium) has available story generations (monthly limit or purchased credits, though story credits are not fully implemented yet).
     *   `canGenerateVoice()`: Checks if the user is premium AND has either remaining monthly voice generations OR available purchased voice credits.
     *   `hasCompletedProfile()`: A selector returning `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used for routing.
+
+    **Important Distinction: Monthly Quota vs. Purchased Credits:**
+    It's crucial to understand the difference in how voice generation allowances work:
+    *   **Monthly Voice Generations (Premium):** Represented by tracking `monthly_voice_generations_used` against a fixed limit (e.g., 20). This is a *quota* that **resets to 0** at the start of each subscription period (handled by the Stripe webhook). This effectively makes the full quota available again each month. Unused generations from one month **do not roll over** to the next.
+    *   **Purchased Voice Credits (`voice_credits`):** Represent a *balance* of credits bought separately. These credits **persist** across subscription periods and **do not reset** monthly. They are only consumed when used (either by free users or by premium users who have exhausted their monthly quota). This balance accumulates if more credits are purchased.
+
 *   **Key Actions:**
     *   `checkAuth()`: Verifies auth, loads profile, triggers `syncAllUserData`. **Central function.** Determines initial redirect path (`/home` or `/profile-config`) based on `profileSettings.has_completed_setup`.
     *   `loginUser(user)`: Sets user state, loads profile, triggers `syncAllUserData`.
@@ -120,7 +126,22 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `loadStoriesFromSupabase(userId)`: Clears `generatedStories`, fetches via `@services/supabase.getUserStories`, updates state. Called by `syncAllUserData`.
 *   **Supabase Interaction:** Calls `syncStory`, `getUserStories`, `syncQueue`.
 
-### 3.4. `@store/stories/chapters/chaptersStore.ts`
+### 3.4. `@store/storyOptions/storyOptionsStore.ts`
+
+*   **Purpose:** Manages the temporary options selected by the user during the story creation flow *before* the story is generated.
+*   **Key State:**
+    *   `currentStoryOptions: Partial<StoryOptions>`: Holds selected duration, genre, moral, character.
+    *   `additionalDetails: string | null | undefined`: Holds optional free-text details or instructions provided by the user to further customize the story generation.
+*   **Key Actions:**
+    *   `updateStoryOptions(options)`: Updates multiple options at once.
+    *   `resetStoryOptions()`: Clears all selected options.
+    *   `setDuration(duration)`: Sets the story duration.
+    *   `setMoral(moral)`: Sets the story moral.
+    *   `setGenre(genre)`: Sets the story genre.
+    *   `setAdditionalDetails(details)`: Sets the optional additional details provided by the user. This is read by `storyGenerator.ts` before calling the generation service.
+*   **Persistence:** This store is **not persistent** as the options are temporary for the current creation flow.
+
+### 3.5. `@store/stories/chapters/chaptersStore.ts`
 
 *   **Purpose:** Manages the individual chapters associated with each story.
 *   **Key State:**
@@ -132,7 +153,7 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `loadChaptersFromSupabase(storyId)`: Fetches chapters for a *specific story* via `@services/supabase.getStoryChapters`. This is typically called on demand when viewing a story, *not* by `syncAllUserData` initially.
 *   **Supabase Interaction:** Calls `syncChapter`, `getStoryChapters`, `syncQueue`.
 
-### 3.5. `@store/stories/audio/audioStore.ts`
+### 3.6. `@store/stories/audio/audioStore.ts`
 
 *   **Purpose:** Manages generated audio files, generation status, and user voice preference.
 *   **Key State:**
@@ -145,7 +166,7 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `loadAudioFromSupabase(userId)`: Fetches *existing* generated audio records and the user's current voice preference via `@services/supabase.getUserAudios` and `@services/supabase.getCurrentVoice`. Called by `syncAllUserData`.
 *   **Supabase Interaction:** Calls `syncAudioFile`, `getUserAudios`, `setCurrentVoice`, `getCurrentVoice`, `syncQueue`.
 
-### 3.6. `@store/stories/challenges/challengesStore.ts`
+### 3.7. `@store/stories/challenges/challengesStore.ts`
 
 *   **Purpose:** Manages challenges and questions associated with stories.
 *   **Key State:**
@@ -155,14 +176,6 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `getChallengesByStoryId(storyId)`: Filters challenges for a specific story.
     *   `loadChallengesFromSupabase(storyId)`: Fetches challenges for a *specific story* via `@services/supabase.getStoryChallenges`. Called on demand.
 *   **Supabase Interaction:** Calls `syncChallenge`, `getStoryChallenges`, `syncQueue`.
-
-### 3.7. `@store/storyOptions/storyOptionsStore.ts`
-
-*   **Purpose:** Temporarily stores user selections while configuring a *new* story (duration, moral, genre).
-*   **Key State:**
-    *   `currentStoryOptions: Partial<StoryOptions>`: Holds the options being built.
-*   **Key Actions:** `updateStoryOptions`, `resetStoryOptions`, specific setters (`setDuration`, etc.).
-*   **Supabase Interaction:** None directly. This is purely transient frontend state, persisted locally for convenience during configuration.
 
 ## 4. Supabase Interaction Layer
 

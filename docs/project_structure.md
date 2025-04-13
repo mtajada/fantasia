@@ -70,6 +70,7 @@
 │   │   ├── 📄 Signup.tsx
 │   │   ├── 📄 StoryAudioPage.tsx
 │   │   ├── 📄 StoryContinuation.tsx
+│   │   ├── 📄 StoryDetailsInput.tsx # Permite al usuario introducir detalles opcionales (texto libre) para la historia. Navega a /generating.
 │   │   ├── 📄 StoryGenre.tsx
 │   │   ├── 📄 StoryMoral.tsx
 │   │   ├── 📄 StoryViewer.tsx

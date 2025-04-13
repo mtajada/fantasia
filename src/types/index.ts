@@ -57,6 +57,7 @@ export type Story = {
   audioUrl?: string;
   options: StoryOptions;
   createdAt: string;
+  additional_details?: string | null;
 }
 
 export type User = {
@@ -105,6 +106,7 @@ export type StoryWithChapters = {
   audioUrl?: string;
   options: StoryOptions;
   createdAt: string;
+  additional_details?: string | null;
   chapters: StoryChapter[];
   hasMultipleChapters?: boolean;
   chaptersCount?: number;

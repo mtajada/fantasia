@@ -45,6 +45,7 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
               genre: story.options.genre,
               duration: story.options.duration,
               character_id: story.options.character.id,
+              additional_details: story.additional_details,
             });
           }
         }

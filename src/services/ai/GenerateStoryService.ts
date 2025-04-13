@@ -7,6 +7,7 @@ interface GenerateStoryParams {
   language?: string;
   childAge?: number;
   specialNeed?: string;
+  additionalDetails?: string; // <-- Añadir nueva propiedad
 }
 
 // Definir el tipo de respuesta esperada de la Edge Function
@@ -21,7 +22,7 @@ export class GenerateStoryService {
    */
   public static async generateStoryWithAI(params: GenerateStoryParams): Promise<GenerateStoryResponse> {
     try {
-      console.log('Enviando solicitud a la Edge Function generate-story...');
+      console.log('Enviando solicitud a la Edge Function generate-story con params:', params); // Loguear parámetros
 
       // Asegúrate de pasar el token de autenticación si la función lo requiere (lo requiere)
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -31,7 +32,7 @@ export class GenerateStoryService {
       const token = sessionData.session.access_token;
 
       const { data, error } = await supabase.functions.invoke<GenerateStoryResponse>('generate-story', { // Especificar tipo de respuesta <T>
-        body: params, // El cuerpo ya contiene las opciones, idioma, etc.
+        body: params, // El cuerpo ya contiene las opciones, idioma, etc. y additionalDetails
         headers: {
           'Authorization': `Bearer ${token}` // Pasar el token
         }

@@ -32,6 +32,7 @@ import AuthCallback from "./pages/AuthCallback";
 import CharactersManagement from "./pages/CharactersManagement";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import StoryDetailsInput from "./pages/StoryDetailsInput";
 
 // New Pages for Refactor
 import ProfileConfigPage from './pages/ProfileConfigPage';
@@ -73,6 +74,7 @@ const App = () => {
               <Route path="/character-profession" element={<AuthGuard><CharacterProfession /></AuthGuard>} />
               <Route path="/story-genre" element={<AuthGuard><StoryGenre /></AuthGuard>} />
               <Route path="/story-moral" element={<AuthGuard><StoryMoral /></AuthGuard>} />
+              <Route path="/story-details-input" element={<AuthGuard><StoryDetailsInput /></AuthGuard>} />
               <Route path="/generating" element={<AuthGuard><GeneratingStory /></AuthGuard>} />
               <Route path="/story/:storyId" element={<AuthGuard><StoryViewer /></AuthGuard>} />
               <Route path="/story/:storyId/audio/:chapterId?" element={<AuthGuard><StoryAudioPage /></AuthGuard>} />

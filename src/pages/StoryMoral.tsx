@@ -31,7 +31,7 @@ export default function StoryMoral() {
   };
   
   const handleContinue = () => {
-    navigate("/generating");
+    navigate("/story-details-input");
   };
   
   const container = {

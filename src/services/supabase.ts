@@ -251,6 +251,7 @@ export const syncStory = async (userId: string, story: Story): Promise<{ success
             genre: story.options.genre,
             duration: story.options.duration,
             character_id: story.options.character.id,
+            additional_details: story.additional_details,
             updated_at: new Date(),
         };
         const { error } = await supabase.from("stories").upsert(storyData);
@@ -304,6 +305,7 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
                     } as StoryCharacter,
                 },
                 createdAt: story.created_at,
+                additional_details: story.additional_details, // <-- Incluir aquí
             };
         }) : [];
 
