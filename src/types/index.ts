@@ -14,11 +14,11 @@ export type ProfileSettings = {
   // --- Campos de Límites/Créditos ---
   voice_credits?: number | null;
   monthly_stories_generated?: number | null;
-  last_story_reset_date?: string | null;
   period_start_date?: string | null;
   
   // --- Columna Nueva ---
   monthly_voice_generations_used?: number | null;
+  has_completed_setup: boolean; // Añadido para rastrear setup
 };
 
 export type StoryDuration = 'short' | 'medium' | 'long';

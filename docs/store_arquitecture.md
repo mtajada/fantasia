@@ -71,12 +71,23 @@ The loading of user-specific data from Supabase upon login or app initialization
 *   **Purpose:** Manages user authentication state, user profile settings (including subscription/limit data), and orchestrates the initial data loading for other stores.
 *   **Key State:**
     *   `user: User | null`: Basic user info (id, email).
-    *   `profileSettings: ProfileSettings | null`: Complete profile data fetched from the `profiles` table (language, age, special need, subscription status, credits, limits, etc.). **Crucial for app logic.**
+    *   `profileSettings: ProfileSettings | null`: Complete profile data fetched from the `profiles` table (language, age, need, subscription status, limits, credits, etc.). **Crucial for app logic.**
+        *   Includes fields like `subscription_status`, `monthly_stories_generated`, `monthly_voice_generations_used`, `voice_credits`, `current_period_end`.
+        *   Includes `has_completed_setup: boolean`: A flag indicating if the user has gone through the initial profile configuration (`ProfileConfigPage`) at least once. This flag is crucial for redirection logic.
+*   **Key Selectors (Computed State):**
+    *   `isPremium()`: Returns `true` if `subscription_status` indicates an active premium plan ('premium_monthly', 'premium_yearly', 'trialing').
+    *   `getRemainingMonthlyStories()`: Calculates remaining stories for free users based on `monthly_stories_generated`.
+    *   `getRemainingMonthlyVoiceGenerations()`: Returns the number of *included* monthly voice generations remaining for premium users (e.g., `20 - monthly_voice_generations_used`). Returns 0 for non-premium users.
+    *   `getAvailableVoiceCredits()`: Returns the number of *purchased* `voice_credits`.
+    *   `canGenerateStory()`: Checks if the user (free or premium) has available story generations (monthly limit or purchased credits, though story credits are not fully implemented yet).
+    *   `canGenerateVoice()`: Checks if the user is premium AND has either remaining monthly voice generations OR available purchased voice credits.
+    *   `hasCompletedProfile()`: A selector returning `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used for routing.
 *   **Key Actions:**
-    *   `checkAuth()`: Verifies auth, loads profile, triggers `syncAllUserData`. **Central function.**
+    *   `checkAuth()`: Verifies auth, loads profile, triggers `syncAllUserData`. **Central function.** Determines initial redirect path (`/home` or `/profile-config`) based on `profileSettings.has_completed_setup`.
     *   `loginUser(user)`: Sets user state, loads profile, triggers `syncAllUserData`.
     *   `logoutUser()`: Processes sync queue, signs out via `@services/supabaseAuth.logout`, clears local state, calls `setCurrentAuthUser(null)`.
-    *   `setProfileSettings(settings)`: Updates `profileSettings` state locally, calls `@services/supabase.syncUserProfile` to persist *editable* settings (language, age, need), and uses `syncQueue` on failure. **Important:** This should *not* attempt to modify non-editable fields like subscription status.
+    *   `setProfileSettings(settings)`: Updates `profileSettings` state locally, calls `@services/supabase.syncUserProfile` to persist *editable* settings (language, age, need), and uses `syncQueue` on failure. **Important:** When called from `ProfileConfigPage`, this action now *explicitly* includes `has_completed_setup: true` in the `settings` object passed to it, ensuring the local state reflects completion immediately after the first save.
+    *   `hasCompletedProfile()`: A selector/getter function that returns `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used by components like `Home` and `AuthGuard` to check if the user needs to be sent to profile configuration.
 *   **Supabase Interaction:** Calls `getCurrentUser`, `logout`, `getUserProfile`, `syncUserProfile`, `syncQueue`.
 *   **Notes:** Contains the vital `syncAllUserData` orchestrator function. Ensure all necessary stores are listed in its `otherStores` array.
 

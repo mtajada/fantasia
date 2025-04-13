@@ -198,6 +198,23 @@ const PlansPage: React.FC = () => {
                                     ))}
                                 </ul>
                             </motion.div>
+
+                            {/* --- AÑADIDO: Botón para ir a la app (Premium View) --- */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.4 }} // Adjusted delay slightly
+                                className="mt-8 text-center" // Added margin top
+                            >
+                                <Link
+                                    to="/home"
+                                    className="inline-block py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] mx-auto"
+                                >
+                                    <BookOpen className="h-5 w-5" />
+                                    <span>Ir a la aplicación</span>
+                                </Link>
+                            </motion.div>
+                            {/* --- FIN AÑADIDO --- */}
                         </div>
                     )}
 
@@ -354,6 +371,22 @@ const PlansPage: React.FC = () => {
                                     </button>
                                 </div>
                             </motion.div>
+
+                            {/* --- AÑADIDO: Botón para continuar gratis (Non-Premium View) --- */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                                className="mt-8 text-center"
+                            >
+                                <Link
+                                    to="/home"
+                                    className="inline-block py-3 px-6 bg-transparent border border-purple-400/50 hover:bg-purple-400/10 text-purple-300 rounded-lg font-medium transition-all shadow-sm hover:shadow-md"
+                                >
+                                    Continuar con el plan gratuito
+                                </Link>
+                            </motion.div>
+                            {/* --- FIN AÑADIDO --- */}
                         </div>
                     )}
                 </div>

@@ -14,10 +14,11 @@ import {
 export interface UserState {
   user: User | null;
   profileSettings: ProfileSettings | null;
+  intendedRedirectPath: string | null; // Añadido para gestionar redirecciones
 
   loginUser: (user: User) => void;
   logoutUser: () => void;
-  setProfileSettings: (settings: ProfileSettings) => void;
+  setProfileSettings: (settings: Partial<ProfileSettings>) => void;
   hasCompletedProfile: () => boolean;
   checkAuth: () => Promise<boolean>;
   

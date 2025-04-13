@@ -20,22 +20,6 @@ import {
     Mic
 } from 'lucide-react';
 
-// Helper function to calculate the reset date
-function calculateResetDate(lastResetDateStr: string | null | undefined): string {
-    if (!lastResetDateStr) {
-        return "Fecha no disponible";
-    }
-    try {
-        const lastResetDate = new Date(lastResetDateStr);
-        const nextResetDate = new Date(lastResetDate.setMonth(lastResetDate.getMonth() + 1));
-        const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-        return nextResetDate.toLocaleDateString('es-ES', options);
-    } catch (error) {
-        console.error("Error calculating reset date:", error);
-        return "Error al calcular fecha";
-    }
-}
-
 const SettingsPage: React.FC = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
@@ -123,7 +107,36 @@ const SettingsPage: React.FC = () => {
     }
 
     const premiumUser = isPremium(); // Call the selector
-    const nextResetDate = premiumUser ? '' : calculateResetDate(profileSettings.last_story_reset_date);
+
+    // --- Calculate Reset Date String --- BEGIN
+    let resetDateString = "Fecha no disponible"; // Default
+    let resetInfoPrefix = premiumUser ? "Tu límite de voz premium se reinicia" : "Tu límite de historias gratuitas se reinicia";
+
+    if (premiumUser) {
+        // Premium: Use current_period_end
+        const endDateISO = profileSettings?.current_period_end;
+        if (endDateISO) {
+            try {
+                const endDate = new Date(endDateISO);
+                resetDateString = new Intl.DateTimeFormat('es-ES', {
+                    day: 'numeric',
+                    month: 'long',
+                    // year: 'numeric' // Optional: add year if needed
+                }).format(endDate);
+                resetDateString = `el ${resetDateString}`;
+            } catch (e) {
+                console.error("Error formateando current_period_end:", e);
+                resetDateString = "Error al formatear fecha";
+            }
+        } else {
+            console.warn("Usuario premium sin current_period_end en profileSettings.");
+             resetDateString = "en el próximo ciclo de facturación";
+        }
+    } else {
+        // Free: Static message
+        resetDateString = "el día 1 del próximo mes";
+    }
+    // --- Calculate Reset Date String --- END
 
     return (
         <PageTransition>
@@ -199,27 +212,13 @@ const SettingsPage: React.FC = () => {
                             {!premiumUser && (
                                 <div className="space-y-5">
                                     {/* Story Limits */}
-                                    <div>
-                                        <div className="flex items-center py-2">
-                                            <BookOpen className="h-5 w-5 text-purple-300 mr-3 flex-shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-sm text-purple-200 mb-1">Historias generadas este mes</div>
-                                                <div className="flex justify-between items-center">
-                                                    <div className="font-medium">{profileSettings.monthly_stories_generated || 0} / 10</div>
-                                                    <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden ml-2">
-                                                        <div
-                                                            className="h-full bg-gradient-to-r from-purple-400 to-pink-400"
-                                                            style={{ width: `${Math.min(100, ((profileSettings.monthly_stories_generated || 0) / 10) * 100)}%` }}
-                                                        ></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center py-2 pl-8">
-                                            <CalendarClock className="h-5 w-5 text-purple-300 mr-3 flex-shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-sm text-purple-200 mb-1">Tu límite se reinicia el</div>
-                                                <div className="font-medium">{nextResetDate}</div>
+                                    <div className="flex items-center p-2 bg-purple-900/30 rounded-lg">
+                                        <BookOpen className="h-5 w-5 text-purple-300 mr-3 flex-shrink-0" />
+                                        <div className="flex-1">
+                                            <div className="font-medium">Historias restantes este mes: <span className="text-lg font-bold text-white">{profileSettings.monthly_stories_generated !== undefined ? Math.max(0, 10 - profileSettings.monthly_stories_generated) : 'N/A'} / 10</span></div>
+                                            <div className="text-xs text-purple-200/80 mt-1 flex items-center">
+                                                <CalendarClock size={14} className="mr-1" />
+                                                {resetInfoPrefix} {resetDateString}
                                             </div>
                                         </div>
                                     </div>
@@ -272,11 +271,15 @@ const SettingsPage: React.FC = () => {
                             {/* Premium User Content */}
                             {premiumUser && (
                                 <div className="space-y-4">
-                                    <div className="flex items-center py-2">
-                                        <Mic className="h-5 w-5 text-purple-300 mr-3" />
+                                    {/* Voice Generation Limits */}
+                                    <div className="flex items-center p-2 bg-amber-900/20 rounded-lg border border-amber-500/20">
+                                        <Mic className="h-5 w-5 text-amber-300 mr-3 flex-shrink-0" />
                                         <div className="flex-1">
-                                            <div className="text-sm text-purple-200 mb-1">Créditos de voz restantes</div>
-                                            <div className="font-medium">{profileSettings.voice_credits || 0}</div>
+                                            <div className="font-medium">Generaciones de voz este ciclo: <span className="text-lg font-bold text-white">{profileSettings.monthly_voice_generations_used !== undefined ? Math.max(0, 20 - profileSettings.monthly_voice_generations_used) : 'N/A'} / 20</span></div>
+                                            <div className="text-xs text-amber-200/80 mt-1 flex items-center">
+                                                <CalendarClock size={14} className="mr-1" />
+                                                {resetInfoPrefix} {resetDateString}
+                                            </div>
                                         </div>
                                     </div>
 

@@ -10,7 +10,7 @@ import AuthGuard from "./components/AuthGuard";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import ProfileSetup from "./pages/ProfileSetup";
+// import ProfileSetup from "./pages/ProfileSetup"; 
 import Home from "./pages/Home";
 import CharacterSelection from "./pages/CharacterSelection";
 import CharacterName from "./pages/CharacterName";
@@ -62,7 +62,6 @@ const App = () => {
               <Route path="/payment-cancel" element={<AuthGuard><PaymentCancel /></AuthGuard>} />
 
               {/* Protected routes */}
-              <Route path="/profile" element={<AuthGuard><ProfileSetup /></AuthGuard>} />
               <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
               <Route path="/duration" element={<AuthGuard><DurationSelection /></AuthGuard>} />
               <Route path="/characters-management" element={<AuthGuard><CharactersManagement /></AuthGuard>} />

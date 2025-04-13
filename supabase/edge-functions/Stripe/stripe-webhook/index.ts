@@ -117,7 +117,7 @@ serve(async (req: Request) => {
               subscription_status: status,
               plan_id: planId,
               current_period_end: currentPeriodEnd.toISOString(),
-              voice_credits: 20, // Créditos iniciales Premium
+              monthly_voice_generations_used: 0, // CORRECT: Reset monthly usage counter
             })
             .eq('id', supabaseUserId); // Actualiza al usuario correcto
 
@@ -164,7 +164,7 @@ serve(async (req: Request) => {
                 .update({
                   subscription_status: subscription.status,
                   current_period_end: currentPeriodEnd.toISOString(),
-                  voice_credits: 20, // Restablecer créditos mensuales
+                  monthly_voice_generations_used: 0, // CORRECT: Reset monthly usage counter
                 })
                 .eq('id', supabaseUserId);
 

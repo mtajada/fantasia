@@ -1,5 +1,5 @@
 // supabase/edge-functions/generate-story/index.ts
-// v3.3: Limpia ```json ... ``` antes de parsear, pide JSON a la IA.
+// v3.5: Sanitiza caracteres de control en el JSON string ANTES de parsear.
 import { GoogleGenerativeAI } from 'npm:@google/generative-ai';
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
@@ -13,13 +13,13 @@ const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
 if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
 const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
 const modelName = "gemini-2.0-flash-thinking-exp-01-21";
-console.log(`generate-story v3.3: Using model: ${modelName}`);
+console.log(`generate-story v3.5: Using model: ${modelName}`);
 const model = genAI.getGenerativeModel({
   model: modelName
 });
-// --- Funciones Helper (createSystemPrompt, createUserPromptContent, cleanJsonValue: SIN CAMBIOS desde v3.2) ---
+// --- Funciones Helper (createSystemPrompt, createUserPromptContent, cleanJsonValue: SIN CAMBIOS desde v3.4) ---
 function createSystemPrompt(language, childAge, specialNeed) {
-  console.log(`[Helper v3.3] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
+  console.log(`[Helper v3.5] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
   let base = `Eres un escritor experto de cuentos infantiles creativos y educativos. Escribe siempre en ${language}.`;
   base += ` El público objetivo son niños de ${childAge} años.`;
   if (specialNeed && specialNeed !== 'Ninguna') {
@@ -29,32 +29,40 @@ function createSystemPrompt(language, childAge, specialNeed) {
   return base;
 }
 function createUserPromptContent({ options }) {
-  console.log(`[Helper v3.3] createUserPromptContent (JSON output): options=`, options);
+  console.log(`[Helper v3.5] createUserPromptContent (JSON output): options=`, options);
   const char = options.character;
   const storyDuration = options.duration || 'medium';
-  let request = `Crea un cuento infantil ${storyDuration}. Género: ${options.genre}. Moraleja o tema principal: ${options.moral}.`;
-  request += ` El personaje principal es ${char.name}`;
-  if (char.profession) request += `, de profesión ${char.profession}`;
-  if (char.hobbies?.length) request += `, le gusta ${char.hobbies.join(' y ')}`;
-  if (char.personality) request += `, y tiene una personalidad ${char.personality}`;
+  let request = `Crea un cuento infantil. Género: ${options.genre}. Moraleja: ${options.moral}. Personaje: ${char.name}`;
+  if (char.profession) request += `, profesión ${char.profession}`;
+  if (char.hobbies?.length) request += `, hobbies ${char.hobbies.join(', ')}`;
+  if (char.personality) request += `, personalidad ${char.personality}`;
   request += `.\n\n`;
-  request += `**Instrucciones de Respuesta MUY IMPORTANTES:**\n`;
-  request += `1.  Genera un título corto y atractivo (máx 5-7 palabras) para el cuento.\n`;
-  request += `2.  Genera el contenido completo del cuento, asegurando que tenga una longitud apropiada para una duración '${storyDuration}' y una estructura narrativa completa (inicio, desarrollo, final). NO lo cortes abruptamente.\n`;
-  request += `3.  Responde **ÚNICA Y EXCLUSIVAMENTE** con un objeto JSON válido. Este JSON debe tener exactamente dos claves:\n`;
-  request += `    *   \`"title"\`: Contiene el título generado como string.\n`;
-  request += `    *   \`"content"\`: Contiene el texto completo del cuento generado como string.\n`;
-  request += `4.  **NO incluyas NADA antes ni después del objeto JSON.** No uses saltos de línea antes o después del JSON. No uses comillas externas alrededor del JSON. No uses formato markdown (\\\`\\\`\\\`json ... \\\`\\\`\\\`).\n`;
-  request += `5.  Asegúrate de que el string dentro de la clave "content" sea coherente y completo.\n\n`;
-  request += `Ejemplo de respuesta **VÁLIDA** (solo el JSON):\n`;
-  request += `{"title": "El Título del Cuento", "content": "Érase una vez en un reino lejano..."}\n\n`;
+  request += `**Instrucciones de Contenido, Longitud y Estructura MUY IMPORTANTES:**\n`;
+  request += `1.  **Duración Objetivo:** La historia debe tener una duración general '${storyDuration}'.\n`;
+  if (storyDuration === 'short') {
+    request += `    *   **Guía de Longitud (Corta):** Apunta a una longitud de **aproximadamente 800 tokens** (unos 5+ párrafos). Suficiente para una trama sencilla pero completa.\n`;
+  } else if (storyDuration === 'long') {
+    request += `    *   **Guía de Longitud (Larga):** Apunta a una longitud **extensa de aproximadamente 2500 tokens** (unos 15+ párrafos). Desarrolla la trama y personajes con detalle.\n`;
+  } else {
+    request += `    *   **Guía de Longitud (Media):** Apunta a una longitud **moderada de aproximadamente 1500 tokens** (unos 10+ párrafos). Buen equilibrio entre detalle y brevedad.\n`;
+  }
+  request += `2.  **Estructura COMPLETA (OBLIGATORIO):** Independientemente de la longitud, el cuento DEBE tener una estructura narrativa clara y completa: **inicio, desarrollo y final**. ¡NUNCA termines la historia abruptamente o a mitad de una frase! La coherencia y la finalización son más importantes que el conteo exacto de tokens.\n`;
+  request += `3.  **Título:** Genera un título corto y atractivo (máx 5-7 palabras) para este cuento.\n`;
+  request += `\n**Instrucciones de Formato de Respuesta (OBLIGATORIO):**\n`;
+  request += `*   Responde **ÚNICA Y EXCLUSIVAMENTE** con un objeto JSON válido.\n`;
+  request += `*   El JSON debe tener exactamente dos claves:\n`;
+  request += `    *   \`"title"\`: string (El título generado).\n`;
+  request += `    *   \`"content"\`: string (El texto completo del cuento generado).\n`;
+  request += `*   **Formato Estricto:** NO incluyas NADA antes ni después del objeto JSON. Sin texto introductorio, sin saltos de línea extra, sin comillas externas, sin formato markdown (\\\`\\\`\\\`json ... \\\`\\\`\\\`). SOLO el objeto JSON.\n\n`;
+  request += `Ejemplo de respuesta **VÁLIDA**:\n`;
+  request += `{"title": "Título del Cuento", "content": "Érase una vez..."}\n\n`;
   request += `Recuerda: SOLO el objeto JSON.`;
   return request;
 }
 function cleanJsonValue(text, type) {
   const defaultText = type === 'title' ? `Aventura Inolvidable` : 'El cuento tiene un giro inesperado...';
   if (!text || typeof text !== 'string') {
-    console.warn(`[Helper v3.3] cleanJsonValue (${type}): Input text is empty or not a string.`);
+    console.warn(`[Helper v3.5] cleanJsonValue (${type}): Input text is empty or not a string.`);
     return defaultText;
   }
   let cleaned = text.trim();
@@ -86,6 +94,7 @@ serve(async (req) => {
   let userId = null;
   try {
     // --- 1. Autenticación ---
+    // ... (igual) ...
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) return new Response(JSON.stringify({
       error: 'Token inválido.'
@@ -108,17 +117,17 @@ serve(async (req) => {
       }
     });
     userId = user.id;
-    console.log(`generate-story v3.3: User Auth: ${userId}`);
+    console.log(`generate-story v3.5: User Auth: ${userId}`);
     // --- 2. Perfil y Límites ---
-    const { data: profile, error: profileError } = await supabaseAdmin.from('profiles').select('subscription_status, monthly_stories_generated').eq('id', userId).maybeSingle();
-    if (profileError && profileError.code !== 'PGRST116') throw new Error(`Error perfil: ${profileError.message}`);
+    // ... (igual) ...
+    const { data: profile } = await supabaseAdmin.from('profiles').select('subscription_status, monthly_stories_generated').eq('id', userId).maybeSingle(); // Simplificado
     if (profile) isPremiumUser = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
     else console.warn(`Perfil no encontrado para ${userId}. Tratando como gratuito.`);
     let currentStoriesGenerated = profile?.monthly_stories_generated ?? 0;
     const FREE_STORY_LIMIT = 10;
     if (!isPremiumUser) {
       userIdForIncrement = userId;
-      console.log(`generate-story v3.3: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
+      console.log(`generate-story v3.5: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
       if (currentStoriesGenerated >= FREE_STORY_LIMIT) return new Response(JSON.stringify({
         error: `Límite mensual (${FREE_STORY_LIMIT}) alcanzado.`
       }), {
@@ -129,13 +138,13 @@ serve(async (req) => {
         }
       });
     } else {
-      console.log(`generate-story v3.3: Premium user ${userId}.`);
+      console.log(`generate-story v3.5: Premium user ${userId}.`);
     }
     // --- 3. Body y Generación IA ---
     let params;
     try {
       params = await req.json();
-      console.log("--- DEBUG v3.3: Params Recibidos ---", {
+      console.log("--- DEBUG v3.5: Params Recibidos ---", {
         action: params?.action,
         options: params?.options
       });
@@ -143,19 +152,19 @@ serve(async (req) => {
         throw new Error("Parámetros inválidos/incompletos (character, language, childAge, duration).");
       }
     } catch (error) {
-      console.error(`[DEBUG v3.3] Failed to parse JSON body for user ${userId}. Error:`, error);
+      console.error(`[DEBUG v3.5] Failed to parse JSON body for user ${userId}. Error:`, error);
       throw new Error(`Invalid/empty JSON in body: ${error.message}.`);
     }
     const systemPrompt = createSystemPrompt(params.language, params.childAge, params.specialNeed);
     const userPrompt = createUserPromptContent(params);
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    console.log(`generate-story v3.3: Calling AI for ${userId} (expecting JSON)...`);
+    console.log(`generate-story v3.5: Calling AI for ${userId} (expecting JSON)...`);
     const generationConfig = {
       temperature: 0.8,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 2048
-    };
+      maxOutputTokens: 8192
+    }; // Mantenemos max tokens alto
     const contentResult = await model.generateContent({
       contents: [
         {
@@ -170,36 +179,50 @@ serve(async (req) => {
       generationConfig: generationConfig
     });
     const contentResponse = contentResult?.response;
-    let fullTextResponse = contentResponse?.text?.(); // Respuesta esperada: solo un string JSON
-    console.log(`[EDGE_FUNC_DEBUG v3.3] Raw AI response text (before fence cleaning): ... ${fullTextResponse?.slice(-100) || '(No text received)'}`); // Log final
+    let fullTextResponse = contentResponse?.text?.();
+    console.log(`[EDGE_FUNC_DEBUG v3.5] Raw AI response text (before fence cleaning): ... ${fullTextResponse?.slice(-100) || '(No text received)'}`);
     if (!fullTextResponse || contentResponse?.promptFeedback?.blockReason) {
       console.error("AI Generation Error:", contentResponse?.promptFeedback);
       throw new Error(`Fallo al generar contenido JSON: ${contentResponse?.promptFeedback?.blockReason || 'Respuesta IA vacía/bloqueada'}`);
     }
-    // --- CORRECCIÓN: Limpiar delimitadores Markdown ANTES de parsear ---
+    // --- Limpiar ```json ANTES de parsear ---
     const jsonRegex = /^```(?:json)?\s*([\s\S]*?)\s*```$/;
     const match = fullTextResponse.match(jsonRegex);
     let textToParse = fullTextResponse.trim();
     if (match && match[1]) {
-      console.log("[DEBUG v3.3] Markdown fences detected in generate-story, extracting JSON content...");
+      console.log("[DEBUG v3.5] Markdown fences detected in generate-story, extracting JSON...");
       textToParse = match[1].trim();
     } else if (textToParse.startsWith('{') && textToParse.endsWith('}')) {
-      console.log("[DEBUG v3.3] No fences detected in generate-story, but looks like JSON. Proceeding.");
+      console.log("[DEBUG v3.5] No fences detected in generate-story, but looks like JSON.");
     } else {
-      console.warn("[DEBUG v3.3] generate-story response doesn't look like JSON or JSON wrapped in fences. Parsing might fail.");
+      console.warn("[DEBUG v3.5] generate-story response doesn't look like JSON or wrapped JSON.");
+    }
+    // ------------------------------------------
+    // --- ***NUEVO: Sanitizar caracteres de control ANTES de parsear*** ---
+    let sanitizedTextToParse;
+    try {
+      // Reemplaza caracteres de control comunes (excepto \t, \n, \r que podrían ser intencionales EN JSON VÁLIDO)
+      // Esta regex busca caracteres en el rango U+0000 a U+001F que no sean tab, newline, carriage return
+      sanitizedTextToParse = textToParse.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+      // Opcional: Escapar barras invertidas si sospechas que causan problemas de escape
+      // sanitizedTextToParse = sanitizedTextToParse.replace(/\\/g, '\\\\');
+      console.log(`[DEBUG v3.5] Text sanitized. Length difference: ${textToParse.length - sanitizedTextToParse.length}`);
+    } catch (sanitizeError) {
+      console.error("Error during text sanitization:", sanitizeError);
+      sanitizedTextToParse = textToParse; // Intentar parsear el original si la sanitización falla
     }
     // --------------------------------------------------------------------
-    // --- Parseo JSON y Limpieza ---
+    // --- Parseo JSON (usa texto sanitizado) y Limpieza de Valores ---
     let parsedResponse;
     try {
-      parsedResponse = JSON.parse(textToParse); // <<< Usa textToParse limpio
+      parsedResponse = JSON.parse(sanitizedTextToParse); // <<< Usa sanitizedTextToParse
       if (!parsedResponse || typeof parsedResponse !== 'object' || typeof parsedResponse.title !== 'string' || typeof parsedResponse.content !== 'string') {
         throw new Error("Parsed JSON structure invalid (missing 'title' or 'content' string).");
       }
     } catch (e) {
-      console.error("Failed to parse JSON response from AI (after attempting fence cleaning):", e, "\nText Attempted to Parse:", textToParse);
+      console.error("Failed to parse JSON response from AI (after fence cleaning & sanitization):", e, "\nText Attempted to Parse:", sanitizedTextToParse);
       console.error("Original Raw Response was:", fullTextResponse);
-      throw new Error(`IA did not return valid JSON as requested, even after cleaning. Received (start): ${fullTextResponse.substring(0, 200)}...`);
+      throw new Error(`IA did not return valid JSON as requested, even after cleaning/sanitization. Received (start): ${fullTextResponse.substring(0, 200)}...`);
     }
     const finalTitle = cleanJsonValue(parsedResponse.title, 'title');
     const finalContent = cleanJsonValue(parsedResponse.content, 'content');
@@ -210,17 +233,19 @@ serve(async (req) => {
       });
       throw new Error("Error interno: Título o contenido vacíos después de limpiar.");
     }
-    console.log(`generate-story v3.3: Final Title: "${finalTitle}", Content Length: ${finalContent.length}`);
+    console.log(`generate-story v3.5: Final Title: "${finalTitle}", Content Length: ${finalContent.length}`);
     // --- 4. Incrementar Contador ---
+    // ... (igual) ...
     if (userIdForIncrement) {
-      console.log(`generate-story v3.3: Incrementing count for ${userIdForIncrement}...`);
+      console.log(`generate-story v3.5: Incrementing count for ${userIdForIncrement}...`);
       const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
         user_uuid: userIdForIncrement
       });
       if (incrementError) console.error(`CRITICAL: Failed count increment for ${userIdForIncrement}: ${incrementError.message}`);
-      else console.log(`generate-story v3.3: Count incremented for ${userIdForIncrement}.`);
+      else console.log(`generate-story v3.5: Count incremented for ${userIdForIncrement}.`);
     }
     // --- 5. Respuesta Final ---
+    // ... (igual) ...
     return new Response(JSON.stringify({
       content: finalContent,
       title: finalTitle
@@ -233,7 +258,8 @@ serve(async (req) => {
     });
   } catch (error) {
     // --- Manejo de Errores ---
-    console.error(`Error in generate-story v3.3 (User: ${userId || 'UNKNOWN'}):`, error);
+    // ... (igual) ...
+    console.error(`Error in generate-story v3.5 (User: ${userId || 'UNKNOWN'}):`, error);
     let statusCode = 500;
     if (error instanceof Error) {
       const message = error.message.toLowerCase();

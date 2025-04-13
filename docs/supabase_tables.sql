@@ -50,27 +50,35 @@ CREATE TABLE public.characters (
 );
 
 CREATE TABLE public.profiles (
-  id uuid NOT NULL,
-  language text NOT NULL,
-  child_age integer NULL,
-  special_need text NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  stripe_customer_id text NULL,
-  subscription_status text NULL,
-  voice_credits integer NOT NULL DEFAULT 0,
-  current_period_end timestamp with time zone NULL,
-  monthly_stories_generated integer NOT NULL DEFAULT 0,
-  last_story_reset_date timestamp with time zone NULL,
-  subscription_id text NULL,
-  plan_id text NULL,
-  period_start_date timestamp with time zone NULL,
-  monthly_voice_generations_used integer NULL DEFAULT 0,
-  CONSTRAINT profiles_pkey PRIMARY KEY (id),
-  CONSTRAINT profiles_stripe_customer_id_key UNIQUE (stripe_customer_id),
-  CONSTRAINT profiles_subscription_id_key UNIQUE (subscription_id),
-  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+    id uuid NOT NULL PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    -- User preferences
+    preferred_language text DEFAULT 'es'::text CHECK (preferred_language IN ('en', 'es', 'fr', 'de', 'it')),
+    user_age_range text CHECK (user_age_range IN ('3-5', '6-8', '9-12', '13+')),
+    special_need text CHECK (special_need IN ('none', 'adhd', 'autism', 'dyslexia', 'visual_impairment', 'hearing_impairment')),
+    has_completed_setup boolean DEFAULT false NOT NULL,
+    preferred_voice_id text, -- Reference to a potential voices table or external ID
+
+    -- Usage limits & Subscription status
+    subscription_status text DEFAULT 'free'::text CHECK (subscription_status IN ('free', 'premium_monthly', 'premium_yearly', 'trialing', 'past_due', 'canceled')),
+    stripe_customer_id text UNIQUE,
+    stripe_subscription_id text UNIQUE,
+    current_period_end timestamp with time zone,
+
+    -- Free user limits (Reset monthly by cron/function)
+    monthly_stories_generated integer DEFAULT 0,
+
+    -- Premium user limits (Reset on subscription renewal via webhook)
+    monthly_voice_generations_used integer DEFAULT 0, -- Tracks premium monthly voice generations
+
+    -- Purchased Credits (One-time or top-ups)
+    voice_credits integer DEFAULT 0,
+    story_credits integer DEFAULT 0,
+
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+
+COMMENT ON COLUMN public.profiles.has_completed_setup IS 'Indica si el usuario ha completado el flujo de configuración inicial del perfil.';
 
 CREATE TABLE public.stories (
   id uuid NOT NULL DEFAULT extensions.uuid_generate_v4(),
@@ -113,3 +121,15 @@ CREATE TABLE public.user_voices (
   CONSTRAINT user_voices_pkey PRIMARY KEY (id),
   CONSTRAINT user_voices_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
+
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS monthly_voice_generations_used INTEGER DEFAULT 0;
+
+ALTER TABLE public.profiles
+DROP COLUMN IF EXISTS last_story_reset_date;
+
+ALTER TABLE public.stories
+DROP COLUMN IF EXISTS free_continuation_used;
+
+ALTER TABLE public.stories
+DROP COLUMN IF EXISTS image_url;

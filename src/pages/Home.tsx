@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { BookOpen, Settings, BookMarked, User, AlertCircle, Star, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,9 +14,17 @@ export default function Home() {
   const { generatedStories } = useStoriesStore();
   const { toast } = useToast();
 
-  // Redirect to profile setup if not completed
+  useEffect(() => {
+    const needsProfileSetup = !hasCompletedProfile();
+    console.log("Home useEffect: Checking profile completion... Needs setup?", needsProfileSetup);
+    if (needsProfileSetup) {
+      console.log("Home useEffect: Redirecting to /profile-config");
+      navigate("/profile-config", { replace: true });
+    }
+  }, [hasCompletedProfile, navigate]);
+
   if (!hasCompletedProfile()) {
-    navigate("/profile");
+    console.log("Home Render: Profile setup not complete, rendering null while redirect effect runs.");
     return null;
   }
 

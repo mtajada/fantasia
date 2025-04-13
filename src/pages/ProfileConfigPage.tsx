@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 // Importaciones del Store y tipos
 import { useUserStore } from "@/store/user/userStore";
 import { ProfileSettings } from "@/types";
+import { supabase } from "@/supabaseClient";
 
 // Componentes UI y Hooks
 import BackButton from "@/components/BackButton";
@@ -16,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const ProfileConfigPage: React.FC = () => {
     const navigate = useNavigate();
-    const { profileSettings: storeProfileSettings, setProfileSettings, user } = useUserStore();
+    const { profileSettings: storeProfileSettings, setProfileSettings, user, hasCompletedProfile } = useUserStore();
     const { toast } = useToast();
 
     // Estado Local del Formulario
@@ -48,11 +49,11 @@ const ProfileConfigPage: React.FC = () => {
 
     // Definiciones de idiomas y necesidades especiales
     const languages = [
-        { value: "Español", label: "Español", flag: "🇪🇸" },
-        { value: "Inglés", label: "Inglés", flag: "🇬🇧" },
-        { value: "Francés", label: "Francés", flag: "🇫🇷" },
-        { value: "Alemán", label: "Alemán", flag: "🇩🇪" },
-        { value: "Italiano", label: "Italiano", flag: "🇮🇹" }
+        { value: "Español", label: "Español", flag: "" },
+        { value: "Inglés", label: "Inglés", flag: "" },
+        { value: "Francés", label: "Francés", flag: "" },
+        { value: "Alemán", label: "Alemán", flag: "" },
+        { value: "Italiano", label: "Italiano", flag: "" }
     ];
 
     const specialNeeds = [
@@ -77,6 +78,8 @@ const ProfileConfigPage: React.FC = () => {
             return;
         }
 
+        const wasSetupAlreadyComplete = hasCompletedProfile();
+
         const profileDataToSave: Partial<ProfileSettings> = {
             language,
             childAge,
@@ -85,12 +88,43 @@ const ProfileConfigPage: React.FC = () => {
 
         setIsSaving(true);
         try {
-            await setProfileSettings(profileDataToSave as ProfileSettings);
+            // 1. Guardar los settings editables a través del store Y marcar como completado LOCALMENTE
+            const finalSettingsToSave = {
+                ...profileDataToSave, // language, age, needs
+                has_completed_setup: true // <<<--- AÑADIDO EXPLICITAMENTE
+            };
+            await setProfileSettings(finalSettingsToSave);
 
-            toast({
-                title: "¡Perfil actualizado!",
-                description: "Tu configuración ha sido guardada correctamente.",
-            });
+            // 2. Marcar setup como completado en la BD (redundante pero seguro)
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ has_completed_setup: true })
+                .eq('id', user.id);
+
+            if (updateError) {
+                console.error('Error al marcar perfil como completado:', updateError);
+                toast({
+                    title: "Error parcial",
+                    description: "Se guardó el perfil, pero hubo un problema al marcar el setup como completado.",
+                    variant: "destructive",
+                });
+                // Considerar si detener el flujo aquí
+            } else {
+                // <<<--- MODIFICADO: Conditional Navigation & Toast --- */
+                const nextPath = wasSetupAlreadyComplete ? "/home" : "/plans";
+                const successDescription = wasSetupAlreadyComplete
+                    ? "Tu configuración ha sido guardada."
+                    : "Tu configuración ha sido guardada. ¡Vamos a elegir un plan!";
+
+                toast({
+                    title: "¡Perfil actualizado!",
+                    description: successDescription,
+                });
+                navigate(nextPath);
+                // <<<--- FIN MODIFICADO --- */
+            }
+            // --- FIN AÑADIDO ---
+
         } catch (err) {
             console.error("Error en handleSubmit al llamar a setProfileSettings:", err);
             let errorDesc = "Ha ocurrido un error inesperado al guardar tu perfil.";
@@ -245,4 +279,4 @@ const ProfileConfigPage: React.FC = () => {
     );
 };
 
-export default ProfileConfigPage; 
+export default ProfileConfigPage;

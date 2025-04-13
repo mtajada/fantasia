@@ -63,8 +63,6 @@ export default function Signup() {
           title: "Registro exitoso",
           description: "¡Tu cuenta ha sido creada! Por favor, revisa tu correo electrónico para confirmar tu registro.",
         });
-        
-        navigate("/login");
       } else {
         toast({
           title: "Error en el registro",
