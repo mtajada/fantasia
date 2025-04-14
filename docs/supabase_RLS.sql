@@ -28,6 +28,13 @@ CREATE POLICY "Los usuarios pueden crear preguntas en desafíos de sus historias
 CREATE POLICY "Los usuarios pueden actualizar preguntas de desafíos de sus historias" ON challenge_questions FOR UPDATE TO authenticated USING (auth.uid() IN (SELECT s.user_id FROM (stories s JOIN challenges c ON (s.id = c.story_id)) WHERE (c.id = challenge_questions.challenge_id)));
 CREATE POLICY "Los usuarios pueden eliminar preguntas de desafíos de sus historias" ON challenge_questions FOR DELETE TO authenticated USING (auth.uid() IN (SELECT s.user_id FROM (stories s JOIN challenges c ON (s.id = c.story_id)) WHERE (c.id = challenge_questions.challenge_id)));
 
+-- Políticas RLS para preset_suggestions
+CREATE POLICY "Allow authenticated read access to active presets" 
+ON public.preset_suggestions
+FOR SELECT
+TO authenticated
+USING (is_active = true);
+
 CREATE POLICY "Allow authenticated users to read own profile" ON profiles FOR SELECT TO authenticated USING (auth.uid() = id);
 CREATE POLICY "Allow authenticated users to update own profile" ON profiles FOR UPDATE TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 CREATE POLICY "Allow authenticated users to insert own profile" ON profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);

@@ -77,6 +77,7 @@ getChapterCountForStory(storyId): Cuenta cuántos capítulos existen actualmente
 syncChallenge, getStoryChallenges: CRUD para challenges y challenge_questions.
 syncAudioFile, getUserAudios: CRUD para audio_files.
 setCurrentVoice, getCurrentVoice: CRUD para user_voices.
+*   **Leer Presets de Historias**: Aunque la lógica específica puede estar directamente en el componente (`StoryDetailsInput.tsx`), las llamadas a `supabase.from('preset_suggestions').select(...)` para obtener las sugerencias aleatorias también forman parte de la interacción directa con la base de datos gestionada a través del cliente Supabase centralizado.
 Componente Clave: SyncQueueService
 Implementa un Singleton (syncQueue) para gestionar una cola de operaciones de escritura (insert, update, delete) que fallan (presumiblemente por estar offline).
 Persiste la cola en localStorage.

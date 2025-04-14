@@ -703,3 +703,38 @@ localStorage y podrían mezclarse con los datos del usuario actual.
    - Batch updates para sincronización masiva
    - Sincronización diferencial (solo enviar cambios, no objetos completos)
    - Compresión de datos para reducir el tamaño de las transferencias
+
+## Gestión de Presets de Historias
+
+Se ha introducido una nueva funcionalidad para ofrecer sugerencias (presets) aleatorias a los usuarios al momento de detallar su historia. Esta función utiliza una tabla específica en Supabase.
+
+### Tabla `preset_suggestions`
+
+Esta tabla almacena las sugerencias de texto que se mostrarán a los usuarios.
+
+-   **Propósito**: Contener textos predefinidos que sirvan de inspiración o punto de partida para la descripción de la historia.
+-   **Estructura Clave**:
+    -   `id`: Identificador único del preset.
+    -   `text_prompt`: El texto de la sugerencia.
+    -   `is_active`: Booleano que indica si el preset debe mostrarse (permite desactivar presets sin borrarlos).
+-   **Datos Iniciales**: Se cargan mediante el script `docs/supabase_presets_data.sql`.
+
+### Integración con el Frontend (`StoryDetailsInput.tsx`)
+
+El componente `StoryDetailsInput.tsx` ahora incluye lógica para:
+
+1.  **Obtener Presets**: Al montar el componente, se realiza una llamada a Supabase para obtener todos los presets activos (`is_active = true`).
+    ```typescript
+    const { data, error } = await supabase
+      .from('preset_suggestions')
+      .select('id, text_prompt')
+      .eq('is_active', true);
+    ```
+2.  **Almacenamiento Local**: Los presets obtenidos se guardan en el estado local del componente para evitar llamadas repetidas a la base de datos.
+3.  **Selección Aleatoria**: Se seleccionan 3 presets aleatorios de la lista almacenada para mostrarlos al usuario.
+4.  **Actualización**: Un botón permite al usuario obtener un nuevo conjunto de 3 presets aleatorios sin necesidad de recargar la página.
+5.  **Uso del Preset**: Al hacer clic en un preset, su texto (`text_prompt`) se copia en el área de texto principal (`textarea`) para que el usuario pueda usarlo o modificarlo.
+
+### Seguridad (RLS)
+
+Se ha configurado una política de seguridad a nivel de fila (RLS) para la tabla `preset_suggestions` que permite a cualquier usuario autenticado leer (`SELECT`) únicamente los presets que estén marcados como activos (`is_active = true`). Esto asegura que solo se muestren las sugerencias relevantes y aprobadas. Consulta `docs/supabase_RLS.sql` para ver la política específica.
