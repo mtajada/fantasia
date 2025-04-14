@@ -2,7 +2,7 @@
 import { StoryOptions, Story } from "../../types"; // Importar Story si no está
 import { supabase } from "../../supabaseClient";
 
-interface GenerateStoryParams {
+export interface GenerateStoryParams {
   options: Partial<StoryOptions>; // O el tipo completo si siempre está completo
   language?: string;
   childAge?: number;
@@ -11,7 +11,7 @@ interface GenerateStoryParams {
 }
 
 // Definir el tipo de respuesta esperada de la Edge Function
-interface GenerateStoryResponse {
+export interface GenerateStoryResponse {
   content: string;
   title: string;
 }
@@ -30,6 +30,9 @@ export class GenerateStoryService {
         throw new Error(sessionError?.message || 'Usuario no autenticado.');
       }
       const token = sessionData.session.access_token;
+
+      // DEBUG: Log the exact payload being sent
+      console.log(">>> Payload being sent to generate-story:", JSON.stringify(params, null, 2));
 
       const { data, error } = await supabase.functions.invoke<GenerateStoryResponse>('generate-story', { // Especificar tipo de respuesta <T>
         body: params, // El cuerpo ya contiene las opciones, idioma, etc. y additionalDetails

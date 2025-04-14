@@ -25,29 +25,40 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 export const syncUserProfile = async (
     userId: string,
-    profileSettings: ProfileSettings,
+    // Renombramos el parámetro para claridad y ajustamos tipo
+    dataToSync: Partial<ProfileSettings> & { [key: string]: any },
 ): Promise<{ success: boolean; error?: any }> => {
     try {
-        // Sincroniza solo los campos editables por el usuario en este flujo
+        console.log(`[syncUserProfile_DEBUG] Attempting to sync for user ${userId} with data:`, dataToSync);
+
+        // Preparamos los datos para upsert, asegurando que 'id' y 'updated_at' están presentes
+        const upsertData = {
+            id: userId,             // ID es necesario para upsert
+            ...dataToSync,         // Usamos directamente los datos mapeados (ej. child_age, special_need)
+            updated_at: new Date(), // Siempre actualizamos la fecha
+        };
+
+        // Opcional: Asegurarse de que special_need sea null si es undefined, aunque upsert debería manejarlo
+        // Corregido: Usar notación de corchetes para evitar error de linting con snake_case
+        if (upsertData['special_need'] === undefined) {
+            upsertData['special_need'] = null;
+        }
+
         const { error } = await supabase
             .from("profiles")
-            .upsert({
-                id: userId,
-                language: profileSettings.language,
-                child_age: profileSettings.childAge,
-                // Si specialNeed es undefined/null, asegúrate que la DB lo permite o usa un valor default
-                special_need: profileSettings.specialNeed || null,
-                updated_at: new Date(),
-            });
+            .upsert(upsertData); // <<< Pasamos el objeto correcto a upsert
 
         if (error) {
             console.error("Error sincronizando perfil (posible RLS):", error);
-            throw error;
+            throw error; // Re-lanzar para el catch general
         }
+        console.log(`[syncUserProfile_DEBUG] Profile synced successfully for user ${userId}`);
         return { success: true };
     } catch (error) {
         console.error("Fallo general en syncUserProfile:", error);
-        return { success: false, error };
+        // Asegurarse de devolver un objeto Error estándar
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { success: false, error: new Error(errorMessage) }; 
     }
 };
 

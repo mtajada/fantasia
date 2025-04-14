@@ -69,14 +69,18 @@ Cuidado: Fundamental que NUNCA maneje la Secret Key de Stripe. Debe limitarse a 
 3.6. @src/services/supabase.ts
 Propósito: Capa central de acceso a la base de datos Supabase. Realiza operaciones CRUD directas y maneja la cola de sincronización offline.
 Métodos Clave (Ejemplos):
-syncUserProfile, getUserProfile: CRUD para la tabla profiles. getUserProfile es crucial para obtener el estado de suscripción y límites del usuario.
-syncCharacter, getUserCharacters, deleteCharacter: CRUD para la tabla characters.
-syncStory, getUserStories: CRUD para la tabla stories (incluyendo join con characters).
-syncChapter, getStoryChapters: CRUD para la tabla story_chapters.
-getChapterCountForStory(storyId): Cuenta cuántos capítulos existen actualmente para una historia específica en la tabla story_chapters. Usado para determinar el número del siguiente capítulo.
-syncChallenge, getStoryChallenges: CRUD para challenges y challenge_questions.
-syncAudioFile, getUserAudios: CRUD para audio_files.
-setCurrentVoice, getCurrentVoice: CRUD para user_voices.
+    *   `syncUserProfile(userId, profileData)`: **Actualiza/Inserta (upsert)** el perfil del usuario en la tabla `profiles`.
+        *   **Importante:** Espera que el objeto `profileData` contenga las claves ya **en formato `snake_case`** (ej., `child_age`, `special_need`), coincidiendo con las columnas de la base de datos. El mapeo desde `camelCase` se realiza *antes* de llamar a esta función (actualmente en `@store/user/userStore.ts -> setProfileSettings`).
+        *   Utiliza `upsert` con `id` como conflicto para manejar tanto creación como actualización.
+        *   Usa `syncQueue.addToQueue` en caso de error para sincronización offline.
+    *   `getUserProfile`: Obtiene el perfil completo del usuario desde la tabla `profiles`. Es crucial para obtener el estado de suscripción y límites del usuario.
+    *   `syncCharacter, getUserCharacters, deleteCharacter`: CRUD para la tabla `characters`.
+    *   `syncStory, getUserStories`: CRUD para la tabla `stories` (incluyendo join con `characters`).
+    *   `syncChapter, getStoryChapters`: CRUD para la tabla `story_chapters`.
+    *   `getChapterCountForStory(storyId)`: Cuenta cuántos capítulos existen actualmente para una historia específica en la tabla `story_chapters`. Usado para determinar el número del siguiente capítulo.
+    *   `syncChallenge, getStoryChallenges`: CRUD para challenges y challenge_questions.
+    *   `syncAudioFile, getUserAudios`: CRUD para audio_files.
+    *   `setCurrentVoice, getCurrentVoice`: CRUD para user_voices.
 *   **Leer Presets de Historias**: Aunque la lógica específica puede estar directamente en el componente (`StoryDetailsInput.tsx`), las llamadas a `supabase.from('preset_suggestions').select(...)` para obtener las sugerencias aleatorias también forman parte de la interacción directa con la base de datos gestionada a través del cliente Supabase centralizado.
 Componente Clave: SyncQueueService
 Implementa un Singleton (syncQueue) para gestionar una cola de operaciones de escritura (insert, update, delete) que fallan (presumiblemente por estar offline).

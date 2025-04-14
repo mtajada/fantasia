@@ -6,11 +6,8 @@ import { useUserStore } from "../user/userStore";
 import { useCharacterStore } from "../character/characterStore";
 import { useStoryOptionsStore } from "../storyOptions/storyOptionsStore"; 
 import { generateId } from "../core/utils"; 
-// --- Importar el servicio CORRECTO ---
-import { GenerateStoryService } from "../../services/ai/GenerateStoryService";
+import { GenerateStoryService, GenerateStoryParams } from "@/services/ai/GenerateStoryService";
 import { useChaptersStore } from "./chapters/chaptersStore"; 
-// --- ELIMINAR import de StoryContinuationService si ya no se usa para nada más aquí ---
-// import { StoryContinuationService } from "../../services/StoryContinuationService";
 
 /**
  * Genera una historia completa (Capítulo 1 + Título) a partir de las opciones
@@ -29,26 +26,40 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
   try {
     const storyId = generateId(); 
-    const profileSettings = userStore.profileSettings; 
-    const characterForStory = options.character || characterStore.currentCharacter;
+    const profileSettings = useUserStore.getState().profileSettings; 
+    const characterForStory = useCharacterStore.getState().currentCharacter; 
     const additionalDetails = storyOptionsState.additionalDetails; 
+
+    // --- DEBUG: Log detallado de parámetros ANTES de construir payload --- 
+    console.log("🔍 DEBUG PRE-PAYLOAD: Datos Perfil ->", JSON.stringify(profileSettings, null, 2));
+    console.log("🔍 DEBUG PRE-PAYLOAD: Datos Personaje ->", JSON.stringify(characterForStory, null, 2));
+    console.log("🔍 DEBUG PRE-PAYLOAD: Opciones Recibidas (función) ->", JSON.stringify(options, null, 2));
+    console.log("🔍 DEBUG PRE-PAYLOAD: Duración (store) ->", storyOptionsState.currentStoryOptions.duration);
+    console.log("🔍 DEBUG PRE-PAYLOAD: Detalles Adicionales ->", additionalDetails);
+    // --- FIN DEBUG ---
 
     if (!profileSettings) throw new Error("Perfil de usuario no cargado.");
     if (!characterForStory) throw new Error("Personaje no seleccionado o inválido.");
 
     // --- Llamada ÚNICA al servicio que invoca la EF 'generate-story' ---
-    const storyResponse = await GenerateStoryService.generateStoryWithAI({
-      options: { ...options, character: characterForStory }, 
-      language: profileSettings.language,
-      childAge: profileSettings.childAge,
-      specialNeed: profileSettings.specialNeed,
+    const payload: GenerateStoryParams = {
+      options: {
+        character: characterForStory,
+        genre: options.genre, 
+        moral: options.moral, 
+        duration: storyOptionsState.currentStoryOptions.duration, 
+      },
+      language: profileSettings.language, 
+      childAge: profileSettings.childAge ?? 5, 
+      specialNeed: profileSettings.specialNeed, 
       additionalDetails: additionalDetails || undefined, 
-    });
+    };
+
+    console.log("Enviando solicitud a la Edge Function generate-story con params:", payload);
+
+    const storyResponse = await GenerateStoryService.generateStoryWithAI(payload);
     // storyResponse ahora es { content: string, title: string }
     console.log(`[storyGenerator_DEBUG] Title received from Service: "${storyResponse.title}"`);
-
-    // --- YA NO se llama a generateChapterTitle por separado ---
-    // const title = await StoryContinuationService.generateChapterTitle(content); 
 
     // Guardar el personaje si es uno nuevo o modificado (asumiendo que save es seguro)
     // Considera si esto debe hacerse solo si la generación fue exitosa

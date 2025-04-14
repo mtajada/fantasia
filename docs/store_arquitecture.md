@@ -92,7 +92,14 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `checkAuth()`: Verifies auth, loads profile, triggers `syncAllUserData`. **Central function.** Determines initial redirect path (`/home` or `/profile-config`) based on `profileSettings.has_completed_setup`.
     *   `loginUser(user)`: Sets user state, loads profile, triggers `syncAllUserData`.
     *   `logoutUser()`: Processes sync queue, signs out via `@services/supabaseAuth.logout`, clears local state, calls `setCurrentAuthUser(null)`.
-    *   `setProfileSettings(settings)`: Updates `profileSettings` state locally, calls `@services/supabase.syncUserProfile` to persist *editable* settings (language, age, need), and uses `syncQueue` on failure. **Important:** When called from `ProfileConfigPage`, this action now *explicitly* includes `has_completed_setup: true` in the `settings` object passed to it, ensuring the local state reflects completion immediately after the first save.
+    *   `setProfileSettings(settings)`: 
+        1. Recibe un objeto `settings` con las propiedades del perfil a actualizar (usando nombres en camelCase, ej. `childAge`).
+        2. **Actualiza inmediatamente el estado local (`profileSettings`)** fusionando los nuevos `settings` para que la UI refleje los cambios al instante.
+        3. **Mapea las claves del objeto `settings`** de camelCase (TypeScript) a snake_case (Supabase DB) usando un `keyMap` interno (ej., `childAge` -> `child_age`, `specialNeed` -> `special_need`). Solo se incluyen en el mapeo las propiedades presentes en el `settings` recibido.
+        4. Construye un objeto `syncData` que contiene únicamente las propiedades mapeadas a snake_case con sus valores.
+        5. Llama a `@services/supabase.syncUserProfile` pasándole el `userId` y el objeto `syncData` (con claves snake_case) para persistir los cambios en la base de datos.
+        6. Utiliza `@services/syncQueue` como fallback si la sincronización directa falla.
+        7. **Nota:** Cuando se llama desde `ProfileConfigPage` por primera vez, el objeto `settings` también incluye explícitamente `has_completed_setup: true` para marcar el perfil como configurado.
     *   `hasCompletedProfile()`: A selector/getter function that returns `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used by components like `Home` and `AuthGuard` to check if the user needs to be sent to profile configuration.
 *   **Supabase Interaction:** Calls `getCurrentUser`, `logout`, `getUserProfile`, `syncUserProfile`, `syncQueue`.
 *   **Notes:** Contains the vital `syncAllUserData` orchestrator function. Ensure all necessary stores are listed in its `otherStores` array.

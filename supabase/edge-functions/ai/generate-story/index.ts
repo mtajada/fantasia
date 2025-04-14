@@ -53,7 +53,16 @@ function createUserPromptContent({ options, additionalDetails }) {
   }
 
   request += `2.  **Estructura COMPLETA (OBLIGATORIO):** Independientemente de la longitud, el cuento DEBE tener una estructura narrativa clara y completa: **inicio, desarrollo y final**. ¡NUNCA termines la historia abruptamente o a mitad de una frase! La coherencia y la finalización son más importantes que el conteo exacto de tokens.\n`;
-  request += `3.  **Título:** Genera un título corto y atractivo (máx 5-7 palabras) para este cuento.\n`;
+
+  // Instrucciones mejoradas para la generación de títulos
+  request += `3.  **Título (MUY IMPORTANTE):** Genera un título EXTRAORDINARIO para este cuento, como si fuises un escritor de éxito. Sigue estas pautas:\n`;
+  request += `    * Debe ser MEMORABLE, ORIGINAL y CAUTIVADOR para niños.\n`;
+  request += `    * Evita títulos genéricos como "La Aventura de [Nombre]" o "[Nombre] y el/la [Objeto]".\n`;
+  request += `    * Incluye elementos de FANTASÍA, MISTERIO o SORPRESA que despierten curiosidad inmediata.\n`;
+  request += `    * Usa JUEGOS DE PALABRAS, ALITERACIONES o RIMAS cuando sea posible.\n`;
+  request += `    * Longitud ideal: 4-7 palabras (máximo 40 caracteres).\n`;
+  request += `    * Ejemplos de buenos títulos: "El Bosque de los Susurros Mágicos", "Estrellas en Frascos de Cristal", "La Melodía del Dragón Dormido".\n`;
+
   request += `\n**Instrucciones de Formato de Respuesta (OBLIGATORIO):**\n`;
   request += `*   Responde **ÚNICA Y EXCLUSIVAMENTE** con un objeto JSON válido.\n`;
   request += `*   El JSON debe tener exactamente dos claves:\n`;
