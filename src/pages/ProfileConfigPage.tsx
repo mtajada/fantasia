@@ -49,11 +49,11 @@ const ProfileConfigPage: React.FC = () => {
 
     // Definiciones de idiomas y necesidades especiales
     const languages = [
-        { value: "Español", label: "Español", flag: "" },
-        { value: "Inglés", label: "Inglés", flag: "" },
-        { value: "Francés", label: "Francés", flag: "" },
-        { value: "Alemán", label: "Alemán", flag: "" },
-        { value: "Italiano", label: "Italiano", flag: "" }
+        { value: "Español", label: "Español", flag: "🇪🇸" },
+        { value: "Inglés", label: "Inglés", flag: "🇬🇧" },
+        { value: "Francés", label: "Francés", flag: "🇫🇷" },
+        { value: "Alemán", label: "Alemán", flag: "🇩🇪" },
+        { value: "Italiano", label: "Italiano", flag: "🇮🇹" }
     ];
 
     const specialNeeds = [
@@ -189,13 +189,21 @@ const ProfileConfigPage: React.FC = () => {
 
                                 <Select value={language} onValueChange={setLanguage}>
                                     <SelectTrigger className="w-full bg-white/10 border-white/20 backdrop-blur-sm text-white hover:bg-white/20 transition-colors h-12">
-                                        <SelectValue placeholder="Selecciona un idioma" />
+                                        <SelectValue placeholder="Selecciona un idioma">
+                                            {language && (
+                                                <span className="flex items-center gap-2">
+                                                    <span className="text-xl">{languages.find(lang => lang.value === language)?.flag}</span>
+                                                    <span>{language}</span>
+                                                </span>
+                                            )}
+                                        </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent className="bg-purple-800/90 backdrop-blur-md border-purple-700">
                                         {languages.map((lang) => (
                                             <SelectItem key={lang.value} value={lang.value} className="text-white focus:bg-white/20 focus:text-white">
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-lg">{lang.flag}</span> {lang.label}
+                                                <span className="flex items-center gap-3">
+                                                    <span className="text-xl inline-block min-w-[1.5rem]">{lang.flag}</span>
+                                                    <span>{lang.label}</span>
                                                 </span>
                                             </SelectItem>
                                         ))}

@@ -11,7 +11,8 @@
 │   ├── 📄 Stripe_integration.md
 │   ├── 📄 supabase-integration-guide.md
 │   ├── 📄 supabase_tables.sql
-│   └── 📄 supabase_RLS.sql
+│   ├── 📄 supabase_RLS.sql
+│   └── 📄 supabase_presets_data.sql  # Datos iniciales de presets para historias
 │
 ├── 📁 node_modules
 │

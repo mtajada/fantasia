@@ -111,3 +111,8 @@ export type StoryWithChapters = {
   hasMultipleChapters?: boolean;
   chaptersCount?: number;
 };
+
+export type PresetSuggestion = {
+  id: number; // Supabase bigint maps to number in JS/TS if not excessively large
+  text_prompt: string;
+};
