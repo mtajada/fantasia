@@ -15,7 +15,7 @@ import PageTransition from "../components/PageTransition";
 import ChallengeSelector from "../components/ChallengeSelector";
 import LanguageSelector from "../components/LanguageSelector";
 import ChallengeQuestion from "../components/ChallengeQuestion";
-import { toast } from "sonner";
+import { toast } from "sonner"; // Asegurarse que toast está importado
 import { ChallengeCategory, ChallengeQuestion as ChallengeQuestionType, StoryChapter, Story } from "../types"; // Importar Story
 import { ChallengeService } from "../services/ai/ChallengeService"; // Asumiendo ruta
 
@@ -97,8 +97,43 @@ export default function StoryViewer() {
 
   // --- Manejadores de Acciones ---
 
-  const handleShare = () => { /* ... (sin cambios) ... */ };
-  const handlePrint = () => { /* ... (sin cambios) ... */ };
+  const handleShare = async () => {
+    const shareUrl = window.location.href; // URL actual incluyendo el capítulo
+    const shareTitle = story?.title || "Mi Historia CuentaSueños";
+    const shareText = chapters.length > 0 ? chapters[currentChapterIndex]?.title : "Echa un vistazo a esta historia";
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        toast.success("¡Historia compartida!");
+      } catch (error) {
+        console.error("Error al compartir:", error);
+        toast.error("No se pudo compartir", { description: "El navegador canceló la acción o hubo un error." });
+      }
+    } else {
+      // Fallback: Copiar al portapapeles
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.info("Enlace copiado al portapapeles", {
+          description: "Puedes pegarlo para compartir la historia."
+        });
+      } catch (err) {
+        console.error('Error al copiar al portapapeles:', err);
+        toast.error("No se pudo copiar el enlace", {
+          description: "Tu navegador no soporta esta función o hubo un error."
+        });
+      }
+    }
+  };
+
+  const handlePrint = () => {
+    // Simplemente llama a la función de impresión del navegador
+    window.print();
+  };
 
   const toggleAudioPlayer = () => {
     // Usar el estado derivado isAllowedToGenerateVoice
@@ -185,9 +220,21 @@ export default function StoryViewer() {
           } else { navigate('/saved-stories'); } // Volver a la lista de historias
         }} />
         <div className="absolute top-6 right-6 flex space-x-2 z-10">
-          {/* ... botones Share y Print ... */}
-          <button onClick={handleShare} className="action-icon-button" aria-label="Compartir"><Share size={20} /></button>
-          <button onClick={handlePrint} className="action-icon-button" aria-label="Imprimir"><Printer size={20} /></button>
+          {/* Updated Share and Print buttons to match Home.tsx style */}
+          <button 
+            onClick={handleShare} 
+            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/15 hover:scale-105 active:scale-95 transition-all shadow-md" 
+            aria-label="Compartir"
+          >
+            <Share className="h-5 w-5" />
+          </button>
+          <button 
+            onClick={handlePrint} 
+            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/15 hover:scale-105 active:scale-95 transition-all shadow-md" 
+            aria-label="Imprimir"
+          >
+            <Printer className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="container max-w-2xl mx-auto pt-20 px-6">
