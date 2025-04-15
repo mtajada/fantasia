@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
+    "start": "vite preview --host --port 80",
+    "start:prod": "NODE_ENV=production vite preview --host --port 80",
+    "deploy": "npm run build:prod && npm run start:prod",
     "lint": "eslint .",
     "preview": "vite preview"
   },
