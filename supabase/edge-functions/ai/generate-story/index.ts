@@ -1,36 +1,40 @@
 // supabase/edge-functions/generate-story/index.ts
-// v3.5: Sanitiza caracteres de control en el JSON string ANTES de parsear.
-import { GoogleGenerativeAI } from 'npm:@google/generative-ai';
+// v6.1: Usa LIBRERÍA ORIGINAL (@google/generative-ai), UNA LLAMADA,
+//       y espera SEPARADORES. Corregido error de despliegue en validación 'if'.
+import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../_shared/cors.ts'; // Asegúrate que la ruta es correcta
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 // --- Configuración ---
 const API_KEY = Deno.env.get("GEMINI_API_KEY");
 if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
+// --- Instancia con Librería Original ---
 const genAI = new GoogleGenerativeAI(API_KEY);
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
 if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
 const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
+// --- Modelo ---
 const modelName = "gemini-2.0-flash-thinking-exp-01-21";
-console.log(`generate-story v3.5: Using model: ${modelName}`);
+console.log(`generate-story v6.1: Using model: ${modelName} (Separator Strategy - Deployment Fix)`);
 const model = genAI.getGenerativeModel({
   model: modelName
 });
-// --- Funciones Helper (createSystemPrompt, createUserPromptContent, cleanJsonValue: SIN CAMBIOS desde v3.4) ---
+// --- Funciones Helper ---
+// createSystemPrompt: Sin cambios
 function createSystemPrompt(language, childAge, specialNeed) {
-  console.log(`[Helper v3.5] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
+  console.log(`[Helper v6.1] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
   let base = `Eres un escritor experto de cuentos infantiles creativos y educativos. Escribe siempre en ${language}.`;
-  base += ` El público objetivo son niños de ${childAge} años.`;
+  base += ` El público objetivo son niños de ${childAge ?? 7} años.`;
   if (specialNeed && specialNeed !== 'Ninguna') {
     base += ` Adapta sutilmente la historia considerando ${specialNeed}. Prioriza claridad y tono positivo.`;
   }
   base += ` Sé creativo, asegúrate de que la historia sea coherente y tenga una estructura narrativa clara (inicio, desarrollo, final).`;
   return base;
 }
-
-function createUserPromptContent({ options, additionalDetails }) {
-  console.log(`[Helper v3.5] createUserPromptContent (JSON output): options=`, options, `details=`, additionalDetails);
+// createUserPrompt_SeparatorFormat: Pide separadores
+function createUserPrompt_SeparatorFormat({ options, additionalDetails }) {
+  console.log(`[Helper v6.1] createUserPrompt_SeparatorFormat: options=`, options, `details=`, additionalDetails);
   const char = options.character;
   const storyDuration = options.duration || 'medium';
   let request = `Crea un cuento infantil. Género: ${options.genre}. Moraleja: ${options.moral}. Personaje: ${char.name}`;
@@ -38,152 +42,174 @@ function createUserPromptContent({ options, additionalDetails }) {
   if (char.hobbies?.length) request += `, hobbies ${char.hobbies.join(', ')}`;
   if (char.personality) request += `, personalidad ${char.personality}`;
   request += `.\n\n`;
-  request += `**Instrucciones de Contenido, Longitud y Estructura MUY IMPORTANTES:**\n`;
-  request += `1.  **Duración Objetivo:** La historia debe tener una duración general '${storyDuration}'.\n`;
-  if (storyDuration === 'short') {
-    request += `    *   **Guía de Longitud (Corta):** Apunta a una longitud de **aproximadamente 800 tokens** (unos 5+ párrafos). Suficiente para una trama sencilla pero completa.\n`;
-  } else if (storyDuration === 'long') {
-    request += `    *   **Guía de Longitud (Larga):** Apunta a una longitud **extensa de aproximadamente 2500 tokens** (unos 15+ párrafos). Desarrolla la trama y personajes con detalle.\n`;
-  } else {
-    request += `    *   **Guía de Longitud (Media):** Apunta a una longitud **moderada de aproximadamente 1500 tokens** (unos 10+ párrafos). Buen equilibrio entre detalle y brevedad.\n`;
-  }
-
+  request += `**Instrucciones de Contenido, Longitud y Estructura:**\n`;
+  request += `1.  **Duración Objetivo:** '${storyDuration}'.\n`;
+  if (storyDuration === 'short') request += `    *   Guía (Corta): ~800 tokens.\n`;
+  else if (storyDuration === 'long') request += `    *   Guía (Larga): ~2500 tokens.\n`;
+  else request += `    *   Guía (Media): ~1500 tokens.\n`;
   if (additionalDetails && typeof additionalDetails === 'string' && additionalDetails.trim()) {
     request += `\n**Instrucciones Adicionales del Usuario:**\n${additionalDetails.trim()}\n`;
   }
-
-  request += `2.  **Estructura COMPLETA (OBLIGATORIO):** Independientemente de la longitud, el cuento DEBE tener una estructura narrativa clara y completa: **inicio, desarrollo y final**. ¡NUNCA termines la historia abruptamente o a mitad de una frase! La coherencia y la finalización son más importantes que el conteo exacto de tokens.\n`;
-
-  // Instrucciones mejoradas para la generación de títulos
-  request += `3.  **Título (MUY IMPORTANTE):** Genera un título EXTRAORDINARIO para este cuento, como si fuises un escritor de éxito. Sigue estas pautas:\n`;
-  request += `    * Debe ser MEMORABLE, ORIGINAL y CAUTIVADOR para niños.\n`;
-  request += `    * Evita títulos genéricos como "La Aventura de [Nombre]" o "[Nombre] y el/la [Objeto]".\n`;
-  request += `    * Incluye elementos de FANTASÍA, MISTERIO o SORPRESA que despierten curiosidad inmediata.\n`;
-  request += `    * Usa JUEGOS DE PALABRAS, ALITERACIONES o RIMAS cuando sea posible.\n`;
-  request += `    * Longitud ideal: 4-7 palabras (máximo 40 caracteres).\n`;
-  request += `    * Ejemplos de buenos títulos: "El Bosque de los Susurros Mágicos", "Estrellas en Frascos de Cristal", "La Melodía del Dragón Dormido".\n`;
-
-  request += `\n**Instrucciones de Formato de Respuesta (OBLIGATORIO):**\n`;
-  request += `*   Responde **ÚNICA Y EXCLUSIVAMENTE** con un objeto JSON válido.\n`;
-  request += `*   El JSON debe tener exactamente dos claves:\n`;
-  request += `    *   \`"title"\`: string (El título generado).\n`;
-  request += `    *   \`"content"\`: string (El texto completo del cuento generado).\n`;
-  request += `*   **Formato Estricto:** NO incluyas NADA antes ni después del objeto JSON. Sin texto introductorio, sin saltos de línea extra, sin comillas externas, sin formato markdown (\\\`\\\`\\\`json ... \\\`\\\`\\\`). SOLO el objeto JSON.\n\n`;
-  request += `Ejemplo de respuesta **VÁLIDA**:\n`;
-  request += `{"title": "Título del Cuento", "content": "Érase una vez..."}\n\n`;
-  request += `Recuerda: SOLO el objeto JSON.`;
+  request += `2.  **Estructura COMPLETA:** Inicio, desarrollo y final claros.\n`;
+  request += `3.  **Título:** Genera un título EXTRAORDINARIO (memorable, original, etc.).\n`;
+  request += `\n**Instrucciones de Formato de Respuesta (¡MUY IMPORTANTE!):**\n`;
+  request += `*   Responde usando **exactamente** los siguientes separadores:\n`;
+  request += `    <title_start>\n`;
+  request += `    Aquí SOLAMENTE el título generado (4-7 palabras).\n`;
+  request += `    <title_end>\n`;
+  request += `    <content_start>\n`;
+  request += `    Aquí TODO el contenido del cuento, empezando directamente con la primera frase.\n`;
+  request += `    <content_end>\n`;
+  request += `*   **NO incluyas NADA antes de <title_start>.**\n`;
+  request += `*   **NO incluyas NADA después de <content_end>.**\n`;
+  request += `*   Asegúrate de incluir saltos de línea exactamente como se muestra entre los separadores y el texto.\n`;
+  request += `*   NO uses ningún otro formato (como markdown, JSON, etc.). Solo texto plano con estos separadores.`;
   return request;
 }
-
-function cleanJsonValue(text, type) {
+// cleanExtractedText: Limpia texto extraído entre separadores
+function cleanExtractedText(text, type) {
   const defaultText = type === 'title' ? `Aventura Inolvidable` : 'El cuento tiene un giro inesperado...';
   if (!text || typeof text !== 'string') {
-    console.warn(`[Helper v3.5] cleanJsonValue (${type}): Input text is empty or not a string.`);
+    console.warn(`[Helper v6.1] cleanExtractedText (${type}): Input empty/not string.`);
     return defaultText;
   }
-  let cleaned = text.trim();
-  cleaned = cleaned.replace(/^título:\s*/i, '').replace(/^title:\s*/i, '');
-  cleaned = cleaned.replace(/^contenido:\s*/i, '').replace(/^content:\s*/i, '');
-  cleaned = cleaned.replace(/^respuesta:\s*/i, '').replace(/^response:\s*/i, '');
-  cleaned = cleaned.replace(/^["'“‘]|["'”’]$/g, '');
-  cleaned = cleaned.replace(/^\d+\.\s+/gm, '');
-  cleaned = cleaned.replace(/###\s?(FORMATO DE RESPUESTA OBLIGATORIO|FIN DEL FORMATO|LÍNEA \d+|TITULO_INICIO|TITULO_FIN|CUENTO_INICIO|CUENTO_FIN|TÍTULO|CONTENIDO)\s?###/gi, '');
+  console.log(`[Helper v6.1] cleanExtractedText (${type}) - BEFORE: "${text.substring(0, 150)}..."`);
+  let cleaned = text.trim(); // Trim inicial
+  // Limpiezas específicas que podrían quedar DESPUÉS de extraer
+  cleaned = cleaned.replace(/^Título:\s*/i, '').trim();
+  cleaned = cleaned.replace(/^Contenido:\s*/i, '').trim();
+  if (type === 'content') {
+    cleaned = cleaned.replace(/^\s*\d+\.\s+/gm, '');
+    cleaned = cleaned.replace(/^\s*[-\*]\s+/gm, '');
+  }
+  if (type === 'title') {
+    cleaned = cleaned.replace(/^["'“‘](.*)["'”’]$/s, '$1').trim();
+  }
+  // Quitar prefijos o sufijos que la IA podría añadir AUNQUE se le pida que no
+  cleaned = cleaned.replace(/^(Respuesta|Aquí tienes el título|El título es):\s*/i, '').trim();
+  cleaned = cleaned.replace(/^(Aquí tienes el cuento|El cuento es):\s*/i, '').trim();
+  console.log(`[Helper v6.1] cleanExtractedText (${type}) - AFTER: "${cleaned.substring(0, 150)}..."`);
   return cleaned.trim() || defaultText;
 }
 // --- Fin Funciones Helper ---
 serve(async (req) => {
-  // (Manejo CORS y Método POST sin cambios)
-  if (req.method === "OPTIONS") return new Response("ok", {
-    headers: corsHeaders
-  });
-  if (req.method !== 'POST') return new Response(JSON.stringify({
-    error: 'Método no permitido. Usar POST.'
-  }), {
-    status: 405,
-    headers: {
-      ...corsHeaders,
-      'Content-Type': 'application/json'
-    }
-  });
+  // 1. MANEJAR PREFLIGHT PRIMERO
+  if (req.method === "OPTIONS") {
+    console.log("Handling OPTIONS preflight request...");
+    return new Response("ok", {
+      headers: corsHeaders
+    });
+  }
+  // 2. Verificar Método POST
+  if (req.method !== 'POST') {
+    console.log(`Method ${req.method} not allowed.`);
+    return new Response(JSON.stringify({
+      error: 'Método no permitido. Usar POST.'
+    }), {
+      status: 405,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+  // Variables inicializadas
   let userIdForIncrement = null;
   let isPremiumUser = false;
   let userId = null;
   try {
-    // --- 1. Autenticación ---
-    // ... (igual) ...
+    // 3. AUTENTICACIÓN
+    console.log("Handling POST request...");
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) return new Response(JSON.stringify({
-      error: 'Token inválido.'
-    }), {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
-    });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error("Authorization header missing or invalid.");
+      return new Response(JSON.stringify({
+        error: 'Token inválido o ausente.'
+      }), {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json"
+        }
+      });
+    }
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !user) return new Response(JSON.stringify({
-      error: authError?.message || 'No autenticado.'
-    }), {
-      status: authError?.status || 401,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
-    });
+    if (authError || !user) {
+      console.error("Auth Error:", authError);
+      return new Response(JSON.stringify({
+        error: authError?.message || 'No autenticado.'
+      }), {
+        status: authError?.status || 401,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json"
+        }
+      });
+    }
     userId = user.id;
-    console.log(`generate-story v3.5: User Auth: ${userId}`);
-    // --- 2. Perfil y Límites ---
-    // ... (igual) ...
-    const { data: profile } = await supabaseAdmin.from('profiles').select('subscription_status, monthly_stories_generated').eq('id', userId).maybeSingle(); // Simplificado
+    console.log(`generate-story v6.1: User Auth: ${userId}`);
+    // 4. Perfil y Límites
+    const { data: profile } = await supabaseAdmin.from('profiles').select('subscription_status, monthly_stories_generated').eq('id', userId).maybeSingle();
     if (profile) isPremiumUser = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
     else console.warn(`Perfil no encontrado para ${userId}. Tratando como gratuito.`);
     let currentStoriesGenerated = profile?.monthly_stories_generated ?? 0;
     const FREE_STORY_LIMIT = 10;
     if (!isPremiumUser) {
       userIdForIncrement = userId;
-      console.log(`generate-story v3.5: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
-      if (currentStoriesGenerated >= FREE_STORY_LIMIT) return new Response(JSON.stringify({
-        error: `Límite mensual (${FREE_STORY_LIMIT}) alcanzado.`
-      }), {
-        status: 429,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
-      });
+      console.log(`generate-story v6.1: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
+      if (currentStoriesGenerated >= FREE_STORY_LIMIT) {
+        return new Response(JSON.stringify({
+          error: `Límite mensual (${FREE_STORY_LIMIT}) alcanzado.`
+        }), {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
+        });
+      }
     } else {
-      console.log(`generate-story v3.5: Premium user ${userId}.`);
+      console.log(`generate-story v6.1: Premium user ${userId}.`);
     }
-    // --- 3. Body y Generación IA ---
+    // 5. Body y Validación
     let params;
-    let additionalDetails = null;
     try {
       params = await req.json();
-      additionalDetails = params?.additionalDetails;
-      console.log("--- DEBUG v3.5: Params Recibidos ---", {
-        options: params?.options,
-        additionalDetails: additionalDetails,
-      });
-      if (!params || typeof params !== 'object' || !params.options?.character || !params.language || params.childAge === undefined || !params.options?.duration) {
-        throw new Error("Parámetros inválidos/incompletos (character, language, childAge, duration). Los detalles adicionales son opcionales.");
+      console.log("--- DEBUG v6.1: Params Recibidos ---", params);
+      // --- VALIDACIÓN CORREGIDA (sin comentario interno) ---
+      if (!params || typeof params !== 'object' || !params.options?.character || typeof params.options.character !== 'object' || typeof params.language !== 'string' || !params.language || params.childAge === undefined || typeof params.options.duration !== 'string' || !params.options.duration || typeof params.options.genre !== 'string' || !params.options.genre || typeof params.options.moral !== 'string' || !params.options.moral) {
+        console.error("Validation failed. Missing fields:", {
+          // Puedes añadir logs específicos aquí si quieres depurar qué falta
+          hasOptions: !!params.options,
+          hasCharacter: !!params.options?.character,
+          hasLanguage: typeof params.language === 'string' && !!params.language,
+          hasChildAge: params.childAge !== undefined,
+          hasDuration: typeof params.options?.duration === 'string' && !!params.options.duration,
+          hasGenre: typeof params.options?.genre === 'string' && !!params.options.genre,
+          hasMoral: typeof params.options?.moral === 'string' && !!params.options.moral
+        });
+        throw new Error("Parámetros inválidos/incompletos (revisar character, language, childAge, options.duration, options.genre, options.moral).");
       }
     } catch (error) {
-      console.error(`[DEBUG v3.5] Failed to parse JSON body for user ${userId}. Error:`, error);
-      throw new Error(`Invalid/empty JSON in body: ${error.message}.`);
+      console.error(`[DEBUG v6.1] Failed to parse/validate JSON body for user ${userId}. Error:`, error);
+      throw new Error(`Invalid/empty/incomplete JSON in body: ${error.message}.`);
     }
+    // 6. Generación IA con UNA LLAMADA y Separadores
     const systemPrompt = createSystemPrompt(params.language, params.childAge, params.specialNeed);
-    const userPrompt = createUserPromptContent({ options: params.options, additionalDetails });
+    const userPrompt = createUserPrompt_SeparatorFormat({
+      options: params.options,
+      additionalDetails: params.additionalDetails
+    });
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    console.log(`generate-story v3.5: Calling AI for ${userId} (expecting JSON)...`);
+    console.log(`generate-story v6.1: Calling AI for combined output (User: ${userId})...`);
     const generationConfig = {
       temperature: 0.8,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 8192
-    }; // Mantenemos max tokens alto
-    const contentResult = await model.generateContent({
+      maxOutputTokens: 16000
+    };
+    const result = await model.generateContent({
       contents: [
         {
           role: "user",
@@ -196,74 +222,70 @@ serve(async (req) => {
       ],
       generationConfig: generationConfig
     });
-    const contentResponse = contentResult?.response;
-    let fullTextResponse = contentResponse?.text?.();
-    console.log(`[EDGE_FUNC_DEBUG v3.5] Raw AI response text (before fence cleaning): ... ${fullTextResponse?.slice(-100) || '(No text received)'}`);
-    if (!fullTextResponse || contentResponse?.promptFeedback?.blockReason) {
-      console.error("AI Generation Error:", contentResponse?.promptFeedback);
-      throw new Error(`Fallo al generar contenido JSON: ${contentResponse?.promptFeedback?.blockReason || 'Respuesta IA vacía/bloqueada'}`);
+    const response = result?.response;
+    const rawApiResponseText = response?.text?.();
+    const blockReason = response?.promptFeedback?.blockReason;
+    console.log(`[EDGE_FUNC_DEBUG v6.1] Raw AI Separator response text: ${rawApiResponseText?.substring(0, 200) || '(No text received)'}...`);
+    if (blockReason) {
+      console.error(`AI Generation BLOCKED. Reason: ${blockReason}`);
+      throw new Error(`Generación bloqueada por seguridad: ${blockReason}`);
     }
-    // --- Limpiar ```json ANTES de parsear ---
-    const jsonRegex = /^```(?:json)?\s*([\s\S]*?)\s*```$/;
-    const match = fullTextResponse.match(jsonRegex);
-    let textToParse = fullTextResponse.trim();
-    if (match && match[1]) {
-      console.log("[DEBUG v3.5] Markdown fences detected in generate-story, extracting JSON...");
-      textToParse = match[1].trim();
-    } else if (textToParse.startsWith('{') && textToParse.endsWith('}')) {
-      console.log("[DEBUG v3.5] No fences detected in generate-story, but looks like JSON.");
-    } else {
-      console.warn("[DEBUG v3.5] generate-story response doesn't look like JSON or wrapped JSON.");
+    if (!rawApiResponseText) {
+      throw new Error("Fallo al generar: Respuesta IA vacía (sin bloqueo explícito).");
     }
-    // ------------------------------------------
-    // --- ***NUEVO: Sanitizar caracteres de control ANTES de parsear*** ---
-    let sanitizedTextToParse;
+    // 7. Extraer Título y Contenido usando Separadores
+    let rawTitle = '';
+    let rawContent = '';
+    let finalTitle = 'Aventura Inolvidable'; // Default
+    let finalContent = '';
+    let extractionSuccess = false;
     try {
-      // Reemplaza caracteres de control comunes (excepto \t, \n, \r que podrían ser intencionales EN JSON VÁLIDO)
-      // Esta regex busca caracteres en el rango U+0000 a U+001F que no sean tab, newline, carriage return
-      sanitizedTextToParse = textToParse.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
-      // Opcional: Escapar barras invertidas si sospechas que causan problemas de escape
-      // sanitizedTextToParse = sanitizedTextToParse.replace(/\\/g, '\\\\');
-      console.log(`[DEBUG v3.5] Text sanitized. Length difference: ${textToParse.length - sanitizedTextToParse.length}`);
-    } catch (sanitizeError) {
-      console.error("Error during text sanitization:", sanitizeError);
-      sanitizedTextToParse = textToParse; // Intentar parsear el original si la sanitización falla
-    }
-    // --------------------------------------------------------------------
-    // --- Parseo JSON (usa texto sanitizado) y Limpieza de Valores ---
-    let parsedResponse;
-    try {
-      parsedResponse = JSON.parse(sanitizedTextToParse); // <<< Usa sanitizedTextToParse
-      if (!parsedResponse || typeof parsedResponse !== 'object' || typeof parsedResponse.title !== 'string' || typeof parsedResponse.content !== 'string') {
-        throw new Error("Parsed JSON structure invalid (missing 'title' or 'content' string).");
+      const titleStartTag = '<title_start>';
+      const titleEndTag = '<title_end>';
+      const contentStartTag = '<content_start>';
+      const contentEndTag = '<content_end>';
+      const titleStartIndex = rawApiResponseText.indexOf(titleStartTag);
+      const titleEndIndex = rawApiResponseText.indexOf(titleEndTag);
+      // Buscar content_start DESPUÉS de title_end
+      const contentStartIndex = rawApiResponseText.indexOf(contentStartTag, titleEndIndex);
+      // Buscar content_end DESPUÉS de content_start
+      const contentEndIndex = rawApiResponseText.indexOf(contentEndTag, contentStartIndex);
+      // Verificar que todos los tags existen y están en el orden correcto
+      if (titleStartIndex !== -1 && titleEndIndex > titleStartIndex && contentStartIndex > titleEndIndex && contentEndIndex > contentStartIndex) {
+        rawTitle = rawApiResponseText.substring(titleStartIndex + titleStartTag.length, titleEndIndex).trim();
+        rawContent = rawApiResponseText.substring(contentStartIndex + contentStartTag.length, contentEndIndex).trim();
+        console.log(`[DEBUG v6.1] Extracted rawTitle: "${rawTitle}"`);
+        console.log(`[DEBUG v6.1] Extracted rawContent starts: "${rawContent.substring(0, 100)}..."`);
+        finalTitle = cleanExtractedText(rawTitle, 'title');
+        finalContent = cleanExtractedText(rawContent, 'content');
+        extractionSuccess = true;
+      } else {
+        console.warn(`Separators not found or in wrong order. Indices: titleStart=${titleStartIndex}, titleEnd=${titleEndIndex}, contentStart=${contentStartIndex}, contentEnd=${contentEndIndex}`);
       }
-    } catch (e) {
-      console.error("Failed to parse JSON response from AI (after fence cleaning & sanitization):", e, "\nText Attempted to Parse:", sanitizedTextToParse);
-      console.error("Original Raw Response was:", fullTextResponse);
-      throw new Error(`IA did not return valid JSON as requested, even after cleaning/sanitization. Received (start): ${fullTextResponse.substring(0, 200)}...`);
+    } catch (extractError) {
+      console.error("Error during separator extraction:", extractError);
     }
-    const finalTitle = cleanJsonValue(parsedResponse.title, 'title');
-    const finalContent = cleanJsonValue(parsedResponse.content, 'content');
-    if (!finalTitle || !finalContent) {
-      console.error("Title or Content empty after cleaning.", {
-        finalTitle: `"${finalTitle}"`,
-        finalContent: `"${finalContent}"`
-      });
-      throw new Error("Error interno: Título o contenido vacíos después de limpiar.");
+    // --- Fallback si la extracción falló ---
+    if (!extractionSuccess) {
+      console.warn("Using fallback: Default title, full response as content (after cleaning).");
+      finalContent = cleanExtractedText(rawApiResponseText, 'content'); // Limpiar toda la respuesta
     }
-    console.log(`generate-story v3.5: Final Title: "${finalTitle}", Content Length: ${finalContent.length}`);
-    // --- 4. Incrementar Contador ---
-    // ... (igual) ...
+    // Asegurarnos de que el contenido no esté vacío al final
+    if (!finalContent) {
+      console.error("Content is empty even after extraction/fallback and cleaning.");
+      throw new Error("Error interno: Contenido vacío después del procesamiento.");
+    }
+    console.log(`generate-story v6.1: Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
+    // 8. Incrementar Contador
     if (userIdForIncrement) {
-      console.log(`generate-story v3.5: Incrementing count for ${userIdForIncrement}...`);
+      console.log(`generate-story v6.1: Incrementing count for ${userIdForIncrement}...`);
       const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
         user_uuid: userIdForIncrement
       });
       if (incrementError) console.error(`CRITICAL: Failed count increment for ${userIdForIncrement}: ${incrementError.message}`);
-      else console.log(`generate-story v3.5: Count incremented for ${userIdForIncrement}.`);
+      else console.log(`generate-story v6.1: Count incremented for ${userIdForIncrement}.`);
     }
-    // --- 5. Respuesta Final ---
-    // ... (igual) ...
+    // 9. Respuesta Final
     return new Response(JSON.stringify({
       content: finalContent,
       title: finalTitle
@@ -275,16 +297,15 @@ serve(async (req) => {
       }
     });
   } catch (error) {
-    // --- Manejo de Errores ---
-    // ... (igual) ...
-    console.error(`Error in generate-story v3.5 (User: ${userId || 'UNKNOWN'}):`, error);
+    // 10. Manejo de Errores
+    console.error(`Error in generate-story v6.1 (User: ${userId || 'UNKNOWN'}):`, error);
     let statusCode = 500;
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      if (message.includes("autenticado") || message.includes("token")) statusCode = 401;
+      if (message.includes("autenticado") || message.includes("token inválido")) statusCode = 401;
       else if (message.includes("límite")) statusCode = 429;
-      else if (message.includes("inválido") || message.includes("json") || message.includes("parámetros") || message.includes("incompletos")) statusCode = 400;
-      else if (message.includes("fallo al generar") || message.includes("ia did not return") || error.status === 503 || message.includes("unavailable")) statusCode = 502;
+      else if (message.includes("inválido") || message.includes("json in body") || message.includes("parámetros")) statusCode = 400;
+      else if (message.includes("fallo al generar") || message.includes("bloqueada por seguridad")) statusCode = 502;
     }
     const errorMessage = error instanceof Error ? error.message : "Error interno.";
     return new Response(JSON.stringify({
@@ -296,5 +317,5 @@ serve(async (req) => {
         "Content-Type": "application/json"
       }
     });
-  } // <--- End Catch Block
-}); // <--- End Serve
+  }
+});
