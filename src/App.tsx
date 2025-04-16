@@ -10,7 +10,7 @@ import AuthGuard from "./components/AuthGuard";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import ProfileSetup from "./pages/ProfileSetup";
+// import ProfileSetup from "./pages/ProfileSetup"; 
 import Home from "./pages/Home";
 import CharacterSelection from "./pages/CharacterSelection";
 import CharacterName from "./pages/CharacterName";
@@ -32,6 +32,12 @@ import AuthCallback from "./pages/AuthCallback";
 import CharactersManagement from "./pages/CharactersManagement";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import StoryDetailsInput from "./pages/StoryDetailsInput";
+
+// New Pages for Refactor
+import ProfileConfigPage from './pages/ProfileConfigPage';
+import SettingsPage from './pages/SettingsPage';
+import PlansPage from './pages/PlansPage';
 
 const queryClient = new QueryClient();
 
@@ -51,13 +57,12 @@ const App = () => {
               <Route path="/error" element={<ErrorPage />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              
+
               {/* Payment routes */}
               <Route path="/payment-success" element={<AuthGuard><PaymentSuccess /></AuthGuard>} />
               <Route path="/payment-cancel" element={<AuthGuard><PaymentCancel /></AuthGuard>} />
-              
+
               {/* Protected routes */}
-              <Route path="/profile" element={<AuthGuard><ProfileSetup /></AuthGuard>} />
               <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
               <Route path="/duration" element={<AuthGuard><DurationSelection /></AuthGuard>} />
               <Route path="/characters-management" element={<AuthGuard><CharactersManagement /></AuthGuard>} />
@@ -69,11 +74,17 @@ const App = () => {
               <Route path="/character-profession" element={<AuthGuard><CharacterProfession /></AuthGuard>} />
               <Route path="/story-genre" element={<AuthGuard><StoryGenre /></AuthGuard>} />
               <Route path="/story-moral" element={<AuthGuard><StoryMoral /></AuthGuard>} />
+              <Route path="/story-details-input" element={<AuthGuard><StoryDetailsInput /></AuthGuard>} />
               <Route path="/generating" element={<AuthGuard><GeneratingStory /></AuthGuard>} />
               <Route path="/story/:storyId" element={<AuthGuard><StoryViewer /></AuthGuard>} />
               <Route path="/story/:storyId/audio/:chapterId?" element={<AuthGuard><StoryAudioPage /></AuthGuard>} />
               <Route path="/story/:storyId/continue" element={<AuthGuard><StoryContinuation /></AuthGuard>} />
               <Route path="/stories" element={<AuthGuard><SavedStories /></AuthGuard>} />
+
+              {/* New Protected Routes */}
+              <Route path="/profile-config" element={<AuthGuard><ProfileConfigPage /></AuthGuard>} />
+              <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+              <Route path="/plans" element={<AuthGuard><PlansPage /></AuthGuard>} />
             </Routes>
           </AnimatePresence>
         </BrowserRouter>

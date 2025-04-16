@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/user/userStore";
-import { supabase } from "../supabaseAuth";
+import { supabase } from "../supabaseClient";
 import { getUserProfile } from "../services/supabase";
 
 export default function AuthCallback() {
