@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+// Importa los tipos necesarios
 import {
     Challenge,
     ChallengeQuestion,
@@ -8,167 +8,126 @@ import {
     StoryCharacter,
 } from "../types";
 
-// Inicializar cliente de Supabase (asegúrate de tener estas variables en tu .env)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+// --- Importa la instancia ÚNICA del cliente Supabase ---
+import { supabase } from "../supabaseClient"; // Ajusta esta ruta si es necesario
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Variable para rastrear el usuario actualmente autenticado
-let currentAuthenticatedUserId: string | null = null;
-
-// Agregar listener para eventos de autenticación
+// --- Listener de Auth (Opcional, solo para logging) ---
+// Ya no inicializamos el cliente aquí, solo usamos el importado.
 supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        currentAuthenticatedUserId = session?.user?.id || null;
-        console.log('ID de usuario actualizado:', currentAuthenticatedUserId);
+        console.log('Evento Auth en supabase.ts:', event, '- Usuario:', session?.user?.id);
     } else if (event === 'SIGNED_OUT') {
-        currentAuthenticatedUserId = null;
-        console.log('Usuario desconectado, ID reseteado');
+        console.log('Evento Auth en supabase.ts: SIGNED_OUT');
     }
 });
 
-// Función auxiliar para validar que el ID de usuario coincida con el autenticado
-const validateUserId = async (providedUserId: string): Promise<boolean> => {
-    // Si hay incongruencia, refrescar la sesión para asegurar que tenemos el ID correcto
-    if (currentAuthenticatedUserId !== providedUserId) {
-        console.warn(`Posible incongruencia de ID de usuario. Proporcionado: ${providedUserId}, Actual: ${currentAuthenticatedUserId}`);
-        
-        try {
-            // Intentar refrescar la sesión para obtener el ID correcto
-            const { data } = await supabase.auth.getSession();
-            const authUser = data.session?.user;
-            
-            if (authUser) {
-                currentAuthenticatedUserId = authUser.id;
-                console.log('ID de usuario actualizado tras verificación:', currentAuthenticatedUserId);
-                
-                // Verificar si el ID proporcionado coincide con el ID actualizado
-                if (currentAuthenticatedUserId !== providedUserId) {
-                    console.error('Error de seguridad: El ID proporcionado no coincide con el usuario autenticado');
-                    return false;
-                }
-                return true;
-            } else {
-                console.error('Error de autenticación: No hay usuario autenticado');
-                return false;
-            }
-        } catch (error) {
-            console.error('Error al verificar la sesión:', error);
-            return false;
-        }
-    }
-    
-    return true;
-};
+// --- Funciones de Perfil ---
 
-// Funciones para sincronizar datos de usuario
 export const syncUserProfile = async (
     userId: string,
-    profileSettings: ProfileSettings,
-) => {
+    // Renombramos el parámetro para claridad y ajustamos tipo
+    dataToSync: Partial<ProfileSettings> & { [key: string]: any },
+): Promise<{ success: boolean; error?: any }> => {
     try {
-        // Validar que el ID de usuario sea consistente
-        const isValidUserId = await validateUserId(userId);
-        if (!isValidUserId) {
-            return { success: false, error: new Error('ID de usuario no válido') };
+        console.log(`[syncUserProfile_DEBUG] Attempting to sync for user ${userId} with data:`, dataToSync);
+
+        // Preparamos los datos para upsert, asegurando que 'id' y 'updated_at' están presentes
+        const upsertData = {
+            id: userId,             // ID es necesario para upsert
+            ...dataToSync,         // Usamos directamente los datos mapeados (ej. child_age, special_need)
+            updated_at: new Date(), // Siempre actualizamos la fecha
+        };
+
+        // Opcional: Asegurarse de que special_need sea null si es undefined, aunque upsert debería manejarlo
+        // Corregido: Usar notación de corchetes para evitar error de linting con snake_case
+        if (upsertData['special_need'] === undefined) {
+            upsertData['special_need'] = null;
         }
-        
+
         const { error } = await supabase
             .from("profiles")
-            .upsert({
-                id: userId,
-                language: profileSettings.language,
-                child_age: profileSettings.childAge,
-                age_range: profileSettings.ageRange,
-                special_need: profileSettings.specialNeed,
-                updated_at: new Date(),
-            });
+            .upsert(upsertData); // <<< Pasamos el objeto correcto a upsert
 
-        if (error) throw error;
+        if (error) {
+            console.error("Error sincronizando perfil (posible RLS):", error);
+            throw error; // Re-lanzar para el catch general
+        }
+        console.log(`[syncUserProfile_DEBUG] Profile synced successfully for user ${userId}`);
         return { success: true };
     } catch (error) {
-        console.error("Error sincronizando perfil:", error);
-        return { success: false, error };
+        console.error("Fallo general en syncUserProfile:", error);
+        // Asegurarse de devolver un objeto Error estándar
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { success: false, error: new Error(errorMessage) }; 
     }
 };
 
-export const getUserProfile = async (userId: string) => {
+export const getUserProfile = async (userId: string): Promise<{ success: boolean, profile?: ProfileSettings, error?: any }> => {
     try {
         console.log(`Solicitando perfil para usuario: ${userId}`);
-        
-        // Validar que el ID de usuario sea consistente
-        const isValidUserId = await validateUserId(userId);
-        if (!isValidUserId) {
-            console.error(`Error de validación: El ID proporcionado (${userId}) no coincide con el usuario autenticado`);
-            return { success: false, error: new Error('ID de usuario no válido') };
-        }
-        
-        // Refrescar la sesión para asegurar que estamos usando el token más reciente
-        const { data: sessionData } = await supabase.auth.getSession();
-        console.log("Estado de sesión:", sessionData.session ? "Activa" : "Inactiva");
-        
-        // Realizar la consulta con la sesión actualizada
         const { data, error } = await supabase
             .from("profiles")
-            .select("*")
+            .select("*") // Selecciona todas las columnas
             .eq("id", userId)
             .single();
 
-        if (error) {
-            console.error(`Error al obtener perfil para ${userId}:`, error);
+        if (error && error.code === 'PGRST116') {
+            console.log(`No se encontró perfil para usuario ${userId}`);
+            return { success: false };
+        } else if (error) {
+            console.error(`Error al obtener perfil para ${userId} (posible RLS):`, error);
             throw error;
         }
 
         console.log(`Datos de perfil recibidos para ${userId}:`, data);
 
         if (data) {
-            return {
-                success: true,
-                profile: {
-                    language: data.language,
-                    childAge: data.child_age,
-                    ageRange: data.age_range,
-                    specialNeed: data.special_need,
-                } as ProfileSettings,
+            // Mapea todos los campos recuperados
+            const profile: ProfileSettings = {
+                language: data.language,
+                childAge: data.child_age,
+                specialNeed: data.special_need,
+                stripe_customer_id: data.stripe_customer_id,
+                subscription_status: data.subscription_status,
+                subscription_id: data.subscription_id,
+                plan_id: data.plan_id,
+                current_period_end: data.current_period_end,
+                voice_credits: data.voice_credits,
+                monthly_stories_generated: data.monthly_stories_generated,
+                monthly_voice_generations_used: data.monthly_voice_generations_used,
+                has_completed_setup: data.has_completed_setup,
             };
+            return { success: true, profile: profile };
         }
-        
-        console.log(`No se encontró perfil para usuario ${userId}`);
+
+        console.log(`No se encontró perfil (inesperado) para usuario ${userId}`);
         return { success: false };
+
     } catch (error) {
-        console.error(`Error obteniendo perfil para ${userId}:`, error);
+        console.error(`Fallo general en getUserProfile para ${userId}:`, error);
         return { success: false, error };
     }
 };
 
-// Funciones para gestionar personajes
+// --- Funciones de Personajes ---
+
 export const syncCharacter = async (
     userId: string,
     character: StoryCharacter,
-) => {
+): Promise<{ success: boolean; error?: any }> => {
     try {
         console.log(`[DEBUG] Sincronizando personaje "${character.name}" (ID: ${character.id}) para usuario ${userId}`);
-        
-        // Validar que el ID de usuario sea consistente
-        const isValidUserId = await validateUserId(userId);
-        if (!isValidUserId) {
-            console.error('[DEBUG] ID de usuario no válido para sincronizar personaje');
-            return { success: false, error: new Error('ID de usuario no válido para sincronizar personaje') };
-        }
-        
-        // Verificar si ya existe un personaje con ese ID
-        const { data: existingChar, error: existingError } = await supabase
+        const { data: existingChar, error: queryError } = await supabase
             .from("characters")
-            .select("id, name, user_id")
+            .select("id, user_id")
             .eq("id", character.id)
             .maybeSingle();
-            
-        if (existingError) {
-            console.error(`[DEBUG] Error al verificar si existe el personaje:`, existingError);
+
+        if (queryError) {
+            console.error(`[DEBUG] Error al verificar existencia del personaje:`, queryError);
+            throw queryError;
         }
-        
-        // Preparar datos para guardar
+
         const characterData = {
             id: character.id,
             user_id: userId,
@@ -180,265 +139,221 @@ export const syncCharacter = async (
             personality: character.personality,
             updated_at: new Date(),
         };
-        
-        console.log(`[DEBUG] Datos a enviar a Supabase:`, JSON.stringify(characterData, null, 2));
-        
+
         let result;
-        
-        // Si el personaje ya existe, actualizarlo; si no, insertarlo como nuevo
         if (existingChar) {
-            console.log(`[DEBUG] Personaje con ID ${character.id} ya existe. Actualizando.`);
-            
-            // Si el personaje pertenece a otro usuario, no permitir sobreescribirlo
+            console.log(`[DEBUG] Personaje ${character.id} existe. Actualizando.`);
             if (existingChar.user_id !== userId) {
-                console.error(`[DEBUG] ¡Error de seguridad! Intento de modificar personaje de otro usuario. ID: ${character.id}`);
+                console.error(`[DEBUG] ¡Error de seguridad! Intento de modificar personaje ${character.id} de otro usuario.`);
                 return { success: false, error: new Error('No tienes permiso para modificar este personaje') };
             }
-            
-            // Actualizar el personaje existente
             result = await supabase
                 .from("characters")
                 .update(characterData)
-                .eq("id", character.id)
-                .eq("user_id", userId);
+                .eq("id", character.id);
         } else {
             console.log(`[DEBUG] Creando nuevo personaje con ID: ${character.id}`);
-            
-            // Insertar nuevo personaje
             result = await supabase
                 .from("characters")
                 .insert(characterData);
         }
-        
+
         const { error } = result;
-        
         if (error) {
-            console.error(`[DEBUG] Error en operación de personaje:`, error);
+            console.error(`[DEBUG] Error en operación upsert de personaje (posible RLS):`, error);
             throw error;
         }
-        
-        console.log(`[DEBUG] Personaje "${character.name}" guardado exitosamente en Supabase`);
+
+        console.log(`[DEBUG] Personaje "${character.name}" guardado exitosamente.`);
         return { success: true };
     } catch (error) {
-        console.error("[DEBUG] Error sincronizando personaje:", error);
+        console.error("[DEBUG] Fallo general en syncCharacter:", error);
         return { success: false, error };
     }
 };
 
-export const getUserCharacters = async (userId: string) => {
+export const getUserCharacters = async (userId: string): Promise<{ success: boolean; characters?: StoryCharacter[]; error?: any }> => {
+    // --- CORREGIDO: Eliminada la consulta ineficiente ---
     try {
-        console.log(`[DEBUG] Iniciando getUserCharacters para usuario ${userId}`);
-        
-        // Validar que el ID de usuario sea consistente
-        const isValidUserId = await validateUserId(userId);
-        if (!isValidUserId) {
-            console.error(`[DEBUG] ID de usuario no válido en getUserCharacters: ${userId}`);
-            return { success: false, error: new Error('ID de usuario no válido') };
-        }
-        
-        // Hacer una consulta sin filtrar primero para ver cuántos personajes hay en total
-        const { data: allCharacters, error: allError } = await supabase
-            .from("characters")
-            .select("id, name, user_id");
-            
-        if (allError) {
-            console.error(`[DEBUG] Error al consultar todos los personajes:`, allError);
-        } else {
-            console.log(`[DEBUG] Total de personajes en la base de datos: ${allCharacters?.length || 0}`);
-            if (allCharacters) {
-                const filteredChars = allCharacters.filter(c => c.user_id === userId);
-                console.log(`[DEBUG] Personajes con user_id=${userId}: ${filteredChars.length}`);
-                console.log(`[DEBUG] IDs de personajes del usuario: ${filteredChars.map(c => c.name + ` (${c.id})`).join(', ')}`);
-            }
-        }
-        
-        // Ahora hacer la consulta real
         console.log(`[DEBUG] Consultando personajes para usuario ${userId}`);
         const { data, error } = await supabase
             .from("characters")
-            .select("*")
+            .select("*") // Consulta correcta y única
             .eq("user_id", userId);
 
         if (error) {
-            console.error(`[DEBUG] Error en consulta filtrada:`, error);
+            console.error(`[DEBUG] Error en consulta de personajes (posible RLS):`, error);
             throw error;
         }
 
-        console.log(`[DEBUG] Personajes encontrados en la consulta filtrada: ${data?.length || 0}`);
-        if (data) {
-            console.log(`[DEBUG] Nombres de personajes encontrados: ${data.map(c => c.name).join(', ')}`);
-            return {
-                success: true,
-                characters: data.map((char) => ({
-                    id: char.id,
-                    name: char.name,
-                    hobbies: char.hobbies || [],
-                    description: char.description || '',
-                    profession: char.profession || '',
-                    characterType: char.character_type || '',
-                    personality: char.personality || '',
-                } as StoryCharacter)),
-            };
-        }
-        return { success: false };
+        console.log(`[DEBUG] Personajes encontrados: ${data?.length || 0}`);
+        const characters: StoryCharacter[] = data ? data.map((char) => ({
+            id: char.id,
+            name: char.name,
+            hobbies: char.hobbies || [],
+            description: char.description || '',
+            profession: char.profession || '',
+            characterType: char.character_type || '',
+            personality: char.personality || '',
+        })) : [];
+
+        return { success: true, characters: characters };
     } catch (error) {
-        console.error("Error obteniendo personajes:", error);
+        console.error("Fallo general en getUserCharacters:", error);
         return { success: false, error };
     }
 };
 
-export const deleteCharacter = async (characterId: string) => {
+export const deleteCharacter = async (characterId: string): Promise<{ success: boolean; error?: any }> => {
     try {
-        // Verificar que el personaje pertenezca al usuario autenticado
-        const { data: userData } = await supabase.auth.getSession();
-        const userId = userData.session?.user?.id;
-        
-        if (!userId) {
-            return { success: false, error: new Error('No hay usuario autenticado para eliminar personaje') };
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            return { success: false, error: new Error('No autenticado') };
         }
-        
-        // Verificar primero que el personaje pertenece al usuario actual
+        const userId = user.id;
+
         const { data: characterData, error: queryError } = await supabase
             .from("characters")
             .select("user_id")
             .eq("id", characterId)
-            .single();
-            
+            .maybeSingle();
+
         if (queryError) {
-            console.error("Error verificando propiedad del personaje:", queryError);
+            console.error("Error verificando propiedad:", queryError);
             return { success: false, error: queryError };
         }
-        
-        if (!characterData || characterData.user_id !== userId) {
-            console.error("Error de seguridad: Intento de eliminar personaje de otro usuario");
-            return { success: false, error: new Error('No tienes permiso para eliminar este personaje') };
+        if (!characterData) {
+            console.warn(`Personaje ${characterId} no encontrado para eliminar.`);
+            return { success: false, error: new Error('Personaje no encontrado') };
         }
-        
-        // Ahora sí eliminar el personaje
+        if (characterData.user_id !== userId) {
+            console.error(`Seguridad: Usuario ${userId} intentó eliminar personaje ${characterId} de ${characterData.user_id}`);
+            return { success: false, error: new Error('Permiso denegado') };
+        }
+
         const { error } = await supabase
             .from("characters")
             .delete()
-            .eq("id", characterId)
-            .eq("user_id", userId);
+            .eq("id", characterId);
 
-        if (error) throw error;
+        if (error) {
+            console.error("Error eliminando personaje (RLS?):", error);
+            throw error;
+        }
         return { success: true };
     } catch (error) {
-        console.error("Error eliminando personaje:", error);
+        console.error("Fallo general en deleteCharacter:", error);
         return { success: false, error };
     }
 };
 
-// Funciones para gestionar historias
-export const syncStory = async (userId: string, story: Story) => {
+// --- Funciones de Historias ---
+
+export const syncStory = async (userId: string, story: Story): Promise<{ success: boolean; error?: any }> => {
     try {
-        console.log(
-            `Intentando sincronizar historia ${story.id} para usuario ${userId}`,
-        );
-
-        // Validar que el ID de usuario sea consistente
-        const isValidUserId = await validateUserId(userId);
-        if (!isValidUserId) {
-            return { success: false, error: new Error('ID de usuario no válido para sincronizar historia') };
-        }
-
+        console.log(`Sincronizando historia ${story.id} para usuario ${userId}`);
         const storyData = {
             id: story.id,
             user_id: userId,
             title: story.title,
             content: story.content,
             audio_url: story.audioUrl,
-            image_url: story.imageUrl,
             moral: story.options.moral,
             genre: story.options.genre,
             duration: story.options.duration,
             character_id: story.options.character.id,
+            additional_details: story.additional_details,
             updated_at: new Date(),
         };
-
-        console.log(`Datos a sincronizar:`, JSON.stringify(storyData, null, 2));
-
-        const { error } = await supabase
-            .from("stories")
-            .upsert(storyData);
-
+        const { error } = await supabase.from("stories").upsert(storyData);
         if (error) {
-            console.error(`Error al sincronizar historia ${story.id}:`, error);
+            console.error(`Error al sincronizar historia ${story.id} (RLS?):`, error);
             throw error;
         }
-
-        console.log(`Historia ${story.id} sincronizada exitosamente`);
+        console.log(`Historia ${story.id} sincronizada.`);
         return { success: true };
     } catch (error) {
-        console.error("Error sincronizando historia:", error);
+        console.error("Fallo general en syncStory:", error);
         return { success: false, error };
     }
 };
 
-export const getUserStories = async (userId: string) => {
+export const getUserStories = async (userId: string): Promise<{ success: boolean; stories?: Story[]; error?: any }> => {
     try {
-        // Verificar que el ID de usuario corresponda al autenticado
-        const { data: sessionData } = await supabase.auth.getSession();
-        const authUserId = sessionData?.session?.user?.id;
-        
-        if (!authUserId || authUserId !== userId) {
-            console.error("Error de seguridad: ID de usuario no coincide");
-            return { success: false, error: new Error("ID de usuario inválido") };
-        }
-        
         console.log(`Buscando historias para usuario ${userId}`);
         const { data, error } = await supabase
             .from("stories")
-            .select(`
-        *,
-        characters (*)
-      `)
-            .eq("user_id", userId);
+            .select(`*, characters (*)`)
+            .eq("user_id", userId)
+            .order('created_at', { ascending: false }); // Ordenar por más reciente
 
-        if (error) throw error;
-
-        if (data) {
-            console.log(`Encontradas ${data?.length || 0} historias`);
-            return {
-                success: true,
-                stories: data.map((story) => {
-                    // Verificar si el personaje existe
-                    const characterData = story.characters || {};
-                    
-                    return {
-                        id: story.id,
-                        title: story.title,
-                        content: story.content,
-                        audioUrl: story.audio_url,
-                        imageUrl: story.image_url,
-                        options: {
-                            moral: story.moral,
-                            genre: story.genre,
-                            duration: story.duration,
-                            character: {
-                                id: characterData.id || 'unknown',
-                                name: characterData.name || 'Personaje desconocido',
-                                hobbies: characterData.hobbies || '',
-                                description: characterData.description || '',
-                                profession: characterData.profession || '',
-                                characterType: characterData.character_type || 'other',
-                                personality: characterData.personality || '',
-                            },
-                        },
-                        createdAt: story.created_at,
-                    };
-                }),
-            };
+        if (error) {
+            console.error("Error obteniendo historias (RLS?):", error);
+            throw error;
         }
-        return { success: false };
+
+        const stories: Story[] = data ? data.map((story) => {
+            const characterData = story.characters;
+            console.log(`[getUserStories_DEBUG] DB raw title for story ${story.id}: "${story.title}"`); // <-- ADD THIS
+
+            return {
+                id: story.id,
+                title: story.title || "Historia sin título",
+                content: story.content,
+                audioUrl: story.audio_url,
+                options: {
+                    moral: story.moral,
+                    genre: story.genre,
+                    duration: story.duration,
+                    character: {
+                        id: characterData?.id || 'deleted_character',
+                        name: characterData?.name || 'Personaje Eliminado',
+                        hobbies: characterData?.hobbies || [],
+                        description: characterData?.description || '',
+                        profession: characterData?.profession || '',
+                        characterType: characterData?.character_type || '',
+                        personality: characterData?.personality || '',
+                    } as StoryCharacter,
+                },
+                createdAt: story.created_at,
+                additional_details: story.additional_details, // <-- Incluir aquí
+            };
+        }) : [];
+
+        console.log(`Encontradas ${stories.length} historias`);
+        return { success: true, stories: stories };
     } catch (error) {
-        console.error("Error obteniendo historias:", error);
+        console.error("Fallo general en getUserStories:", error);
         return { success: false, error };
     }
 };
 
-// Funciones para gestionar capítulos
-export const syncChapter = async (chapter: StoryChapter, storyId: string) => {
+/**
+ * Obtiene el número de capítulos existentes para una historia específica.
+ */
+export const getChapterCountForStory = async (storyId: string): Promise<{ count: number; error: Error | null }> => {
+    try {
+        const { count, error } = await supabase
+            .from('story_chapters')
+            .select('*', { count: 'exact', head: true }) // Solo necesitamos el conteo
+            .eq('story_id', storyId);
+
+        if (error) {
+            console.error('Error al contar capítulos:', error);
+            return { count: 0, error };
+        }
+
+        return { count: count ?? 0, error: null }; // Devuelve 0 si count es null
+
+    } catch (error: any) {
+        console.error('Error inesperado al contar capítulos:', error);
+        return { count: 0, error };
+    }
+};
+
+// --- Funciones para Capítulos ---
+
+export const syncChapter = async (chapter: StoryChapter, storyId: string): Promise<{ success: boolean; error?: any }> => {
     try {
         const { error } = await supabase
             .from("story_chapters")
@@ -451,145 +366,138 @@ export const syncChapter = async (chapter: StoryChapter, storyId: string) => {
                 custom_input: chapter.customInput,
                 updated_at: new Date(),
             });
-
-        if (error) throw error;
+        if (error) {
+            console.error("Error sincronizando capítulo (RLS/FK?):", error);
+            throw error;
+        }
         return { success: true };
     } catch (error) {
-        console.error("Error sincronizando capítulo:", error);
+        console.error("Fallo general en syncChapter:", error);
         return { success: false, error };
     }
 };
 
-export const getStoryChapters = async (storyId: string) => {
+export const getStoryChapters = async (storyId: string): Promise<{ success: boolean; chapters?: StoryChapter[]; error?: any }> => {
     try {
         const { data, error } = await supabase
             .from("story_chapters")
             .select("*")
-            .eq("story_id", storyId);
+            .eq("story_id", storyId)
+            .order('chapter_number', { ascending: true });
 
-        if (error) throw error;
-
-        if (data) {
-            return {
-                success: true,
-                chapters: data.map((chapter) => ({
-                    chapterNumber: chapter.chapter_number,
-                    title: chapter.title,
-                    content: chapter.content,
-                    createdAt: chapter.created_at,
-                    generationMethod: chapter.generation_method,
-                    customInput: chapter.custom_input,
-                } as StoryChapter)),
-            };
+        if (error) {
+            console.error("Error obteniendo capítulos (RLS/FK?):", error);
+            throw error;
         }
-        return { success: false };
+        const chapters: StoryChapter[] = data ? data.map((chapter) => ({
+            chapterNumber: chapter.chapter_number,
+            title: chapter.title,
+            content: chapter.content,
+            createdAt: chapter.created_at,
+            generationMethod: chapter.generation_method,
+            customInput: chapter.custom_input,
+        })) : [];
+        return { success: true, chapters: chapters };
     } catch (error) {
-        console.error("Error obteniendo capítulos:", error);
+        console.error("Fallo general en getStoryChapters:", error);
         return { success: false, error };
     }
 };
 
-// Funciones para gestionar desafíos
-export const syncChallenge = async (challenge: Challenge) => {
+// --- Funciones para Desafíos ---
+
+export const syncChallenge = async (challenge: Challenge): Promise<{ success: boolean; error?: any }> => {
     try {
-        // Primero crear o actualizar el desafío
-        const { data, error } = await supabase
+        const { data, error: challengeError } = await supabase
             .from("challenges")
             .upsert({
                 id: challenge.id,
                 story_id: challenge.storyId,
                 created_at: challenge.createdAt,
             })
-            .select("id");
+            .select("id")
+            .single();
 
-        if (error) throw error;
+        if (challengeError) {
+            console.error("Error en upsert de desafío (RLS/FK?):", challengeError);
+            throw challengeError;
+        }
+        if (!data?.id) throw new Error("No se pudo obtener ID del desafío.");
+        const challengeId = data.id;
 
-        // Luego crear o actualizar las preguntas
-        if (data && data[0]) {
-            const challengeId = data[0].id;
+        // Batch upsert preguntas (más eficiente si hay muchas)
+        const questionUpserts = challenge.questions.map(question => ({
+            id: question.id,
+            challenge_id: challengeId,
+            question: question.question,
+            options: question.options,
+            correct_option_index: question.correctOptionIndex,
+            explanation: question.explanation,
+            category: question.category,
+            target_language: question.targetLanguage,
+        }));
 
-            for (const question of challenge.questions) {
-                const { error: questionError } = await supabase
-                    .from("challenge_questions")
-                    .upsert({
-                        id: question.id,
-                        challenge_id: challengeId,
-                        question: question.question,
-                        options: question.options,
-                        correct_option_index: question.correctOptionIndex,
-                        explanation: question.explanation,
-                        category: question.category,
-                        target_language: question.targetLanguage,
-                    });
-
-                if (questionError) throw questionError;
+        if (questionUpserts.length > 0) {
+            const { error: questionsError } = await supabase
+                .from("challenge_questions")
+                .upsert(questionUpserts);
+            if (questionsError) {
+                console.error(`Error en upsert masivo de preguntas (RLS/FK?):`, questionsError);
+                throw questionsError;
             }
         }
 
         return { success: true };
     } catch (error) {
-        console.error("Error sincronizando desafío:", error);
+        console.error("Fallo general en syncChallenge:", error);
         return { success: false, error };
     }
 };
 
-export const getStoryChallenges = async (storyId: string) => {
+
+export const getStoryChallenges = async (storyId: string): Promise<{ success: boolean; challenges?: Challenge[]; error?: any }> => {
     try {
-        // Obtener desafíos
         const { data: challengesData, error: challengesError } = await supabase
             .from("challenges")
-            .select("*")
+            .select("*, challenge_questions(*)") // Join con preguntas
             .eq("story_id", storyId);
 
-        if (challengesError) throw challengesError;
-
-        const challenges: Challenge[] = [];
-
-        if (challengesData) {
-            for (const challenge of challengesData) {
-                // Obtener preguntas para cada desafío
-                const { data: questionsData, error: questionsError } =
-                    await supabase
-                        .from("challenge_questions")
-                        .select("*")
-                        .eq("challenge_id", challenge.id);
-
-                if (questionsError) throw questionsError;
-
-                if (questionsData) {
-                    challenges.push({
-                        id: challenge.id,
-                        storyId: challenge.story_id,
-                        createdAt: challenge.created_at,
-                        questions: questionsData.map((q) => ({
-                            id: q.id,
-                            question: q.question,
-                            options: q.options,
-                            correctOptionIndex: q.correct_option_index,
-                            explanation: q.explanation,
-                            category: q.category,
-                            targetLanguage: q.target_language,
-                        } as ChallengeQuestion)),
-                    });
-                }
-            }
+        if (challengesError) {
+            console.error("Error obteniendo desafíos (RLS?):", challengesError);
+            throw challengesError;
         }
+
+        const challenges: Challenge[] = challengesData ? challengesData.map(challengeRecord => ({
+            id: challengeRecord.id,
+            storyId: challengeRecord.story_id,
+            createdAt: challengeRecord.created_at,
+            questions: (challengeRecord.challenge_questions || []).map((q: any) => ({ // Tipar 'q' si es posible
+                id: q.id,
+                question: q.question,
+                options: q.options,
+                correctOptionIndex: q.correct_option_index,
+                explanation: q.explanation,
+                category: q.category,
+                targetLanguage: q.target_language,
+            })),
+        })) : [];
 
         return { success: true, challenges };
     } catch (error) {
-        console.error("Error obteniendo desafíos:", error);
+        console.error("Fallo general en getStoryChallenges:", error);
         return { success: false, error };
     }
 };
 
-// Funciones para gestionar archivos de audio
+// --- Funciones para Archivos de Audio ---
+
 export const syncAudioFile = async (
     userId: string,
     storyId: string,
     chapterId: string | number,
     voiceId: string,
     audioUrl: string,
-) => {
+): Promise<{ success: boolean; error?: any }> => {
     try {
         const { error } = await supabase
             .from("audio_files")
@@ -600,52 +508,48 @@ export const syncAudioFile = async (
                 voice_id: voiceId,
                 url: audioUrl,
             });
-
-        if (error) throw error;
+        if (error) {
+            console.error("Error sincronizando archivo de audio (RLS/FK?):", error);
+            throw error;
+        }
         return { success: true };
     } catch (error) {
-        console.error("Error sincronizando archivo de audio:", error);
+        console.error("Fallo general en syncAudioFile:", error);
         return { success: false, error };
     }
 };
 
-export const getUserAudios = async (userId: string) => {
+export const getUserAudios = async (userId: string): Promise<{ success: boolean; audios?: any[]; error?: any }> => { // Ajustar tipo 'audios' si tienes uno específico
     try {
         const { data, error } = await supabase
             .from("audio_files")
             .select("*")
             .eq("user_id", userId);
 
-        if (error) throw error;
-
-        if (data) {
-            return {
-                success: true,
-                audios: data.map((audio) => ({
-                    storyId: audio.story_id,
-                    chapterId: audio.chapter_id,
-                    voiceId: audio.voice_id,
-                    url: audio.url,
-                })),
-            };
+        if (error) {
+            console.error("Error obteniendo archivos de audio (RLS?):", error);
+            throw error;
         }
-        return { success: false };
+        const audios = data || [];
+        return { success: true, audios: audios };
     } catch (error) {
-        console.error("Error obteniendo archivos de audio:", error);
+        console.error("Fallo general en getUserAudios:", error);
         return { success: false, error };
     }
 };
 
-// Funciones para gestionar preferencias de voz
-export const setCurrentVoice = async (userId: string, voiceId: string) => {
+// --- Funciones para Preferencias de Voz ---
+
+export const setCurrentVoice = async (userId: string, voiceId: string): Promise<{ success: boolean; error?: any }> => {
     try {
-        // Primero resetear la voz actual
+        // Paso 1: Resetear la voz actual
         await supabase
             .from("user_voices")
             .update({ is_current: false })
-            .eq("user_id", userId);
+            .eq("user_id", userId)
+            .eq("is_current", true);
 
-        // Crear o actualizar la voz seleccionada
+        // Paso 2: Establecer la nueva voz actual
         const { error } = await supabase
             .from("user_voices")
             .upsert({
@@ -654,37 +558,40 @@ export const setCurrentVoice = async (userId: string, voiceId: string) => {
                 is_current: true,
                 updated_at: new Date(),
             });
-
-        if (error) throw error;
+        if (error) {
+            console.error("Error en upsert de voz actual (RLS?):", error);
+            throw error;
+        }
         return { success: true };
     } catch (error) {
-        console.error("Error configurando voz actual:", error);
+        console.error("Fallo general en setCurrentVoice:", error);
         return { success: false, error };
     }
 };
 
-export const getCurrentVoice = async (userId: string) => {
+export const getCurrentVoice = async (userId: string): Promise<{ success: boolean; voiceId?: string | null; error?: any }> => {
     try {
         const { data, error } = await supabase
             .from("user_voices")
             .select("voice_id")
             .eq("user_id", userId)
             .eq("is_current", true)
-            .single();
+            .maybeSingle();
 
-        if (error && error.code !== "PGRST116") throw error; // PGRST116 es el código para "no se encontraron resultados"
-
-        return {
-            success: true,
-            voiceId: data?.voice_id || null,
-        };
+        if (error) {
+            console.error("Error obteniendo voz actual (RLS?):", error);
+            throw error;
+        }
+        return { success: true, voiceId: data?.voice_id || null };
     } catch (error) {
-        console.error("Error obteniendo voz actual:", error);
+        console.error("Fallo general en getCurrentVoice:", error);
         return { success: false, error };
     }
 };
 
-// Servicio de cola de sincronización para operaciones offline
+
+// --- Servicio de Cola de Sincronización ---
+// (Se mantiene la versión mejorada con re-encolado)
 interface SyncQueueItem {
     table: string;
     operation: "insert" | "update" | "delete";
@@ -699,11 +606,11 @@ class SyncQueueService {
     private readonly STORAGE_KEY = "sync_queue";
 
     private constructor() {
-        // Cargar cola desde localStorage al inicializar
         this.loadQueue();
-
-        // Agregar listeners para detectar cuando hay conexión
-        window.addEventListener("online", () => this.processQueue());
+        if (typeof window !== "undefined" && !window.hasOwnProperty('_syncQueueListenerAdded')) {
+            window.addEventListener("online", () => this.processQueue());
+            (window as any)._syncQueueListenerAdded = true;
+        }
     }
 
     static getInstance(): SyncQueueService {
@@ -714,17 +621,21 @@ class SyncQueueService {
     }
 
     private loadQueue() {
+        if (typeof localStorage === 'undefined') return;
         try {
             const savedQueue = localStorage.getItem(this.STORAGE_KEY);
             if (savedQueue) {
                 this.queue = JSON.parse(savedQueue);
+                console.log(`Cola de sincronización cargada con ${this.queue.length} elementos.`);
             }
         } catch (error) {
             console.error("Error cargando cola de sincronización:", error);
+            this.queue = [];
         }
     }
 
     private saveQueue() {
+        if (typeof localStorage === 'undefined') return;
         try {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.queue));
         } catch (error) {
@@ -732,118 +643,71 @@ class SyncQueueService {
         }
     }
 
-    addToQueue(
-        table: string,
-        operation: "insert" | "update" | "delete",
-        data: any,
-    ) {
-        this.queue.push({
-            table,
-            operation,
-            data,
-            timestamp: Date.now(),
-        });
+    addToQueue(table: string, operation: "insert" | "update" | "delete", data: any,) {
+        console.log(`Añadiendo a cola: ${operation} en ${table}`, data);
+        this.queue.push({ table, operation, data, timestamp: Date.now() });
         this.saveQueue();
-
-        // Intentar procesar inmediatamente si hay conexión
-        if (navigator.onLine) {
+        if (typeof navigator !== 'undefined' && navigator.onLine) {
             this.processQueue();
         }
     }
 
     async processQueue() {
-        if (this.isProcessing || this.queue.length === 0 || !navigator.onLine) {
+        if (this.isProcessing || this.queue.length === 0 || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+            if (this.isProcessing) console.log("Cola ya en proceso.");
             return;
         }
-
-        console.log(
-            `Procesando cola de sincronización: ${this.queue.length} elementos pendientes`,
-        );
+        console.log(`Procesando cola: ${this.queue.length} elementos.`);
         this.isProcessing = true;
+        const itemsToProcess = [...this.queue];
+        this.queue = [];
+        this.saveQueue();
+        const failedItems: SyncQueueItem[] = [];
 
         try {
-            // Procesar elementos en orden FIFO
-            const itemsToProcess = [...this.queue];
-            const successfulItems: number[] = [];
-
-            for (let i = 0; i < itemsToProcess.length; i++) {
-                const item = itemsToProcess[i];
+            for (const item of itemsToProcess) {
                 let success = false;
-
-                console.log(
-                    `Procesando ítem ${i}: ${item.operation} en tabla ${item.table}`,
-                );
-                console.log(`Datos:`, JSON.stringify(item.data, null, 2));
-
+                console.log(`Procesando: ${item.operation} en ${item.table}`); // No loguear item.data por defecto (puede ser grande)
                 try {
+                    let operationError = null;
                     switch (item.operation) {
                         case "insert":
                         case "update":
-                            const { error } = await supabase
-                                .from(item.table)
-                                .upsert(item.data);
-
-                            if (error) {
-                                console.error(
-                                    `Error al procesar ${item.operation} en ${item.table}:`,
-                                    error,
-                                );
-                            } else {
-                                console.log(
-                                    `Operación ${item.operation} en ${item.table} exitosa`,
-                                );
-                                success = true;
-                            }
+                            const { error } = await supabase.from(item.table).upsert(item.data);
+                            operationError = error;
                             break;
-
                         case "delete":
-                            const { error: deleteError } = await supabase
-                                .from(item.table)
-                                .delete()
-                                .eq("id", item.data.id);
-
-                            if (deleteError) {
-                                console.error(
-                                    `Error al eliminar en ${item.table}:`,
-                                    deleteError,
-                                );
-                            } else {
-                                console.log(
-                                    `Eliminación en ${item.table} exitosa`,
-                                );
-                                success = true;
+                            if (!item.data?.id) {
+                                console.error("Datos para DELETE sin ID:", item);
+                                operationError = new Error("Datos para DELETE sin ID");
+                                break;
                             }
+                            const { error: deleteError } = await supabase.from(item.table).delete().eq("id", item.data.id);
+                            operationError = deleteError;
                             break;
                     }
-
-                    if (success) {
-                        successfulItems.push(i);
+                    if (operationError) {
+                        console.error(`Error procesando item [${item.operation} ${item.table}]:`, operationError);
+                    } else {
+                        console.log(`Item procesado: ${item.operation} ${item.table}`);
+                        success = true;
                     }
-                } catch (error) {
-                    console.error(
-                        `Error procesando item ${i} de la cola:`,
-                        error,
-                    );
+                } catch (processingError) {
+                    console.error(`Error inesperado procesando item:`, processingError);
                 }
+                if (!success) failedItems.push(item);
             }
-
-            // Eliminar elementos procesados exitosamente
-            this.queue = this.queue.filter((_, index) =>
-                !successfulItems.includes(index)
-            );
-            this.saveQueue();
-
-            console.log(
-                `Cola procesada. Elementos restantes: ${this.queue.length}`,
-            );
         } finally {
+            if (failedItems.length > 0) {
+                console.warn(`Re-encolando ${failedItems.length} elementos fallidos.`);
+                this.queue = [...failedItems, ...this.queue];
+                this.saveQueue();
+            }
+            console.log(`Procesamiento de cola finalizado. Pendientes: ${this.queue.length}`);
             this.isProcessing = false;
         }
     }
-
-    getQueueLength(): number {
-        return this.queue.length;
-    }
+    getQueueLength(): number { return this.queue.length; }
 }
 
 export const syncQueue = SyncQueueService.getInstance();

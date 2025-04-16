@@ -1,9 +1,25 @@
 export type ProfileSettings = {
+  // Campos existentes
   language: string;
   childAge: number;
-  ageRange?: string;
-  specialNeed?: string;
-}
+  specialNeed?: string | null;
+
+  // --- Campos de Stripe ---
+  stripe_customer_id?: string | null;
+  subscription_status?: string | null;
+  subscription_id?: string | null;
+  plan_id?: string | null;
+  current_period_end?: string | null;
+
+  // --- Campos de Límites/Créditos ---
+  voice_credits?: number | null;
+  monthly_stories_generated?: number | null;
+  period_start_date?: string | null;
+  
+  // --- Columna Nueva ---
+  monthly_voice_generations_used?: number | null;
+  has_completed_setup: boolean; // Añadido para rastrear setup
+};
 
 export type StoryDuration = 'short' | 'medium' | 'long';
 
@@ -39,9 +55,9 @@ export type Story = {
   title: string;
   content: string;
   audioUrl?: string;
-  imageUrl?: string;
   options: StoryOptions;
   createdAt: string;
+  additional_details?: string | null;
 }
 
 export type User = {
@@ -88,10 +104,15 @@ export type StoryWithChapters = {
   title: string;
   content: string;
   audioUrl?: string;
-  imageUrl?: string;
   options: StoryOptions;
   createdAt: string;
+  additional_details?: string | null;
   chapters: StoryChapter[];
   hasMultipleChapters?: boolean;
   chaptersCount?: number;
+};
+
+export type PresetSuggestion = {
+  id: number; // Supabase bigint maps to number in JS/TS if not excessively large
+  text_prompt: string;
 };

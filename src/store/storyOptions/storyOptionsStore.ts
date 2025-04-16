@@ -3,8 +3,9 @@ import { StoryOptions, StoryDuration } from '../../types';
 import { createPersistentStore } from '../core/createStore';
 
 // Estado inicial
-const initialState: Pick<StoryOptionsState, 'currentStoryOptions'> = {
-  currentStoryOptions: {}
+const initialState: Pick<StoryOptionsState, 'currentStoryOptions' | 'additionalDetails'> = {
+  currentStoryOptions: {},
+  additionalDetails: null,
 };
 
 export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
@@ -15,7 +16,8 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
     })),
     
     resetStoryOptions: () => set({ 
-      currentStoryOptions: {} 
+      currentStoryOptions: {}, 
+      additionalDetails: null 
     }),
     
     setDuration: (duration) => set((state) => ({
@@ -28,7 +30,9 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
     
     setGenre: (genre) => set((state) => ({
       currentStoryOptions: { ...state.currentStoryOptions, genre }
-    }))
+    })),
+    
+    setAdditionalDetails: (details) => set({ additionalDetails: details }),
   }),
   'story-options'
-); 
+);

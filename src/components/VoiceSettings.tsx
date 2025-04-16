@@ -1,23 +1,33 @@
 import { useState, useEffect } from 'react';
-import { Volume2, VolumeX, ChevronDown } from 'lucide-react';
-import { getAvailableVoices, ELEVENLABS_VOICES } from '../services/ttsService';
+import { Volume2, ChevronDown, AlertCircle } from 'lucide-react';
+import { getAvailableVoices } from '../services/ai/ttsService';
+import { useUserStore } from '../store/user/userStore';
+
+interface Voice {
+  id: string;
+  description: string;
+}
 
 interface VoiceSettingsProps {
   onSettingsChange: (settings: {
     voiceId: string;
-    stability: number;
-    similarityBoost: number;
   }) => void;
   className?: string;
 }
 
 export default function VoiceSettings({ onSettingsChange, className = '' }: VoiceSettingsProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [voices, setVoices] = useState(ELEVENLABS_VOICES);
-  const [selectedVoice, setSelectedVoice] = useState(ELEVENLABS_VOICES[0]);
-  const [stability, setStability] = useState(0.5);
-  const [similarityBoost, setSimilarityBoost] = useState(0.75);
+  const [voices, setVoices] = useState<Voice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<Voice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Obtener selectores del userStore
+  const { 
+    isPremium, 
+    canGenerateVoice, 
+    getRemainingMonthlyVoiceGenerations, 
+    getAvailableVoiceCredits 
+  } = useUserStore();
 
   // Cargar las voces disponibles
   useEffect(() => {
@@ -32,9 +42,7 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
         setSelectedVoice(defaultVoice);
         
         onSettingsChange({
-          voiceId: defaultVoice.id,
-          stability,
-          similarityBoost
+          voiceId: defaultVoice.id
         });
       } catch (error) {
         console.error('Error cargando voces:', error);
@@ -46,39 +54,22 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
     loadVoices();
   }, []);
 
-  const handleVoiceChange = (voice: typeof ELEVENLABS_VOICES[0]) => {
+  const handleVoiceChange = (voice: Voice) => {
     setSelectedVoice(voice);
     onSettingsChange({
-      voiceId: voice.id,
-      stability,
-      similarityBoost
+      voiceId: voice.id
     });
     setIsOpen(false);
-  };
-
-  const handleStabilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newStability = parseFloat(e.target.value);
-    setStability(newStability);
-    onSettingsChange({
-      voiceId: selectedVoice.id,
-      stability: newStability,
-      similarityBoost
-    });
-  };
-
-  const handleSimilarityBoostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newBoost = parseFloat(e.target.value);
-    setSimilarityBoost(newBoost);
-    onSettingsChange({
-      voiceId: selectedVoice.id,
-      stability,
-      similarityBoost: newBoost
-    });
   };
 
   const toggleSettings = () => {
     setIsOpen(!isOpen);
   };
+
+  // Obtener información de límites
+  const remainingMonthly = getRemainingMonthlyVoiceGenerations();
+  const availableCredits = getAvailableVoiceCredits();
+  const canGenerate = canGenerateVoice();
 
   return (
     <div className={`voice-settings ${className}`}>
@@ -90,10 +81,11 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
         <button
           onClick={toggleSettings}
           className="w-full flex items-center justify-between p-4 bg-white/10 hover:bg-white/15 rounded-xl text-white text-sm backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+          disabled={isLoading || !selectedVoice}
         >
           <div className="flex items-center gap-2">
             <Volume2 size={18} className="text-purple-200" />
-            <span>{selectedVoice.description}</span>
+            <span>{selectedVoice?.description || 'Cargando voces...'}</span>
           </div>
           <ChevronDown size={18} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -105,7 +97,7 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
                 key={voice.id}
                 onClick={() => handleVoiceChange(voice)}
                 className={`w-full text-left p-3 my-1 rounded-lg flex items-center transition-colors hover:bg-white/10 ${
-                  selectedVoice.id === voice.id ? 'bg-white/20 font-medium' : ''
+                  selectedVoice?.id === voice.id ? 'bg-white/20 font-medium' : ''
                 }`}
               >
                 <span className={`h-2 w-2 rounded-full mr-3 ${voice.description.includes('Femenina') ? 'bg-pink-400' : 'bg-blue-400'}`}></span>
@@ -115,46 +107,38 @@ export default function VoiceSettings({ onSettingsChange, className = '' }: Voic
           </div>
         )}
       </div>
-
-      <div className="mb-4 bg-white/10 backdrop-blur-md rounded-xl p-4">
-        <label className="block text-sm mb-2 text-white/90">
-          Estabilidad: {(stability * 100).toFixed(0)}%
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={stability}
-          onChange={handleStabilityChange}
-          className="w-full h-2 bg-white/30 rounded-lg appearance-none cursor-pointer"
-        />
-        <div className="flex justify-between text-xs mt-1 text-white/70">
-          <span>Inestable</span>
-          <span>Balanceada</span>
-          <span>Estable</span>
+      
+      {/* Información de límites de generación de voz */}
+      {isPremium() ? (
+        <div className="text-center text-sm text-white/80">
+          {canGenerate ? (
+            <div className="flex flex-col gap-1">
+              <div className="font-medium text-green-300">
+                {remainingMonthly > 0 ? (
+                  <span>Te quedan {remainingMonthly} generaciones gratuitas</span>
+                ) : (
+                  <span>Has usado todas tus generaciones mensuales</span>
+                )}
+              </div>
+              {availableCredits > 0 && (
+                <div className="text-purple-300">
+                  Tienes {availableCredits} créditos adicionales
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-amber-300">
+              <AlertCircle size={16} />
+              <span>Necesitas comprar más créditos para generar audio</span>
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className="mb-4 bg-white/10 backdrop-blur-md rounded-xl p-4">
-        <label className="block text-sm mb-2 text-white/90">
-          Fidelidad: {(similarityBoost * 100).toFixed(0)}%
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={similarityBoost}
-          onChange={handleSimilarityBoostChange}
-          className="w-full h-2 bg-white/30 rounded-lg appearance-none cursor-pointer"
-        />
-        <div className="flex justify-between text-xs mt-1 text-white/70">
-          <span>Creativa</span>
-          <span>Balanceada</span>
-          <span>Fiel</span>
+      ) : (
+        <div className="text-center text-sm text-amber-300 flex items-center justify-center gap-2">
+          <AlertCircle size={16} />
+          <span>Necesitas una suscripción premium para narrar historias</span>
         </div>
-      </div>
+      )}
     </div>
   );
-} 
+}

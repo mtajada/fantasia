@@ -14,12 +14,22 @@ import {
 export interface UserState {
   user: User | null;
   profileSettings: ProfileSettings | null;
+  intendedRedirectPath: string | null; // Añadido para gestionar redirecciones
 
   loginUser: (user: User) => void;
   logoutUser: () => void;
-  setProfileSettings: (settings: ProfileSettings) => void;
+  setProfileSettings: (settings: Partial<ProfileSettings>) => void;
   hasCompletedProfile: () => boolean;
   checkAuth: () => Promise<boolean>;
+  
+  // Nuevos selectores para suscripción y límites
+  isPremium: () => boolean;
+  getRemainingMonthlyStories: () => number;
+  canCreateStory: () => boolean;
+  getRemainingMonthlyVoiceGenerations: () => number;
+  getAvailableVoiceCredits: () => number;
+  canGenerateVoice: () => boolean;
+  canContinueStory: (storyId: string) => boolean;
 }
 
 export interface CharacterState {
@@ -36,12 +46,14 @@ export interface CharacterState {
 
 export interface StoryOptionsState {
   currentStoryOptions: Partial<StoryOptions>;
+  additionalDetails?: string | null;
 
   updateStoryOptions: (options: Partial<StoryOptions>) => void;
   resetStoryOptions: () => void;
   setDuration: (duration: StoryDuration) => void;
   setMoral: (moral: string) => void;
   setGenre: (genre: string) => void;
+  setAdditionalDetails: (details?: string | null) => void;
 }
 
 export interface StoriesState {

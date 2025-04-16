@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, X } from "lucide-react";
+import { Play, Pause, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ttsService";
+import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ai/ttsService";
 import { useAudioStore } from "@/store/stories/audio/audioStore";
+import { useUserStore } from "@/store/user/userStore";
 import { toast } from "sonner";
 
 // Voice types with their details
@@ -79,19 +80,21 @@ const formatTime = (seconds: number): string => {
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 interface StoryAudioPlayerProps {
-  title: string;
   text: string;
   onClose: () => void;
 }
 
-export function StoryAudioPlayer({ title, text, onClose }: StoryAudioPlayerProps) {
+export default function StoryAudioPlayer({ text, onClose }: StoryAudioPlayerProps) {
   const { 
-    getAudioFromCache, 
     addAudioToCache, 
+    getAudioFromCache, 
     setGenerationStatus, 
-    getCurrentVoice,
-    setCurrentVoice 
+    getGenerationStatus,
+    setCurrentVoice,
+    getCurrentVoice
   } = useAudioStore();
+  
+  const { canGenerateVoice, isPremium, getRemainingMonthlyVoiceGenerations, getAvailableVoiceCredits } = useUserStore();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -207,6 +210,21 @@ export function StoryAudioPlayer({ title, text, onClose }: StoryAudioPlayerProps
   };
 
   const handleGenerateAudio = async () => {
+    // Verificar si el usuario puede generar audio según su plan y límites
+    if (!canGenerateVoice()) {
+      const isPremiumUser = isPremium();
+      const remainingGenerations = getRemainingMonthlyVoiceGenerations();
+      const availableCredits = getAvailableVoiceCredits();
+      
+      if (isPremiumUser && remainingGenerations <= 0) {
+        toast.error("Has alcanzado el límite mensual de generaciones de voz para tu plan premium.");
+        return;
+      } else if (!isPremiumUser && availableCredits <= 0) {
+        toast.error("No tienes créditos disponibles para generar audio. Actualiza a premium para obtener más generaciones mensuales.");
+        return;
+      }
+    }
+    
     try {
       setIsLoading(true);
       // Usamos un ID temporal para identificar la generación
@@ -337,7 +355,7 @@ export function StoryAudioPlayer({ title, text, onClose }: StoryAudioPlayerProps
       {/* Header with title */}
       <div className="px-6 pt-6 pb-2">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white truncate pr-4">{title}</h2>
+          <h2 className="text-xl font-bold text-white truncate pr-4">{}</h2>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -490,12 +508,24 @@ export function StoryAudioPlayer({ title, text, onClose }: StoryAudioPlayerProps
                   <p className="text-white/80">Generando audio, por favor espera...</p>
                 </>
               ) : (
-                <Button
+                <button
                   onClick={handleGenerateAudio}
-                  className="w-full rounded-full bg-white/20 hover:bg-white/30 text-white"
+                  disabled={isLoading || !canGenerateVoice()}
+                  className={cn(
+                    "flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-full font-medium shadow-md hover:from-purple-600 hover:to-indigo-700 transition-all",
+                    (isLoading || !canGenerateVoice()) && "opacity-70 cursor-not-allowed"
+                  )}
+                  title={!canGenerateVoice() ? "Has alcanzado el límite de generaciones de voz" : ""}
                 >
-                  Generar Audio
-                </Button>
+                  {isLoading ? (
+                    <>Generando... {Math.round(generationProgress)}%</>
+                  ) : (
+                    <>
+                      Generar Audio
+                      {!canGenerateVoice() && <AlertCircle className="ml-1 h-4 w-4" />}
+                    </>
+                  )}
+                </button>
               )}
             </div>
             
@@ -514,5 +544,3 @@ export function StoryAudioPlayer({ title, text, onClose }: StoryAudioPlayerProps
     </motion.div>
   );
 }
-
-export default StoryAudioPlayer;

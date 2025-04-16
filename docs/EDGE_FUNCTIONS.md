@@ -40,35 +40,72 @@ supabase secrets set GEMINI_API_KEY="tu-clave-api"
 Genera una historia infantil personalizada basada en las opciones
 proporcionadas.
 
-#### Solicitud:
+#### Parámetros de Entrada (Request Payload):
 
 ```json
 {
-    "options": {
-        "character": {
+    "options": { // Opciones de la historia
+        "character": { // Detalles del personaje principal
             "name": "Nombre del personaje",
             "profession": "Profesión",
             "hobbies": ["Afición 1", "Afición 2"],
-            "characterType": "Tipo de personaje",
-            "personality": "Personalidad"
+            "characterType": "Tipo de personaje (ej. Animal, Humano)",
+            "personality": "Personalidad (ej. Valiente, Tímido)"
         },
-        "genre": "Género de la historia",
+        "genre": "Género de la historia (ej. Aventura, Fantasía)",
         "moral": "Enseñanza o moraleja",
-        "duration": "short|medium|long"
+        "duration": "short|medium|long" // Duración deseada
     },
-    "language": "español",
-    "childAge": 7,
-    "specialNeed": "Ninguna|TEA|TDAH|Dislexia|Ansiedad|Down|Comprension"
+    "language": "español", // Idioma deseado para la historia
+    "childAge": 7, // Edad del niño/a para adaptar el lenguaje y contenido
+    "specialNeed": "Ninguna|TEA|TDAH|Dislexia|Ansiedad|Down|Comprension", // Necesidad especial para adaptar la historia
+    "additionalDetails": "Texto libre con detalles adicionales para la historia" // Opcional
 }
 ```
 
-#### Respuesta:
+#### Respuesta Exitosa (Success Response):
 
 ```json
 {
+    "title": "Título Atractivo Generado por la IA",
     "content": "Texto completo de la historia generada..."
 }
 ```
+
+#### Respuesta de Error (Error Response):
+
+```json
+{
+    "error": "Mensaje descriptivo del error"
+}
+```
+
+#### Flujo de Implementación Interna:
+
+1.  **Recepción y Validación:** La función recibe el payload JSON. Se valida la presencia de los campos requeridos (`options`).
+2.  **Construcción del Prompt:**
+    *   Se crea un **prompt de sistema** que instruye a la IA sobre su rol (generador de cuentos infantiles), el formato de salida esperado (JSON con `title` y `content`), y las restricciones generales (tono, longitud, creatividad para el título).
+    *   Se crea un **prompt de usuario** detallado que incluye:
+        *   Todas las `options` proporcionadas (personaje, género, moraleja, duración).
+        *   El `language` solicitado.
+        *   La `childAge`, indicando a la IA que adapte el lenguaje y la complejidad.
+        *   La `specialNeed`, instruyendo a la IA para que considere sensibilidades o temas específicos si es relevante (evitando estereotipos).
+        *   Los `additionalDetails` si se proporcionan.
+3.  **Llamada a la API de Gemini:** Se utiliza el cliente `@google/generative-ai` para enviar ambos prompts (sistema y usuario) al modelo Gemini configurado. Se especifica que la respuesta debe ser en formato JSON.
+4.  **Procesamiento de la Respuesta:**
+    *   Se intenta parsear la respuesta JSON recibida de Gemini.
+    *   Se extraen los campos `title` y `content`.
+    *   Se realiza una limpieza básica (ej. eliminar posibles bloques de código markdown alrededor del JSON).
+    *   Se valida que `title` y `content` no estén vacíos.
+5.  **Retorno:** Se devuelve un objeto JSON con `title` y `content` si todo fue exitoso, o un objeto con `error` si ocurrió algún problema.
+
+#### Depuración y Problemas Anteriores:
+
+*   **Problema Inicial:** Durante el desarrollo, se detectó que los parámetros `childAge` y `specialNeed` no llegaban correctamente a la Edge Function, resultando en `null` o valores por defecto, aunque el parámetro `language` sí se recibía bien.
+*   **Diagnóstico:** La investigación reveló que el error no estaba en la Edge Function en sí, sino en el flujo de datos del lado del cliente antes de invocar la función. Específicamente, la lógica para guardar la configuración del perfil del usuario en la base de datos no persistía correctamente estos campos.
+*   **Causa Raíz (Cliente):** La función `syncUserProfile` en `src/services/supabase.ts` recibía los datos mapeados desde `userStore` (con nombres de columna como `child_age`, `special_need`), pero intentaba acceder a ellos usando los nombres de propiedad originales de TypeScript (`profileSettings.childAge`, `profileSettings.specialNeed`), los cuales eran `undefined` en ese contexto. Esto causaba que se guardaran `null` o valores incorrectos en la base de datos.
+*   **Solución (Cliente):** Se corrigió `syncUserProfile` para que utilizara directamente el objeto de datos mapeado (`dataToSync`) al preparar el objeto para la operación `upsert` de Supabase, asegurando que los nombres de columna correctos (`child_age`, `special_need`) se usaran con los valores correctos.
+*   **Impacto en la Edge Function:** Una vez corregido el guardado en el cliente, la Edge Function comenzó a recibir los valores correctos para `childAge` y `specialNeed`, permitiéndole adaptar la generación de historias según lo previsto.
 
 ### challenge
 
@@ -158,6 +195,14 @@ Genera desafíos educativos basados en historias.
 ### story-continuation
 
 Genera continuaciones para historias existentes.
+
+#### Lógica de Límites (Usuarios Gratuitos)
+
+-   Un usuario gratuito puede generar **una continuación** por cada historia creada.
+-   Esto significa que una historia gratuita puede tener un máximo de **dos capítulos**: el capítulo inicial generado con `generate-story` y una continuación generada a través de esta función (`story-continuation`).
+-   La función verifica el número de capítulos existentes para la historia *antes* de generar una continuación (`optionContinuation`, `directedContinuation`, `freeContinuation`).
+-   Si el usuario es gratuito y la historia ya tiene 2 o más capítulos, la función devolverá un error `403 Forbidden` indicando que se ha alcanzado el límite.
+-   La acción `generateOptions` no está sujeta a este límite, ya que solo sugiere posibles caminos.
 
 #### Acción: generateOptions
 

@@ -5,11 +5,13 @@ import { ArrowLeft, Send } from "lucide-react";
 interface StoryContinuationCustomInputProps {
   onSubmit: (text: string) => void;
   onBack: () => void;
+  disabled?: boolean;
 }
 
 export default function StoryContinuationCustomInput({
   onSubmit,
-  onBack
+  onBack,
+  disabled = false
 }: StoryContinuationCustomInputProps) {
   const [userInput, setUserInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,15 +50,15 @@ export default function StoryContinuationCustomInput({
         onChange={(e) => setUserInput(e.target.value)}
         placeholder="Ejemplo: Me gustaría que el protagonista descubriera un objeto mágico que le permita..."
         className="w-full h-40 p-4 rounded-xl bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-story-orange-400 resize-none mb-4"
-        disabled={isSubmitting}
+        disabled={isSubmitting || disabled}
       />
 
       <div className="flex justify-end">
         <button
           onClick={handleSubmit}
-          disabled={!userInput.trim() || isSubmitting}
+          disabled={!userInput.trim() || isSubmitting || disabled}
           className={`px-6 py-3 rounded-full font-medium flex items-center ${
-            !userInput.trim() || isSubmitting
+            !userInput.trim() || isSubmitting || disabled
               ? "bg-white/20 text-white/50 cursor-not-allowed"
               : "bg-story-orange-400 text-white hover:bg-story-orange-500 transition-all shadow-lg"
           }`}
