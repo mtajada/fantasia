@@ -81,9 +81,8 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `getAvailableVoiceCredits()`: Returns the number of *purchased* `voice_credits`.
     *   `canGenerateStory()`: Checks if the user (free or premium) has available story generations (monthly limit or purchased credits, though story credits are not fully implemented yet).
     *   `canGenerateVoice()`: Checks if the user is premium AND has either remaining monthly voice generations OR available purchased voice credits.
-    *   `hasCompletedProfile()`: A selector returning `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used for routing.
-
-    **Important Distinction: Monthly Quota vs. Purchased Credits:**
+    *   `hasCompletedProfile()`: A selector returning `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used by components like `Home` and `AuthGuard` to check if the user needs to be sent to profile configuration.
+*   **Important Distinction: Monthly Quota vs. Purchased Credits:**
     It's crucial to understand the difference in how voice generation allowances work:
     *   **Monthly Voice Generations (Premium):** Represented by tracking `monthly_voice_generations_used` against a fixed limit (e.g., 20). This is a *quota* that **resets to 0** at the start of each subscription period (handled by the Stripe webhook). This effectively makes the full quota available again each month. Unused generations from one month **do not roll over** to the next.
     *   **Purchased Voice Credits (`voice_credits`):** Represent a *balance* of credits bought separately. These credits **persist** across subscription periods and **do not reset** monthly. They are only consumed when used (either by free users or by premium users who have exhausted their monthly quota). This balance accumulates if more credits are purchased.
@@ -155,6 +154,7 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `storyChapters: StoryWithChapters[]`: An array where each element represents a story and contains an array of its `chapters`. (Note: This duplicates some story metadata; consider if just storing chapters grouped by `storyId` is sufficient).
 *   **Key Actions:**
     *   `addChapter(storyId, chapter)`: Adds a new chapter to the appropriate story in `storyChapters`, calls `@services/supabase.syncChapter`, uses `syncQueue` on failure.
+        *   **Important State Update Logic:** To prevent inconsistencies (especially for free user limit checks), the local state (`storyChapters`) is **only updated *after* the `syncChapter` call successfully completes**.
         *   **Note:** This action is called both by `@store/stories/storyGenerator.ts` (for the initial Chapter 1, using the story's title/content) and by `@pages/StoryContinuation.tsx` (for subsequent chapters). The logic for determining the correct `chapterNumber` (either `1` or based on `getChapterCountForStory`) resides in the calling code *before* this action is invoked.
     *   `getChaptersByStoryId(storyId)`: Retrieves chapters for a specific story.
     *   `loadChaptersFromSupabase(storyId)`: Fetches chapters for a *specific story* via `@services/supabase.getStoryChapters`. This is typically called on demand when viewing a story, *not* by `syncAllUserData` initially.

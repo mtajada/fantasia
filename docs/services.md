@@ -45,7 +45,9 @@ generateDirectedContinuation(story, chapters, userDirection): Llama a la EF (act
 generateChapterTitle(content, language): Llama a la EF (action: 'generateTitle') para generar un título para un capítulo basado en su contenido y el idioma deseado. (Nota: Asegurarse de que el idioma se pasa correctamente desde donde se llama).
 Dependencias: supabaseClient, EF story-continuation.
 Interacción: Muy usado por @store/storyGenerator.ts y @/pages/StoryContinuation.tsx.
-Cuidado: Asegurarse de que todos los métodos son wrappers limpios y que la lógica de prompts reside únicamente en la EF.
+Cuidado:
+*   Asegurarse de que todos los métodos son wrappers limpios y que la lógica de prompts reside únicamente en la EF.
+*   **Manejo de Límites (403 Error):** La Edge Function devolverá un error 403 Forbidden si un usuario gratuito intenta generar una continuación excediendo el límite permitido (más de 2 capítulos en total). El código que llama a los métodos de este servicio (ej., `generateFreeContinuation`, `generateOptionContinuation`, etc.) **es responsable de capturar este error específico** (probablemente envuelto en un `FunctionsHttpError` con `context.status === 403`) y mostrar un mensaje apropiado al usuario indicando que ha alcanzado el límite.
 3.4. @src/services/ttsService.ts
 Propósito: Wrapper para la Edge Function generate-audio y proveedor de utilidades/constantes relacionadas con Text-to-Speech para el frontend.
 Métodos/Exportaciones Clave:

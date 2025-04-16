@@ -196,6 +196,14 @@ Genera desafíos educativos basados en historias.
 
 Genera continuaciones para historias existentes.
 
+#### Lógica de Límites (Usuarios Gratuitos)
+
+-   Un usuario gratuito puede generar **una continuación** por cada historia creada.
+-   Esto significa que una historia gratuita puede tener un máximo de **dos capítulos**: el capítulo inicial generado con `generate-story` y una continuación generada a través de esta función (`story-continuation`).
+-   La función verifica el número de capítulos existentes para la historia *antes* de generar una continuación (`optionContinuation`, `directedContinuation`, `freeContinuation`).
+-   Si el usuario es gratuito y la historia ya tiene 2 o más capítulos, la función devolverá un error `403 Forbidden` indicando que se ha alcanzado el límite.
+-   La acción `generateOptions` no está sujeta a este límite, ya que solo sugiere posibles caminos.
+
 #### Acción: generateOptions
 
 ##### Solicitud:
