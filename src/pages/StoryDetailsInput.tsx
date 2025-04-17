@@ -106,22 +106,30 @@ const StoryDetailsInput: React.FC = () => {
 
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative overflow-auto py-16 px-6 flex flex-col">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center relative"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <BackButton />
         
-        <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col justify-center pb-20 md:pb-0">
+        <div className="w-full max-w-2xl mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
           {/* Título y subtítulo animados */}
           <motion.h1 
-            className="text-3xl font-bold text-white mb-3 text-center"
+            className="text-3xl font-bold text-[#BB79D1] mb-3 text-center font-heading drop-shadow-lg"
             variants={fadeIn}
             initial="hidden"
             animate="visible"
           >
-            ¿Algún <span className="text-story-orange-400">detalle extra</span>?
+            ¿Algún <span className="text-[#F6A5B7]">detalle extra</span>?
           </motion.h1>
           
           <motion.p 
-            className="mb-4 text-center text-white/80 max-w-lg mx-auto"
+            className="mb-4 text-center text-[#222] bg-white/80 rounded-xl px-4 py-2 font-medium shadow-sm max-w-lg mx-auto"
             variants={fadeIn}
             initial="hidden"
             animate="visible"
@@ -130,7 +138,7 @@ const StoryDetailsInput: React.FC = () => {
             Añade instrucciones o ideas para personalizar tu historia.
           </motion.p>
 
-          {/* Reemplazando la etiqueta "Opcional" con un badge integrado */}
+          {/* Badge "Paso opcional" */}
           <motion.div
             className="flex justify-center mb-2"
             variants={fadeIn}
@@ -138,7 +146,7 @@ const StoryDetailsInput: React.FC = () => {
             animate="visible"
             transition={{ delay: 0.15 }}
           >
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-400/20 text-green-300 border border-green-500/30">
+            <span className="inline-flex items-center px-4 py-1 rounded-2xl text-sm font-semibold bg-white/70 border-2 border-[#A5D6F6]/40 text-[#7DC4E0] shadow-sm" style={{letterSpacing:'0.01em'}}>
               <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -146,7 +154,7 @@ const StoryDetailsInput: React.FC = () => {
             </span>
           </motion.div>
           
-          {/* Sección de Presets - MOVIDA ARRIBA DEL TEXTAREA */}
+          {/* Sección de Presets */}
           <motion.div
             className="mb-4 w-full"
             variants={fadeIn}
@@ -155,15 +163,15 @@ const StoryDetailsInput: React.FC = () => {
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center text-white/90">
-                <Sparkles size={16} className="mr-1 text-yellow-400" />
+              <div className="flex items-center text-[#222]">
+                <Sparkles size={16} className="mr-1 text-[#F9DA60]" />
                 <span className="text-sm font-medium">Ideas para inspirarte:</span>
               </div>
               
               <button
                 onClick={selectRandomPresets}
                 disabled={isLoadingPresets || allPresets.length < 3}
-                className="text-story-blue-400 hover:text-story-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center bg-white/10 px-2 py-1 rounded-full"
+                className="text-[#7DC4E0] hover:text-[#BB79D1] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center bg-white/70 px-2 py-1 rounded-full shadow-sm"
               >
                 <RefreshCw size={14} className="mr-1" />
                 Nuevas ideas
@@ -177,11 +185,11 @@ const StoryDetailsInput: React.FC = () => {
               className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4"
             >
               {isLoadingPresets ? (
-                <div className="col-span-full flex justify-center py-3">
+                <div className="col-span-full flex justify-center py-3 bg-white/70 rounded-xl">
                   <div className="animate-pulse flex space-x-2">
-                    <div className="h-2 w-2 bg-white/60 rounded-full"></div>
-                    <div className="h-2 w-2 bg-white/60 rounded-full"></div>
-                    <div className="h-2 w-2 bg-white/60 rounded-full"></div>
+                    <div className="h-2 w-2 bg-[#BB79D1]/60 rounded-full"></div>
+                    <div className="h-2 w-2 bg-[#BB79D1]/60 rounded-full"></div>
+                    <div className="h-2 w-2 bg-[#BB79D1]/60 rounded-full"></div>
                   </div>
                 </div>
               ) : presets.length > 0 ? (
@@ -189,14 +197,14 @@ const StoryDetailsInput: React.FC = () => {
                   <motion.div key={preset.id} variants={item}>
                     <button
                       onClick={() => handlePresetClick(preset.text_prompt)}
-                      className="w-full text-left p-3 rounded-xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/10 text-white/90 text-sm hover:from-story-orange-500/30 hover:to-story-orange-400/10 hover:border-story-orange-400/30 transition-all shadow-sm hover:shadow-md"
+                      className="w-full text-left p-3 rounded-xl bg-white/70 border-2 border-[#F6A5B7]/30 text-[#222] text-sm hover:bg-[#F6A5B7]/10 transition-all shadow-sm hover:shadow-md"
                     >
                       {preset.text_prompt}
                     </button>
                   </motion.div>
                 ))
               ) : (
-                <div className="col-span-full text-center text-white/60 text-sm italic py-3">
+                <div className="col-span-full text-center text-[#555] text-sm italic py-3 bg-white/70 rounded-xl">
                   No hay sugerencias disponibles.
                 </div>
               )}
@@ -216,13 +224,13 @@ const StoryDetailsInput: React.FC = () => {
               value={detailsText}
               onChange={(e) => setDetailsText(e.target.value)}
               placeholder="Escribe tus ideas o selecciona una de las sugerencias de arriba..."
-              className="w-full p-4 border-2 border-white/30 rounded-xl text-white bg-white/10 backdrop-blur-sm shadow-lg focus:ring-story-orange-400 focus:border-story-orange-400 h-32 resize-none placeholder-white/50"
+              className="w-full p-4 border-2 border-[#BB79D1]/40 rounded-xl text-[#222] bg-white/70 shadow-lg focus:ring-[#BB79D1] focus:border-[#BB79D1] h-32 resize-none placeholder-[#555]/70"
             />
           </motion.div>
           
           {/* Botón único de Generar Historia */} 
           <motion.div 
-            className="flex justify-center w-full"
+            className="flex justify-center w-full mt-2 mb-2"
             variants={fadeIn}
             initial="hidden"
             animate="visible"
@@ -230,7 +238,7 @@ const StoryDetailsInput: React.FC = () => {
           >
             <StoryButton
               onClick={handleGenerate}
-              className="w-full max-w-md py-4 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-story-orange-500 to-story-orange-400 text-white rounded-full border-2 border-white/50 font-medium text-lg"
+              className="w-full max-w-xs py-4 rounded-2xl text-white text-lg font-semibold shadow-lg bg-[#BB79D1] hover:bg-[#BB79D1]/90 border-2 border-[#BB79D1]/50 transition-all duration-200"
             >
               Generar Historia
             </StoryButton>

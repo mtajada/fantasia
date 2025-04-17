@@ -1,15 +1,22 @@
 import { motion } from "framer-motion";
-import { BookOpen, Sparkles, Headphones, Brain, LogIn, UserPlus } from "lucide-react";
+import { BookOpen, Sparkles, Headphones, Brain, LogIn, UserPlus, Star, Gift, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageTransition from "../components/PageTransition";
 import { useUserStore } from "../store/user/userStore";
 
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  color: string;
+}
+
 export default function Welcome() {
   const navigate = useNavigate();
   const { checkAuth, user } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
@@ -23,125 +30,218 @@ export default function Welcome() {
         setIsLoading(false);
       }
     };
-    
+
     checkAuthentication();
   }, [checkAuth, navigate]);
-  
+
   if (isLoading) {
     return (
-      <div className="gradient-bg min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-10 w-10 border-4 border-white rounded-full border-t-transparent"></div>
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{
+          backgroundImage: 'url(/fondo_png.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="w-16 h-16 rounded-full bg-white/30 flex items-center justify-center p-3 backdrop-blur-sm">
+          <div className="animate-spin h-full w-full border-4 border-[#F6A5B7] rounded-full border-t-transparent"></div>
+        </div>
       </div>
     );
   }
-  
+
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen flex flex-col items-center justify-center overflow-auto text-white">
-        <div className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-8 md:py-10 flex flex-col items-center justify-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-story-orange-400 to-story-orange-500 flex items-center justify-center shadow-xl mb-4"
-          >
-            <BookOpen size={48} className="text-white" />
-          </motion.div>
-          
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80"
-          >
-            CuentaSueños
-          </motion.h1>
-          
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="text-center text-white/80 text-sm md:text-base lg:text-lg mb-6 md:mb-8"
-          >
-            Crea historias personalizadas para momentos mágicos
-          </motion.p>
-          
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-3 md:gap-5 w-full max-w-xs sm:max-w-md mb-8 md:mb-10"
-          >
-            <button 
+      <div 
+        className="min-h-screen flex flex-col items-center overflow-auto"
+        style={{
+          backgroundImage: 'url(/fondo_png.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-6 flex items-center justify-between">
+          <div className="flex items-center">
+            <img src="/logo_png.png" alt="TaleMe Logo" className="h-16 md:h-20" />
+          </div>
+          <div className="flex gap-3">
+            <button
               onClick={() => navigate("/login")}
-              className="flex-1 py-2.5 px-4 md:py-3 md:px-5 bg-gradient-to-r from-story-orange-500 to-story-orange-400 rounded-lg text-white font-medium shadow-lg hover:shadow-xl hover:brightness-105 transition-all duration-300 flex items-center justify-center gap-2"
+              className="py-2 px-4 rounded-xl text-[#333] font-medium bg-white/80 hover:bg-white transition-all duration-200 shadow-md"
             >
-              <LogIn size={16} className="md:w-5 md:h-5" />
-              <span>Iniciar Sesión</span>
+              Iniciar Sesión
             </button>
-            
-            <button 
+            <button
               onClick={() => navigate("/signup")}
-              className="flex-1 py-2.5 px-4 md:py-3 md:px-5 bg-purple-800/40 backdrop-blur-sm border border-white/10 rounded-lg text-white font-medium shadow-lg hover:shadow-xl hover:bg-purple-700/40 transition-all duration-300 flex items-center justify-center gap-2"
+              className="py-2 px-4 rounded-xl text-white font-medium bg-[#F6A5B7] hover:bg-[#F6A5B7]/90 transition-all duration-200 shadow-md"
             >
-              <UserPlus size={16} className="md:w-5 md:h-5" />
-              <span>Registrarse</span>
+              Registrarse
             </button>
+          </div>
+        </header>
+
+        <main className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-8 md:py-12 flex flex-col items-center">
+          {/* Hero Section */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-12 md:mb-16"
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-[#222]">
+              Historias mágicas <span className="text-[#BB79D1]">personalizadas</span>
+            </h1>
+            <p className="text-lg md:text-xl text-[#333] max-w-2xl mx-auto mb-8">
+              Crea cuentos únicos adaptados a los gustos y personalidad de cada niño, con narración de voz y retos educativos.
+            </p>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <button
+                onClick={() => navigate("/signup")}
+                className="py-3 px-8 rounded-2xl text-white text-lg font-semibold bg-[#F6A5B7] hover:bg-[#F6A5B7]/90 transition-all duration-200 shadow-lg flex items-center justify-center gap-2"
+              >
+                <BookOpen size={20} />
+                <span>CREAR MI PRIMERA HISTORIA</span>
+              </button>
+            </motion.div>
           </motion.div>
-          
+
+          {/* Features Section */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-            className="w-full"
+            className="w-full mb-16"
           >
-            <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-center mb-3 md:mb-5">¿Qué puedes hacer con CuentaSueños?</h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 md:gap-5 lg:gap-8">
-              <FeatureCard 
-                icon={<Sparkles className="text-yellow-400 md:w-6 md:h-6" size={18} />}
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
+              ¿Qué hace especial a <span className="text-[#BB79D1]">TaleMe</span>?
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              <FeatureCard
+                icon={<Sparkles className="w-6 h-6" />}
                 title="Historias Personalizadas"
-                description="Cuentos adaptados a los gustos y personalidad de cada niño."
+                description="Cuentos adaptados a los gustos, edad y personalidad de cada niño."
+                color="#F6A5B7"
               />
-              
-              <FeatureCard 
-                icon={<Headphones className="text-blue-400 md:w-6 md:h-6" size={18} />}
+              <FeatureCard
+                icon={<Headphones className="w-6 h-6" />}
                 title="Narración de Voz"
                 description="Narraciones profesionales que dan vida a cada historia."
+                color="#7DC4E0"
               />
-              
-              <FeatureCard 
-                icon={<Brain className="text-green-400 md:w-6 md:h-6" size={18} />}
+              <FeatureCard
+                icon={<Brain className="w-6 h-6" />}
                 title="Retos Educativos"
-                description="Mejora lectura, matemáticas e idiomas con juegos divertidos."
+                description="Mejora la lectura, matemáticas e idiomas con juegos divertidos."
+                color="#BB79D1"
               />
             </div>
           </motion.div>
-          
+
+          {/* Benefits Section */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="mt-6 md:mt-10 text-center"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
+            className="w-full mb-16 bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20"
           >
-            <p className="text-xs md:text-sm lg:text-base text-white/70">
-              Únete a miles de familias creando momentos mágicos con CuentaSueños
-            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
+              Beneficios para toda la familia
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <BenefitItem
+                icon={<Star className="text-[#F9DA60]" size={24} />}
+                title="Fomenta la imaginación"
+                description="Historias que estimulan la creatividad y el pensamiento."
+              />
+              <BenefitItem
+                icon={<BookOpen className="text-[#F6A5B7]" size={24} />}
+                title="Mejora la lectura"
+                description="Desarrolla habilidades de comprensión y vocabulario."
+              />
+              <BenefitItem
+                icon={<Gift className="text-[#BB79D1]" size={24} />}
+                title="Momentos especiales"
+                description="Crea recuerdos únicos con historias personalizadas."
+              />
+              <BenefitItem
+                icon={<Zap className="text-[#7DC4E0]" size={24} />}
+                title="Aprendizaje divertido"
+                description="Retos educativos integrados en cada historia."
+              />
+              <BenefitItem
+                icon={<Brain className="text-[#F6A5B7]" size={24} />}
+                title="Desarrollo cognitivo"
+                description="Estimula el pensamiento crítico y la resolución de problemas."
+              />
+              <BenefitItem
+                icon={<Sparkles className="text-[#F9DA60]" size={24} />}
+                title="Personalización total"
+                description="Adapta cada historia a los intereses del niño."
+              />
+            </div>
           </motion.div>
-        </div>
+
+        </main>
+
+        <footer className="w-full bg-white/80 py-6 backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <img src="/logo_png.png" alt="TaleMe Logo" className="h-10" />
+            </div>
+            <div className="text-[#555] text-sm">
+              &copy; {new Date().getFullYear()} TaleMe. Todos los derechos reservados.
+            </div>
+            <div className="mt-4 md:mt-0 flex gap-4">
+              <a href="#" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Términos</a>
+              <a href="#" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Privacidad</a>
+              <a href="#" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Contacto</a>
+            </div>
+          </div>
+        </footer>
       </div>
     </PageTransition>
   );
 }
 
-function FeatureCard({ icon, title, description }) {
+function FeatureCard({ icon, title, description, color }: FeatureCardProps) {
   return (
-    <div className="bg-purple-800/30 rounded-lg p-2.5 md:p-4 lg:p-6 backdrop-blur-sm border border-white/10 shadow-lg h-full">
-      <div className="flex items-center mb-1.5 md:mb-3">
-        {icon}
-        <h3 className="text-sm md:text-base lg:text-lg font-semibold ml-1.5 md:ml-2">{title}</h3>
+    <div className="bg-white/70 rounded-2xl p-6 shadow-lg border border-[#BB79D1]/20 h-full transition-all duration-300 hover:shadow-xl hover:transform hover:scale-105">
+      <div className="flex items-center mb-4">
+        <div 
+          className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+          style={{ backgroundColor: `${color}30` }}
+        >
+          <div className="text-[#333]" style={{ color }}>
+            {icon}
+          </div>
+        </div>
+        <h3 className="text-xl font-semibold text-[#333]">{title}</h3>
       </div>
-      <p className="text-white/70 text-xs md:text-sm lg:text-base">{description}</p>
+      <p className="text-[#555]">{description}</p>
+    </div>
+  );
+}
+
+function BenefitItem({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <div className="flex items-start">
+      <div className="mr-4 mt-1">
+        {icon}
+      </div>
+      <div>
+        <h4 className="text-lg font-semibold text-[#333] mb-1">{title}</h4>
+        <p className="text-[#555]">{description}</p>
+      </div>
     </div>
   );
 }

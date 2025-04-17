@@ -39,28 +39,28 @@ export default function LanguageSelector({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/20 backdrop-blur-md rounded-3xl p-6 mb-8 text-white shadow-xl"
+      className="bg-white/80 rounded-2xl p-6 mb-8 text-[#222] shadow-lg"
     >
       <button 
         onClick={onBack}
-        className="mb-4 flex items-center text-white/60 hover:text-white transition-colors"
+        className="mb-4 flex items-center text-[#BB79D1] hover:text-[#F6A5B7] transition-colors font-medium"
       >
         <ArrowLeft size={16} className="mr-1" />
         Volver a categorías
       </button>
 
-      <h2 className="text-2xl font-bold text-center mb-6">Selecciona un idioma</h2>
-      <p className="text-center mb-6">Elige el idioma que quieres aprender:</p>
+      <h2 className="text-2xl font-bold text-center mb-4 text-[#BB79D1] font-heading drop-shadow-lg">Selecciona un idioma</h2>
+      <p className="text-lg text-[#222] bg-white/70 rounded-xl px-4 py-2 text-center mb-6 font-medium shadow-sm">Elige el idioma que quieres aprender:</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
         {languages.map((lang) => (
           <button
             key={lang.code}
             onClick={() => handleLanguageSelect(lang.code)}
-            className={`flex flex-col items-center p-3 rounded-xl transition-all ${
+            className={`flex flex-col items-center p-3 rounded-xl transition-all shadow-md ${
               selectedLanguage === lang.code
-                ? 'bg-story-blue-500 text-white'
-                : 'bg-white/10 hover:bg-white/20'
+                ? 'bg-[#7DC4E0] text-white border-2 border-[#7DC4E0] ring-2 ring-[#7DC4E0]/50'
+                : 'bg-white/70 border-2 border-[#7DC4E0]/30 text-[#222] hover:bg-[#7DC4E0]/10'
             }`}
           >
             <span className="font-medium">{lang.name}</span>
@@ -72,9 +72,9 @@ export default function LanguageSelector({
         <button
           onClick={onContinue}
           disabled={!selectedLanguage}
-          className={`flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all ${
+          className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg ${
             selectedLanguage
-              ? 'bg-story-orange-400 text-white hover:bg-story-orange-500'
+              ? 'bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >

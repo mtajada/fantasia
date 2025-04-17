@@ -1,80 +1,112 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 276 28% 95%;
-    --foreground: 276 30% 20%;
+    /* TaleMe! colors as HSL values */
+    --background: 35 100% 98%;
+    /* #FFFBF5 - Fondo claro */
+    --foreground: 0 0% 29%;
+    /* #4A4A4A - Texto principal */
 
-    --card: 276 30% 96%;
-    --card-foreground: 276 30% 20%;
+    --card: 0 0% 100%;
+    /* #FFFFFF - Fondo de tarjetas */
+    --card-foreground: 0 0% 29%;
+    /* #4A4A4A - Texto en tarjetas */
 
-    --popover: 276 30% 96%;
-    --popover-foreground: 276 30% 20%;
+    --popover: 0 0% 100%;
+    /* #FFFFFF - Fondo de popovers */
+    --popover-foreground: 0 0% 29%;
+    /* #4A4A4A - Texto en popovers */
 
-    --primary: 276 30% 55%;
-    --primary-foreground: 276 30% 98%;
+    --primary: 284 43% 65%;
+    /* #BB79D1 - Morado como primario */
+    --primary-foreground: 0 0% 100%;
+    /* #FFFFFF - Texto sobre primario */
 
-    --secondary: 23 94% 67%;
-    --secondary-foreground: 23 10% 20%;
+    --secondary: 195 65% 69%;
+    /* #7DC4E0 - Azul como secundario */
+    --secondary-foreground: 0 0% 100%;
+    /* #FFFFFF - Texto sobre secundario */
 
-    --muted: 276 15% 85%;
-    --muted-foreground: 276 10% 50%;
+    --muted: 284 43% 90%;
+    /* Versión más clara del morado */
+    --muted-foreground: 0 0% 46%;
+    /* #757575 - Texto secundario */
 
-    --accent: 23 94% 67%;
-    --accent-foreground: 23 10% 20%;
+    --accent: 49 94% 68%;
+    /* #F9DA60 - Amarillo como acento */
+    --accent-foreground: 0 0% 29%;
+    /* #4A4A4A - Texto sobre acento */
 
     --destructive: 0 84% 60%;
+    /* Mantener el error en rojo */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 276 20% 85%;
-    --input: 276 20% 90%;
-    --ring: 276 30% 60%;
+    --border: 284 43% 90%;
+    /* Borde en tono morado claro */
+    --input: 284 43% 95%;
+    /* Input en tono morado muy claro */
+    --ring: 284 43% 65%;
+    /* Ring en tono morado primario */
 
     --radius: 0.75rem;
 
-    --story-purple-50: hsl(276, 25%, 95%);
-    --story-purple-100: hsl(276, 30%, 90%);
-    --story-purple-200: hsl(276, 30%, 80%);
-    --story-purple-300: hsl(276, 30%, 70%);
-    --story-purple-400: hsl(276, 30%, 60%);
-    --story-purple-500: hsl(276, 30%, 50%);
+    /* Mantener las variables legacy para compatibilidad */
+    --story-purple-50: hsl(284, 43%, 95%);
+    --story-purple-100: hsl(284, 43%, 90%);
+    --story-purple-200: hsl(284, 43%, 80%);
+    --story-purple-300: hsl(284, 43%, 70%);
+    --story-purple-400: hsl(284, 43%, 65%);
+    --story-purple-500: hsl(284, 43%, 60%);
 
-    --story-orange-400: hsl(23, 94%, 67%);
-    --story-orange-500: hsl(23, 94%, 60%);
+    --story-orange-400: hsl(49, 94%, 68%);
+    --story-orange-500: hsl(49, 94%, 60%);
   }
 
   .dark {
-    --background: 276 30% 15%;
-    --foreground: 276 10% 90%;
+    --background: 284 43% 15%;
+    /* Fondo oscuro basado en el morado */
+    --foreground: 0 0% 90%;
+    /* Texto claro sobre fondo oscuro */
 
-    --card: 276 30% 20%;
-    --card-foreground: 276 10% 90%;
+    --card: 284 43% 20%;
+    /* Tarjetas en tono morado oscuro */
+    --card-foreground: 0 0% 90%;
+    /* Texto claro sobre tarjetas */
 
-    --popover: 276 30% 20%;
-    --popover-foreground: 276 10% 90%;
+    --popover: 284 43% 20%;
+    /* Popovers en tono morado oscuro */
+    --popover-foreground: 0 0% 90%;
+    /* Texto claro sobre popovers */
 
-    --primary: 276 30% 65%;
-    --primary-foreground: 276 10% 98%;
+    --primary: 284 43% 70%;
+    /* Primario un poco más claro para dark mode */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 23 94% 67%;
-    --secondary-foreground: 23 94% 15%;
+    --secondary: 195 65% 69%;
+    /* Mantener el azul para secondary */
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 276 15% 25%;
-    --muted-foreground: 276 10% 60%;
+    --muted: 284 43% 25%;
+    /* Muted en tono morado oscuro */
+    --muted-foreground: 0 0% 60%;
+    /* Texto muted más claro */
 
-    --accent: 200 60% 50%;
-    --accent-foreground: 200 10% 90%;
+    --accent: 49 94% 68%;
+    /* Mantener el amarillo para accent */
+    --accent-foreground: 0 0% 15%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 276 15% 30%;
-    --input: 276 15% 30%;
-    --ring: 276 30% 65%;
+    --border: 284 43% 30%;
+    /* Borde más oscuro */
+    --input: 284 43% 30%;
+    /* Input más oscuro */
+    --ring: 284 43% 70%;
+    /* Ring en tono morado claro */
   }
 }
 
@@ -85,9 +117,19 @@
 
   html,
   body {
-    @apply font-sans antialiased bg-background text-foreground min-h-screen overflow-x-hidden;
-    font-family: 'Poppins', sans-serif;
+    @apply font-sans bg-background text-text-primary min-h-screen overflow-x-hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -114,7 +156,7 @@
   }
 
   .gradient-bg {
-    @apply bg-gradient-to-br from-purple-700 via-purple-800 to-indigo-900;
+    @apply bg-gradient-to-br from-brand-purple via-brand-blue to-brand-pink;
   }
 
   .story-btn {
@@ -122,7 +164,7 @@
   }
 
   .story-btn-primary {
-    @apply story-btn bg-gradient-to-r from-story-orange-400 to-story-orange-500 text-white shadow-md hover:shadow-xl hover:from-story-orange-500 hover:to-story-orange-600 focus:ring-2 focus:ring-story-orange-200 focus:ring-offset-2 font-semibold;
+    @apply story-btn bg-gradient-to-r from-brand-purple to-brand-blue text-white shadow-md hover:shadow-xl hover:from-brand-purple hover:to-brand-purple focus:ring-2 focus:ring-brand-purple/20 focus:ring-offset-2 font-semibold;
   }
 
   .story-btn-secondary {

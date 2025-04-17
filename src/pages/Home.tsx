@@ -1,30 +1,26 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { BookOpen, Settings, BookMarked, User, AlertCircle, Star, ChevronRight } from "lucide-react";
+import { Settings, User, Star, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../store/user/userStore";
 import { useStoriesStore } from "../store/stories/storiesStore";
-import StoryButton from "../components/StoryButton";
 import PageTransition from "../components/PageTransition";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { hasCompletedProfile, profileSettings, user, canCreateStory, isPremium, getRemainingMonthlyStories } = useUserStore();
+  const { hasCompletedProfile, canCreateStory, isPremium, getRemainingMonthlyStories } = useUserStore();
   const { generatedStories } = useStoriesStore();
   const { toast } = useToast();
 
   useEffect(() => {
     const needsProfileSetup = !hasCompletedProfile();
-    console.log("Home useEffect: Checking profile completion... Needs setup?", needsProfileSetup);
     if (needsProfileSetup) {
-      console.log("Home useEffect: Redirecting to /profile-config");
       navigate("/profile-config", { replace: true });
     }
   }, [hasCompletedProfile, navigate]);
 
   if (!hasCompletedProfile()) {
-    console.log("Home Render: Profile setup not complete, rendering null while redirect effect runs.");
     return null;
   }
 
@@ -47,103 +43,71 @@ export default function Home() {
 
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen flex flex-col items-center justify-center p-6 relative">
-        {/* Top navigation buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute top-6 right-6 flex gap-4 items-center"
-        >
-          {/* Subscription Status Button (Link to /plans) */}
+      <div
+        className="relative min-h-screen flex flex-col items-center justify-center p-0"
+        style={{
+          backgroundImage: 'url(/fondo_png.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* Botones superiores */}
+        <div className="absolute top-6 right-6 flex gap-3 z-10">
           <Link
             to="/plans"
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl shadow-md transition-all duration-200 
-                       ${premiumUser
-                ? 'bg-white/20 backdrop-blur-md border border-amber-400/30 text-amber-300 hover:bg-white/25'
-                : 'bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/15 text-white'
-              } text-sm font-medium transform hover:scale-105 active:scale-95`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl shadow-md text-xs font-semibold transition-all duration-200 bg-white/70 hover:bg-white/90 text-pink-500`}
             aria-label="Ver planes y suscripción"
           >
-            <Star className="h-4 w-4" />
+            <img src="/icono_png.png" alt="icono free/premium" className="h-5 w-5" />
             <span>{subscriptionText}</span>
             <ChevronRight className="h-3.5 w-3.5 opacity-75" />
           </Link>
-
-          {/* User Profile Button (Link to /profile-config) */}
           <Link
             to="/profile-config"
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/15 hover:scale-105 active:scale-95 transition-all shadow-md"
+            className="w-9 h-9 rounded-full bg-white/70 flex items-center justify-center text-pink-500 hover:bg-white/90 transition-all shadow-md"
             aria-label="Configuración de Perfil"
           >
             <User className="h-5 w-5" />
           </Link>
-
-          {/* Settings Button (Link to /settings) */}
           <Link
             to="/settings"
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/15 hover:scale-105 active:scale-95 transition-all shadow-md"
+            className="w-9 h-9 rounded-full bg-white/70 flex items-center justify-center text-pink-500 hover:bg-white/90 transition-all shadow-md"
             aria-label="Ajustes"
           >
             <Settings className="h-5 w-5" />
           </Link>
-        </motion.div>
+        </div>
 
-        <div className="w-full max-w-md flex flex-col items-center space-y-10">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="w-24 h-24 rounded-full bg-amber-500/80 flex items-center justify-center shadow-xl border border-amber-400/50"
-          >
-            <BookOpen size={40} className="text-white" />
-          </motion.div>
+        {/* Logo y título */}
+        <div className="flex flex-col items-center mt-10 mb-8 select-none">
+          <img src="/logo_png.png" alt="TaleMe Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
+        </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-3xl font-bold text-white text-center"
+        {/* Botones principales */}
+        <div className="flex flex-col items-center w-full max-w-xs gap-5 -mt-4">
+          <button
+            className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#f6a5b7] hover:bg-[#fbb6ce]"
+            onClick={handleNewStory}
+            disabled={!canCreateStory()}
+            title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}
           >
-            CuentaSueños
-          </motion.h1>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="w-full space-y-4"
+            Generar una Nueva Historia
+          </button>
+          <button
+            className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#f7c59f] hover:bg-[#ffd7ba]"
+            onClick={() => navigate("/characters-management")}
           >
-            <StoryButton
-              onClick={handleNewStory}
-              isFullWidth
-              disabled={!canCreateStory()}
-              title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}
+            Mis Personajes
+          </button>
+          {generatedStories.length > 0 && (
+            <button
+              className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#a5d6f6] hover:bg-[#c8e6fa]"
+              onClick={() => navigate("/stories")}
             >
-              Generar una Nueva Historia
-              {!canCreateStory() && <AlertCircle className="ml-2 h-4 w-4" />}
-            </StoryButton>
-
-            <StoryButton
-              onClick={() => navigate("/characters-management")}
-              variant="secondary"
-              isFullWidth
-              icon={<User size={20} />}
-            >
-              Mis Personajes
-            </StoryButton>
-
-            {generatedStories.length > 0 && (
-              <StoryButton
-                onClick={() => navigate("/stories")}
-                variant="secondary"
-                isFullWidth
-                icon={<BookMarked size={20} />}
-              >
-                Mis Historias
-              </StoryButton>
-            )}
-          </motion.div>
+              Mis Historias
+            </button>
+          )}
         </div>
       </div>
     </PageTransition>

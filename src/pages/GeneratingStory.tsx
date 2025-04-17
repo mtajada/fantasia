@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { generateStory } from "../store/stories/storyGenerator";
 import { useStoriesStore } from "../store/stories/storiesStore";
 import { useStoryOptionsStore } from "../store/storyOptions/storyOptionsStore";
-import LoadingAnimation from "../components/LoadingAnimation";
+import IconLoadingAnimation from "../components/IconLoadingAnimation";
 import PageTransition from "../components/PageTransition";
 
 export default function GeneratingStory() {
@@ -28,7 +28,15 @@ export default function GeneratingStory() {
   
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen flex flex-col items-center justify-center p-6">
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <div className="w-full max-w-md flex flex-col items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -36,16 +44,39 @@ export default function GeneratingStory() {
             transition={{ duration: 0.5 }}
             className="mb-10"
           >
-            <LoadingAnimation message="Creando tu historia..." />
+            <IconLoadingAnimation message="Creando tu historia..." />
           </motion.div>
           
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
-            className="text-white/70 text-center max-w-sm"
+            className="bg-white/70 text-[#222] p-4 rounded-xl max-w-sm text-center shadow-md"
           >
-            <p>Estamos personalizando una historia mágica especialmente para ti...</p>
+            <p className="font-medium">Estamos personalizando una historia mágica especialmente para ti...</p>
+            
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {currentStoryOptions.character && (
+                <div className="bg-[#7DC4E0]/20 p-2 rounded-lg border border-[#7DC4E0]/30">
+                  <p className="text-xs font-semibold text-[#7DC4E0]">Personaje</p>
+                  <p className="text-sm truncate">{currentStoryOptions.character.name || "Personaje"}</p>
+                </div>
+              )}
+              
+              {currentStoryOptions.genre && (
+                <div className="bg-[#BB79D1]/20 p-2 rounded-lg border border-[#BB79D1]/30">
+                  <p className="text-xs font-semibold text-[#BB79D1]">Género</p>
+                  <p className="text-sm truncate">{currentStoryOptions.genre}</p>
+                </div>
+              )}
+              
+              {currentStoryOptions.duration && (
+                <div className="bg-[#F9DA60]/20 p-2 rounded-lg border border-[#F9DA60]/30">
+                  <p className="text-xs font-semibold text-[#F9DA60]">Duración</p>
+                  <p className="text-sm truncate">{currentStoryOptions.duration}</p>
+                </div>
+              )}
+            </div>
           </motion.div>
         </div>
       </div>

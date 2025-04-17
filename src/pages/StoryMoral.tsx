@@ -51,36 +51,54 @@ export default function StoryMoral() {
 
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative overflow-auto py-20 px-6">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center relative"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <BackButton />
 
-        <div className="w-full max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-10 text-center">
-            Elige una moraleja para <span className="text-story-orange-400">la historia</span>
+        <div className="w-full max-w-2xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-[#BB79D1] text-center mb-4 font-heading drop-shadow-lg">
+            Elige una <span className="text-[#F6A5B7]">moraleja</span> para la historia
           </h1>
+
+          <p className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-8 font-medium shadow-sm">
+            Selecciona el mensaje o valor que quieres transmitir
+          </p>
 
           <motion.div
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-2 gap-4 mb-10"
+            className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8"
           >
             {morals.map((moral) => (
               <motion.div key={moral.id} variants={item}>
-                <StoryOptionCard
-                  label={moral.name}
+                <div
                   onClick={() => handleSelectMoral(moral.id)}
-                  selected={selectedMoral === moral.id}
-                />
+                  className={`
+                    flex flex-col items-center justify-center p-6 h-28 cursor-pointer
+                    bg-white/70 rounded-2xl border-2 border-[#BB79D1]/30
+                    ${selectedMoral === moral.id ? 'ring-4 ring-[#BB79D1] shadow-lg transform scale-105' : 'hover:bg-[#BB79D1]/10 hover:scale-105 hover:shadow-md'}
+                    transition-all duration-300
+                  `}
+                >
+                  <span className="text-[#222] text-center font-medium">{moral.name}</span>
+                </div>
               </motion.div>
             ))}
           </motion.div>
 
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center w-full mt-2 mb-2">
             <StoryButton
               onClick={handleContinue}
               disabled={!selectedMoral}
-              className="w-full max-w-md text-lg py-4 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-story-orange-500 to-story-orange-400 text-white rounded-full border-2 border-white/50 font-medium"
+              className="w-full max-w-xs py-4 rounded-2xl text-white text-lg font-semibold shadow-lg bg-[#BB79D1] hover:bg-[#BB79D1]/90 border-2 border-[#BB79D1]/50 transition-all duration-200"
             >
               Continuar
             </StoryButton>

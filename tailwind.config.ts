@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,18 +18,28 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Open Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				heading: ['Quicksand', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			},
 			colors: {
+				'brand': {
+					'pink': '#FDDDE3',      // Rosa Base
+					'purple': '#BB79D1',    // Morado
+					'blue': '#7DC4E0',      // Azul Claro
+					'yellow': '#F9DA60',    // Amarillo
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
+				background: '#FFFBF5',       // Un blanco muy suave con tinte rosa/amarillo
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
+					DEFAULT: '#BB79D1',     // Morado como primario
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
+					DEFAULT: '#7DC4E0',     // Azul como secundario
 					foreground: 'hsl(var(--secondary-foreground))'
 				},
 				destructive: {
@@ -42,7 +51,7 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
+					DEFAULT: '#F9DA60',     // Amarillo como acento
 					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
@@ -50,9 +59,11 @@ export default {
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: 'hsl(var(--card))',
+					DEFAULT: '#FFFFFF',     // Blanco puro para tarjetas
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				'text-primary': '#4A4A4A',  // Gris oscuro para texto principal
+				'text-secondary': '#757575', // Gris medio para texto secundario
 				story: {
 					purple: {
 						DEFAULT: '#3F2E5D',
