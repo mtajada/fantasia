@@ -74,59 +74,69 @@ export default function CharacterPersonality() {
   
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative overflow-auto py-20 px-6">
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <BackButton onClick={handleBack} />
         
-        <div className="w-full max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-10 text-center">
-            ¿Cómo es la personalidad de {characterName}?
+        <div className="w-full max-w-2xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-[#BB79D1] mb-4 text-center font-heading drop-shadow-lg">
+            ¿Cómo es la personalidad de <span className="text-[#F6A5B7]">{characterName}</span>?
           </h1>
+          
+          <p className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-6 font-medium shadow-sm">
+            Selecciona los rasgos de personalidad que mejor definen a tu personaje
+          </p>
           
           <motion.div 
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mb-10"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8"
           >
             {personalityOptions.map((personality) => (
               <motion.div key={personality.id} variants={item}>
                 <div
                   onClick={() => handlePersonalitySelect(personality.id)}
                   className={`
-                    story-choice-card h-32 sm:h-40 relative overflow-hidden
+                    flex flex-col items-center justify-center p-4 cursor-pointer
+                    bg-white/70 rounded-xl border-2 
                     ${selectedPersonalities.includes(personality.id) 
-                      ? 'ring-4 ring-story-orange-400 bg-white/20 shadow-lg transform scale-105' 
-                      : 'hover:scale-105 hover:shadow-md transition-all duration-300'}
+                      ? 'ring-4 ring-[#A5D6F6] border-[#A5D6F6] shadow-lg transform scale-105' 
+                      : 'border-[#A5D6F6]/30 hover:bg-[#A5D6F6]/10 hover:scale-105 hover:shadow-md'}
+                    transition-all duration-300 h-32 sm:h-36
                   `}
                 >
-                  <div className="text-white text-3xl mb-3">
+                  <div className={`text-3xl mb-3 ${selectedPersonalities.includes(personality.id) ? 'text-[#A5D6F6]' : 'text-[#A5D6F6]/70'}`}>
                     {personality.icon}
                   </div>
-                  <span className="text-white text-center font-medium">{personality.name}</span>
+                  <span className="text-[#222] text-center font-medium">{personality.name}</span>
                 </div>
               </motion.div>
             ))}
           </motion.div>
           
-          <div className="flex justify-center mb-6">
-            <StoryButton
-              onClick={handleContinue}
-              disabled={selectedPersonalities.length === 0}
-              className="w-full max-w-md text-lg py-4 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-story-orange-500 to-story-orange-400 text-white rounded-full border-2 border-white/50 font-medium"
-            >
-              Continuar
-            </StoryButton>
-          </div>
-          
-          <div className="text-center">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 w-full max-w-md mx-auto">
             <button
               type="button"
-              onClick={() => {
-                navigate(`/character-profession${fromManagement ? '?from=management' : ''}`);
-              }}
-              className="text-white text-sm bg-white/20 px-5 py-3 rounded-full hover:bg-white/30 transition-all border border-white/30"
+              onClick={handleBack}
+              className="w-full sm:w-[48%] py-3 rounded-2xl font-medium bg-white/70 hover:bg-white/90 text-[#BB79D1] border border-[#BB79D1]/30 shadow-md transition-all"
             >
-              Continuar sin seleccionar
+              Atrás
+            </button>
+            
+            <button
+              onClick={handleContinue}
+              disabled={selectedPersonalities.length === 0}
+              className="w-full sm:w-[48%] py-3 rounded-2xl font-medium bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continuar
             </button>
           </div>
         </div>

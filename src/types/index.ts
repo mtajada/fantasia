@@ -1,24 +1,30 @@
 export type ProfileSettings = {
-  // Campos existentes
-  language: string;
-  childAge: number;
-  specialNeed?: string | null;
+  // --- DATOS PRINCIPALES ---
+  // Muestra estos campos en gris oscuro (#222) sobre fondo claro para máxima legibilidad
+  language: string; // Idioma preferido del usuario
+  childAge: number; // Edad del niño/a
+  specialNeed?: string | null; // Necesidad especial (si aplica)
 
-  // --- Campos de Stripe ---
+  // --- CAMPOS DE STRIPE ---
+  // Datos sensibles, mostrar en gris oscuro o azul claro solo si es info secundaria
   stripe_customer_id?: string | null;
-  subscription_status?: string | null;
+  subscription_status?: string | null; // Estado de la suscripción (destacar si es "activa" o "cancelada")
   subscription_id?: string | null;
   plan_id?: string | null;
-  current_period_end?: string | null;
+  current_period_end?: string | null; // Fecha de renovación, mostrar en gris oscuro o azul claro
 
-  // --- Campos de Límites/Créditos ---
-  voice_credits?: number | null;
-  monthly_stories_generated?: number | null;
+  // --- LÍMITES Y CRÉDITOS ---
+  // Mostrar estos campos en tarjetas con fondo blanco translúcido y texto destacado:
+  // - Números/acento: color de la paleta (ej. rosa #F6A5B7 para "8 / 10")
+  // - Texto principal: gris oscuro (#222)
+  // - Descripciones: azul claro (#7DC4E0)
+  voice_credits?: number | null; // Créditos de voz restantes
+  monthly_stories_generated?: number | null; // Historias generadas este mes
   period_start_date?: string | null;
-  
-  // --- Columna Nueva ---
-  monthly_voice_generations_used?: number | null;
-  has_completed_setup: boolean; // Añadido para rastrear setup
+  monthly_voice_generations_used?: number | null; // Usos de voz este mes
+
+  // --- OTROS ---
+  has_completed_setup: boolean; // Mostrar como check visual, icono en color de la paleta
 };
 
 export type StoryDuration = 'short' | 'medium' | 'long';

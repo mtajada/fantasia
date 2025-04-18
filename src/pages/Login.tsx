@@ -5,7 +5,6 @@ import { useUserStore } from "../store/user/userStore";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import StoryButton from "../components/StoryButton";
 import PageTransition from "../components/PageTransition";
 import { useToast } from "@/hooks/use-toast";
 import { login, requestPasswordReset, signInWithGoogle } from "../supabaseAuth";
@@ -19,7 +18,7 @@ export default function Login() {
   const [rememberSession, setRememberSession] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -31,7 +30,7 @@ export default function Login() {
     try {
       setIsLoading(true);
       const { user, error } = await login(data.email, data.password);
-      
+
       if (error) {
         toast({
           title: "Error de inicio de sesión",
@@ -40,19 +39,19 @@ export default function Login() {
         });
         return;
       }
-      
+
       if (user) {
         loginUser(user);
-        
+
         toast({
           title: "Inicio de sesión exitoso",
           description: "¡Bienvenido de nuevo!",
         });
-        
+
         try {
           // Verificar si el usuario ya tiene un perfil configurado
           const { success, profile } = await getUserProfile(user.id);
-          
+
           if (success && profile) {
             // Si ya tiene perfil, redirigir a la página principal
             navigate("/home");
@@ -88,7 +87,7 @@ export default function Login() {
     try {
       setIsGoogleLoading(true);
       const { error } = await signInWithGoogle();
-      
+
       if (error) {
         toast({
           title: "Error al iniciar sesión con Google",
@@ -118,11 +117,11 @@ export default function Login() {
       });
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const { error } = await requestPasswordReset(email);
-      
+
       if (error) {
         toast({
           title: "Error al solicitar restablecimiento",
@@ -131,7 +130,7 @@ export default function Login() {
         });
         return;
       }
-      
+
       toast({
         title: "Solicitud enviada",
         description: "Revisa tu correo electrónico para restablecer tu contraseña",
@@ -147,21 +146,29 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-  
+
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  
+
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-md glass-card p-8">
-          <h1 className="text-4xl font-bold text-white text-center mb-6">
-            CuentaSueños
-          </h1>
-          
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6"
+        style={{
+          backgroundImage: 'url(/fondo_png.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
+          <div className="flex justify-center mb-6">
+            <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-full" />
+          </div>
+
           <Form {...form}>
-            <form 
-              onSubmit={form.handleSubmit(handleLogin)} 
-              className="space-y-6"
+            <form
+              onSubmit={form.handleSubmit(handleLogin)}
+              className="space-y-5"
             >
               <FormField
                 control={form.control}
@@ -169,11 +176,11 @@ export default function Login() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" size={20} />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1]" size={20} />
                       <FormControl>
                         <Input
                           placeholder="Correo electrónico"
-                          className="pl-10 story-input"
+                          className="pl-10 py-6 rounded-xl bg-white/80 border-[#BB79D1]/30 focus:border-[#BB79D1] focus:ring-1 focus:ring-[#BB79D1] text-[#333]"
                           type="email"
                           {...field}
                           required
@@ -183,27 +190,27 @@ export default function Login() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" size={20} />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1]" size={20} />
                       <FormControl>
                         <Input
                           placeholder="Contraseña"
-                          className="pl-10 pr-10 story-input"
+                          className="pl-10 pr-10 py-6 rounded-xl bg-white/80 border-[#BB79D1]/30 focus:border-[#BB79D1] focus:ring-1 focus:ring-[#BB79D1] text-[#333]"
                           type={showPassword ? "text" : "password"}
                           {...field}
                           required
                         />
                       </FormControl>
-                      <button 
+                      <button
                         type="button"
                         onClick={togglePasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -211,46 +218,46 @@ export default function Login() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="flex items-center justify-between">
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={rememberSession}
                     onChange={() => setRememberSession(!rememberSession)}
-                    className="rounded text-story-orange-400 focus:ring-story-orange-400"
+                    className="rounded text-[#F6A5B7] focus:ring-[#F6A5B7] border-[#BB79D1]/30"
                   />
-                  <span className="text-sm text-white/80">Recordar sesión</span>
+                  <span className="text-sm text-[#555]">Recordar sesión</span>
                 </label>
-                
+
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-white/80 hover:text-white hover:underline"
+                  className="text-sm text-[#BB79D1] hover:text-[#A5D6F6] hover:underline transition-colors"
                 >
                   ¿Olvidaste tu contraseña?
                 </button>
               </div>
-              
-              <StoryButton
+
+              <button
                 type="submit"
-                isFullWidth
                 disabled={isLoading}
+                className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 active:bg-[#F6A5B7]/90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-              </StoryButton>
+              </button>
 
               <div className="relative flex items-center my-4">
-                <div className="flex-grow border-t border-white/20"></div>
-                <span className="mx-4 flex-shrink text-white/60 text-sm">O continúa con</span>
-                <div className="flex-grow border-t border-white/20"></div>
+                <div className="flex-grow border-t border-[#BB79D1]/20"></div>
+                <span className="mx-4 flex-shrink text-[#555] text-sm">O continúa con</span>
+                <div className="flex-grow border-t border-[#BB79D1]/20"></div>
               </div>
-              
+
               <button
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isGoogleLoading}
-                className="w-full flex items-center justify-center gap-2 bg-white text-black rounded-md py-2 hover:bg-gray-100 transition-colors duration-300"
+                className="w-full flex items-center justify-center gap-2 bg-white text-[#333] rounded-xl py-3 hover:bg-gray-100 transition-colors duration-300 border border-[#BB79D1]/20 shadow-md"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
                   <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
@@ -260,13 +267,13 @@ export default function Login() {
                 </svg>
                 {isGoogleLoading ? "Conectando..." : "Iniciar sesión con Google"}
               </button>
-              
-              <div className="text-center">
-                <span className="text-white/80 text-sm">¿No tienes una cuenta? </span>
+
+              <div className="text-center mt-5">
+                <span className="text-[#555] text-sm">¿No tienes una cuenta? </span>
                 <button
                   type="button"
                   onClick={() => navigate("/signup")}
-                  className="text-story-orange-400 text-sm hover:underline"
+                  className="text-[#BB79D1] font-semibold text-sm hover:underline"
                 >
                   Registrarse
                 </button>

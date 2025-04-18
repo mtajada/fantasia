@@ -1,10 +1,10 @@
-# CuentaSueños - Generador de Cuentos Infantiles Personalizados
+# TaleMe! - Generador de Cuentos Infantiles Personalizados
 
-![CuentaSueños Logo](https://lovable.dev/projects/f290b21d-9a8e-415b-8025-bebb8625aa3d)
+![TaleMe! Logo](https://lovable.dev/projects/f290b21d-9a8e-415b-8025-bebb8625aa3d)
 
 ## Descripción del Proyecto
 
-CuentaSueños es una aplicación web que permite a padres, madres y educadores crear cuentos infantiles personalizados para niños. La aplicación utiliza tecnologías modernas para ofrecer una experiencia de usuario fluida y atractiva, permitiendo:
+TaleMe! es una aplicación web que permite a padres, madres y educadores crear cuentos infantiles personalizados para niños. La aplicación utiliza tecnologías modernas para ofrecer una experiencia de usuario fluida y atractiva, permitiendo:
 
 - Crear y gestionar personajes personalizados
 - Seleccionar géneros y temáticas para las historias

@@ -45,15 +45,37 @@ export default function ChallengeQuestion({
   const getCategoryStyle = () => {
     switch (question.category) {
       case 'language':
-        return 'from-blue-400 to-purple-500';
+        return {
+          bg: 'bg-[#7DC4E0]',
+          border: 'border-[#7DC4E0]',
+          hover: 'hover:bg-[#7DC4E0]/10',
+          icon: 'text-[#7DC4E0]'
+        };
       case 'math':
-        return 'from-green-400 to-teal-500';
+        return {
+          bg: 'bg-[#F9DA60]',
+          border: 'border-[#F9DA60]',
+          hover: 'hover:bg-[#F9DA60]/10',
+          icon: 'text-[#F9DA60]'
+        };
       case 'comprehension':
-        return 'from-orange-400 to-red-500';
+        return {
+          bg: 'bg-[#F6A5B7]',
+          border: 'border-[#F6A5B7]',
+          hover: 'hover:bg-[#F6A5B7]/10',
+          icon: 'text-[#F6A5B7]'
+        };
       default:
-        return 'from-gray-400 to-gray-600';
+        return {
+          bg: 'bg-[#BB79D1]',
+          border: 'border-[#BB79D1]',
+          hover: 'hover:bg-[#BB79D1]/10',
+          icon: 'text-[#BB79D1]'
+        };
     }
   };
+
+  const categoryStyle = getCategoryStyle();
 
   return (
     <motion.div
@@ -61,11 +83,11 @@ export default function ChallengeQuestion({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/20 backdrop-blur-md rounded-3xl p-6 text-white shadow-xl"
+      className="bg-white/80 rounded-2xl p-6 text-[#222] shadow-lg"
     >
       {/* Pregunta */}
-      <div className={`p-4 rounded-xl mb-6 bg-gradient-to-r ${getCategoryStyle()}`}>
-        <h2 className="text-xl font-bold mb-2">Pregunta:</h2>
+      <div className={`p-4 rounded-xl mb-6 ${categoryStyle.bg} text-white shadow-md`}>
+        <h2 className="text-xl font-bold mb-2 drop-shadow-sm">Pregunta:</h2>
         <p className="text-lg">{question.question}</p>
       </div>
 
@@ -76,16 +98,16 @@ export default function ChallengeQuestion({
             key={index}
             onClick={() => handleSelectOption(index)}
             disabled={showFeedback}
-            className={`w-full text-left p-4 rounded-xl transition-all ${
+            className={`w-full text-left p-4 rounded-xl transition-all shadow-sm ${
               selectedOption === index
                 ? showFeedback
                   ? isCorrect
-                    ? 'bg-green-500/90 text-white'
-                    : 'bg-red-500/90 text-white'
-                  : 'bg-story-blue-500/80 text-white'
+                    ? 'bg-green-500 text-white border-2 border-green-500'
+                    : 'bg-red-500 text-white border-2 border-red-500'
+                  : `${categoryStyle.bg} text-white border-2 ${categoryStyle.border}`
                 : showFeedback && index === question.correctOptionIndex
-                ? 'bg-green-500/90 text-white'
-                : 'bg-white/10 hover:bg-white/20'
+                ? 'bg-green-500 text-white border-2 border-green-500'
+                : `bg-white/70 border-2 ${categoryStyle.border}/30 ${categoryStyle.hover}`
             }`}
           >
             <div className="flex items-center">
@@ -106,32 +128,32 @@ export default function ChallengeQuestion({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className={`p-4 rounded-xl mb-6 ${
-            isCorrect ? 'bg-green-500/20' : 'bg-red-500/20'
+          className={`p-4 rounded-xl mb-6 shadow-md ${
+            isCorrect ? 'bg-white/70 border-2 border-green-500/30' : 'bg-white/70 border-2 border-red-500/30'
           }`}
         >
-          <h3 className="font-bold mb-2">
+          <h3 className={`font-bold mb-2 ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
             {isCorrect ? '¡Genial! Has acertado 🎉' : 'Respuesta incorrecta 😕'}
           </h3>
-          <p>{question.explanation}</p>
+          <p className="text-[#222]">{question.explanation}</p>
         </motion.div>
       )}
 
       {/* Botones de acción */}
       {showFeedback && (
-        <div className="flex justify-center space-x-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           {!isCorrect && (
             <>
               <button
                 onClick={handleTryAgain}
-                className="flex items-center px-6 py-3 rounded-full font-medium bg-white/20 hover:bg-white/30 transition-colors"
+                className="flex items-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold bg-white/70 hover:bg-white/90 text-[#7DC4E0] transition-all shadow w-full sm:w-auto"
               >
                 <RefreshCw size={18} className="mr-2" /> Intentar de nuevo
               </button>
               {onChangeChallenge && (
                 <button
                   onClick={onChangeChallenge}
-                  className="flex items-center px-6 py-3 rounded-full font-medium bg-white/20 hover:bg-white/30 transition-colors"
+                  className="flex items-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold bg-white/70 hover:bg-white/90 text-[#F6A5B7] transition-all shadow w-full sm:w-auto"
                 >
                   Cambiar de reto
                 </button>
@@ -141,7 +163,7 @@ export default function ChallengeQuestion({
           {(isCorrect || !onTryAgain) && (
             <button
               onClick={handleNext}
-              className="px-6 py-3 rounded-full font-medium bg-story-orange-400 text-white hover:bg-story-orange-500 transition-colors"
+              className="flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold text-white transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto bg-[#BB79D1] hover:bg-[#BB79D1]/80 active:bg-[#E6B7D9] focus:bg-[#E6B7D9]"
             >
               Continuar
             </button>

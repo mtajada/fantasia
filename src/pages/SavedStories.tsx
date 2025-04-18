@@ -70,24 +70,32 @@ export default function SavedStories() {
   
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center relative"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <BackButton />
         
-        <div className="container max-w-2xl mx-auto py-20 px-6">
-          <h1 className="text-3xl font-bold text-white mb-6 text-center">
+        <div className="w-full max-w-2xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-[#BB79D1] text-center mb-4 font-heading drop-shadow-lg">
             Mis Historias
           </h1>
           
           {storiesWithChaptersInfo.length > 0 && (
             <div 
-              className="flex justify-center mb-6 bg-white/10 backdrop-blur-sm rounded-full p-1 max-w-xs mx-auto"
+              className="flex justify-center mb-6 bg-white/70 rounded-xl p-1 max-w-xs mx-auto shadow-md"
               onClick={toggleSortOrder}
             >
-              <button className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm text-white font-medium transition-all ${sortOrder === 'newest' ? 'bg-story-orange-400 shadow-lg' : 'hover:bg-white/10'}`}>
+              <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${sortOrder === 'newest' ? 'bg-[#BB79D1] text-white shadow-md' : 'hover:bg-white/80 text-[#222]'}`}>
                 <SortDesc size={16} />
                 <span>Más recientes</span>
               </button>
-              <button className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm text-white font-medium transition-all ${sortOrder === 'oldest' ? 'bg-story-orange-400 shadow-lg' : 'hover:bg-white/10'}`}>
+              <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${sortOrder === 'oldest' ? 'bg-[#BB79D1] text-white shadow-md' : 'hover:bg-white/80 text-[#222]'}`}>
                 <SortAsc size={16} />
                 <span>Más antiguas</span>
               </button>
@@ -95,8 +103,8 @@ export default function SavedStories() {
           )}
           
           {sortedStories.length === 0 ? (
-            <div className="text-center text-white/80">
-              <p>No tienes historias guardadas.</p>
+            <div className="text-center bg-white/70 rounded-xl p-6 shadow-md">
+              <p className="text-[#222] font-medium">No tienes historias guardadas.</p>
             </div>
           ) : (
             <motion.div
@@ -109,25 +117,25 @@ export default function SavedStories() {
                 <motion.div
                   key={story.id}
                   variants={item}
-                  className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden"
+                  className="bg-white/80 rounded-xl overflow-hidden shadow-md"
                 >
                   <div 
-                    className="story-card p-4 cursor-pointer hover:bg-white/5 transition-all"
+                    className="story-card p-4 cursor-pointer hover:bg-white/90 transition-all"
                     onClick={() => story.hasMultipleChapters 
                       ? toggleExpand(story.id) 
                       : navigate(`/story/${story.id}`)}
                   >
                     <div className="flex items-center">
-                      <div className="w-12 h-12 rounded-full bg-story-orange-400/20 flex items-center justify-center mr-4 shrink-0">
-                        <Book size={20} className="text-story-orange-400" />
+                      <div className="w-12 h-12 rounded-full bg-[#F6A5B7]/20 flex items-center justify-center mr-4 shrink-0 border-2 border-[#F6A5B7]/40">
+                        <Book size={20} className="text-[#F6A5B7]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-medium text-lg truncate">{story.title}</h3>
-                        <div className="flex items-center text-white/60 text-sm">
+                        <h3 className="text-[#222] font-semibold text-lg truncate">{story.title}</h3>
+                        <div className="flex items-center text-[#555] text-sm">
                           <Calendar size={14} className="mr-1 shrink-0" />
                           <span className="mr-3">{formatDate(story.createdAt)}</span>
                           {story.hasMultipleChapters && (
-                            <span className="text-purple-300 flex items-center">
+                            <span className="text-[#BB79D1] flex items-center">
                               <Bookmark size={14} className="mr-1" />
                               {story.chaptersCount} capítulos
                             </span>
@@ -137,33 +145,33 @@ export default function SavedStories() {
                       {story.hasMultipleChapters && (
                         <div className="ml-2">
                           {expandedStories[story.id] ? (
-                            <ChevronDown size={20} className="text-white/60" />
+                            <ChevronDown size={20} className="text-[#BB79D1]" />
                           ) : (
-                            <ChevronRight size={20} className="text-white/60" />
+                            <ChevronRight size={20} className="text-[#BB79D1]" />
                           )}
                         </div>
                       )}
                     </div>
                     
                     {/* Character info */}
-                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center">
-                      <div className="bg-gradient-to-br from-purple-600/40 to-indigo-600/40 h-8 w-8 rounded-full flex items-center justify-center mr-2">
-                        <User size={14} className="text-white" />
+                    <div className="mt-3 pt-3 border-t border-[#BB79D1]/10 flex items-center">
+                      <div className="bg-[#7DC4E0]/20 h-8 w-8 rounded-full flex items-center justify-center mr-2 border border-[#7DC4E0]/40">
+                        <User size={14} className="text-[#7DC4E0]" />
                       </div>
-                      <div className="text-white/80 text-sm flex-1">
+                      <div className="text-[#222] text-sm flex-1">
                         <span className="font-medium">{story.options.character.name || "Personaje"}</span>
                         {story.options.character.profession && (
-                          <span className="ml-2 text-white/60">• {story.options.character.profession}</span>
+                          <span className="ml-2 text-[#555]">• {story.options.character.profession}</span>
                         )}
                       </div>
                       <div className="flex gap-2">
                         {story.options.genre && (
-                          <div className="px-2 py-1 text-xs rounded-full bg-white/10 text-white/80">
+                          <div className="px-2 py-1 text-xs rounded-full bg-[#BB79D1]/10 text-[#BB79D1] border border-[#BB79D1]/30">
                             {story.options.genre}
                           </div>
                         )}
-                        <div className="px-2 py-1 text-xs rounded-full bg-story-orange-400/20 text-story-orange-300 flex items-center gap-1">
-                          <Clock size={11} />
+                        <div className="px-2 py-1 text-xs rounded-full bg-[#F9DA60]/20 text-[#222] border border-[#F9DA60]/40 flex items-center gap-1">
+                          <Clock size={11} className="text-[#F9DA60]" />
                           {story.options.duration}
                         </div>
                       </div>
@@ -180,24 +188,24 @@ export default function SavedStories() {
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
                       >
-                        <div className="bg-white/5 border-t border-white/10">
+                        <div className="bg-[#F6A5B7]/5 border-t border-[#F6A5B7]/10">
                           {story.chapters.map((chapter, index) => (
                             <div 
                               key={`${story.id}-chapter-${index}`}
-                              className="px-4 py-3 border-b border-white/5 last:border-b-0 hover:bg-white/5 cursor-pointer"
+                              className="px-4 py-3 border-b border-[#F6A5B7]/5 last:border-b-0 hover:bg-[#F6A5B7]/10 cursor-pointer"
                               onClick={() => navigate(`/story/${story.id}?chapter=${index}`)}
                             >
                               <div className="flex items-center">
-                                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center mr-3 shrink-0">
-                                  <span className="text-sm text-purple-300">
+                                <div className="w-8 h-8 rounded-full bg-[#BB79D1]/20 flex items-center justify-center mr-3 shrink-0 border border-[#BB79D1]/30">
+                                  <span className="text-sm text-[#BB79D1] font-medium">
                                     {index + 1}
                                   </span>
                                 </div>
                                 <div>
-                                  <h4 className="text-white font-medium">
+                                  <h4 className="text-[#222] font-medium">
                                     {chapter.title || `Capítulo ${index + 1}`}
                                   </h4>
-                                  <span className="text-white/60 text-xs">
+                                  <span className="text-[#555] text-xs">
                                     {formatDate(chapter.createdAt)}
                                   </span>
                                 </div>

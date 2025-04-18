@@ -99,7 +99,7 @@ export default function StoryViewer() {
 
   const handleShare = async () => {
     const shareUrl = window.location.href; // URL actual incluyendo el capítulo
-    const shareTitle = story?.title || "Mi Historia CuentaSueños";
+    const shareTitle = story?.title || "Mi Historia TaleMe!";
     const shareText = chapters.length > 0 ? chapters[currentChapterIndex]?.title : "Echa un vistazo a esta historia";
 
     if (navigator.share) {
@@ -187,6 +187,10 @@ export default function StoryViewer() {
   };
   // --- Fin Navegación Capítulos ---
 
+  // --- Manejador para el botón de atrás ---
+  const handleGoBack = () => {
+    navigate('/'); // Navegar explícitamente a la página de inicio
+  };
 
   // --- *** INICIO: Lógica de Continuación MODIFICADA *** ---
   const goToContinuationPage = () => {
@@ -212,51 +216,55 @@ export default function StoryViewer() {
 
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative pb-24"> {/* Añadir padding-bottom */}
-        {/* Botones Superiores */}
-        <BackButton onClick={() => {
-          if (showChallengeSelector || showLanguageSelector || challengeQuestion) {
-            setShowChallengeSelector(false); setShowLanguageSelector(false); setChallengeQuestion(null);
-          } else { navigate('/saved-stories'); } // Volver a la lista de historias
-        }} />
+      <div
+        className="min-h-screen relative pb-24 flex flex-col items-center justify-start"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {/* Botón de Volver atrás */}
+        <BackButton onClick={handleGoBack} />
+
         <div className="absolute top-6 right-6 flex space-x-2 z-10">
-          {/* Updated Share and Print buttons to match Home.tsx style */}
-          <button 
-            onClick={handleShare} 
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/15 hover:scale-105 active:scale-95 transition-all shadow-md" 
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#BB79D1] hover:bg-white/40 hover:scale-105 active:scale-95 transition-all shadow-md"
             aria-label="Compartir"
           >
             <Share className="h-5 w-5" />
           </button>
-          <button 
-            onClick={handlePrint} 
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/15 hover:scale-105 active:scale-95 transition-all shadow-md" 
+          <button
+            onClick={handlePrint}
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#BB79D1] hover:bg-white/40 hover:scale-105 active:scale-95 transition-all shadow-md"
             aria-label="Imprimir"
           >
             <Printer className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="container max-w-2xl mx-auto pt-20 px-6">
+        <div className="w-full max-w-2xl mx-auto pt-20 px-2 sm:px-6 flex-1 flex flex-col">
           {/* Título del Capítulo/Historia */}
           <motion.h1
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-3xl font-bold text-center mb-6 text-white"
-            title={currentChapter.title || story.title} // Tooltip con título completo
+            className="text-2xl sm:text-3xl font-bold text-center mb-4 text-[#BB79D1] drop-shadow-lg px-2"
+            title={currentChapter.title || story.title}
           >
-            {/* Mostrar Título del Capítulo si hay más de uno, si no, el de la historia */}
             {chapters.length > 1 ? `Cap. ${currentChapterIndex + 1}: ` : ''}
             {currentChapter.title || story.title || "Historia sin título"}
           </motion.h1>
 
           {/* Contenido Principal (Historia o Desafío) */}
           {!showChallengeSelector && !showLanguageSelector && !challengeQuestion && (
-            <motion.div /* Contenido del capítulo */
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} // Ajustado delay
-              className="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 mb-8 text-white/90 leading-relaxed text-lg shadow-xl" // Aumentado padding y bajado opacidad texto
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white/80 rounded-2xl p-4 sm:p-8 mb-6 text-[#222] leading-relaxed text-base sm:text-lg shadow-lg max-w-full"
+              style={{ minHeight: '40vh', boxShadow: '0 2px 24px 0 rgba(187,121,209,0.10)' }}
             >
               {currentChapter.content.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-4">{paragraph || '\u00A0'}</p> // Párrafo vacío si hay líneas en blanco
+                <p key={index} className="mb-4 last:mb-0 text-[1.08em]" style={{wordBreak:'break-word'}}>{paragraph || '\u00A0'}</p>
               ))}
             </motion.div>
           )}
@@ -266,48 +274,45 @@ export default function StoryViewer() {
           {showLanguageSelector && <LanguageSelector currentLanguage={profileSettings?.language || 'es'} onSelectLanguage={handleSelectLanguage} onContinue={handleContinueAfterLanguage} onBack={handleBackToCategories} />}
           {challengeQuestion && <ChallengeQuestion question={challengeQuestion} onNextQuestion={handleNextQuestion} onTryAgain={handleTryAgain} onChangeChallenge={handleChangeChallenge} />}
 
-
-          {/* --- Barra de Acciones Inferior (Fija o al final) --- */}
+          {/* --- Barra de Acciones Inferior --- */}
           {!showChallengeSelector && !showLanguageSelector && !challengeQuestion && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} // Delay para aparecer después del contenido
-              // Podría ser fija en la parte inferior:
-              // className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent p-4 z-20"
-              className="mt-8" // O simplemente al final
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-4 sm:mt-8"
             >
               {/* Navegación entre Capítulos */}
-              <div className="flex justify-between mb-4 px-2">
-                <button onClick={handlePreviousChapter} disabled={currentChapterIndex === 0} className="nav-button disabled:opacity-40 disabled:cursor-not-allowed">
-                  <ChevronLeft size={20} /> Anterior
+              <div className="flex justify-between items-center mb-4 px-1 sm:px-2">
+                <button onClick={handlePreviousChapter} disabled={currentChapterIndex === 0} className="text-[#BB79D1] bg-white/70 hover:bg-[#F6A5B7]/20 rounded-xl px-3 py-2 text-sm font-semibold shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
+                  <ChevronLeft size={18} /> Anterior
                 </button>
-                <span className="text-white/70 text-sm self-center">
+                <span className="text-[#222] text-base sm:text-lg font-bold select-none drop-shadow-sm bg-white/70 px-3 py-1 rounded-xl shadow-sm">
                   Capítulo {currentChapterIndex + 1} / {chapters.length}
                 </span>
-                <button onClick={handleNextChapter} disabled={currentChapterIndex === chapters.length - 1} className="nav-button disabled:opacity-40 disabled:cursor-not-allowed">
-                  Siguiente <ChevronRight size={20} />
+                <button onClick={handleNextChapter} disabled={currentChapterIndex === chapters.length - 1} className="text-[#BB79D1] bg-white/70 hover:bg-[#F6A5B7]/20 rounded-xl px-3 py-2 text-sm font-semibold shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
+                  Siguiente <ChevronRight size={18} />
                 </button>
               </div>
 
               {/* Botones de Acción Principales */}
-              <div className="flex flex-col items-center space-y-5">
+              <div className="flex flex-col items-center space-y-4 sm:space-y-5">
                 {/* Primera fila: Acepta el Reto y Continuar Historia */}
-                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full">
                   <button
                     onClick={handleShowChallenge}
-                    className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium text-black transition-all shadow-lg ${isLoadingQuestion ? 'bg-gray-300 cursor-not-allowed' : 'bg-story-orange-400 hover:bg-story-orange-300'}`}
+                    className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold text-white shadow-lg text-base sm:text-lg w-full sm:w-auto bg-[#7DC4E0] hover:bg-[#7DC4E0]/80 active:bg-[#A5D6F6] focus:bg-[#A5D6F6] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed`}
                     disabled={isLoadingQuestion}
                   >
-                    <Award size={24} className="mr-2" />
+                    <Award size={22} className="mr-2" />
                     {isLoadingQuestion ? "Generando..." : "Acepta el Reto"}
                   </button>
 
                   <button
                     onClick={goToContinuationPage}
                     disabled={!isAllowedToContinue}
-                    className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium transition-all shadow-lg ${isAllowedToContinue ? 'bg-purple-500 hover:bg-purple-400 text-white' : 'bg-gray-300 cursor-not-allowed text-gray-600'}`}
+                    className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue ? 'bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
                     title={!isAllowedToContinue ? "Límite de continuación gratuita alcanzado" : "Continuar la historia"}
                   >
-                    <BookOpen size={24} className="mr-2" />
+                    <BookOpen size={22} className="mr-2" />
                     Continuar Historia
                   </button>
                 </div>
@@ -316,10 +321,10 @@ export default function StoryViewer() {
                 <button
                   onClick={toggleAudioPlayer}
                   disabled={!isAllowedToGenerateVoice}
-                  className={`flex items-center justify-center px-6 py-4 rounded-lg font-medium transition-all shadow-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-gray-300 cursor-not-allowed text-gray-600'}`}
+                  className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-[#f7c59f] hover:bg-[#ffd7ba] text-white active:bg-[#ffd7ba] focus:bg-[#ffd7ba]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
                   title={!isAllowedToGenerateVoice ? "Límite de voz o créditos agotados" : "Escuchar narración"}
                 >
-                  <Volume2 size={24} className="mr-2" />
+                  <Volume2 size={22} className="mr-2" />
                   Narrar
                   {!isAllowedToGenerateVoice && <AlertCircle className="ml-1 h-4 w-4" />}
                 </button>
@@ -327,15 +332,15 @@ export default function StoryViewer() {
                 {/* Tercera fila: Volver al Inicio */}
                 <button
                   onClick={() => navigate("/home")}
-                  className="flex items-center justify-center px-6 py-3 rounded-lg font-medium bg-white/20 hover:bg-white/30 text-white transition-all shadow-md w-full sm:w-48"
+                  className="flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-semibold bg-white/60 hover:bg-white/80 text-[#BB79D1] transition-all shadow w-full sm:w-48 text-base sm:text-lg"
                 >
-                  <Home size={20} className="mr-2" /> Volver al Inicio
+                  <Home size={18} className="mr-2" /> Volver al Inicio
                 </button>
               </div>
             </motion.div>
           )}
         </div> {/* Fin container */}
-      </div> {/* Fin gradient-bg */}
+      </div> {/* Fin fondo */}
     </PageTransition>
   );
 }

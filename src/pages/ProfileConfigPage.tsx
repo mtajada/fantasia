@@ -143,7 +143,15 @@ const ProfileConfigPage: React.FC = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-800 to-indigo-900 text-white">
+            <div
+                className="min-h-screen flex flex-col items-center justify-start relative"
+                style={{
+                    backgroundImage: "url(/fondo_png.png)",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                }}
+            >
                 <div className="container mx-auto px-4 py-8 max-w-2xl">
                     {/* Back button */}
                     <BackButton className="absolute top-8 left-4 md:left-8" />
@@ -155,18 +163,18 @@ const ProfileConfigPage: React.FC = () => {
                         transition={{ duration: 0.5 }}
                         className="pt-16 text-center mb-8"
                     >
-                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-orange-500/80 border border-orange-400/50 mb-4 shadow-lg">
+                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-[#A5D6F6]/80 border border-[#A5D6F6]/50 mb-4 shadow-lg">
                             <User className="h-8 w-8 text-white" />
                         </div>
-                        <h1 className="text-3xl font-bold mb-2">Configura tu Perfil</h1>
-                        <p className="text-purple-200 text-md max-w-md mx-auto">
+                        <h1 className="text-3xl font-bold mb-2 font-heading text-[#BB79D1]">Configura tu Perfil</h1>
+                        <p className="text-[#222] text-md max-w-md mx-auto font-medium bg-white/60 rounded-xl px-4 py-2 shadow-sm">
                             Personaliza la experiencia para adaptar las historias a tus preferencias
                         </p>
                     </motion.div>
 
                     {isLoading && (
                         <div className="flex justify-center py-12">
-                            <div className="rounded-full h-12 w-12 border-4 border-purple-300 border-t-transparent animate-spin"></div>
+                            <div className="rounded-full h-12 w-12 border-4 border-[#A5D6F6] border-t-transparent animate-spin"></div>
                         </div>
                     )}
 
@@ -176,19 +184,19 @@ const ProfileConfigPage: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
                             onSubmit={handleSubmit}
-                            className="space-y-8 bg-white/10 backdrop-blur-md rounded-xl border border-white/10 shadow-xl p-6"
+                            className="space-y-8 bg-white/40 backdrop-blur-md rounded-3xl border border-[#BB79D1]/20 shadow-xl p-6"
                         >
                             {/* Language Select */}
                             <div className="space-y-2">
-                                <label htmlFor="language" className="flex items-center gap-2 text-lg font-medium mb-2">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-600/20 flex items-center justify-center">
-                                        <Languages className="h-4 w-4 text-indigo-300" />
+                                <label htmlFor="language" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-[#222]">
+                                    <div className="w-8 h-8 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
+                                        <Languages className="h-4 w-4 text-[#A5D6F6]" />
                                     </div>
                                     <span>Idioma de la Historia</span>
                                 </label>
 
                                 <Select value={language} onValueChange={setLanguage}>
-                                    <SelectTrigger className="w-full bg-white/10 border-white/20 backdrop-blur-sm text-white hover:bg-white/20 transition-colors h-12">
+                                    <SelectTrigger className="w-full bg-white/10 border-[#A5D6F6]/30 backdrop-blur-sm text-[#222] hover:bg-white/20 transition-colors h-12">
                                         <SelectValue placeholder="Selecciona un idioma">
                                             {language && (
                                                 <span className="flex items-center gap-2">
@@ -198,9 +206,9 @@ const ProfileConfigPage: React.FC = () => {
                                             )}
                                         </SelectValue>
                                     </SelectTrigger>
-                                    <SelectContent className="bg-purple-800/90 backdrop-blur-md border-purple-700">
+                                    <SelectContent className="bg-white border-[#BB79D1]/40 shadow-xl rounded-2xl text-[#222]">
                                         {languages.map((lang) => (
-                                            <SelectItem key={lang.value} value={lang.value} className="text-white focus:bg-white/20 focus:text-white">
+                                            <SelectItem key={lang.value} value={lang.value} className="text-[#222] focus:bg-[#BB79D1]/20 focus:text-[#222]">
                                                 <span className="flex items-center gap-3">
                                                     <span className="text-xl inline-block min-w-[1.5rem]">{lang.flag}</span>
                                                     <span>{lang.label}</span>
@@ -213,9 +221,9 @@ const ProfileConfigPage: React.FC = () => {
 
                             {/* Child Age Slider */}
                             <div className="space-y-2 pt-2">
-                                <label htmlFor="childAge" className="flex items-center gap-2 text-lg font-medium mb-2">
-                                    <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                        <Calendar className="h-4 w-4 text-amber-300" />
+                                <label htmlFor="childAge" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-[#222]">
+                                    <div className="w-8 h-8 rounded-full bg-[#F9DA60]/20 flex items-center justify-center">
+                                        <Calendar className="h-4 w-4 text-[#F9DA60]" />
                                     </div>
                                     <span>Edad del Niño/Oyente</span>
                                 </label>
@@ -231,32 +239,32 @@ const ProfileConfigPage: React.FC = () => {
                                         className="py-4"
                                     />
                                     <div className="flex justify-between mt-3">
-                                        <span className="text-xs text-white/80">1 año</span>
-                                        <div className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-400/20 to-amber-600/20 border border-amber-500/30">
-                                            <span className="text-2xl font-bold text-amber-300">{childAge}</span>
-                                            <span className="text-xs text-amber-200 ml-1">años</span>
+                                        <span className="text-xs text-[#7DC4E0]">1 año</span>
+                                        <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[#F9DA60]/20 to-[#F9DA60]/30 border border-[#F9DA60]/30">
+                                            <span className="text-2xl font-bold text-[#F9DA60]">{childAge}</span>
+                                            <span className="text-xs text-[#F9DA60]/90 ml-1">años</span>
                                         </div>
-                                        <span className="text-xs text-white/80">10 años</span>
+                                        <span className="text-xs text-[#7DC4E0]">10 años</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Special Need Select */}
                             <div className="space-y-2 pt-2">
-                                <label htmlFor="specialNeed" className="flex items-center gap-2 text-lg font-medium mb-2">
-                                    <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
-                                        <Heart className="h-4 w-4 text-rose-300" />
+                                <label htmlFor="specialNeed" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-[#222]">
+                                    <div className="w-8 h-8 rounded-full bg-[#F6A5B7]/20 flex items-center justify-center">
+                                        <Heart className="h-4 w-4 text-[#F6A5B7]" />
                                     </div>
                                     <span>¿Alguna necesidad especial? (Opcional)</span>
                                 </label>
 
                                 <Select value={specialNeed} onValueChange={setSpecialNeed}>
-                                    <SelectTrigger className="w-full bg-white/10 border-white/20 backdrop-blur-sm text-white hover:bg-white/20 transition-colors h-12">
+                                    <SelectTrigger className="w-full bg-white/10 border-[#F6A5B7]/30 backdrop-blur-sm text-[#222] hover:bg-white/20 transition-colors h-12">
                                         <SelectValue placeholder="Selecciona una opción" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-purple-800/90 backdrop-blur-md border-purple-700">
+                                    <SelectContent className="bg-white border-[#BB79D1]/40 shadow-xl rounded-2xl text-[#222]">
                                         {specialNeeds.map((need) => (
-                                            <SelectItem key={need.value} value={need.value} className="text-white focus:bg-white/20 focus:text-white">
+                                            <SelectItem key={need.value} value={need.value} className="text-[#222] focus:bg-[#BB79D1]/20 focus:text-[#222]">
                                                 {need.label}
                                             </SelectItem>
                                         ))}
@@ -270,12 +278,12 @@ const ProfileConfigPage: React.FC = () => {
                                 whileTap={{ scale: 0.98 }}
                                 type="submit"
                                 disabled={isSaving}
-                                className="w-full mt-6 py-4 px-6 bg-orange-500/30 border border-orange-400/30 hover:bg-orange-500/40 text-orange-300 rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all"
+                                className="w-full mt-6 py-4 px-6 bg-[#BB79D1]/30 border border-[#BB79D1]/30 hover:bg-[#BB79D1]/40 text-[#222] rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all"
                             >
                                 {isSaving ? (
-                                    <div className="h-5 w-5 border-2 border-orange-300 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <div className="h-5 w-5 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin mr-2"></div>
                                 ) : (
-                                    <Check className="h-5 w-5" />
+                                    <Check className="h-5 w-5 text-[#BB79D1]" />
                                 )}
                                 <span>{isSaving ? "Guardando..." : "Guardar Perfil"}</span>
                             </motion.button>
