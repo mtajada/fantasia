@@ -1,68 +1,65 @@
 import { useEffect, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom"; 
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/user/userStore";
+import { User } from "../types";
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
+type AuthStatus = 'pending' | 'authenticated' | 'unauthenticated';
+
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const { user, checkAuth, intendedRedirectPath } = useUserStore(state => ({
-    user: state.user,
+  const { checkAuth, intendedRedirectPath } = useUserStore(state => ({
     checkAuth: state.checkAuth,
     intendedRedirectPath: state.intendedRedirectPath,
   }));
-  const set = useUserStore.setState; 
+  const set = useUserStore.setState;
 
-  const [authChecked, setAuthChecked] = useState(false);
+  const [authStatus, setAuthStatus] = useState<AuthStatus>('pending');
+  const [checkedUser, setCheckedUser] = useState<User | null>(null);
+
   const location = useLocation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    let isMounted = true; 
+    let isMounted = true;
     const verifyAuth = async () => {
-      console.log("AuthGuard Effect 1: Verifying authentication...");
-      await checkAuth(); 
-      console.log("AuthGuard Effect 1: Authentication check completed.");
+      console.log("AuthGuard: Verifying authentication...");
+      const userResult = await checkAuth();
+      console.log("AuthGuard: Authentication check completed. User:", userResult ? userResult.id : 'null');
       if (isMounted) {
-        setAuthChecked(true);
+        setCheckedUser(userResult);
+        setAuthStatus(userResult ? 'authenticated' : 'unauthenticated');
       }
     };
 
     verifyAuth();
 
-    return () => { isMounted = false; }; 
+    return () => { isMounted = false; };
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!authChecked) {
-      console.log("AuthGuard Effect 2: Waiting for auth check...");
+    if (authStatus === 'pending') {
+      console.log("AuthGuard Redirect Effect: Waiting for auth check to complete...");
       return;
     }
 
-    console.log(`AuthGuard Effect 2: Evaluating state - User: ${!!user}, Intended: ${intendedRedirectPath}, Current: ${location.pathname}`);
+    console.log(`AuthGuard Redirect Effect: Evaluating state - Status: ${authStatus}, Intended: ${intendedRedirectPath}, Current: ${location.pathname}`);
 
     if (intendedRedirectPath && intendedRedirectPath !== location.pathname) {
-      console.log(`AuthGuard Effect 2: Redirecting from ${location.pathname} to intended path: ${intendedRedirectPath}`);
+      console.log(`AuthGuard Redirect Effect: Redirecting from ${location.pathname} to intended path: ${intendedRedirectPath}`);
       set({ intendedRedirectPath: null });
       navigate(intendedRedirectPath, { replace: true });
-    } 
+    }
     else if (intendedRedirectPath && intendedRedirectPath === location.pathname) {
-      console.log(`AuthGuard Effect 2: Already at intended path ${intendedRedirectPath}. Resetting flag.`);
+      console.log(`AuthGuard Redirect Effect: Already at intended path ${intendedRedirectPath}. Resetting flag.`);
       set({ intendedRedirectPath: null });
-    } 
-    else if (!user) {
-      console.log(`AuthGuard Effect 2: No intended path and no user, redirecting to /login.`);
-      navigate("/login", { state: { from: location }, replace: true });
     }
-    else {
-        console.log(`AuthGuard Effect 2: User exists, no redirect needed for ${location.pathname}. Allowing render.`);
-    }
+  }, [authStatus, intendedRedirectPath, location.pathname, navigate, set]);
 
-  }, [authChecked, user, intendedRedirectPath, location.pathname, navigate, set]);
-
-  if (!authChecked || (intendedRedirectPath && intendedRedirectPath !== location.pathname)) {
-    console.log(`AuthGuard Render: Auth check in progress or redirect pending (AuthChecked: ${authChecked}, Intended: ${intendedRedirectPath}, Current: ${location.pathname}). Showing loader.`);
+  if (authStatus === 'pending') {
+    console.log(`AuthGuard Render: Auth check in progress. Showing loader.`);
     return (
       <div className="gradient-bg min-h-screen flex items-center justify-center">
         <div className="animate-spin h-10 w-10 border-4 border-white rounded-full border-t-transparent"></div>
@@ -70,11 +67,25 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
-  if (user) {
-    console.log(`AuthGuard Render: Auth checked, no redirect pending, user exists. Rendering children for ${location.pathname}.`);
+  if (intendedRedirectPath && intendedRedirectPath !== location.pathname) {
+    console.log(`AuthGuard Render: Redirect pending to ${intendedRedirectPath}. Waiting for navigation.`);
+    return (
+      <div className="gradient-bg min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-white rounded-full border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (authStatus === 'authenticated' && checkedUser) {
+    console.log(`AuthGuard Render: Auth checked, user ${checkedUser.id} exists. Rendering children for ${location.pathname}.`);
     return <>{children}</>;
   }
 
-  console.warn(`AuthGuard Render: Reached unexpected state (AuthChecked: ${authChecked}, User: ${!!user}, Intended: ${intendedRedirectPath}). Rendering null.`);
-  return null; 
+  if (authStatus === 'unauthenticated') {
+    console.log(`AuthGuard Render: Auth checked, user not authenticated. Redirecting to /login.`);
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  console.warn(`AuthGuard Render: Reached unexpected state (Status: ${authStatus}, CheckedUser: ${!!checkedUser}, Intended: ${intendedRedirectPath}). Rendering null or redirecting to error.`);
+  return <Navigate to="/error" replace />;
 }
