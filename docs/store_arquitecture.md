@@ -99,7 +99,6 @@ The loading of user-specific data from Supabase upon login or app initialization
         5. Llama a `@services/supabase.syncUserProfile` pasándole el `userId` y el objeto `syncData` (con claves snake_case) para persistir los cambios en la base de datos.
         6. Utiliza `@services/syncQueue` como fallback si la sincronización directa falla.
         7. **Nota:** Cuando se llama desde `ProfileConfigPage` por primera vez, el objeto `settings` también incluye explícitamente `has_completed_setup: true` para marcar el perfil como configurado.
-    *   `hasCompletedProfile()`: A selector/getter function that returns `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used by components like `Home` and `AuthGuard` to check if the user needs to be sent to profile configuration.
 *   **Supabase Interaction:** Calls `getCurrentUser`, `logout`, `getUserProfile`, `syncUserProfile`, `syncQueue`.
 *   **Notes:** Contains the vital `syncAllUserData` orchestrator function. Ensure all necessary stores are listed in its `otherStores` array.
 
@@ -230,3 +229,17 @@ The loading of user-specific data from Supabase upon login or app initialization
 ## 7. Conclusion
 
 This modular Zustand architecture, coupled with a well-defined data synchronization flow orchestrated by `userStore` and reliant on Supabase RLS, provides a robust foundation for the application. Maintaining consistency in Supabase client usage, type definitions, and the central data loading pattern is key to stability. Understanding the interaction between frontend stores, the Supabase service layer, and RLS policies is crucial for debugging and future development. Remember to manage SQL functions via Supabase Migrations for proper version control.
+
+## 8. Race Condition Fixes: Authentication and Story Loading
+
+**Authentication Race Condition**
+
+- Updated `checkAuth` signature to return `Promise<User | null>` instead of `Promise<boolean>`.
+- Refactored `AuthGuard.tsx` to use an internal `authStatus` (`'pending' | 'authenticated' | 'unauthenticated'`), awaiting `checkAuth()` result before rendering or redirecting.
+- Eliminated separate `authChecked` state and reliance on store `user` for decision-making.
+
+**Story Loading Race Condition**
+
+- Added `isLoadingStories: boolean` to `StoriesState` and initialized it in `storiesStore.ts`.
+- In `storiesStore.ts`, `loadStoriesFromSupabase` sets `isLoadingStories` to `true` at start and resets it to `false` in `finally`.
+- Updated `StoryViewer.tsx` to depend on `isLoadingStories` in its main `useEffect`, exiting early if `true`, and rendering a loading spinner until stories are loaded. Navigation to `/not-found` only occurs if the story remains `undefined` after loading.

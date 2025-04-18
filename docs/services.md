@@ -118,4 +118,18 @@ Consistencia de Tipos: Asegurar que los tipos definidos en @src/types.ts coincid
 Nuevos Servicios para EFs: Si se crea una nueva EF, añadir un servicio wrapper correspondiente aquí siguiendo el patrón establecido (simple, solo llama a invoke).
 Nuevas Entidades de DB: Añadir las funciones CRUD necesarias a supabase.ts, asegurarse de crear las políticas RLS adecuadas en Supabase, y actualizar los stores relevantes para usar las nuevas funciones.
 Refactorización (Opcional): Considerar si los wrappers de EF añaden suficiente valor o si las llamadas a invoke podrían hacerse directamente desde los stores o hooks para reducir una capa (evaluar pros y contras en cada caso).
+6. Race Condition Fixes: Authentication and Story Loading
+
+**Authentication Race Condition**
+
+- Updated `checkAuth` signature to return `Promise<User | null>` instead of `Promise<boolean>`.
+- Refactored `AuthGuard.tsx` to use an internal `authStatus` (`'pending' | 'authenticated' | 'unauthenticated'`), awaiting `checkAuth()` result before rendering or redirecting.
+- Eliminated separate `authChecked` state and reliance on store `user` for decision-making.
+
+**Story Loading Race Condition**
+
+- Added `isLoadingStories: boolean` to `StoriesState` and initialized it in `storiesStore.ts`.
+- In `storiesStore.ts`, `loadStoriesFromSupabase` sets `isLoadingStories` to `true` at start and resets it to `false` in `finally`.
+- Updated `StoryViewer.tsx` to depend on `isLoadingStories` in its main `useEffect`, returning early if `true`, and rendering a loading spinner until stories are loaded. Navigation to `/not-found` only occurs if the story remains `undefined` after loading.
+
 Este documento debería proporcionar una comprensión sólida de la carpeta @src/services, su arquitectura actual y los puntos clave a tener en cuenta.
