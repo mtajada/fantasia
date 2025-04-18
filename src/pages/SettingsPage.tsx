@@ -17,7 +17,8 @@ import {
     Star,
     ChevronRight,
     Mail,
-    Mic
+    Mic,
+    Euro
 } from 'lucide-react';
 
 const SettingsPage: React.FC = () => {
@@ -110,7 +111,6 @@ const SettingsPage: React.FC = () => {
 
     // --- Calculate Reset Date String --- BEGIN
     let resetDateString = "Fecha no disponible"; // Default
-    let resetInfoPrefix = premiumUser ? "Tu límite de voz premium se reinicia" : "Tu límite de historias gratuitas se reinicia";
 
     if (premiumUser) {
         // Premium: Use current_period_end
@@ -224,57 +224,69 @@ const SettingsPage: React.FC = () => {
                             {!premiumUser && (
                                 <div className="space-y-5">
                                     {/* Story Limits */}
-                                    <div className="flex items-center bg-white/70 border border-[#BB79D1]/20 rounded-2xl p-4 mb-2">
-                                        <BookOpen className="h-6 w-6 text-[#BB79D1] mr-3 flex-shrink-0" />
-                                        <div className="flex-1">
-                                            <div className="text-lg font-bold text-[#222] flex items-center gap-2">
-                                                Historias restantes este mes:
-                                                <span className="text-[#F6A5B7] font-bold">{profileSettings.monthly_stories_generated !== undefined ? Math.max(0, 10 - profileSettings.monthly_stories_generated) : 'N/A'} / 10</span>
+                                    <div className="bg-white/70 rounded-2xl p-4 mb-2 border border-[#BB79D1]/30 shadow-sm">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-full bg-[#BB79D1]/20 flex items-center justify-center">
+                                                <BookOpen className="h-5 w-5 text-[#BB79D1]" />
                                             </div>
-                                            <div className="text-sm text-[#7DC4E0] mt-1 flex items-center">
-                                                <CalendarClock className="mr-1" /> {resetInfoPrefix} {resetDateString}
+                                            <div>
+                                                <h3 className="font-bold text-lg text-[#222]">Historias restantes este mes</h3>
+                                                <p className="text-[#7DC4E0] text-sm">Cuentos que puedes crear</p>
                                             </div>
+                                        </div>
+                                        <div className="flex justify-between items-center mb-2 px-2">
+                                            <span className="text-[#222] font-medium">Disponibles:</span>
+                                            <span className="font-mono font-bold text-xl text-[#F6A5B7]">{profileSettings.monthly_stories_generated !== undefined ? Math.max(0, 10 - profileSettings.monthly_stories_generated) : 'N/A'}</span>
+                                        </div>
+                                        <div className="text-sm text-white mt-3 flex items-center bg-[#F6A5B7] p-2 rounded-lg">
+                                            <CalendarClock className="h-4 w-4 mr-2 text-white" />
+                                            <span>El límite se reiniciará a 10 historias {resetDateString}</span>
                                         </div>
                                     </div>
 
                                     {/* Voice Credits */}
-                                    <div className="border-t border-[#BB79D1]/10 pt-4">
-                                        <div className="flex items-center py-2">
-                                            <Mic className="h-5 w-5 text-[#A5D6F6] mr-3 flex-shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-sm text-[#BB79D1]/80 mb-1">Créditos de voz disponibles</div>
-                                                <div className="font-medium text-[#BB79D1]">{profileSettings.voice_credits || 0}</div>
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-[#A5D6F6]/30 shadow-sm">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
+                                                <Mic className="h-5 w-5 text-[#A5D6F6]" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-lg text-[#222]">Créditos de voz disponibles</h3>
+                                                <p className="text-[#7DC4E0] text-sm">Para narrar tus cuentos</p>
                                             </div>
                                         </div>
-                                        {/* Botón Comprar Créditos Voz (Free user) */}
-                                        <div className="pt-2">
-                                            <button
-                                                onClick={() => handleCheckout('credits')}
-                                                disabled={isCheckoutLoading || isPortalLoading}
-                                                className="flex items-center justify-between w-full py-3 px-4 bg-[#A5D6F6]/60 border border-[#A5D6F6]/30 hover:bg-[#A5D6F6]/80 text-[#BB79D1] rounded-2xl font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <CreditCard className="h-4 w-4" />
-                                                    <span>Comprar Créditos de Voz</span>
-                                                </div>
-                                                {isCheckoutLoading ? (
-                                                    <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
-                                                ) : (
-                                                    <ChevronRight className="h-4 w-4" />
-                                                )}
-                                            </button>
+                                        <div className="flex justify-between items-center mb-2 px-2">
+                                            <span className="text-[#222] font-medium">Disponibles:</span>
+                                            <span className="font-mono font-bold text-xl text-[#A5D6F6]">{profileSettings.voice_credits || 0}</span>
                                         </div>
+
+                                        {/* Botón Comprar Créditos Voz (Free user) */}
+                                        <button
+                                            onClick={() => handleCheckout('credits')}
+                                            disabled={isCheckoutLoading || isPortalLoading}
+                                            className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-[#A5D6F6]/40 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <div className="flex items-center gap-2 text-white font-bold">
+                                                <CreditCard className="h-4 w-4" />
+                                                <span>Comprar 20 créditos más por 10€</span>
+                                            </div>
+                                            {isCheckoutLoading ? (
+                                                <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <ChevronRight className="h-4 w-4 text-white" />
+                                            )}
+                                        </button>
                                     </div>
 
                                     {/* Botón Ver Planes */}
                                     <div className="border-t border-[#BB79D1]/10 pt-4">
                                         <Link
-                                            to="/plans"
-                                            className="flex items-center justify-between w-full py-3 px-4 bg-[#F9DA60]/40 border border-[#F9DA60]/30 hover:bg-[#F9DA60]/60 text-[#BB79D1] rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+                                            to="/plans?tab=premium"
+                                            className="flex items-center justify-between w-full py-3 px-4 bg-[#f7c59f]/40 border border-[#f7c59f]/30 hover:bg-[#f7c59f]/60 text-white rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <Star className="h-4 w-4" />
-                                                <span>Ver Planes Premium</span>
+                                                <span>Ver Plan Premium</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4" />
                                         </Link>
@@ -284,45 +296,65 @@ const SettingsPage: React.FC = () => {
 
                             {/* Premium User Content */}
                             {premiumUser && (
-                                <div className="space-y-4">
-                                    {/* Voice Generation Limits */}
-                                    <div className="flex items-center p-2 bg-[#F9DA60]/20 rounded-lg border border-[#F9DA60]/20">
-                                        <Mic className="h-5 w-5 text-[#F9DA60] mr-3 flex-shrink-0" />
-                                        <div className="flex-1">
-                                            <div className="font-medium text-[#BB79D1]">Generaciones de voz este ciclo: <span className="text-lg font-bold text-[#F9DA60]">{profileSettings.monthly_voice_generations_used !== undefined ? Math.max(0, 20 - profileSettings.monthly_voice_generations_used) : 'N/A'} / 20</span></div>
-                                            <div className="text-xs text-[#7DC4E0] mt-1 flex items-center">
-                                                <CalendarClock size={14} className="mr-1" />
-                                                {resetInfoPrefix} {resetDateString}
+                                <div className="space-y-5">
+                                    {/* Voice Credits - siguiendo el mismo diseño del Free */}
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-[#A5D6F6]/30 shadow-sm">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
+                                                <Mic className="h-5 w-5 text-[#A5D6F6]" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-lg text-[#222]">Créditos de voz disponibles</h3>
+                                                <p className="text-[#7DC4E0] text-sm">Para narrar tus cuentos</p>
                                             </div>
                                         </div>
+                                        <div className="flex justify-between items-center mb-2 px-2">
+                                            <span className="text-[#222] font-medium">Disponibles:</span>
+                                            <span className="font-mono font-bold text-xl text-[#A5D6F6]">{profileSettings.monthly_voice_generations_used !== undefined ? Math.max(0, 20 - profileSettings.monthly_voice_generations_used) : 'N/A'}</span>
+                                        </div>
+                                        <div className="text-sm text-white mt-3 flex items-center bg-[#A5D6F6] p-2 rounded-lg">
+                                            <CalendarClock className="h-4 w-4 mr-2 text-white" />
+                                            <span>El límite se reiniciará a 20 generaciones {resetDateString}. Puedes comprar más créditos si los necesitas antes.</span>
+                                        </div>
+
+                                        {/* Botón Comprar Créditos Voz (Premium user) - mismo estilo que Free */}
+                                        <button
+                                            onClick={() => handleCheckout('credits')}
+                                            disabled={isCheckoutLoading}
+                                            className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-[#A5D6F6]/40 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <div className="flex items-center gap-2 text-white font-bold">
+                                                <CreditCard className="h-4 w-4" />
+                                                <span>Comprar 20 créditos más por 10€</span>
+                                            </div>
+                                            {isCheckoutLoading ? (
+                                                <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <ChevronRight className="h-4 w-4 text-white" />
+                                            )}
+                                        </button>
                                     </div>
 
-                                    <div className="pt-2 space-y-3">
-                                        <Link
-                                            to="/plans"
-                                            className="flex items-center justify-between w-full py-3 px-4 bg-[#A5D6F6]/60 border border-[#A5D6F6]/30 hover:bg-[#A5D6F6]/80 text-[#BB79D1] rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <CreditCard className="h-4 w-4" />
-                                                <span>Comprar más créditos</span>
-                                            </div>
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Link>
-
-                                        {profileSettings.stripe_customer_id && (
+                                    {/* Gestionar Suscripción */}
+                                    {profileSettings.stripe_customer_id && (
+                                        <div className="border-t border-[#BB79D1]/10 pt-4">
                                             <button
                                                 onClick={handleManageSubscription}
                                                 disabled={isPortalLoading}
-                                                className="flex items-center justify-center w-full py-3 px-4 bg-white/20 hover:bg-white/30 text-[#BB79D1] rounded-2xl font-bold transition-all"
+                                                className="flex items-center justify-between w-full py-3 px-4 bg-[#f7c59f]/40 border border-[#f7c59f]/30 hover:bg-[#f7c59f]/60 text-white rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
                                             >
                                                 {isPortalLoading ? (
                                                     <div className="h-5 w-5 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
                                                 ) : (
-                                                    <span>Gestionar Suscripción</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Settings className="h-4 w-4" />
+                                                        <span>Gestionar Suscripción</span>
+                                                    </div>
                                                 )}
+                                                <ChevronRight className="h-4 w-4" />
                                             </button>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

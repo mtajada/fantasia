@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import PageTransition from "../components/PageTransition";
-import StoryButton from "../components/StoryButton";
 
 export default function PaymentCancel() {
   const navigate = useNavigate();
@@ -22,29 +21,42 @@ export default function PaymentCancel() {
 
   return (
     <PageTransition>
-      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="w-full max-w-md p-8 space-y-6 bg-slate-800 rounded-xl shadow-lg border border-red-500/20">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-red-500/10 rounded-full">
-              <AlertCircle size={48} className="text-red-500" />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center p-4"
+        style={{
+          backgroundImage: 'url(/fondo_png.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="w-full max-w-md bg-white/90 rounded-3xl shadow-lg overflow-hidden">
+          <div className="p-8 flex flex-col items-center">
+            <div className="p-3 bg-[#F6A5B7]/20 rounded-full mb-6">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#F6A5B7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 8V12" stroke="#F6A5B7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 16H12.01" stroke="#F6A5B7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-            <h1 className="text-2xl font-bold text-white">Pago Cancelado</h1>
-            <p className="text-white/70">
+
+            <h1 className="text-2xl font-bold text-[#222] mb-4 text-center">Pago Cancelado</h1>
+
+            <p className="text-[#333] text-center mb-4">
               Has cancelado el proceso de pago. No se ha realizado ningún cargo a tu cuenta.
             </p>
-            <p className="text-white/70 mt-4">
-              Serás redirigido a tu perfil en <span className="font-bold text-white">{timeLeft}</span> segundos.
-            </p>
-          </div>
 
-          <div className="flex flex-col space-y-3 pt-4">
-            <StoryButton
+            <p className="text-[#333] mb-8 text-center">
+              Serás redirigido a tu perfil en <span className="font-bold text-[#F6A5B7]">{timeLeft}</span> segundos.
+            </p>
+
+            <button
               onClick={() => navigate("/profile")}
-              isFullWidth
-              icon={<ArrowLeft size={20} />}
+              className="w-full flex items-center justify-center gap-2 bg-[#BB79D1] hover:bg-[#BB79D1]/90 text-white rounded-full py-4 font-semibold text-lg"
             >
+              <ArrowLeft size={20} />
               Volver a mi Perfil
-            </StoryButton>
+            </button>
           </div>
         </div>
       </div>

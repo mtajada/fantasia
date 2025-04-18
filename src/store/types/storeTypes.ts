@@ -20,8 +20,8 @@ export interface UserState {
   logoutUser: () => void;
   setProfileSettings: (settings: Partial<ProfileSettings>) => void;
   hasCompletedProfile: () => boolean;
-  checkAuth: () => Promise<boolean>;
-  
+  checkAuth: () => Promise<User | null>;
+
   // Nuevos selectores para suscripción y límites
   isPremium: () => boolean;
   getRemainingMonthlyStories: () => number;
@@ -59,6 +59,7 @@ export interface StoryOptionsState {
 export interface StoriesState {
   generatedStories: Story[];
   isGeneratingStory: boolean;
+  isLoadingStories: boolean;
 
   setIsGeneratingStory: (isGenerating: boolean) => void;
   addGeneratedStory: (story: Story) => void;

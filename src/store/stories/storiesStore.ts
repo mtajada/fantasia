@@ -6,10 +6,11 @@ import { useUserStore } from "../user/userStore";
 // Estado inicial
 const initialState: Pick<
   StoriesState,
-  "generatedStories" | "isGeneratingStory"
+  "generatedStories" | "isGeneratingStory" | "isLoadingStories"
 > = {
   generatedStories: [],
   isGeneratingStory: false,
+  isLoadingStories: false,
 };
 
 export const useStoriesStore = createPersistentStore<StoriesState>(
@@ -62,6 +63,7 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
       const user = useUserStore.getState().user;
       if (!user) return;
 
+      set({ isLoadingStories: true });
       try {
         console.log(`Cargando historias para usuario ${user.id}`);
 
@@ -78,6 +80,8 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
         }
       } catch (error) {
         console.error("Error al cargar historias:", error);
+      } finally {
+        set({ isLoadingStories: false });
       }
     },
   }),

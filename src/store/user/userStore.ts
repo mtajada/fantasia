@@ -106,7 +106,7 @@ export const useUserStore = createPersistentStore<UserState>(
               // Asegurar que el valor no sea undefined antes de asignarlo
               const value = settings[key as keyof ProfileSettings];
               if (value !== undefined) {
-                 syncData[mappedKey] = value;
+                syncData[mappedKey] = value;
               }
             }
           }
@@ -185,75 +185,41 @@ export const useUserStore = createPersistentStore<UserState>(
       return chapters.length < 2;
     },
 
-    checkAuth: async (): Promise<boolean> => { // Revertido a Promise<boolean>
-      let redirectPath = '/login'; // Default path
-      let isAuthenticated = false;
+    checkAuth: async (): Promise<User | null> => {
+      let authenticatedUser: User | null = null;
       try {
-        // Forzar una actualización del cliente Supabase para evitar problemas con tokens antiguos
         const { data: { session } } = await supabase.auth.getSession();
 
-        // Obtener el usuario actual con las credenciales actualizadas
         const { user, error } = await getCurrentUser();
 
         if (user && !error) {
-          // Actualizar el usuario en el store
           set({ user });
-
-          // Actualizar usuario en el store global
-          setCurrentAuthUser(user.id);
-
-          // Si hay una sesión activa, cargar datos desde Supabase
-          if (session) {
-            console.log(`Sesión activa para usuario ${user.id}, cargando datos desde Supabase`);
-            isAuthenticated = true; // Consider authenticated if session exists
-
-            try {
-              // 1. Cargar perfil
-              const { success, profile } = await getUserProfile(user.id);
-              if (success && profile) {
-                console.log("Perfil actualizado recibido:", profile);
-                set({ profileSettings: profile });
-                // Determinar ruta de redirección basado en setup
-                redirectPath = profile.has_completed_setup ? '/home' : '/profile-config';
-              } else {
-                console.warn("No se encontró perfil para el usuario con sesión activa o hubo un error, redirigiendo a configuración.");
-                redirectPath = '/profile-config';
-                isAuthenticated = true; // Aún autenticado, solo necesita perfil
-              }
-
-              // 2. Iniciar sincronización de otros datos (no bloqueante)
-              syncAllUserData(user.id);
-
-            } catch (profileError) {
-              console.error("Error al cargar datos desde Supabase:", profileError);
-              redirectPath = '/login'; // Fallback a login si falla carga de perfil
-              isAuthenticated = false; // No autenticado si falla la carga esencial del perfil
-            }
+          authenticatedUser = user;
+          // Cargar perfil SI hay usuario
+          const { success, profile } = await getUserProfile(user.id);
+          if (success && profile) {
+            set({ profileSettings: profile });
+            // Sincronizar el resto en segundo plano
+            syncAllUserData(user.id);
           } else {
-            // Sesión expirada o inválida, aunque getCurrentUser devolvió un usuario (raro)
-             console.warn("Usuario obtenido pero sin sesión activa. Redirigiendo a login.");
-             redirectPath = '/login';
-             isAuthenticated = false;
+            // Aún autenticado, pero sin perfil o error al cargarlo.
+            // La redirección a profile-config se manejará en la página de destino o AuthGuard si es necesario
+            console.warn("checkAuth: Usuario autenticado pero perfil no encontrado o error al cargar:", user.id);
+            set({ profileSettings: null });
           }
 
         } else {
-          // No hay usuario autenticado, limpiar el estado
+          // No hay usuario o hubo error
+          if (error) console.error("Error en getCurrentUser:", error);
           set({ user: null, profileSettings: null });
-          setCurrentAuthUser(null);
-          redirectPath = '/login';
-          isAuthenticated = false;
+          authenticatedUser = null;
         }
-      } catch (error) {
-        console.error("Error al verificar autenticación:", error);
-        // En caso de error, limpiar el estado para evitar datos inconsistentes
+      } catch (e) {
+        console.error("Error crítico durante checkAuth:", e);
         set({ user: null, profileSettings: null });
-        setCurrentAuthUser(null);
-        redirectPath = '/login';
-        isAuthenticated = false;
+        authenticatedUser = null;
       }
-      // Establecer el path en el estado DEFERIDO para asegurar que el estado se actualice después del ciclo de render actual
-      setTimeout(() => set({ intendedRedirectPath: redirectPath }), 0);
-      return isAuthenticated; // Devolver estado de autenticación
+      return authenticatedUser;
     },
   }),
   "user",
