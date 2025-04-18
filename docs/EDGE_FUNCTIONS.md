@@ -1,4 +1,4 @@
-# Edge Functions de CuentaSueños
+# Edge Functions de TaleMe!
 
 Este documento describe las Edge Functions implementadas en Supabase para
 manejar la generación de contenido utilizando modelos de lenguaje.

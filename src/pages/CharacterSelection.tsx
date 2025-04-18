@@ -83,17 +83,29 @@ export default function CharacterSelection() {
   
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative overflow-auto py-20 px-6">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center relative"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <BackButton />
         
-        <div className="w-full max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-10 text-center">
+        <div className="w-full max-w-2xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-[#BB79D1] text-center mb-4 font-heading drop-shadow-lg">
             Selecciona un Personaje
           </h1>
           
+          <p className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-8 font-medium shadow-sm">
+            Elige un personaje para tu historia o crea uno nuevo
+          </p>
+          
           {isLoading ? (
-            <div className="text-center text-white/80 mb-10">
-              Cargando personajes...
+            <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
+              <div className="text-[#BB79D1] font-medium">Cargando personajes...</div>
             </div>
           ) : (
             <>
@@ -101,15 +113,18 @@ export default function CharacterSelection() {
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10"
+                className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8"
               >
                 <motion.div variants={item}>
                   <div 
                     onClick={handleCreateNewCharacter}
-                    className="story-choice-card h-40 hover:bg-white/20"
+                    className="flex flex-col items-center justify-center p-6 h-40 cursor-pointer
+                      bg-white/70 rounded-2xl border-2 border-[#F6A5B7]/60
+                      hover:bg-[#F6A5B7]/10 hover:scale-105 hover:shadow-md
+                      transition-all duration-300"
                   >
-                    <Plus size={40} className="text-white mb-2" />
-                    <span className="text-white text-center font-medium">Crear Nuevo</span>
+                    <Plus size={40} className="text-[#F6A5B7] mb-2" />
+                    <span className="text-[#222] text-center font-medium">Crear Nuevo</span>
                   </div>
                 </motion.div>
                 
@@ -117,19 +132,37 @@ export default function CharacterSelection() {
                   <motion.div key={character.id} variants={item}>
                     <div 
                       onClick={() => handleSelectCharacter(character.id)}
-                      className="story-choice-card h-40 hover:bg-white/20"
+                      className={`
+                        flex flex-col items-center justify-center p-6 h-40 cursor-pointer
+                        bg-white/70 rounded-2xl border-2 border-[#7DC4E0]/60
+                        ${currentCharacter && currentCharacter.id === character.id ? 'ring-4 ring-[#7DC4E0] shadow-lg transform scale-105' : 'hover:bg-[#7DC4E0]/10 hover:scale-105 hover:shadow-md'}
+                        transition-all duration-300
+                      `}
                     >
-                      <User size={40} className="text-white mb-2" />
-                      <span className="text-white text-center font-medium">{character.name}</span>
-                      <span className="text-white/70 text-xs">{character.profession}</span>
+                      <User size={40} className="text-[#7DC4E0] mb-2" />
+                      <span className="text-[#222] text-center font-medium">{character.name}</span>
+                      <span className="text-[#555] text-xs">{character.profession}</span>
                     </div>
                   </motion.div>
                 ))}
               </motion.div>
               
               {savedCharacters.length === 0 && (
-                <div className="text-center text-white/80 mb-10">
-                  No tienes personajes guardados. ¡Crea uno nuevo!
+                <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
+                  <div className="text-[#555] font-medium">No tienes personajes guardados. ¡Crea uno nuevo!</div>
+                </div>
+              )}
+              
+              {savedCharacters.length > 0 && (
+                <div className="flex justify-center w-full mt-2 mb-2">
+                  <StoryButton
+                    onClick={() => handleSelectCharacter(currentCharacter?.id || "")}
+                    isFullWidth={false}
+                    disabled={!currentCharacter}
+                    className="w-full max-w-xs py-4 rounded-2xl text-white text-lg font-semibold shadow-lg bg-[#BB79D1] hover:bg-[#BB79D1]/90 border-2 border-[#BB79D1]/50 transition-all duration-200"
+                  >
+                    Continuar
+                  </StoryButton>
                 </div>
               )}
             </>

@@ -16,7 +16,6 @@ import CharacterSelection from "./pages/CharacterSelection";
 import CharacterName from "./pages/CharacterName";
 import CharacterHobbies from "./pages/CharacterHobbies";
 import CharacterPersonality from "./pages/CharacterPersonality";
-import CharacterType from "./pages/CharacterType";
 import CharacterProfession from "./pages/CharacterProfession";
 import DurationSelection from "./pages/DurationSelection";
 import StoryGenre from "./pages/StoryGenre";
@@ -70,7 +69,6 @@ const App = () => {
               <Route path="/character-name" element={<AuthGuard><CharacterName /></AuthGuard>} />
               <Route path="/character-hobbies" element={<AuthGuard><CharacterHobbies /></AuthGuard>} />
               <Route path="/character-personality" element={<AuthGuard><CharacterPersonality /></AuthGuard>} />
-              <Route path="/character-type" element={<AuthGuard><CharacterType /></AuthGuard>} />
               <Route path="/character-profession" element={<AuthGuard><CharacterProfession /></AuthGuard>} />
               <Route path="/story-genre" element={<AuthGuard><StoryGenre /></AuthGuard>} />
               <Route path="/story-moral" element={<AuthGuard><StoryMoral /></AuthGuard>} />

@@ -8,11 +8,11 @@ export default function ErrorPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const error = location.state?.error || "Algo salió mal";
-  
+
   const tryAgain = () => {
     navigate(-1);
   };
-  
+
   return (
     <PageTransition>
       <div className="gradient-bg min-h-screen flex flex-col items-center justify-center p-6">
@@ -25,7 +25,7 @@ export default function ErrorPage() {
           >
             <AlertTriangle size={44} className="text-story-orange-400" />
           </motion.div>
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -34,16 +34,16 @@ export default function ErrorPage() {
           >
             ¡Ups! Ocurrió un error
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-white/90 mb-10 text-lg"
           >
-            Nuestros cuentacuentos mágicos están teniendo problemas para crear tu historia. Por favor, inténtalo de nuevo.
+            Nuestros asistentes de TaleMe! están teniendo problemas para crear tu historia. Por favor, inténtalo de nuevo.
           </motion.p>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -58,7 +58,7 @@ export default function ErrorPage() {
             >
               Intentar nuevamente
             </StoryButton>
-            
+
             <StoryButton
               onClick={() => navigate("/home")}
               variant="secondary"

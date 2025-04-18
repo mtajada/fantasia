@@ -67,64 +67,72 @@ const PlansPage: React.FC = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-800 to-indigo-900 text-white">
-                <div className="container mx-auto px-4 py-8 max-w-4xl">
+            <div
+                className="relative min-h-screen flex flex-col items-center justify-start p-0"
+                style={{
+                    backgroundImage: 'url(/fondo_png.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                }}
+            >
+                {/* Logo y cabecera - Reducido espacio */}
+                <div className="flex flex-col items-center mt-4 mb-0 select-none">
+                    <img src="/logo_png.png" alt="TaleMe Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
+                </div>
+                <div className="container mx-auto px-4 py-0 max-w-4xl">
                     {/* Back button */}
                     <BackButton className="absolute top-8 left-4 md:left-8" />
-
                     {/* Premium User View */}
                     {premiumUser && (
-                        <div className="pt-16">
+                        <div className="pt-0">
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5 }}
-                                className="text-center mb-10"
+                                className="text-center mb-6"
                             >
-                                <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-yellow-400 mb-4">
-                                    <Star className="h-8 w-8 text-purple-900" />
+                                <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-[#F9DA60] mb-2">
+                                    <Star className="h-8 w-8 text-[#BB79D1]" />
                                 </div>
-                                <h1 className="text-3xl md:text-4xl font-bold mb-2">Plan Premium Activo</h1>
-                                <p className="text-purple-200 text-lg">Disfruta de todas las funciones sin límites</p>
+                                <h1 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-[#BB79D1]">Plan Premium Activo</h1>
+                                <p className="text-[#7DC4E0] text-lg">Disfruta de todas las funciones sin límites</p>
                             </motion.div>
-
                             <div className="grid md:grid-cols-2 gap-6 mt-8">
                                 {/* Card: Buy Voice Credits */}
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5, delay: 0.1 }}
-                                    className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-xl border border-white/10"
+                                    className="bg-white/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-[#A5D6F6]/30"
                                 >
                                     <div className="p-6">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center">
-                                                <Mic className="h-5 w-5 text-teal-300" />
+                                            <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/40 flex items-center justify-center">
+                                                <Mic className="h-5 w-5 text-[#7DC4E0]" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-xl">Créditos de Voz</h3>
-                                                <p className="text-purple-200 text-sm">Amplía tus narraciones</p>
+                                                <h3 className="font-bold text-xl font-heading text-[#BB79D1]">Créditos de Voz</h3>
+                                                <p className="text-[#7DC4E0] text-sm">Amplía tus narraciones</p>
                                             </div>
                                         </div>
-
                                         <div className="mb-6">
                                             <div className="flex justify-between items-center mb-2">
-                                                <span className="text-purple-200">Disponibles:</span>
-                                                <span className="font-mono font-bold text-lg">{profileSettings?.voice_credits || 0}</span>
+                                                <span className="text-[#BB79D1]">Disponibles:</span>
+                                                <span className="font-mono font-bold text-lg text-[#7DC4E0]">{profileSettings?.voice_credits || 0}</span>
                                             </div>
-                                            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                                <div className="h-full bg-gradient-to-r from-teal-400 to-cyan-400"
+                                            <div className="h-2 bg-[#E6B7D9]/40 rounded-full overflow-hidden">
+                                                <div className="h-full bg-gradient-to-r from-[#7DC4E0] to-[#BB79D1]"
                                                     style={{ width: `${Math.min(100, ((profileSettings?.voice_credits || 0) / 20) * 100)}%` }}></div>
                                             </div>
                                         </div>
-
                                         <button
                                             onClick={() => handleCheckout('credits')}
                                             disabled={isCheckoutLoading}
-                                            className="w-full py-3 px-4 bg-teal-500/30 border border-teal-400/30 hover:bg-teal-500/40 text-teal-300 rounded-lg font-medium flex justify-center items-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                                            className="w-full py-3 px-4 bg-[#A5D6F6]/70 border border-[#A5D6F6]/60 hover:bg-[#A5D6F6] text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                         >
                                             {isCheckoutLoading ? (
-                                                <div className="h-5 w-5 border-2 border-teal-300 border-t-transparent rounded-full animate-spin"></div>
+                                                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                             ) : (
                                                 <>
                                                     <CreditCard className="h-4 w-4" />
@@ -134,245 +142,67 @@ const PlansPage: React.FC = () => {
                                         </button>
                                     </div>
                                 </motion.div>
-
                                 {/* Card: Manage Subscription */}
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5, delay: 0.2 }}
-                                    className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-xl border border-white/10"
+                                    className="bg-white/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-[#F9DA60]/30"
                                 >
                                     <div className="p-6">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                                <Star className="h-5 w-5 text-amber-300" />
+                                            <div className="w-10 h-10 rounded-full bg-[#F9DA60]/40 flex items-center justify-center">
+                                                <Star className="h-5 w-5 text-[#F9DA60]" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-xl">Suscripción Premium</h3>
-                                                <p className="text-purple-200 text-sm">Administra tu plan</p>
+                                                <h3 className="font-bold text-xl font-heading text-[#BB79D1]">Suscripción Premium</h3>
+                                                <p className="text-[#7DC4E0] text-sm">Administra tu plan</p>
                                             </div>
                                         </div>
-
                                         <div className="space-y-4 mb-6">
-                                            <div className="bg-white/5 rounded-lg p-3 flex justify-between items-center">
-                                                <span className="text-purple-200">Estado:</span>
-                                                <span className="font-medium text-amber-300">Activo</span>
+                                            <div className="bg-[#F6A5B7]/10 rounded-lg p-3 flex justify-between items-center">
+                                                <span className="text-[#BB79D1]">Estado:</span>
+                                                <span className="font-medium text-[#F9DA60]">Activo</span>
                                             </div>
-                                            <div className="bg-white/5 rounded-lg p-3 flex justify-between items-center">
-                                                <span className="text-purple-200">Beneficios:</span>
-                                                <span className="font-medium">Todos los incluidos</span>
+                                            <div className="bg-[#F6A5B7]/10 rounded-lg p-3 flex justify-between items-center">
+                                                <span className="text-[#BB79D1]">Beneficios:</span>
+                                                <span className="font-medium text-[#BB79D1]">Todos los incluidos</span>
                                             </div>
                                         </div>
-
                                         <Link
                                             to="/settings"
-                                            className="flex items-center justify-between w-full py-3 px-4 bg-amber-500/30 border border-amber-400/30 hover:bg-amber-500/40 text-amber-300 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+                                            className="flex items-center justify-between w-full py-3 px-4 bg-[#F9DA60]/60 border border-[#F9DA60]/40 hover:bg-[#F9DA60]/80 text-[#BB79D1] rounded-2xl font-medium transition-all shadow-md hover:shadow-lg"
                                         >
                                             <div className="flex items-center gap-2">
-                                                <Star className="h-4 w-4" />
-                                                <span>Ver Planes Premium</span>
+                                                <Settings className="h-4 w-4" />
+                                                <span>Gestionar Suscripción</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4" />
                                         </Link>
                                     </div>
                                 </motion.div>
                             </div>
-
                             {/* Bottom Premium Features Reminder */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.3 }}
-                                className="mt-8 bg-gradient-to-r from-amber-500/20 to-amber-600/20 backdrop-blur-md rounded-xl p-5 border border-amber-500/30"
+                                className="mt-8 bg-gradient-to-r from-[#F9DA60]/20 to-[#F9DA60]/30 backdrop-blur-md rounded-3xl p-5 border border-[#F9DA60]/30"
                             >
-                                <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                                    <Sparkles className="h-5 w-5 text-amber-300" />
+                                <h3 className="font-bold text-lg mb-2 flex items-center gap-2 font-heading text-[#BB79D1]">
+                                    <Sparkles className="h-5 w-5 text-[#F9DA60]" />
                                     <span>Beneficios Premium Activos</span>
                                 </h3>
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {features.map((feature, i) => (
                                         <li key={i} className="flex items-center gap-2">
                                             <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                                            <span className="text-sm">{feature.name}: <span className="font-medium">{feature.premium}</span></span>
+                                            <span className="text-sm text-[#7DC4E0]">{feature.name}: <span className="font-medium text-[#BB79D1]">{feature.premium}</span></span>
                                         </li>
                                     ))}
                                 </ul>
                             </motion.div>
-
-                            {/* --- AÑADIDO: Botón para ir a la app (Premium View) --- */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.5, delay: 0.4 }} // Adjusted delay slightly
-                                className="mt-8 text-center" // Added margin top
-                            >
-                                <Link
-                                    to="/home"
-                                    className="inline-block py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] mx-auto"
-                                >
-                                    <BookOpen className="h-5 w-5" />
-                                    <span>Ir a la aplicación</span>
-                                </Link>
-                            </motion.div>
-                            {/* --- FIN AÑADIDO --- */}
-                        </div>
-                    )}
-
-                    {/* Free User View */}
-                    {!premiumUser && (
-                        <div className="pt-16">
-                            {/* Header */}
-                            <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5 }}
-                                className="text-center mb-10"
-                            >
-                                <h1 className="text-3xl md:text-4xl font-bold mb-2">Desbloquea tu Creatividad</h1>
-                                <p className="text-purple-200 text-lg mx-auto max-w-xl">
-                                    Compara los planes y elige la mejor experiencia para tus historias
-                                </p>
-                            </motion.div>
-
-                            {/* Plan Toggle */}
-                            <div className="flex justify-center mb-10">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 0.1 }}
-                                    className="bg-white/10 backdrop-blur-md rounded-full p-1 inline-flex"
-                                >
-                                    <button
-                                        onClick={() => setActivePlan('free')}
-                                        className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 ${activePlan === 'free'
-                                            ? 'bg-white/20 text-white font-medium'
-                                            : 'text-white/70 hover:text-white'
-                                            }`}
-                                    >
-                                        <span>Free</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setActivePlan('premium')}
-                                        className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 ${activePlan === 'premium'
-                                            ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-white font-medium'
-                                            : 'text-white/70 hover:text-white'
-                                            }`}
-                                    >
-                                        <Star className="h-4 w-4" />
-                                        <span>Premium</span>
-                                    </button>
-                                </motion.div>
-                            </div>
-
-                            {/* Features by Plan */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0.2 }}
-                                className="max-w-2xl mx-auto"
-                            >
-                                {/* Active Plan Card */}
-                                <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-xl border border-white/10 mb-6">
-                                    {/* Plan Header */}
-                                    <div className={`p-6 ${activePlan === 'premium'
-                                        ? 'bg-gradient-to-r from-amber-500/30 to-amber-600/30 border-b border-amber-500/30'
-                                        : 'bg-white/5 border-b border-white/10'
-                                        }`}>
-                                        <div className="flex justify-between items-center">
-                                            <h2 className="text-2xl font-bold flex items-center gap-2">
-                                                {activePlan === 'premium' && <Star className="h-5 w-5 text-amber-300" />}
-                                                Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
-                                            </h2>
-                                            {activePlan === 'premium' && (
-                                                <span className="bg-amber-400/20 text-amber-300 px-3 py-1 rounded-full text-sm font-medium">
-                                                    Recomendado
-                                                </span>
-                                            )}
-                                        </div>
-                                        {activePlan === 'premium' ? (
-                                            <p className="text-purple-200 mt-1">Creatividad sin límites para tus historias</p>
-                                        ) : (
-                                            <p className="text-purple-200 mt-1">Perfecto para comenzar a explorar</p>
-                                        )}
-                                    </div>
-
-                                    {/* Features List */}
-                                    <div className="p-6">
-                                        <ul className="space-y-4">
-                                            {features.map((feature, index) => (
-                                                <li key={index} className="flex items-start gap-3">
-                                                    <div className="mt-0.5">
-                                                        {activePlan === 'premium' ? (
-                                                            feature.premium === 'No' ? (
-                                                                <XCircle className="h-5 w-5 text-red-400" />
-                                                            ) : (
-                                                                <CheckCircle className="h-5 w-5 text-green-400" />
-                                                            )
-                                                        ) : (
-                                                            feature.free === 'No' ? (
-                                                                <XCircle className="h-5 w-5 text-red-400" />
-                                                            ) : (
-                                                                <CheckCircle className="h-5 w-5 text-green-400" />
-                                                            )
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <feature.icon className="h-4 w-4 text-purple-300" />
-                                                            <span className="font-medium">{feature.name}</span>
-                                                        </div>
-                                                        <p className="text-sm text-purple-200 mt-1">
-                                                            {activePlan === 'premium' ? feature.premium : feature.free}
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    {/* Call to Action */}
-                                    {activePlan === 'premium' && (
-                                        <div className="p-6 pt-0">
-                                            <button
-                                                onClick={() => handleCheckout('premium')}
-                                                disabled={isCheckoutLoading}
-                                                className="w-full py-3 px-4 bg-amber-500/30 border border-amber-400/30 hover:bg-amber-500/40 text-amber-300 rounded-lg font-medium flex justify-center items-center gap-2 shadow-lg transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                                            >
-                                                {isCheckoutLoading ? (
-                                                    <div className="h-5 w-5 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
-                                                ) : (
-                                                    <>
-                                                        <Star className="h-4 w-4" />
-                                                        <span>Hazte Premium Ahora</span>
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Plan Comparison Navigation */}
-                                <div className="flex justify-center">
-                                    <button
-                                        onClick={() => setActivePlan(activePlan === 'free' ? 'premium' : 'free')}
-                                        className="flex items-center gap-2 text-sm text-purple-200 hover:text-white transition-colors py-2 px-4 rounded-full bg-white/10 backdrop-blur-sm"
-                                    >
-                                        {activePlan === 'free' ? (
-                                            <>
-                                                <span>Ver plan Premium</span>
-                                                <ChevronRight className="h-4 w-4" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ChevronLeft className="h-4 w-4" />
-                                                <span>Ver plan Free</span>
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </motion.div>
-
-                            {/* --- AÑADIDO: Botón para continuar gratis (Non-Premium View) --- */}
+                            {/* Botón para ir a la app */}
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -381,12 +211,157 @@ const PlansPage: React.FC = () => {
                             >
                                 <Link
                                     to="/home"
-                                    className="inline-block py-3 px-6 bg-transparent border border-purple-400/50 hover:bg-purple-400/10 text-purple-300 rounded-lg font-medium transition-all shadow-sm hover:shadow-md"
+                                    className="inline-block py-3 px-6 bg-[#BB79D1] hover:bg-[#A37AC2] text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] mx-auto"
                                 >
-                                    Continuar con el plan gratuito
+                                    <BookOpen className="h-5 w-5" />
+                                    <span>Ir a la aplicación</span>
                                 </Link>
                             </motion.div>
-                            {/* --- FIN AÑADIDO --- */}
+                        </div>
+                    )}
+                    {/* Free User View */}
+                    {!premiumUser && (
+                        <div className="pt-0 flex flex-col min-h-[80vh] justify-between">
+                            <div>
+                                {/* Header */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="text-center mb-4"
+                                >
+                                    <h1 className="text-3xl md:text-4xl font-bold mb-1 font-heading text-[#BB79D1]">Desbloquea tu Creatividad</h1>
+                                    <p className="text-[#7DC4E0] text-lg mx-auto max-w-xl">
+                                        Compara los planes y elige la mejor experiencia para tus historias
+                                    </p>
+                                </motion.div>
+                                {/* Plan Toggle */}
+                                <div className="flex justify-center mb-4">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.5, delay: 0.1 }}
+                                        className="bg-white/40 backdrop-blur-md rounded-full p-1 inline-flex"
+                                    >
+                                        <button
+                                            onClick={() => setActivePlan('free')}
+                                            className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 ${activePlan === 'free'
+                                                ? 'bg-[#F6A5B7]/60 text-white font-medium'
+                                                : 'text-[#BB79D1] hover:text-white'
+                                                }`}
+                                        >
+                                            <span>Free</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setActivePlan('premium')}
+                                            className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 ${activePlan === 'premium'
+                                                ? 'bg-gradient-to-r from-[#F9DA60] to-[#F9DA60]/80 text-white font-medium'
+                                                : 'text-[#BB79D1] hover:text-white'
+                                                }`}
+                                        >
+                                            <Star className="h-4 w-4" />
+                                            <span>Premium</span>
+                                        </button>
+                                    </motion.div>
+                                </div>
+                                {/* Features by Plan */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.2 }}
+                                    className="max-w-2xl mx-auto"
+                                >
+                                    {/* Active Plan Card */}
+                                    <div className="bg-white/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-[#BB79D1]/20 mb-6">
+                                        {/* Plan Header - Mejorada legibilidad */}
+                                        <div className={`p-6 ${activePlan === 'premium'
+                                            ? 'bg-gradient-to-r from-[#F9DA60]/40 to-[#F9DA60]/50 border-b border-[#F9DA60]/40'
+                                            : 'bg-[#F6A5B7]/20 border-b border-[#BB79D1]/20'
+                                            }`}>
+                                            <div className="flex justify-between items-center">
+                                                <h2 className="text-2xl font-bold flex items-center gap-2 font-heading text-[#BB79D1]">
+                                                    {activePlan === 'premium' && <Star className="h-5 w-5 text-[#F9DA60]" />}
+                                                    Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
+                                                </h2>
+                                                {activePlan === 'premium' && (
+                                                    <span className="bg-[#F9DA60]/30 text-[#BB79D1] px-3 py-1 rounded-full text-sm font-bold">
+                                                        Recomendado
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {activePlan === 'premium' ? (
+                                                <p className="text-[#BB79D1] mt-1 font-medium">Creatividad sin límites para tus historias</p>
+                                            ) : (
+                                                <p className="text-[#7DC4E0] mt-1">Perfecto para comenzar a explorar</p>
+                                            )}
+                                        </div>
+                                        {/* Features List */}
+                                        <div className="p-6">
+                                            <ul className="space-y-4">
+                                                {features.map((feature, index) => (
+                                                    <li key={index} className="flex items-start gap-3">
+                                                        <div className="mt-0.5">
+                                                            {activePlan === 'premium' ? (
+                                                                feature.premium === 'No' ? (
+                                                                    <XCircle className="h-5 w-5 text-red-400" />
+                                                                ) : (
+                                                                    <CheckCircle className="h-5 w-5 text-green-400" />
+                                                                )
+                                                            ) : (
+                                                                feature.free === 'No' ? (
+                                                                    <XCircle className="h-5 w-5 text-red-400" />
+                                                                ) : (
+                                                                    <CheckCircle className="h-5 w-5 text-green-400" />
+                                                                )
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <feature.icon className="h-4 w-4 text-[#7DC4E0]" />
+                                                                <span className="font-bold text-[#BB79D1]">{feature.name}</span>
+                                                            </div>
+                                                            <div className="text-sm font-medium text-[#7DC4E0]">
+                                                                {activePlan === 'premium' ? feature.premium : feature.free}
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                            {/* Botones de navegación entre planes - Con espacio abajo */}
+                            <div className="flex flex-col md:flex-row justify-center gap-4 mb-10">
+                                {activePlan === 'free' && (
+                                    <button
+                                        onClick={() => setActivePlan('premium')}
+                                        className="py-3 px-8 bg-gradient-to-r from-[#F6A5B7] to-[#BB79D1] text-white rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:bg-[#BB79D1]/90"
+                                    >
+                                        <Star className="h-5 w-5" />
+                                        <span>Ver plan Premium</span>
+                                        <ChevronRight className="h-4 w-4" />
+                                    </button>
+                                )}
+                                {activePlan === 'premium' && (
+                                    <button
+                                        onClick={() => setActivePlan('free')}
+                                        className="py-3 px-8 bg-[#A5D6F6]/70 text-[#BB79D1] rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:bg-[#BB79D1]/20"
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                        <span>Ver plan Free</span>
+                                    </button>
+                                )}
+                                {/* Botón para continuar gratis */}
+                                {activePlan === 'free' && (
+                                    <Link
+                                        to="/home"
+                                        className="py-3 px-8 bg-transparent border border-[#BB79D1]/50 hover:bg-[#BB79D1]/10 text-[#BB79D1] rounded-2xl font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                                    >
+                                        Continuar con el plan gratuito
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -395,4 +370,4 @@ const PlansPage: React.FC = () => {
     );
 };
 
-export default PlansPage; 
+export default PlansPage;

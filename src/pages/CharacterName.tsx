@@ -100,7 +100,15 @@ export default function CharacterName() {
   
   return (
     <PageTransition>
-      <div className="gradient-bg min-h-screen relative flex flex-col items-center justify-center p-6">
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6"
+        style={{
+          backgroundImage: "url(/fondo_png.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <BackButton />
         
         <div className="w-full max-w-md flex flex-col items-center">
@@ -108,14 +116,18 @@ export default function CharacterName() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="w-24 h-24 rounded-full bg-gradient-to-br from-story-orange-400 to-story-orange-500 flex items-center justify-center mb-6"
+            className="w-24 h-24 rounded-full bg-[#7DC4E0]/20 border-2 border-[#7DC4E0]/40 flex items-center justify-center mb-6 shadow-md"
           >
-            <User size={40} className="text-white" />
+            <User size={40} className="text-[#7DC4E0]" />
           </motion.div>
           
-          <h1 className="text-3xl font-bold text-white mb-10 text-center">
+          <h1 className="text-3xl font-bold text-[#BB79D1] mb-6 text-center font-heading drop-shadow-lg">
             ¿Cómo se llama tu personaje?
           </h1>
+          
+          <p className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-8 font-medium shadow-sm">
+            Dale un nombre a tu personaje para continuar
+          </p>
           
           <form onSubmit={handleSubmit} className="w-full space-y-8">
             <div 
@@ -131,53 +143,33 @@ export default function CharacterName() {
                 onBlur={() => setIsFocused(false)}
                 onKeyDown={handleKeyDown}
                 placeholder="Nombre del personaje"
-                className={`story-input text-xl text-center h-16 font-medium ${error ? 'border-red-500 text-red-600 bg-red-50/90' : 'text-story-purple-900 bg-white/90'} placeholder:text-story-purple-300`}
+                className={`story-input text-xl text-center h-16 font-medium rounded-xl shadow-md ${error ? 'border-[#F6A5B7] text-[#F6A5B7] bg-[#F6A5B7]/10' : 'text-[#222] bg-white/90 border-[#BB79D1]/30'} placeholder:text-[#BB79D1]/50`}
                 autoFocus
               />
               
               {error && (
-                <div className="mt-2 flex items-center justify-center text-red-500 gap-2 p-2 bg-red-100/80 rounded-lg">
+                <div className="mt-2 flex items-center justify-center text-[#F6A5B7] gap-2 p-2 bg-white/80 rounded-lg border border-[#F6A5B7]/30 shadow-sm">
                   <AlertCircle size={16} />
-                  <span className="text-sm">{error}</span>
+                  <span className="text-sm font-medium">{error}</span>
                 </div>
               )}
             </div>
             
             <div className="flex justify-between w-full">
-              <StoryButton
+              <button
+                type="button"
                 onClick={() => navigate(fromManagement ? "/characters-management" : "/character-selection")}
-                variant="secondary"
-                className="w-[48%] text-lg py-4 shadow-lg hover:shadow-xl transition-all rounded-full border-2 border-white/50 font-medium bg-white/20 text-white"
+                className="w-[48%] text-lg py-4 shadow-md hover:shadow-lg transition-all rounded-2xl font-medium bg-white/70 hover:bg-white/90 text-[#BB79D1] border border-[#BB79D1]/30"
               >
                 Atrás
-              </StoryButton>
+              </button>
               
-              <StoryButton
+              <button
                 type="submit"
-                className="w-[48%] text-lg py-4 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-story-orange-500 to-story-orange-400 text-white rounded-full border-2 border-white/50 font-medium"
+                className="w-[48%] text-lg py-4 shadow-md hover:shadow-lg transition-all bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white rounded-2xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!name.trim()}
               >
                 Continuar
-              </StoryButton>
-            </div>
-            
-            <div className="text-center mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  updateCharacter({ name: "" });
-                  toast.success("Continuando sin nombre", { 
-                    duration: 1500,
-                    description: "Avanzando a las aficiones..."
-                  });
-                  
-                  setTimeout(() => {
-                    navigate(`/character-hobbies${fromManagement ? '?from=management' : ''}`);
-                  }, 1000);
-                }}
-                className="text-white text-sm bg-white/20 px-5 py-3 rounded-full hover:bg-white/30 transition-all border border-white/30"
-              >
-                Continuar sin nombre
               </button>
             </div>
           </form>
