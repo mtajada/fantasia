@@ -23,7 +23,10 @@ export default function StoryViewer() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { getStoryById } = useStoriesStore();
+  const { getStoryById, isLoadingStories } = useStoriesStore(state => ({
+    getStoryById: state.getStoryById,
+    isLoadingStories: state.isLoadingStories,
+  }));
   const { getChaptersByStoryId } = useChaptersStore();
   const { addChallenge } = useChallengesStore();
   // --- Obtener selectores de límites/permisos del userStore ---
@@ -48,18 +51,31 @@ export default function StoryViewer() {
 
   // --- Efecto para cargar historia y capítulos ---
   useEffect(() => {
-    if (!storyId) { navigate("/home"); return; }
+    if (!storyId) { navigate("/home", { replace: true }); return; }
+
+    // Esperar a que las historias terminen de cargarse
+    if (isLoadingStories) {
+      console.log("[StoryViewer_DEBUG] Waiting for stories to load...");
+      return; // Salir del efecto si aún está cargando
+    }
+    console.log("[StoryViewer_DEBUG] Stories loaded. Attempting to fetch story:", storyId);
 
     const fetchedStory = getStoryById(storyId);
-    if (!fetchedStory) { navigate("/not-found"); return; }
+    console.log("[StoryViewer_DEBUG] Fetched story from store:", fetchedStory ? `"${fetchedStory.title}"` : 'NOT FOUND');
+
+    if (!fetchedStory) {
+      console.error(`[StoryViewer_DEBUG] Story with ID ${storyId} not found after loading! Navigating to /not-found.`);
+      navigate("/not-found", { replace: true }); // Usar replace para no ensuciar el historial
+      return;
+    }
     setStory(fetchedStory); // Guardar la historia base
 
     // No navegar a /profile aquí, checkAuth debería haberlo hecho si es necesario
-    // if (!profileSettings) { navigate("/profile"); return; }
 
     const storyChapters = getChaptersByStoryId(storyId);
     let chaptersToSet: StoryChapter[];
     if (storyChapters.length === 0 && fetchedStory.content) {
+      console.log("[StoryViewer_DEBUG] No chapters found in store, creating initial chapter from story content.");
       // Crear capítulo inicial si no existe en el store de capítulos
       chaptersToSet = [{
         chapterNumber: 1,
@@ -69,34 +85,45 @@ export default function StoryViewer() {
       }];
       // Nota: No llamamos a addChapter aquí, solo lo mostramos. Se guarda si se continúa.
     } else {
+      console.log(`[StoryViewer_DEBUG] Found ${storyChapters.length} chapters in store. Sorting.`);
       chaptersToSet = [...storyChapters].sort((a, b) => a.chapterNumber - b.chapterNumber); // Asegurar orden
     }
     setChapters(chaptersToSet);
-    console.log(`[StoryViewer_DEBUG] Fetched story title from store: "${fetchedStory?.title}"`); // <-- ADD THIS
+    console.log(`[StoryViewer_DEBUG] Set chapters state with ${chaptersToSet.length} chapters.`);
 
     // Establecer capítulo inicial basado en URL o el último si no hay parámetro
     const searchParams = new URLSearchParams(location.search);
     const chapterParam = searchParams.get('chapter');
-    let initialIndex = chaptersToSet.length - 1; // Default al último capítulo
+    let initialIndex = chaptersToSet.length > 0 ? chaptersToSet.length - 1 : 0; // Default al último capítulo o 0 si no hay
     if (chapterParam !== null) {
       const chapterIndex = parseInt(chapterParam, 10);
       if (!isNaN(chapterIndex) && chapterIndex >= 0 && chapterIndex < chaptersToSet.length) {
         initialIndex = chapterIndex;
       }
     }
+    console.log(`[StoryViewer_DEBUG] Setting current chapter index to: ${initialIndex}`);
     setCurrentChapterIndex(initialIndex);
 
-  }, [storyId, location.search, getStoryById, getChaptersByStoryId, navigate]); // Quitado profileSettings, canContinueStory, canGenerateVoice de dependencias
+  }, [storyId, location.search, getStoryById, getChaptersByStoryId, navigate, isLoadingStories]); // <- Añadir isLoadingStories como dependencia
 
-  // --- Si no hay datos aún (o hubo error), no renderizar ---
-  // Añadir un estado de carga si es necesario
-  if (!story || chapters.length === 0) {
-    // Puedes poner un spinner aquí
+  // --- Renderizado Condicional --- (Modificado)
+  if (isLoadingStories) {
+    console.log("[StoryViewer Render_DEBUG] Rendering loading spinner because isLoadingStories is true.");
     return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Cargando historia...</div>;
   }
 
-  // --- Manejadores de Acciones ---
+  // Si la carga terminó pero la historia no se encontró (el useEffect ya habrá navegado a /not-found)
+  if (!story) {
+    console.log("[StoryViewer Render_DEBUG] Rendering 'Historia no encontrada' because story state is null after loading finished.");
+    // Podríamos mostrar un mensaje aquí mientras ocurre la navegación del useEffect
+    return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Historia no encontrada. Redirigiendo...</div>;
+    // O return null;
+  }
 
+  // Si llegamos aquí, la historia está cargada. Renderizar contenido.
+  console.log(`[StoryViewer Render_DEBUG] Rendering main content for story: ${story.title}`);
+
+  // --- Manejadores de Acciones ---
   const handleShare = async () => {
     const shareUrl = window.location.href; // URL actual incluyendo el capítulo
     const shareTitle = story?.title || "Mi Historia TaleMe!";
@@ -264,7 +291,7 @@ export default function StoryViewer() {
               style={{ minHeight: '40vh', boxShadow: '0 2px 24px 0 rgba(187,121,209,0.10)' }}
             >
               {currentChapter.content.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-4 last:mb-0 text-[1.08em]" style={{wordBreak:'break-word'}}>{paragraph || '\u00A0'}</p>
+                <p key={index} className="mb-4 last:mb-0 text-[1.08em]" style={{ wordBreak: 'break-word' }}>{paragraph || '\u00A0'}</p>
               ))}
             </motion.div>
           )}
