@@ -1,3 +1,5 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { AudioState } from "../../types/storeTypes";
 import { createPersistentStore } from "../../core/createStore";
 import {
@@ -9,159 +11,129 @@ import {
 } from "../../../services/supabase";
 import { useUserStore } from "../../user/userStore";
 
-// Estado inicial para el almacenamiento de audio
-const initialState: Pick<
-  AudioState,
-  "audioCache" | "generationStatus" | "currentVoice"
-> = {
-  audioCache: {},
-  generationStatus: {},
-  currentVoice: null,
-};
+// Tipos
+type GenerationStatus = 'idle' | 'generating' | 'completed' | 'error';
 
-export const useAudioStore = createPersistentStore<AudioState>(
-  initialState,
-  (set, get) => ({
-    // Guardar un nuevo audio generado en la caché
-    addAudioToCache: async (storyId, chapterId, voiceId, audioUrl) => {
-      // Guardar en el almacenamiento local
-      set((state) => ({
-        audioCache: {
-          ...state.audioCache,
-          [`${storyId}-${chapterId}-${voiceId}`]: {
-            url: audioUrl,
-            timestamp: new Date().toISOString(),
-          },
-        },
-      }));
+interface AudioStateEntry {
+  url: string;
+  generatedAt: number;
+  storageType: 's3' | 'local'; // Para diferenciar entre S3 y URL locales (blob)
+}
 
-      // Sincronizar con Supabase
-      try {
-        const user = useUserStore.getState().user;
+interface AudioGenerationStatus {
+  status: GenerationStatus;
+  progress: number;
+}
 
-        if (user) {
-          const { success } = await syncAudioFile(
-            user.id,
-            storyId,
-            chapterId,
-            voiceId,
-            audioUrl,
-          );
+interface AudioStore {
+  // Cache de audio
+  audioCache: Record<string, AudioStateEntry>; // storyId_chapterId_voiceId -> AudioStateEntry
+  
+  // Estado de generación
+  generationStatus: Record<string, AudioGenerationStatus>; // storyId_chapterId -> status
+  
+  // Preferencia de voz
+  currentVoice: string | null;
+  
+  // Acciones
+  addAudioToCache: (storyId: string, chapterId: string | number, voiceId: string, url: string, storageType?: 's3' | 'local') => void;
+  getAudioFromCache: (storyId: string, chapterId: string | number, voiceId: string) => string | null;
+  clearAudioCache: () => void;
+  removeAudioFromCache: (storyId: string, chapterId: string | number, voiceId: string) => void;
+  
+  // Acciones para generación
+  setGenerationStatus: (storyId: string, chapterId: string | number, status: GenerationStatus, progress?: number) => void;
+  getGenerationStatus: (storyId: string, chapterId: string | number) => AudioGenerationStatus;
+  
+  // Acciones preferencia de voz
+  setCurrentVoice: (voiceId: string) => void;
+  getCurrentVoice: () => string | null;
+}
 
-          if (!success) {
-            // Si falla, agregar a la cola de sincronización
-            syncQueue.addToQueue("audio_files", "insert", {
-              user_id: user.id,
-              story_id: storyId,
-              chapter_id: chapterId,
-              voice_id: voiceId,
-              url: audioUrl,
-            });
+// Crear store con persistencia
+export const useAudioStore = create<AudioStore>()(
+  persist(
+    (set, get) => ({
+      // Estado inicial
+      audioCache: {},
+      generationStatus: {},
+      currentVoice: null,
+      
+      // Acciones para cache de audio
+      addAudioToCache: (storyId, chapterId, voiceId, url, storageType = 'local') => {
+        const key = `${storyId}_${chapterId}_${voiceId}`;
+        set(state => ({
+          audioCache: {
+            ...state.audioCache,
+            [key]: {
+              url,
+              generatedAt: Date.now(),
+              storageType
+            }
           }
-        }
-      } catch (error) {
-        console.error("Error sincronizando audio con Supabase:", error);
-      }
-    },
-
-    // Obtener audio de la caché si existe
-    getAudioFromCache: (storyId, chapterId, voiceId) => {
-      const key = `${storyId}-${chapterId}-${voiceId}`;
-      return get().audioCache[key]?.url || null;
-    },
-
-    // Actualizar el estado de generación de audio
-    setGenerationStatus: (storyId, chapterId, status, progress = 0) =>
-      set((state) => ({
-        generationStatus: {
-          ...state.generationStatus,
-          [`${storyId}-${chapterId}`]: { status, progress },
-        },
-      })),
-
-    // Obtener el estado de generación
-    getGenerationStatus: (storyId, chapterId) => {
-      const key = `${storyId}-${chapterId}`;
-      return get().generationStatus[key] || { status: "idle", progress: 0 };
-    },
-
-    // Guardar la voz seleccionada por el usuario
-    setCurrentVoice: async (voiceId) => {
-      // Actualizar localmente
-      set({
-        currentVoice: voiceId,
-      });
-
-      // Sincronizar con Supabase
-      try {
-        const user = useUserStore.getState().user;
-
-        if (user) {
-          await setCurrentVoice(user.id, voiceId);
-        }
-      } catch (error) {
-        console.error("Error guardando voz actual en Supabase:", error);
-      }
-    },
-
-    // Obtener la voz seleccionada actualmente
-    getCurrentVoice: () => get().currentVoice,
-
-    // Limpiar audios antiguos (si es necesario para ahorrar espacio)
-    clearOldAudioCache: (olderThanDays = 7) =>
-      set((state) => {
-        const now = new Date();
-        const filteredCache = { ...state.audioCache };
-
-        Object.keys(filteredCache).forEach((key) => {
-          const cachedDate = new Date(filteredCache[key].timestamp);
-          const diffDays = (now.getTime() - cachedDate.getTime()) /
-            (1000 * 3600 * 24);
-
-          if (diffDays > olderThanDays) {
-            delete filteredCache[key];
+        }));
+      },
+      
+      getAudioFromCache: (storyId, chapterId, voiceId) => {
+        const key = `${storyId}_${chapterId}_${voiceId}`;
+        const entry = get().audioCache[key];
+        return entry?.url || null;
+      },
+      
+      clearAudioCache: () => {
+        // Liberar URLs de blob antes de limpiar el cache
+        Object.values(get().audioCache).forEach(entry => {
+          if (entry.storageType === 'local' && entry.url.startsWith('blob:')) {
+            URL.revokeObjectURL(entry.url);
           }
         });
-
-        return { audioCache: filteredCache };
-      }),
-
-    // Cargar datos de Supabase
-    loadAudioFromSupabase: async () => {
-      const user = useUserStore.getState().user;
-
-      if (!user) return;
-
-      try {
-        // Cargar la voz actual
-        const { success: voiceSuccess, voiceId } = await getCurrentVoice(
-          user.id,
-        );
-
-        if (voiceSuccess && voiceId) {
-          set({ currentVoice: voiceId });
+        
+        set({ audioCache: {} });
+      },
+      
+      removeAudioFromCache: (storyId, chapterId, voiceId) => {
+        const key = `${storyId}_${chapterId}_${voiceId}`;
+        const entry = get().audioCache[key];
+        
+        // Si es un blob URL, liberarla
+        if (entry && entry.storageType === 'local' && entry.url.startsWith('blob:')) {
+          URL.revokeObjectURL(entry.url);
         }
-
-        // Cargar audios generados
-        const { success: audiosSuccess, audios } = await getUserAudios(user.id);
-
-        if (audiosSuccess && audios) {
-          const audioCache = { ...get().audioCache };
-
-          audios.forEach((audio) => {
-            const key = `${audio.storyId}-${audio.chapterId}-${audio.voiceId}`;
-            audioCache[key] = {
-              url: audio.url,
-              timestamp: new Date().toISOString(), // Usamos la fecha actual al sincronizar
-            };
-          });
-
-          set({ audioCache });
-        }
-      } catch (error) {
-        console.error("Error cargando audio desde Supabase:", error);
+        
+        set(state => {
+          const newCache = { ...state.audioCache };
+          delete newCache[key];
+          return { audioCache: newCache };
+        });
+      },
+      
+      // Acciones para estado de generación
+      setGenerationStatus: (storyId, chapterId, status, progress = 0) => {
+        const key = `${storyId}_${chapterId}`;
+        set(state => ({
+          generationStatus: {
+            ...state.generationStatus,
+            [key]: { status, progress }
+          }
+        }));
+      },
+      
+      getGenerationStatus: (storyId, chapterId) => {
+        const key = `${storyId}_${chapterId}`;
+        return get().generationStatus[key] || { status: 'idle', progress: 0 };
+      },
+      
+      // Acciones para preferencia de voz
+      setCurrentVoice: (voiceId) => {
+        set({ currentVoice: voiceId });
+      },
+      
+      getCurrentVoice: () => {
+        return get().currentVoice;
       }
-    },
-  }),
-  "audio",
+    }),
+    {
+      name: 'audio-storage', // Nombre de la clave en localStorage
+    }
+  )
 );

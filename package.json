@@ -15,6 +15,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/lib-storage": "^3.787.0",
+    "@aws-sdk/s3-request-presigner": "^3.787.0",
     "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
