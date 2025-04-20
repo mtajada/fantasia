@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { Play, Pause, ChevronLeft, ChevronRight, ArrowLeft, Trash2, Brush } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { generateSpeech } from "@/services/ai/ttsService";
@@ -332,7 +332,9 @@ export default function StoryAudioPage() {
     setGenerationStatus,
     getGenerationStatus,
     setCurrentVoice,
-    getCurrentVoice
+    getCurrentVoice,
+    removeAudioFromCache,
+    clearAudioCache
   } = useAudioStore();
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -617,8 +619,9 @@ export default function StoryAudioPage() {
               })
               .catch(error => {
                 console.error("Error en la reproducción:", error);
-                toast.error("No se pudo reproducir el audio. Intente de nuevo.");
-                setIsPlaying(false);
+                toast.error("Error al reproducir. Limpiando el audio afectado.");
+                // Limpiar automáticamente el audio que falló
+                handleCleanCurrentAudio();
               });
           } else {
             console.log("Reproducción iniciada (sin promesa)");
@@ -626,8 +629,9 @@ export default function StoryAudioPage() {
           }
         } catch (error) {
           console.error('Error starting playback:', error);
-          toast.error("No se pudo reproducir el audio. Intente de nuevo.");
-          setIsPlaying(false);
+          toast.error("Error al reproducir. Limpiando el audio afectado.");
+          // Limpiar automáticamente el audio que falló
+          handleCleanCurrentAudio();
         }
       }
     } else {
@@ -670,10 +674,10 @@ export default function StoryAudioPage() {
       console.log(`Generando audio con voz: ${mappedVoice}`);
       
       const audioBlob = await generateSpeech({
-        text: "Gracias por escuchar",
-        // text: content, TODO: Borrar luego de las pruebas, no descomentar
+        // text: "Gracias por escuchar todo",
+        text: content,
         voice: mappedVoice,
-        model: 'tts-1',
+        model: 'gpt-4o-mini-tts',
       });
 
       // Procesar el blob
@@ -722,6 +726,48 @@ export default function StoryAudioPage() {
     setCurrentTime(duration);
   };
 
+  // Handle cleaning specific audio cache
+  const handleCleanCurrentAudio = () => {
+    if (storyId && currentChapterIndex !== undefined && selectedVoice) {
+      // Stop playback if it's playing
+      if (isPlaying && audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+
+      // Clean the URL
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+
+      // Remove from store
+      removeAudioFromCache(storyId, currentChapterIndex, selectedVoice.id);
+      
+      toast.success("Audio eliminado correctamente");
+    }
+  };
+
+  // Handle cleaning all audio cache
+  const handleCleanAllAudio = () => {
+    // Stop playback if it's playing
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+
+    // Clean the URL
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
+
+    // Clear all cache
+    clearAudioCache();
+    
+    toast.success("Caché de audio limpiada completamente");
+  };
+
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
@@ -750,9 +796,16 @@ export default function StoryAudioPage() {
             >
               <ArrowLeft size={20} className="text-gray-800" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-800">
+            <h1 className="text-lg font-semibold text-gray-800 flex-grow">
               {title}
             </h1>
+            <button
+              onClick={handleCleanAllAudio}
+              title="Limpiar todo el caché de audio"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all flex-shrink-0"
+            >
+              <Brush size={16} className="text-gray-800" />
+            </button>
           </div>
         </div>
 
