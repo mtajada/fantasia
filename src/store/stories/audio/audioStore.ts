@@ -17,7 +17,7 @@ type GenerationStatus = 'idle' | 'generating' | 'completed' | 'error';
 interface AudioStateEntry {
   url: string;
   generatedAt: number;
-  storageType: 's3' | 'local'; // Para diferenciar entre S3 y URL locales (blob)
+  // Eliminamos referencia a S3, solo usamos URLs locales (blob)
 }
 
 interface AudioGenerationStatus {
@@ -36,7 +36,7 @@ interface AudioStore {
   currentVoice: string | null;
   
   // Acciones
-  addAudioToCache: (storyId: string, chapterId: string | number, voiceId: string, url: string, storageType?: 's3' | 'local') => void;
+  addAudioToCache: (storyId: string, chapterId: string | number, voiceId: string, url: string) => void;
   getAudioFromCache: (storyId: string, chapterId: string | number, voiceId: string) => string | null;
   clearAudioCache: () => void;
   removeAudioFromCache: (storyId: string, chapterId: string | number, voiceId: string) => void;
@@ -60,15 +60,14 @@ export const useAudioStore = create<AudioStore>()(
       currentVoice: null,
       
       // Acciones para cache de audio
-      addAudioToCache: (storyId, chapterId, voiceId, url, storageType = 'local') => {
+      addAudioToCache: (storyId, chapterId, voiceId, url) => {
         const key = `${storyId}_${chapterId}_${voiceId}`;
         set(state => ({
           audioCache: {
             ...state.audioCache,
             [key]: {
               url,
-              generatedAt: Date.now(),
-              storageType
+              generatedAt: Date.now()
             }
           }
         }));
@@ -83,7 +82,7 @@ export const useAudioStore = create<AudioStore>()(
       clearAudioCache: () => {
         // Liberar URLs de blob antes de limpiar el cache
         Object.values(get().audioCache).forEach(entry => {
-          if (entry.storageType === 'local' && entry.url.startsWith('blob:')) {
+          if (entry.url.startsWith('blob:')) {
             URL.revokeObjectURL(entry.url);
           }
         });
@@ -96,7 +95,7 @@ export const useAudioStore = create<AudioStore>()(
         const entry = get().audioCache[key];
         
         // Si es un blob URL, liberarla
-        if (entry && entry.storageType === 'local' && entry.url.startsWith('blob:')) {
+        if (entry && entry.url.startsWith('blob:')) {
           URL.revokeObjectURL(entry.url);
         }
         
