@@ -17,73 +17,28 @@ export const STORY_VOICES = [
     id: "el-sabio",
     name: "El Sabio",
     description: "Voz grave y serena, ideal para transmitir conocimiento.",
-    color: "#3B82F6", // blue-500
-    gradientFrom: "#2563EB", // blue-600
-    gradientTo: "#60A5FA", // blue-400
+    color: "#a5d6f6", // Indigo-600
+    gradientFrom: "#6366f1", // Indigo-500
+    gradientTo: "#3730a3", // Indigo-800
     icon: "📚"
   },
   {
     id: "el-capitan",
     name: "El Capitán",
     description: "Voz ruda y aventurera, perfecta para historias de acción.",
-    color: "#DC2626", // red-600
-    gradientFrom: "#B91C1C", // red-700
-    gradientTo: "#EF4444", // red-500
+    color: "#f6a5b7", // Rose-600
+    gradientFrom: "#f43f5e", // Rose-500
+    gradientTo: "#be123c", // Rose-700
     icon: "⚓"
   },
   {
     id: "el-animado",
     name: "El Animado",
     description: "Voz aguda y caricaturesca, ideal para historias divertidas.",
-    color: "#10B981", // green-500
-    gradientFrom: "#059669", // green-600
-    gradientTo: "#34D399", // green-400
+    color: "#f7c59f", // Green-600
+    gradientFrom: "#22c55e", // Green-500
+    gradientTo: "#15803d", // Green-700
     icon: "🎭"
-  },
-  {
-    id: "el-elegante",
-    name: "El Elegante",
-    description: "Voz refinada y clara, perfecta para cuentos sofisticados.",
-    color: "#8B5CF6", // purple-500
-    gradientFrom: "#7C3AED", // purple-600
-    gradientTo: "#A78BFA", // purple-400
-    icon: "🎩"
-  },
-  {
-    id: "el-aventurero",
-    name: "El Aventurero",
-    description: "Voz dinámica y entusiasta, ideal para historias de aventuras.",
-    color: "#F59E0B", // amber-500
-    gradientFrom: "#D97706", // amber-600
-    gradientTo: "#FBBF24", // amber-400
-    icon: "🗺️"
-  },
-  {
-    id: "el-enigmatico",
-    name: "El Enigmático",
-    description: "Voz pausada y misteriosa, perfecta para cuentos intrigantes.",
-    color: "#4F46E5", // indigo-600
-    gradientFrom: "#4338CA", // indigo-700
-    gradientTo: "#6366F1", // indigo-500
-    icon: "🔮"
-  },
-  {
-    id: "el-risueno",
-    name: "El Risueño",
-    description: "Voz juguetona y con inflexiones cómicas, para historias alegres.",
-    color: "#EAB308", // yellow-500
-    gradientFrom: "#CA8A04", // yellow-600
-    gradientTo: "#FACC15", // yellow-400
-    icon: "😄"
-  },
-  {
-    id: "el-tierno",
-    name: "El Tierno",
-    description: "Voz suave y amigable, ideal para cuentos dulces y tiernos.",
-    color: "#EC4899", // pink-500
-    gradientFrom: "#DB2777", // pink-600
-    gradientTo: "#F472B6", // pink-400
-    icon: "🌸"
   }
 ];
 
@@ -497,8 +452,17 @@ export default function StoryAudioPage() {
   useEffect(() => {
     if (isPlaying && audioRef.current && !audioContextRef.current) {
       try {
-        // Create audio context
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // Create audio context with proper type
+        type AudioContextType = typeof window.AudioContext;
+        // Definir el tipo para webkitAudioContext de forma segura
+        interface WindowWithWebkit extends Window {
+          webkitAudioContext?: AudioContextType;
+        }
+        
+        const AudioContextClass = window.AudioContext || 
+          ((window as WindowWithWebkit).webkitAudioContext as AudioContextType | undefined) || window.AudioContext;
+        
+        const audioContext = new AudioContextClass();
         audioContextRef.current = audioContext;
 
         // Create analyser
@@ -577,28 +541,51 @@ export default function StoryAudioPage() {
       }
 
       try {
-        // Safari tiene problemas con la reproducción directa de blob URLs
+        // Asignar la fuente del audio
         audioRef.current.src = audioUrl;
+        
+        // Forzar la carga del audio
         audioRef.current.load();
-
-        // Escuchar eventos de error específicamente
-        const handleError = (e: any) => {
-          console.error('Error en la carga de audio:', e);
-          toast.error("Problema al cargar el audio. Intente de nuevo.");
+        
+        console.log('Audio source set successfully');
+        
+        // Pre-cargar el audio
+        const preloadAudio = () => {
+          try {
+            audioRef.current?.play()
+              .then(() => {
+                // Inmediatamente pausar para sólo precargar
+                audioRef.current?.pause();
+                audioRef.current!.currentTime = 0;
+                console.log('Audio precargado correctamente');
+                toast.success('Audio listo para reproducir');
+              })
+              .catch(err => {
+                console.warn('Precarga automática fallida (normal en algunos navegadores):', err);
+                // No mostrar error, es comportamiento normal en algunos navegadores
+              });
+          } catch (err) {
+            console.warn('Error en precarga:', err);
+          }
         };
-
-        audioRef.current.addEventListener('error', handleError);
-
-        return () => {
-          audioRef.current?.removeEventListener('error', handleError);
-        };
+        
+        // Ejecutar precarga después de asignar los eventos
+        setTimeout(preloadAudio, 500);
+        
       } catch (error) {
         console.error('Error configurando fuente de audio:', error);
+        toast.error('Error al preparar el audio');
       }
+    } else if (!audioUrl && audioRef.current) {
+      // Limpiar el audio si no hay URL
+      audioRef.current.src = '';
     }
-  }, [audioUrl, isPlaying]);
+  }, [audioUrl]);
 
   const handlePlayPause = async () => {
+    console.log("handlePlayPause - audioUrl:", audioUrl);
+    console.log("handlePlayPause - audioRef.current:", audioRef.current);
+
     if (!audioUrl) {
       setShowGenerationPopup(true);
       return;
@@ -606,34 +593,35 @@ export default function StoryAudioPage() {
 
     if (audioRef.current) {
       if (isPlaying) {
+        console.log("Pausando audio");
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
         try {
-          // Detectar Safari
-          const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-          // Para Safari, necesitamos un enfoque especial
-          if (isSafari) {
-            // Asegurarse de que el audio está cargado
+          console.log("Intentando reproducir audio");
+          
+          // Asegurarse de que el audio está cargado
+          if (audioRef.current.readyState === 0) {
+            console.log("Audio no cargado, recargando");
             audioRef.current.load();
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
 
-            // Intentar reproducir con manejo especial para Safari
-            try {
-              await audioRef.current.play();
-              setIsPlaying(true);
-            } catch (e) {
-              console.log('Primer intento fallido en Safari:', e);
-
-              // En Safari, a menudo se necesita interacción del usuario
-              toast.info("Haz clic nuevamente para reproducir", {
-                duration: 2000,
-                position: "top-center"
+          // Intentar reproducir
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log("Reproducción iniciada con éxito");
+                setIsPlaying(true);
+              })
+              .catch(error => {
+                console.error("Error en la reproducción:", error);
+                toast.error("No se pudo reproducir el audio. Intente de nuevo.");
+                setIsPlaying(false);
               });
-            }
           } else {
-            // Para otros navegadores, reproducción estándar
-            await audioRef.current.play();
+            console.log("Reproducción iniciada (sin promesa)");
             setIsPlaying(true);
           }
         } catch (error) {
@@ -642,6 +630,9 @@ export default function StoryAudioPage() {
           setIsPlaying(false);
         }
       }
+    } else {
+      console.error("No hay elemento de audio disponible");
+      toast.error("Problema con el reproductor de audio");
     }
   };
 
@@ -652,7 +643,7 @@ export default function StoryAudioPage() {
       setGenerationStatus(storyId || '', currentChapterIndex, 'generating', 10);
       setGenerationProgress(10);
 
-      // Simulate generation progress (in real implementation, you would get actual progress)
+      // Simulate generation progress
       const progressInterval = setInterval(() => {
         setGenerationProgress(prev => {
           const newValue = prev + Math.random() * 15;
@@ -662,57 +653,60 @@ export default function StoryAudioPage() {
         });
       }, 800);
 
-      // Generar el audio usando el servicio con mapeo personalizado
+      // Liberar URL anterior
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+
+      // Generar el audio
       const customVoiceMapping = {
         "el-sabio": "sage",
         "el-capitan": "onyx",
         "el-animado": "fable",
-        "el-elegante": "shimmer",
-        "el-aventurero": "ash",
-        "el-enigmatico": "coral",
-        "el-risueno": "ballad",
-        "el-tierno": "alloy"
       };
       const mappedVoice = customVoiceMapping[selectedVoice.id] || 'nova';
 
+      console.log(`Generando audio con voz: ${mappedVoice}`);
+      
       const audioBlob = await generateSpeech({
-        text: content,
-        voice: mappedVoice, // Usando el mapeo personalizado
+        text: "Gracias por escuchar",
+        // text: content, TODO: Borrar luego de las pruebas, no descomentar
+        voice: mappedVoice,
         model: 'tts-1',
-        instructions: `Voz del narrador: ${selectedVoice.name}`
       });
 
-      // Solución especial para Safari - Convertir a ArrayBuffer y crear un Blob compatible
-      const response = new Response(audioBlob);
-      const arrayBuffer = await response.arrayBuffer();
+      // Procesar el blob
+      console.log('Audio generado, procesando blob...');
+      const arrayBuffer = await audioBlob.arrayBuffer();
       const compatibleBlob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+      
+      // Crear URL y asignarla
+      console.log('Creando URL para el audio...');
       const blobUrl = URL.createObjectURL(compatibleBlob);
-      setAudioUrl(blobUrl);
-      // Guardar en caché
-      addAudioToCache(storyId || '', currentChapterIndex, selectedVoice.id, blobUrl);
-
-      // Actualizar estado
+      console.log('URL creada:', blobUrl);
+      
+      // Actualizar estado de la UI
       setGenerationStatus(storyId || '', currentChapterIndex, 'completed', 100);
       setShowGenerationPopup(false);
-
-      clearInterval(progressInterval);
       setGenerationProgress(100);
-
+      
+      // Asignar la URL al estado
+      console.log('Asignando URL al estado...');
+      setAudioUrl(blobUrl);
+      addAudioToCache(storyId || '', currentChapterIndex, selectedVoice.id, blobUrl);
+      
+      // Limpiar intervalo y actualizar estado
+      clearInterval(progressInterval);
       toast.success("Audio generado correctamente. Pulse el botón para reproducir.");
-
-      // Garantizar que el pop-up se cierre
-      setShowGenerationPopup(false);
-
-      // Pre-carga el audio sin intentar reproducirlo
-      if (audioRef.current) {
-        audioRef.current.load();
-      }
+      
     } catch (error) {
       console.error('Error generating audio:', error);
       toast.error("Error al generar el audio");
       setGenerationStatus(storyId || '', currentChapterIndex, 'error', 0);
     } finally {
       setIsLoading(false);
+      setShowGenerationPopup(false);
     }
   };
 
@@ -732,9 +726,18 @@ export default function StoryAudioPage() {
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
-        backgroundColor: selectedVoice.color
+        backgroundImage: 'url("/fondo_png.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
       }}
     >
+      {/* Overlay con el color de la voz seleccionada para mantener la identidad visual */}
+      <div 
+        className="absolute inset-0 z-0 opacity-70"
+        style={{ backgroundColor: selectedVoice.color }}
+      />
+      
       {/* Content container with podcast player design */}
       <div className="relative z-10 w-full max-w-sm rounded-3xl overflow-hidden bg-white/10 backdrop-blur-md shadow-2xl">
         {/* Header with podcast title - Restructured for better title visibility */}
@@ -745,9 +748,9 @@ export default function StoryAudioPage() {
               onClick={() => navigate(`/story/${storyId}`)}
               className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all flex-shrink-0"
             >
-              <ArrowLeft size={20} className="text-white" />
+              <ArrowLeft size={20} className="text-gray-800" />
             </button>
-            <h1 className="text-lg font-semibold text-white">
+            <h1 className="text-lg font-semibold text-gray-800">
               {title}
             </h1>
           </div>
@@ -768,8 +771,8 @@ export default function StoryAudioPage() {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             {/* Narrator indicator - small and subtle */}
             <div className="mb-4 text-center w-32">
-              <span className="text-lg opacity-80 text-white">{selectedVoice.icon}</span>
-              <p className="text-xs font-medium text-white/80">{selectedVoice.name}</p>
+              <span className="text-lg opacity-80 text-gray-800">{selectedVoice.icon}</span>
+              <p className="text-xs font-medium text-gray-800/80">{selectedVoice.name}</p>
             </div>
 
             {/* Play button */}
@@ -789,7 +792,7 @@ export default function StoryAudioPage() {
 
             {/* Time display */}
             <div className="mt-8 text-center">
-              <p className="text-sm font-medium text-white/80">
+              <p className="text-sm font-medium text-gray-800/80">
                 {formatTime(currentTime)} / {formatTime(duration || 0)}
               </p>
             </div>
@@ -812,17 +815,17 @@ export default function StoryAudioPage() {
           <div className="mb-4 flex justify-center items-center bg-white/10 py-2 px-3 rounded-full">
             <button
               onClick={handlePreviousVoice}
-              className="p-2 text-white/80 hover:text-white flex-shrink-0"
+              className="p-2 text-gray-800/80 hover:text-gray-800 flex-shrink-0"
             >
               <ChevronLeft size={22} />
             </button>
             <div className="flex flex-col items-center mx-3 flex-grow">
-              <span className="text-xl opacity-80 text-white">{selectedVoice.icon}</span>
-              <span className="text-sm font-medium text-white/90">{selectedVoice.name}</span>
+              <span className="text-xl opacity-80 text-gray-800">{selectedVoice.icon}</span>
+              <span className="text-sm font-medium text-gray-800/90">{selectedVoice.name}</span>
             </div>
             <button
               onClick={handleNextVoice}
-              className="p-2 text-white/80 hover:text-white flex-shrink-0"
+              className="p-2 text-gray-800/80 hover:text-gray-800 flex-shrink-0"
             >
               <ChevronRight size={22} />
             </button>
@@ -833,7 +836,7 @@ export default function StoryAudioPage() {
             {/* Return to reading button - enlarged */}
             <button
               onClick={() => navigate(`/story/${storyId}`)}
-              className="py-2.5 px-5 rounded-full text-sm font-medium bg-white/20 text-white hover:bg-white/30 flex-grow-0"
+              className="py-2.5 px-5 rounded-full text-sm font-medium bg-white/20 text-gray-800 hover:bg-white/30 flex-grow-0"
             >
               Volver a la lectura
             </button>
@@ -841,7 +844,7 @@ export default function StoryAudioPage() {
             {/* Playback speed - enlarged */}
             <button
               onClick={handleSpeedChange}
-              className="py-2.5 px-5 rounded-full text-sm font-medium bg-white/20 text-white hover:bg-white/30 ml-3"
+              className="py-2.5 px-5 rounded-full text-sm font-medium bg-white/20 text-gray-800 hover:bg-white/30 ml-3"
             >
               {playbackSpeed}x
             </button>
@@ -850,7 +853,7 @@ export default function StoryAudioPage() {
       </div>
 
       {/* Audio element (hidden) */}
-      <audio
+        <audio
         ref={audioRef}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onEnded={handleEndedEvent}
@@ -875,7 +878,7 @@ export default function StoryAudioPage() {
             <div className="text-center mb-4">
               <span className="text-5xl mb-4 inline-block">{selectedVoice.icon}</span>
               <h3 className="text-xl font-bold mb-2">{selectedVoice.name}</h3>
-              <p className="text-white/90 mb-5 text-sm">{selectedVoice.description}</p>
+              <p className="text-gray-800 mb-5 text-sm">{selectedVoice.description}</p>
 
               {isLoading ? (
                 <>
@@ -885,12 +888,12 @@ export default function StoryAudioPage() {
                       style={{ width: `${generationProgress}%` }}
                     ></div>
                   </div>
-                  <p className="text-white/80 text-sm">Generando audio, por favor espera...</p>
+                  <p className="text-gray-800 text-sm">Generando audio, por favor espera...</p>
                 </>
               ) : (
                 <button
                   onClick={handleGenerateAudio}
-                  className="w-full py-3 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                  className="w-full py-3 rounded-full bg-white/20 hover:bg-white/30 text-gray-800"
                 >
                   Generar Audio
                 </button>
@@ -900,7 +903,7 @@ export default function StoryAudioPage() {
             {!isLoading && (
               <button
                 onClick={() => setShowGenerationPopup(false)}
-                className="w-full py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm"
+                className="w-full py-2 text-gray-800/80 hover:text-gray-800 hover:bg-white/10 text-sm"
               >
                 Cancelar
               </button>

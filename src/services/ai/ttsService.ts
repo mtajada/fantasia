@@ -1,16 +1,28 @@
-import { supabase } from '../../supabaseClient';
+// src/services/ai/ttsService.ts
+import OpenAI from 'openai';
 
-// Definir un tipo para las voces de OpenAI
-export type OpenAIVoiceType = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer' | 'coral' | 'sage' | 'ash' | 'ballad';
+/**
+ * Servicio para generar audio a partir de texto usando la API REST de OpenAI
+ * No usa Supabase ni funciones edge; realiza un fetch directo con tu clave.
+ */
+export type OpenAIVoiceType =
+  | 'alloy'
+  | 'echo'
+  | 'fable'
+  | 'onyx'
+  | 'nova'
+  | 'shimmer'
+  | 'coral'
+  | 'sage'
+  | 'ash';
 
-interface TTSOptions {
+export interface TTSOptions {
   text: string;
   voice?: OpenAIVoiceType;
   model?: string;
   instructions?: string;
 }
 
-// Sistema de instrucciones - Prompt común para todos los narradores
 const SYSTEM_PROMPT = "Eres un narrador de cuentos infantiles. Narra con un ritmo adecuado, haciendo pausas en los momentos correctos y enfatizando las partes importantes. Adapta tu narración para que sea adecuada para niños.";
 
 // Voces disponibles en OpenAI
@@ -23,31 +35,33 @@ export const OPENAI_VOICES = [
   { id: 'shimmer' as const, name: 'Shimmer', description: 'Shimmer (Femenina)' },
   { id: 'coral' as const, name: 'Coral', description: 'Coral (Femenina)' },
   { id: 'sage' as const, name: 'Sage', description: 'Sage (Narrador)' },
-  { id: 'ash' as const, name: 'Ash', description: 'Ash (Juvenil)' },
-  { id: 'ballad' as const, name: 'Ballad', description: 'Ballad (Emocional)' }
+  { id: 'ash' as const, name: 'Ash', description: 'Ash (Juvenil)' }
 ];
+
+// Inicializar cliente de OpenAI
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPEN_AI_API_KEY,
+  dangerouslyAllowBrowser: true // Permitir uso en el navegador
+});
 
 // Función para obtener las voces disponibles
 export const getAvailableVoices = async () => {
-  // En OpenAI, las voces son fijas y no necesitamos hacer una llamada a la API
   return OPENAI_VOICES;
 };
 
 /**
- * Genera audio a partir de texto usando la Edge Function de Supabase que conecta con OpenAI
+ * Genera audio a partir de texto usando la API del cliente oficial de OpenAI
  */
 export const generateSpeech = async ({
   text,
-  voice = 'nova', // Nova por defecto (voz femenina)
-  model = 'gpt-4o-mini-tts', // Usando el modelo más reciente
-  instructions,
+  voice = 'nova',
+  model,
+  instructions
 }: TTSOptions): Promise<Blob> => {
   if (!text || text.trim() === '') {
     throw new Error('El texto es requerido');
   }
 
-  console.log('Verificando conexión a Supabase...');
-  
   // Limpiar el texto antes de procesarlo
   const cleanedText = cleanTextForSpeech(text);
 
@@ -57,39 +71,24 @@ export const generateSpeech = async ({
     : SYSTEM_PROMPT;
 
   console.log(`Iniciando generación de audio... Texto: ${cleanedText.length} caracteres`);
+
+  console.log(`Iniciando generación de audio... Texto: ${text.length} caracteres`);
   console.log(`Configuración: Voz=${voice}, Modelo=${model}`);
   
   try {
-    // Llamar a la Edge Function de Supabase
-    const { data, error } = await supabase.functions.invoke('generate-audio', {
-      body: {
-        text: cleanedText,
-        voice,
-        model,
-        instructions: fullInstructions
-      }
+    // Llamar directamente a la API de OpenAI usando el cliente oficial
+    const response = await openai.audio.speech.create({
+      model,
+      voice,
+      input: text,
+      instructions: fullInstructions
     });
+
+    // Convertir la respuesta a un Blob usando arrayBuffer
+    const buffer = await response.arrayBuffer();
+    const audioBlob = new Blob([buffer], { type: 'audio/mpeg' });
     
-    if (error) {
-      console.error('Error en la Edge Function:', error);
-      throw new Error(`Error en la Edge Function: ${error.message}`);
-    }
-    
-    // Verificar si la respuesta es válida
-    if (!data) {
-      throw new Error('No se recibieron datos de la Edge Function');
-    }
-    
-    // Convertir la respuesta a un Blob
-    // Safari requiere un manejo especial para los blobs de audio
-    console.log("Recibidos datos de audio, creando blob...");
-    
-    // Asegurarse de que el tipo MIME sea compatible con Safari
-    const audioBlob = new Blob([data], { 
-      type: 'audio/mp4; codecs=mp4a.40.2' 
-    });
-    
-    console.log("Blob de audio creado:", audioBlob.size, "bytes, tipo:", audioBlob.type);
+    console.log("Blob de audio creado:", audioBlob.size, "bytes");
     console.log('Audio generado correctamente');
     
     return audioBlob;
@@ -99,7 +98,6 @@ export const generateSpeech = async ({
   }
 };
 
-// Función auxiliar para limpiar el texto
 function cleanTextForSpeech(text: string): string {
   return text
     // Mantener caracteres especiales españoles
