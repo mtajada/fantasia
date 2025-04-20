@@ -163,15 +163,14 @@ export default function StoryViewer() {
   };
 
   const toggleAudioPlayer = () => {
-      navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
     // Usar el estado derivado isAllowedToGenerateVoice
-    // if (isAllowedToGenerateVoice) {
-      //   navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
-    // } else {
-    //   toast.error("Límite de voz alcanzado", {
-    //     description: "No tienes generaciones de voz gratuitas o créditos disponibles."
-    //   });
-    // }
+    if (isAllowedToGenerateVoice) {
+        navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
+    } else {
+      toast.error("Límite de voz alcanzado", {
+        description: "No tienes generaciones de voz gratuitas o créditos disponibles."
+      });
+    }
   };
 
   // --- Manejadores de Desafío (sin cambios lógicos aquí) ---
