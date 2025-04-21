@@ -100,11 +100,14 @@ serve(async (req: Request) => {
     console.log(`Found Stripe Customer ID: ${stripeCustomerId}`);
 
     // 5. Crea una sesión del portal de cliente de Stripe
-    const returnUrl = `${appBaseUrl}/profile`; // Confirma que '/profile' es la ruta correcta en tu app Vite
-    console.log(`Creating Stripe Billing Portal session for Customer ${stripeCustomerId} with return URL: ${returnUrl}`);
+    //    Define la ruta correcta del frontend para la página de inicio
+    const correctFrontendPath = '/'; // Ruta correcta para HomePage
+    const returnUrl = `${appBaseUrl}${correctFrontendPath}`; // Construye la URL completa
+
+    console.log(`Creating Stripe Billing Portal session for Customer ${stripeCustomerId} with return URL: ${returnUrl}`); // Log con la URL correcta
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
-      return_url: returnUrl,
+      return_url: returnUrl, // Usa la URL corregida
     });
 
     console.log(`Stripe Customer Portal session created: ${portalSession.id}`);
