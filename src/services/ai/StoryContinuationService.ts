@@ -67,8 +67,19 @@ export class StoryContinuationService {
   /**
    * Genera opciones de continuación.
    */
-  public static async generateContinuationOptions(story: Story, chapters: StoryChapter[]): Promise<OptionsResponse> {
-    const response = await this.invokeContinuationFunction<OptionsResponse>('generateOptions', { story, chapters });
+  public static async generateContinuationOptions(
+    story: Story, 
+    chapters: StoryChapter[],
+    childAge?: number,
+    specialNeed?: string | null
+  ): Promise<OptionsResponse> {
+    const response = await this.invokeContinuationFunction<OptionsResponse>('generateOptions', { 
+      story, 
+      chapters, 
+      language: story.options.language,
+      childAge,
+      specialNeed
+    });
     if (!response || !Array.isArray(response.options)) {
       console.error("Respuesta inválida para generateOptions:", response);
       throw new Error("No se pudieron generar las opciones de continuación.");
@@ -80,7 +91,11 @@ export class StoryContinuationService {
    * Genera una continuación libre (contenido y título).
    */
   public static async generateFreeContinuation(story: Story, chapters: StoryChapter[]): Promise<ContinuationResponse> {
-    const response = await this.invokeContinuationFunction<ContinuationResponse>('freeContinuation', { story, chapters });
+    const response = await this.invokeContinuationFunction<ContinuationResponse>('freeContinuation', { 
+      story, 
+      chapters, 
+      language: story.options.language 
+    });
     if (!response || typeof response.content !== 'string' || typeof response.title !== 'string') {
       console.error("Respuesta inválida para freeContinuation:", response);
       throw new Error("No se pudo generar la continuación libre.");
@@ -92,7 +107,12 @@ export class StoryContinuationService {
    * Genera una continuación basada en una opción seleccionada (contenido y título).
    */
   public static async generateOptionContinuation(story: Story, chapters: StoryChapter[], selectedOptionSummary: string): Promise<ContinuationResponse> {
-    const response = await this.invokeContinuationFunction<ContinuationResponse>('optionContinuation', { story, chapters, selectedOptionSummary });
+    const response = await this.invokeContinuationFunction<ContinuationResponse>('optionContinuation', { 
+      story, 
+      chapters, 
+      selectedOptionSummary, 
+      language: story.options.language 
+    });
     if (!response || typeof response.content !== 'string' || typeof response.title !== 'string') {
       console.error("Respuesta inválida para optionContinuation:", response);
       throw new Error("No se pudo generar la continuación de opción.");
@@ -104,7 +124,12 @@ export class StoryContinuationService {
    * Genera una continuación basada en la dirección del usuario (contenido y título).
    */
   public static async generateDirectedContinuation(story: Story, chapters: StoryChapter[], userDirection: string): Promise<ContinuationResponse> {
-    const response = await this.invokeContinuationFunction<ContinuationResponse>('directedContinuation', { story, chapters, userDirection });
+    const response = await this.invokeContinuationFunction<ContinuationResponse>('directedContinuation', { 
+      story, 
+      chapters, 
+      userDirection, 
+      language: story.options.language 
+    });
     if (!response || typeof response.content !== 'string' || typeof response.title !== 'string') {
       console.error("Respuesta inválida para directedContinuation:", response);
       throw new Error("No se pudo generar la continuación dirigida.");

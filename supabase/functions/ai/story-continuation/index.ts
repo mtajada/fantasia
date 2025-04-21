@@ -22,14 +22,22 @@ const model = genAI.getGenerativeModel({
   model: modelName
 });
 // --- Funciones Helper ---
-// generateContinuationOptions: SIN CAMBIOS - Sigue pidiendo y parseando JSON para las opciones.
-async function generateContinuationOptions(story, chapters) {
+// generateContinuationOptions: MODIFICADO para incluir más contexto y adaptar al idioma
+async function generateContinuationOptions(
+  story, 
+  chapters, 
+  language = 'es', 
+  childAge = 7, 
+  specialNeed = null,
+) {
   console.log(`[Helper v6.1-adapted] generateContinuationOptions for story ${story?.id}`);
   if (!story || !story.id || !story.title || !story.content || !story.options) throw new Error("Datos de historia inválidos/incompletos.");
   if (!Array.isArray(chapters)) throw new Error("Datos de capítulos inválidos.");
+  
   const cleanOriginalTitle = story.title.replace(/^\d+\.\s+/, '').trim();
-  const storyDuration = story.options.duration || 'medium'; // Usar duración original
-  console.log(`[DEBUG v6.1-adapted] Opts: Story ID: ${story.id}, Title: "${cleanOriginalTitle}", Duration: ${storyDuration}, Chapters: ${chapters.length}`);
+  const storyOptions = story.options;
+  console.log(`[DEBUG v6.1-adapted] Opts: Story ID: ${story.id}, Title: "${cleanOriginalTitle}", Lang: ${language}, Age: ${childAge}, Chapters: ${chapters.length}`);
+  
   // Usar el contenido del ÚLTIMO capítulo existente como contexto primario.
   // Si no hay capítulos, usar el contenido de la historia inicial.
   let contextContent = story.content; // Default a historia inicial
@@ -39,16 +47,61 @@ async function generateContinuationOptions(story, chapters) {
   } else {
     console.log(`[DEBUG v6.1-adapted] Using initial story content for options context.`);
   }
+  
   // Tomar un fragmento significativo del final del contexto relevante
   const contextPreview = contextContent?.substring(Math.max(0, contextContent.length - 600)).trim() || '(No context)';
-  const prompt = `Historia Original: "${cleanOriginalTitle}".\nÚltimo Contexto Relevante:\n...${contextPreview}\n\nBasado en este ÚLTIMO contexto, sugiere 3 posibles caminos MUY CORTOS (frases concisas indicando la siguiente acción o evento) y distintos para continuar la historia.\nResponde SOLO con un JSON array válido de objetos, cada uno con una clave "summary" (string). No incluyas NADA MÁS antes o después del JSON array. Ejemplo: [{"summary":"El personaje siguió el mapa."},{"summary":"Un ruido extraño los detuvo."},{"summary":"Descubrieron una puerta secreta."}]`;
-  console.log(`[DEBUG v6.1-adapted] Prompt for options generation:\n---\n${prompt}\n---`);
+  
+  // --- Construir Prompt con más contexto ---
+  let promptContext = `CONTEXTO:\n`;
+  promptContext += `- Idioma del cuento: ${language}\n`;
+  promptContext += `- Edad del niño: ${childAge ?? 'No especificada'}\n`;
+  if (specialNeed && specialNeed !== 'Ninguna') promptContext += `- Necesidad especial: ${specialNeed}\n`;
+  promptContext += `- Título Original: "${cleanOriginalTitle}"\n`;
+  promptContext += `- Género: ${storyOptions.genre}\n`;
+  promptContext += `- Moraleja/Tema: ${storyOptions.moral}\n`;
+  
+  if (storyOptions.character) {
+    const character = storyOptions.character;
+    promptContext += `- Personaje Principal: ${character.name || 'Protagonista'} `;
+    if (character.profession) promptContext += `(${character.profession}) `;
+    if (character.personality) promptContext += `- Personalidad: ${character.personality}`;
+    promptContext += `\n`;
+  }
+  
+  promptContext += `- Final del Último Capítulo/Texto:\n...${contextPreview}\n\n`;
+  
+  // --- Instrucciones Adaptadas al Idioma ---
+  let instructions = '';
+  let example = '';
+  let commonInstructions = `Sugiere 3 posibles caminos MUY CORTOS (frases concisas indicando la siguiente acción o evento) y distintos para continuar la historia, basados en el ÚLTIMO contexto y coherentes con el género, moraleja y personaje. Las opciones deben ser apropiadas para un niño de ${childAge ?? '?'} años`;
+  
+  if (specialNeed && specialNeed !== 'Ninguna') {
+    commonInstructions = commonInstructions + ` (considerando ${specialNeed})`;
+  }
+  
+  commonInstructions = commonInstructions + `.\nResponde SOLO con un JSON array válido de objetos, cada uno con una clave "summary" (string). No incluyas NADA MÁS antes o después del JSON array.`;
+  
+  if (language.toLowerCase().startsWith('en')) {
+    instructions = `Based on the LAST context provided above, ${commonInstructions.replace('niño', 'child').replace('años','years old')}`;
+    example = `Example: [{"summary":"The character decided to follow the map."}, {"summary":"A mysterious sound echoed nearby."}, {"summary":"They found a hidden note."}]`;
+  } else { // Default a Español
+    instructions = `Basado en el ÚLTIMO contexto proporcionado arriba, ${commonInstructions}`;
+    example = `Ejemplo: [{"summary":"El personaje decidió seguir el mapa."}, {"summary":"Un sonido misterioso resonó cerca."}, {"summary":"Encontraron una nota escondida."}]`;
+  }
+  
+  const prompt = `${promptContext}${instructions}\n${example}`;
+  // --- Fin Prompt Adaptado ---
+  
+  console.log(`[DEBUG v6.1-adapted] Prompt for options generation (lang: ${language}):\n---\n${prompt}\n---`);
+  
   let rawAiResponseText = '';
   try {
     const result = await model.generateContent(prompt); // Usar el modelo global
     rawAiResponseText = result?.response?.text?.() ?? '';
     console.log(`[DEBUG v6.1-adapted] Raw AI Response Text for options:\n---\n${rawAiResponseText}\n---`);
+    
     if (!rawAiResponseText) throw new Error("IA response empty for options.");
+    
     let options;
     try {
       // Limpiar fences ANTES de parsear, por si acaso la IA los añade aquí también
@@ -288,10 +341,16 @@ serve(async (req) => {
     }
     // --- 6. Ejecutar Acción Principal ---
     let responsePayload = {};
-    console.log(`story-continuation v6.1-adapted: Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`);
+    console.log(`story-continuation v6.1-adapted: Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`)
     if (action === 'generateOptions') {
-      // Mantenemos la lógica original que pide JSON para las opciones
-      responsePayload = await generateContinuationOptions(story, chapters);
+      // Mantenemos la lógica original que pide JSON para las opciones pero pasamos más contexto
+      responsePayload = await generateContinuationOptions(
+        story, 
+        chapters, 
+        language, 
+        childAge, 
+        specialNeed
+      );
     } else if (isContinuationAction) {
       // --- NUEVA LÓGICA: Una llamada con separadores ---
       const continuationContext = {};

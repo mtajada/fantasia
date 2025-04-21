@@ -35,19 +35,23 @@ generateStoryWithAI(params): Llama a la EF generate-story pasándole las opcione
 Dependencias: supabaseClient, EF generate-story.
 Interacción: Usado principalmente por el store (@store/storyGenerator.ts) para iniciar la generación de una nueva historia.
 Cuidado: Confirmar que no queda ninguna lógica de creación de prompts o generación de títulos (ya eliminada).
-3.3. @src/services/StoryContinuationService.ts
-Propósito: Wrapper para la Edge Function story-continuation. Maneja todas las formas de continuar una historia y la generación de títulos para capítulos.
+3.3. @src/services/ai/StoryContinuationService.ts
+Propósito: Wrapper para la Edge Function story-continuation. Encargado de solicitar opciones de continuación para una historia en curso.
+
 Métodos Clave:
-generateContinuationOptions(story, chapters): Llama a la EF (action: 'generateOptions') para obtener 3 posibles caminos para continuar.
-generateFreeContinuation(story, chapters): Llama a la EF (action: 'freeContinuation') para generar una continuación sin una guía específica.
-generateOptionContinuation(story, chapters, optionIndex): Llama a la EF (action: 'optionContinuation') para generar la continuación basada en una de las opciones elegidas.
-generateDirectedContinuation(story, chapters, userDirection): Llama a la EF (action: 'directedContinuation') para generar la continuación basada en la entrada libre del usuario.
-generateChapterTitle(content, language): Llama a la EF (action: 'generateTitle') para generar un título para un capítulo basado en su contenido y el idioma deseado. (Nota: Asegurarse de que el idioma se pasa correctamente desde donde se llama).
+- generateContinuationOptions(story, chapters, childAge?, specialNeed?, language?): Llama a la EF story-continuation (acción: 'generateOptions') pasando los parámetros contextuales:
+    - story: Objeto con los metadatos de la historia (título, género, moral, personaje, etc.).
+    - chapters: Array de capítulos previos de la historia.
+    - childAge: (opcional) Edad del niño/a objetivo. Mejora la adecuación de las opciones generadas.
+    - specialNeed: (opcional) Necesidad especial del niño/a. Permite adaptar el tono, vocabulario o contenido para necesidades específicas.
+    - language: (opcional) Idioma en el que se debe generar la continuación. El prompt se adapta para instruir al modelo en ese idioma.
+
+La función construye un prompt contextualizado que incluye estos parámetros, asegurando que las opciones generadas sean relevantes para la edad, necesidades y idioma del usuario.
+
 Dependencias: supabaseClient, EF story-continuation.
-Interacción: Muy usado por @store/storyGenerator.ts y @/pages/StoryContinuation.tsx.
-Cuidado:
-*   Asegurarse de que todos los métodos son wrappers limpios y que la lógica de prompts reside únicamente en la EF.
-*   **Manejo de Límites (403 Error):** La Edge Function devolverá un error 403 Forbidden si un usuario gratuito intenta generar una continuación excediendo el límite permitido (más de 2 capítulos en total). El código que llama a los métodos de este servicio (ej., `generateFreeContinuation`, `generateOptionContinuation`, etc.) **es responsable de capturar este error específico** (probablemente envuelto en un `FunctionsHttpError` con `context.status === 403`) y mostrar un mensaje apropiado al usuario indicando que ha alcanzado el límite.
+Interacción: Usado por StoryContinuation.tsx y otros componentes de la UI para mostrar opciones de continuación adaptadas.
+
+Cuidado: Si la firma de la EF cambia (parámetros, respuesta), actualizar este wrapper para mantener la coherencia.
 3.4. @src/services/ttsService.ts
 Propósito: Wrapper para la Edge Function generate-audio y proveedor de utilidades/constantes relacionadas con Text-to-Speech para el frontend.
 Métodos/Exportaciones Clave:

@@ -54,6 +54,8 @@ export type StoryOptions = {
   character: StoryCharacter;
   genre: string;
   duration: StoryDuration;
+  language?: string;
+  userProvidedContext?: string;
 }
 
 export type Story = {
