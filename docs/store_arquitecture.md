@@ -80,7 +80,9 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `getRemainingMonthlyVoiceGenerations()`: Returns the number of *included* monthly voice generations remaining for premium users (e.g., `20 - monthly_voice_generations_used`). Returns 0 for non-premium users.
     *   `getAvailableVoiceCredits()`: Returns the number of *purchased* `voice_credits`.
     *   `canGenerateStory()`: Checks if the user (free or premium) has available story generations (monthly limit or purchased credits, though story credits are not fully implemented yet).
-    *   `canGenerateVoice()`: Checks if the user is premium AND has either remaining monthly voice generations OR available purchased voice credits.
+    *   `canGenerateVoice()`: Determines if the user can generate voice based on subscription status and voice credits.
+        * **Premium users (`active` or `trialing`):** Allowed if they have remaining monthly voice generations (quota) OR purchased voice credits.
+        * **Non-premium users (`free`, `canceled`, etc.):** Allowed only if they have purchased voice credits.
     *   `hasCompletedProfile()`: A selector returning `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used by components like `Home` and `AuthGuard` to check if the user needs to be sent to profile configuration.
 *   **Important Distinction: Monthly Quota vs. Purchased Credits:**
     It's crucial to understand the difference in how voice generation allowances work:

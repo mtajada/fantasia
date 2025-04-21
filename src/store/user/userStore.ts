@@ -1,340 +1,281 @@
 // src/store/user/userStore.ts
 
 import { UserState } from "../types/storeTypes";
-import { ProfileSettings, User } from "../../types"; // Asumiendo que ProfileSettings está aquí
+import { ProfileSettings, User } from "../../types";
 import { createPersistentStore, setCurrentAuthUser } from "../core/createStore";
-import { getCurrentUser, logout } from "../../services/supabaseAuth"; // Corregido: ruta a supabaseAuth
+import { getCurrentUser, logout } from "../../supabaseAuth";
 import {
   getUserProfile,
   syncQueue,
   syncUserProfile,
 } from "../../services/supabase";
-import { supabase } from "../../services/supabaseClient"; // Corregido: ruta a supabaseClient
+import { supabase } from "../../supabaseClient";
 import { useChaptersStore } from '../stories/chapters/chaptersStore';
 
-// --- INICIO: Definir Constante para Límite Mensual ---
-// Es mejor tenerla aquí o importarla de un config que leer env var en el store
-const PREMIUM_MONTHLY_VOICE_ALLOWANCE = 20;
-// --- FIN: Definir Constante ---
+const PREMIUM_MONTHLY_VOICE_ALLOWANCE = 20; // Max free monthly voice generations for premium
 
 // Estado inicial
 const initialState: Pick<UserState, "user" | "profileSettings" | "intendedRedirectPath"> = {
   user: null,
   profileSettings: null,
-  intendedRedirectPath: null,
+  intendedRedirectPath: null, // Inicializado
 };
 
 // Lógica del store
 export const useUserStore = createPersistentStore<UserState>(
   initialState,
   (set, get) => ({
-    // ... (loginUser, logoutUser, setProfileSettings, hasCompletedProfile igual que antes) ...
-    loginUser: async (user: User): Promise<void> => {
-        setCurrentAuthUser(user.id);
-        set({ user, intendedRedirectPath: null });
-        let redirectPath = '/login';
-        try {
-            console.log(`Cargando perfil para usuario ${user.id} desde Supabase`);
-            const { success, profile } = await getUserProfile(user.id);
-            if (success && profile) {
-                console.log("Perfil cargado con éxito:", profile);
-                set({ profileSettings: profile });
-                redirectPath = profile.has_completed_setup ? '/home' : '/profile-config';
-            } else {
-                console.warn("No se encontró perfil para el usuario logueado o hubo un error, redirigiendo a setup:", user.id);
-                redirectPath = '/profile-config';
-            }
-            // Iniciar sincronización de otros datos
-            syncAllUserData(user.id); // No esperar aquí
-        } catch (error) {
-            console.error("Error cargando datos de usuario desde Supabase:", error);
-            redirectPath = '/login';
+    loginUser: async (user: User): Promise<void> => { // Revertido a Promise<void>
+      // Actualizar usuario en el store global
+      setCurrentAuthUser(user.id);
+
+      // Establecer el usuario en el store
+      set({ user, intendedRedirectPath: null }); // Reset path on new login attempt
+
+      let redirectPath = '/login'; // Default path
+
+      // Al iniciar sesión, cargar datos desde Supabase
+      try {
+        // 1. Cargar perfil
+        console.log(`Cargando perfil para usuario ${user.id} desde Supabase`);
+        const { success, profile } = await getUserProfile(user.id);
+        if (success && profile) {
+          console.log("Perfil cargado con éxito:", profile);
+          set({ profileSettings: profile });
+          // Determinar ruta de redirección basado en setup
+          redirectPath = profile.has_completed_setup ? '/home' : '/profile-config';
+        } else {
+          console.warn("No se encontró perfil para el usuario logueado o hubo un error, redirigiendo a setup:", user.id);
+          // Podría ser un usuario nuevo o un error. Dirigir a setup como fallback seguro.
+          redirectPath = '/profile-config';
         }
-        // Usar un pequeño delay para asegurar que el estado se propague antes de la posible redirección
-        setTimeout(() => set({ intendedRedirectPath: redirectPath }), 50);
+
+        // 2. Iniciar sincronización de otros datos (no bloqueante para la redirección)
+        syncAllUserData(user.id);
+
+      } catch (error) {
+        console.error("Error cargando datos de usuario desde Supabase:", error);
+        redirectPath = '/login'; // En caso de error, volver a login
+      }
+      set({ intendedRedirectPath: redirectPath }); // Establecer el path en el estado
     },
 
     logoutUser: async () => {
-        const currentUser = get().user;
-        if (currentUser) {
-            await syncQueue.processQueue();
-        }
-        await logout();
-        set({ user: null, profileSettings: null, intendedRedirectPath: null });
-        setCurrentAuthUser(null);
-        // Limpiar otros stores si es necesario
-        useChaptersStore.getState().clearChapters();
-        // ... limpiar otros stores ...
+      // Guardar una referencia al usuario actual antes de cerrar sesión
+      const currentUser = get().user;
+
+      // Intentar sincronizar datos pendientes antes de cerrar sesión
+      if (currentUser) {
+        await syncQueue.processQueue();
+      }
+
+      // Cerrar sesión en Supabase
+      await logout();
+
+      // Limpiar el estado del store
+      set({ user: null, profileSettings: null, intendedRedirectPath: null });
+
+      // Actualizar usuario en el store global (ningún usuario autenticado)
+      setCurrentAuthUser(null);
     },
 
     setProfileSettings: async (settings: Partial<ProfileSettings>) => {
-        set((state) => ({
-            profileSettings: {
-                ...(state.profileSettings || { has_completed_setup: false }),
-                ...settings,
-            } as ProfileSettings
-        }));
+      // 1. Merge partial settings with current state
+      set((state) => ({
+        profileSettings: {
+          // Ensure we have a base object even if profileSettings was null
+          ...(state.profileSettings || { has_completed_setup: false }), // Default has_completed_setup if null
+          ...settings,
+        } as ProfileSettings // Assert as ProfileSettings after merge
+      }));
 
-        const user = get().user;
-        if (user) {
-            const syncData: { [key: string]: any } = {};
-            const keyMap: { [K in keyof ProfileSettings]?: string } = {
-                // Mapeo camelCase a snake_case (asegúrate que los nombres coincidan con tu tabla 'profiles')
-                preferred_language: 'preferred_language', // Ejemplo, ajusta según tu tipo ProfileSettings
-                user_age_range: 'user_age_range',       // Ejemplo
-                special_need: 'special_need',           // Ejemplo
-                has_completed_setup: 'has_completed_setup',
-                preferred_voice_id: 'preferred_voice_id' // Ejemplo
-                // Añade todos los campos que permites editar en el perfil
-            };
+      // 2. Sincronizar solo los campos proporcionados con Supabase
+      const user = get().user;
+      if (user) {
+        // 3. Construir objeto solo con los campos presentes en 'settings'
+        const syncData: { [key: string]: any } = {};
+        // Mapeo de camelCase (TypeScript) a snake_case (Supabase)
+        const keyMap: { [K in keyof ProfileSettings]?: string } = {
+          childAge: 'child_age',
+          specialNeed: 'special_need',
+          language: 'language',
+          has_completed_setup: 'has_completed_setup', // Añadir mapeo si alguna vez se actualiza por aquí
+          // Añadir otros campos editables si es necesario
+        };
 
-            for (const key in settings) {
-                if (Object.prototype.hasOwnProperty.call(settings, key)) {
-                    const mappedKey = keyMap[key as keyof ProfileSettings];
-                    if (mappedKey) {
-                        const value = settings[key as keyof ProfileSettings];
-                        // Solo incluir si el valor no es undefined
-                        if (value !== undefined) {
-                            syncData[mappedKey] = value;
-                        }
-                    } else {
-                         console.warn(`[setProfileSettings] Mapeo no encontrado para la clave: ${key}`);
-                    }
-                }
+        for (const key in settings) {
+          if (Object.prototype.hasOwnProperty.call(settings, key)) {
+            const mappedKey = keyMap[key as keyof ProfileSettings];
+            if (mappedKey) {
+              // Asegurar que el valor no sea undefined antes de asignarlo
+              const value = settings[key as keyof ProfileSettings];
+              if (value !== undefined) {
+                syncData[mappedKey] = value;
+              }
             }
-
-            if (Object.keys(syncData).length === 0) {
-                console.log("[setProfileSettings] No hay datos mapeados válidos para sincronizar.");
-                return;
-            }
-            console.log("[setProfileSettings] Datos a sincronizar:", syncData);
-
-            try {
-                const { success, error: syncError } = await syncUserProfile(user.id, syncData); // syncData ya está en snake_case
-                if (!success) {
-                    console.warn("[setProfileSettings] Sincronización directa fallida, añadiendo a la cola:", syncError);
-                    syncQueue.addToQueue("profiles", "update", { id: user.id, ...syncData });
-                } else {
-                     console.log("[setProfileSettings] Perfil sincronizado directamente con éxito.");
-                }
-            } catch (error) {
-                console.error("[setProfileSettings] Error sincronizando perfil con Supabase:", error);
-                syncQueue.addToQueue("profiles", "update", { id: user.id, ...syncData });
-            }
+          }
         }
+
+        // No sincronizar si no hay datos válidos para enviar
+        if (Object.keys(syncData).length === 0) {
+          console.log("setProfileSettings: No hay datos editables válidos para sincronizar.");
+          return;
+        }
+
+        try {
+          // 4. Intentar la sincronización directa
+          const { success, error: syncError } = await syncUserProfile(user.id, syncData as any);
+          if (!success) {
+            console.warn("Sincronización directa fallida, añadiendo a la cola:", syncError);
+            // 5. Si falla, agregarlo a la cola de sincronización
+            syncQueue.addToQueue("profiles", "update", { id: user.id, ...syncData });
+          }
+        } catch (error) {
+          console.error("Error sincronizando perfil con Supabase:", error);
+          // 6. Agregar a la cola de sincronización en caso de error
+          syncQueue.addToQueue("profiles", "update", { id: user.id, ...syncData });
+        }
+      }
     },
 
     hasCompletedProfile: () => {
       const profile = get().profileSettings;
+      // Considerar el perfil completado si existe y el flag es true
       return !!profile && profile.has_completed_setup;
     },
 
-    // --- Selectores ---
+    // --- Selectores Actualizados/Nuevos ---
     isPremium: () => {
       const status = get().profileSettings?.subscription_status;
-      // Considera 'trialing' como premium también para acceso a funciones
       return status === 'active' || status === 'trialing';
     },
 
     getRemainingMonthlyStories: () => {
       const settings = get().profileSettings;
-      if (get().isPremium() || !settings) return Infinity; // Premium tiene ilimitadas
-      const limit = 10; // Límite para gratuitos
-      return Math.max(0, limit - (settings.monthly_stories_generated || 0));
+      // Si es premium, devuelve infinito (o un número grande), si no, calcula el restante de 10.
+      if (get().isPremium() || !settings) return Infinity;
+      return Math.max(0, 10 - (settings.monthly_stories_generated || 0));
     },
 
     canCreateStory: () => {
-      // Simplificado: si quedan historias > 0
       return get().getRemainingMonthlyStories() > 0;
     },
 
     getRemainingMonthlyVoiceGenerations: () => {
       const settings = get().profileSettings;
-      // Solo aplica a premium
+      // Solo aplica a premium, devuelve 0 si no lo es.
       if (!get().isPremium() || !settings) return 0;
-      // Usa la constante definida arriba
-      return Math.max(0, PREMIUM_MONTHLY_VOICE_ALLOWANCE - (settings.monthly_voice_generations_used || 0));
+      // Asumiendo 20 generaciones gratis al mes
+      return Math.max(0, 20 - (settings.monthly_voice_generations_used || 0));
     },
 
     getAvailableVoiceCredits: () => {
-      // Créditos comprados
       return get().profileSettings?.voice_credits || 0;
     },
 
-    // --- SELECTOR canGenerateVoice CORREGIDO ---
     canGenerateVoice: () => {
-      const profile = get().profileSettings;
-      if (!profile) {
-        console.warn("[canGenerateVoice] No profileSettings found.");
-        return false; // No hay perfil, no puede generar
+      const settings = get().profileSettings;
+      console.log('[canGenerateVoice_DEBUG] Checking canGenerateVoice. Settings:', settings);
+
+      // a. Handle missing profile
+      if (!settings) {
+        console.warn('[canGenerateVoice_DEBUG] No profile settings found. Denying voice generation.');
+        return false;
       }
 
-      const isPremium = get().isPremium(); // Usa el selector existente
-      const monthlyUsed = profile.monthly_voice_generations_used ?? 0;
-      const purchasedCredits = profile.voice_credits ?? 0;
+      // b. Get values safely
+      const subscriptionStatus = settings.subscription_status;
+      const monthlyGenerationsUsed = settings.monthly_voice_generations_used ?? 0;
+      const voiceCredits = settings.voice_credits ?? 0;
 
-      // Lógica para Premium
+      // c. Determine if premium
+      const isPremium = subscriptionStatus === 'active' || subscriptionStatus === 'trialing';
+      console.log(`[canGenerateVoice_DEBUG] User Status: ${subscriptionStatus}, Is Premium: ${isPremium}`);
+
+      // d. Main logic
       if (isPremium) {
-        const hasMonthlyAllowance = monthlyUsed < PREMIUM_MONTHLY_VOICE_ALLOWANCE;
-        const hasPurchased = purchasedCredits > 0;
-        const allowed = hasMonthlyAllowance || hasPurchased;
-        console.log(`[canGenerateVoice_DEBUG] Premium Check: Status=${profile.subscription_status}, Monthly Used=${monthlyUsed}/${PREMIUM_MONTHLY_VOICE_ALLOWANCE}, Purchased=${purchasedCredits}. Allowed: ${allowed}`);
+        const hasMonthlyGenerations = monthlyGenerationsUsed < PREMIUM_MONTHLY_VOICE_ALLOWANCE;
+        const hasPurchasedCredits = voiceCredits > 0;
+        const allowed = hasMonthlyGenerations || hasPurchasedCredits;
+        console.log(`[canGenerateVoice_DEBUG] Premium Check - Monthly Used: ${monthlyGenerationsUsed}/${PREMIUM_MONTHLY_VOICE_ALLOWANCE}, Credits: ${voiceCredits}. Allowed: ${allowed}`);
         return allowed;
-      }
-      // Lógica para No Premium (Free, Canceled, etc.)
-      else {
-        const hasPurchased = purchasedCredits > 0;
-        console.log(`[canGenerateVoice_DEBUG] Non-Premium Check: Status=${profile.subscription_status}, Purchased=${purchasedCredits}. Allowed: ${hasPurchased}`);
-        // Solo pueden generar si tienen créditos comprados
-        return hasPurchased;
+      } else {
+        // Non-premium (Free, Canceled, etc.)
+        const hasPurchasedCredits = voiceCredits > 0;
+        console.log(`[canGenerateVoice_DEBUG] Non-Premium Check - Credits: ${voiceCredits}. Allowed: ${hasPurchasedCredits}`);
+        return hasPurchasedCredits; // Only allowed if they have purchased credits
       }
     },
-    // --- FIN SELECTOR canGenerateVoice CORREGIDO ---
 
     canContinueStory: (storyId: string) => {
-      if (!storyId) return false; // Necesita un ID de historia
       if (get().isPremium()) return true; // Premium puede continuar ilimitadamente
 
       // Gratuito: obtener capítulos y contar
       const chapters = useChaptersStore.getState().getChaptersByStoryId(storyId);
-      // Permite si hay 1 capítulo (el inicial) o menos. Si hay 2 o más, ya usó la continuación gratuita.
-      const canContinue = chapters.length < 2;
-      console.log(`[canContinueStory_DEBUG] Free user check for story ${storyId}: Chapters=${chapters.length}. Allowed: ${canContinue}`);
-      return canContinue;
+      // Permite si hay menos de 2 capítulos (Cap 1 inicial + 1 continuación)
+      return chapters.length < 2;
     },
 
     checkAuth: async (): Promise<User | null> => {
       let authenticatedUser: User | null = null;
       try {
-        // No necesitamos getSession() aquí si getCurrentUser() ya lo hace implícitamente
-        const { user, error } = await getCurrentUser(); // Asume que esta función devuelve el usuario si hay sesión
+        const { data: { session } } = await supabase.auth.getSession();
+
+        const { user, error } = await getCurrentUser();
 
         if (user && !error) {
-          console.log("[checkAuth] User is authenticated:", user.id);
-          set({ user }); // Establecer usuario primero
+          set({ user });
           authenticatedUser = user;
-
-          // Cargar perfil
-          console.log(`[checkAuth] Loading profile for user ${user.id}`);
+          // Cargar perfil SI hay usuario
           const { success, profile } = await getUserProfile(user.id);
           if (success && profile) {
-            console.log("[checkAuth] Profile loaded successfully.");
             set({ profileSettings: profile });
-            // Sincronizar el resto en segundo plano DESPUÉS de establecer el perfil
-            // Usar setTimeout para asegurar que el estado se actualice antes de la carga masiva
-            setTimeout(() => syncAllUserData(user.id), 0);
+            // Sincronizar el resto en segundo plano
+            syncAllUserData(user.id);
           } else {
-            console.warn("[checkAuth] User authenticated but profile not found or error loading:", user.id);
-            set({ profileSettings: null }); // Asegurar que el perfil esté nulo si falla la carga
+            // Aún autenticado, pero sin perfil o error al cargarlo.
+            // La redirección a profile-config se manejará en la página de destino o AuthGuard si es necesario
+            console.warn("checkAuth: Usuario autenticado pero perfil no encontrado o error al cargar:", user.id);
+            set({ profileSettings: null });
           }
+
         } else {
-          if (error) console.error("[checkAuth] Error getting current user:", error.message);
-          else console.log("[checkAuth] No authenticated user found.");
+          // No hay usuario o hubo error
+          if (error) console.error("Error en getCurrentUser:", error);
           set({ user: null, profileSettings: null });
           authenticatedUser = null;
         }
       } catch (e) {
-        console.error("[checkAuth] Critical error during checkAuth:", e);
+        console.error("Error crítico durante checkAuth:", e);
         set({ user: null, profileSettings: null });
         authenticatedUser = null;
       }
-      console.log("[checkAuth] Finished. Returning user:", authenticatedUser?.id || null);
       return authenticatedUser;
     },
-
-    // Añadir una acción para decrementar créditos localmente (optimista)
-    // Esto es OPCIONAL, pero puede mejorar la UX si quieres que el contador baje inmediatamente
-    // La fuente de verdad sigue siendo la DB actualizada por la Edge Function
-    decrementLocalVoiceCredits: () => {
-        set((state) => {
-            if (!state.profileSettings) return {}; // No hacer nada si no hay perfil
-
-            const currentCredits = state.profileSettings.voice_credits ?? 0;
-            if (currentCredits > 0) {
-                 console.log("[decrementLocalVoiceCredits] Decrementing local purchased credits.");
-                 return {
-                     profileSettings: {
-                         ...state.profileSettings,
-                         voice_credits: currentCredits - 1,
-                     }
-                 };
-            }
-            // Si no hay créditos comprados, intentar 'gastar' del mensual (aunque esto es más visual que real)
-            const currentMonthlyUsed = state.profileSettings.monthly_voice_generations_used ?? 0;
-            if (currentMonthlyUsed < PREMIUM_MONTHLY_VOICE_ALLOWANCE) {
-                 console.log("[decrementLocalVoiceCredits] Incrementing local monthly usage count.");
-                 return {
-                     profileSettings: {
-                         ...state.profileSettings,
-                         monthly_voice_generations_used: currentMonthlyUsed + 1,
-                     }
-                 };
-            }
-            // Si no hay créditos de ningún tipo, no cambiar nada
-            return {};
-        });
-    },
-
-
   }),
-  "user", // Nombre de la persistencia
+  "user",
 );
 
 // Función para sincronizar todos los datos del usuario desde Supabase
-// Movida fuera para claridad, pero podría estar dentro si se prefiere
 async function syncAllUserData(userId: string) {
-  console.log(`[syncAllUserData] Iniciando carga completa para usuario: ${userId}`);
-  try {
-    // Usar Promise.allSettled para cargar en paralelo pero esperar a todas
-    const results = await Promise.allSettled([
-      import('../stories/storiesStore').then(({ useStoriesStore }) => useStoriesStore.getState().loadStoriesFromSupabase(userId)),
-      import('../character/characterStore').then(({ useCharacterStore }) => useCharacterStore.getState().loadCharactersFromSupabase(userId)),
-      // Añadir llamadas a otros stores aquí
-      // Ejemplo: import('../otroStore').then(({ useOtroStore }) => useOtroStore.getState().loadData(userId)),
-    ]);
+  console.log(`Iniciando carga completa para usuario: ${userId}`);
 
-    results.forEach((result, index) => {
-      if (result.status === 'rejected') {
-        console.error(`[syncAllUserData] Error cargando datos (índice ${index}):`, result.reason);
-      } else {
-        console.log(`[syncAllUserData] Carga de datos (índice ${index}) completada.`);
-      }
-    });
+  // 1. Limpiar todos los datos locales primero
+  const otherStores = [
+    { store: (await import('../stories/storiesStore')).useStoriesStore, method: 'loadStoriesFromSupabase' },
+    { store: (await import('../character/characterStore')).useCharacterStore, method: 'loadCharactersFromSupabase' },
+    // Agrega otros stores aquí
+  ];
 
-  } catch (error) {
-      // Este catch es por si Promise.allSettled falla (muy raro) o los imports dinámicos fallan
-      console.error(`[syncAllUserData] Error crítico durante la carga paralela:`, error);
-  } finally {
-      console.log("[syncAllUserData] Sincronización completa (o intentos finalizados).");
+  // 2. Cargar secuencialmente
+  for (const { store, method } of otherStores) {
+    try {
+      console.log(`Cargando datos con método: ${method}`);
+      await store.getState()[method](userId);
+    } catch (error) {
+      console.error(`Error cargando datos con ${method}:`, error);
+    }
   }
-}
 
-// Opcional: Escuchar cambios en la autenticación para recargar/limpiar datos
-// Esto asegura que si el usuario inicia/cierra sesión en otra pestaña, el estado se actualiza
-let isAuthListenerAttached = false;
-if (typeof window !== 'undefined' && !isAuthListenerAttached) { // Evitar duplicados en HMR
-    supabase.auth.onAuthStateChange((event, session) => {
-        console.log(`[Auth Listener] Evento recibido: ${event}`);
-        const store = useUserStore.getState();
-        if (event === 'SIGNED_IN' && session?.user && store.user?.id !== session.user.id) {
-            console.log("[Auth Listener] Usuario inició sesión en otra pestaña/contexto. Recargando datos...");
-            store.loginUser(session.user); // Llama a loginUser para recargar todo
-        } else if (event === 'SIGNED_OUT' && store.user) {
-            console.log("[Auth Listener] Usuario cerró sesión en otra pestaña/contexto. Limpiando datos...");
-            store.logoutUser(); // Llama a logoutUser para limpiar
-        } else if (event === 'TOKEN_REFRESHED' && session?.user && store.user?.id !== session.user.id) {
-             console.log("[Auth Listener] Token refrescado para un usuario diferente. Recargando datos...");
-             store.loginUser(session.user);
-        } else if (event === 'USER_UPDATED' && session?.user && store.user?.id === session.user.id) {
-            console.log("[Auth Listener] Datos del usuario actualizados (ej. email). Refrescando perfil...");
-            // Podrías recargar solo el perfil aquí si fuera necesario
-            getUserProfile(session.user.id).then(({ success, profile }) => {
-                if (success && profile) {
-                    store.setProfileSettings(profile); // Actualiza el perfil
-                }
-            });
-        }
-    });
-    isAuthListenerAttached = true;
-    console.log("[Auth Listener] Listener de autenticación adjuntado.");
+  console.log("Sincronización completa");
 }
