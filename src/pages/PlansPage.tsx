@@ -63,9 +63,9 @@ const PlansPage: React.FC = () => {
             } else {
                 throw new Error('No se recibió URL de checkout.');
             }
-        } catch (error: any) {
+        } catch (error: Error | unknown) {
             console.error(`Error creating ${item} checkout session:`, error);
-            toast({ title: 'Error', description: `No se pudo iniciar el pago: ${error.message}`, variant: 'destructive' });
+            toast({ title: 'Error', description: `No se pudo iniciar el pago: ${error instanceof Error ? error.message : 'Error desconocido'}`, variant: 'destructive' });
             setIsCheckoutLoading(false);
         } // No finally needed as page redirects on success
     };
@@ -87,9 +87,9 @@ const PlansPage: React.FC = () => {
             } else {
                 throw new Error('No se recibió URL del portal de cliente.');
             }
-        } catch (error: any) {
+        } catch (error: Error | unknown) {
             console.error("Error creating customer portal session:", error);
-            toast({ title: 'Error', description: `No se pudo redirigir a la gestión de suscripción: ${error.message}`, variant: 'destructive' });
+            toast({ title: 'Error', description: `No se pudo redirigir a la gestión de suscripción: ${error instanceof Error ? error.message : 'Error desconocido'}`, variant: 'destructive' });
             setIsPortalLoading(false);
         } // No finally block needed for isLoading as page redirects on success
     };
@@ -100,7 +100,7 @@ const PlansPage: React.FC = () => {
     const features = [
         { name: 'Historias Generadas', free: '10 / mes', premium: 'Ilimitadas', icon: BookOpen, limited: true },
         { name: 'Continuaciones por Historia', free: '1', premium: 'Ilimitadas', icon: TrendingUp, limited: true },
-        { name: 'Narración con Voz (IA)', free: 'No', premium: 'Sí (20/mes incl.)', icon: Mic, limited: true },
+        { name: 'Narración con Voz (IA)', free: 'Si (2 / mes)', premium: 'Sí (20/mes incl.)', icon: Mic, limited: true },
         { name: 'Retos Creativos', free: 'Ilimitados', premium: 'Ilimitados', icon: CheckCircle, limited: false },
     ];
 
@@ -306,13 +306,14 @@ const PlansPage: React.FC = () => {
                                         </button>
                                         <button
                                             onClick={() => setActivePlan('premium')}
-                                            className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 ${activePlan === 'premium'
+                                            className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 relative ${activePlan === 'premium'
                                                 ? 'bg-gradient-to-r from-[#F9DA60] to-[#F9DA60]/80 text-white font-medium'
                                                 : 'text-[#BB79D1] hover:text-white'
                                                 }`}
                                         >
                                             <Star className="h-4 w-4" />
                                             <span>Premium</span>
+                                            <span className="absolute -top-2 -right-2 bg-[#F6A5B7] text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">Próximamente</span>
                                         </button>
                                     </motion.div>
                                 </div>
@@ -336,8 +337,8 @@ const PlansPage: React.FC = () => {
                                                     Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
                                                 </h2>
                                                 {activePlan === 'premium' && (
-                                                    <span className="bg-[#F9DA60]/30 text-[#BB79D1] px-3 py-1 rounded-full text-sm font-bold">
-                                                        Recomendado
+                                                    <span className="bg-[#F6A5B7] text-white px-3 py-1 rounded-full text-sm font-bold">
+                                                        Próximamente
                                                     </span>
                                                 )}
                                             </div>
@@ -364,19 +365,13 @@ const PlansPage: React.FC = () => {
                                         {activePlan === 'premium' && (
                                             <div className="p-6 pt-4 pb-0">
                                                 <button
-                                                    onClick={() => handleCheckout('premium')}
-                                                    disabled={isCheckoutLoading}
-                                                    className="w-full py-3 px-6 bg-gradient-to-r from-[#F9DA60] to-[#F9DA60]/80 hover:from-[#F9DA60]/90 hover:to-[#F9DA60] text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                    disabled={true}
+                                                    className="w-full py-3 px-6 bg-gradient-to-r from-[#F9DA60]/60 to-[#F9DA60]/40 text-[#BB79D1] rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg cursor-not-allowed relative overflow-hidden"
                                                 >
-                                                    {isCheckoutLoading ? (
-                                                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <>
-                                                            <Star className="h-5 w-5" />
-                                                            <span>Hazte Premium Ahora</span>
-                                                        </>
-                                                    )}
+                                                    <Star className="h-5 w-5" />
+                                                    <span>Hazte Premium Ahora</span>
                                                 </button>
+                                                <p className="text-center text-sm text-[#BB79D1] mt-3 font-medium">Estamos trabajando para ofrecerte esta opción muy pronto</p>
                                             </div>
                                         )}
 

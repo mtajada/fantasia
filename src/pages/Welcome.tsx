@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { BookOpen, Sparkles, Headphones, Brain, LogIn, UserPlus, Star, Gift, Zap } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageTransition from "../components/PageTransition";
 import { useUserStore } from "../store/user/userStore";
@@ -202,9 +202,9 @@ export default function Welcome() {
               &copy; {new Date().getFullYear()} TaleMe. Todos los derechos reservados.
             </div>
             <div className="mt-4 md:mt-0 flex gap-4">
-              <a href="#" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Términos</a>
-              <a href="#" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Privacidad</a>
-              <a href="#" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Contacto</a>
+              <Link to="/terms" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Términos</Link>
+              <Link to="/privacy-policy" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Privacidad</Link>
+              <Link to="/contact" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Contacto</Link>
             </div>
           </div>
         </footer>

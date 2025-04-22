@@ -230,7 +230,7 @@ export default function Signup() {
                 {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
               </button>
               
-              {/* <div className="relative flex items-center my-4">
+              <div className="relative flex items-center my-4">
                 <div className="flex-grow border-t border-[#BB79D1]/20"></div>
                 <span className="mx-4 flex-shrink text-[#555] text-sm">O regístrate con</span>
                 <div className="flex-grow border-t border-[#BB79D1]/20"></div>
@@ -249,7 +249,7 @@ export default function Signup() {
                   <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
                 {isGoogleLoading ? "Conectando..." : "Registrarse con Google"}
-              </button> */}
+              </button>
               
               <div className="text-center mt-5">
                 <span className="text-[#555] text-sm">¿Ya tienes una cuenta? </span>
