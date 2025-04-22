@@ -1,3 +1,5 @@
+// src/store/user/userStore.ts
+
 import { UserState } from "../types/storeTypes";
 import { ProfileSettings, User } from "../../types";
 import { createPersistentStore, setCurrentAuthUser } from "../core/createStore";
@@ -9,6 +11,8 @@ import {
 } from "../../services/supabase";
 import { supabase } from "../../supabaseClient";
 import { useChaptersStore } from '../stories/chapters/chaptersStore';
+
+const PREMIUM_MONTHLY_VOICE_ALLOWANCE = 20; // Max free monthly voice generations for premium
 
 // Estado inicial
 const initialState: Pick<UserState, "user" | "profileSettings" | "intendedRedirectPath"> = {
@@ -170,10 +174,37 @@ export const useUserStore = createPersistentStore<UserState>(
     },
 
     canGenerateVoice: () => {
-      const remainingMonthly = get().getRemainingMonthlyVoiceGenerations();
-      const availableCredits = get().getAvailableVoiceCredits();
-      // Importante: Solo puede generar voz si es premium
-      return get().isPremium() && (remainingMonthly > 0 || availableCredits > 0);
+      const settings = get().profileSettings;
+      console.log('[canGenerateVoice_DEBUG] Checking canGenerateVoice. Settings:', settings);
+
+      // a. Handle missing profile
+      if (!settings) {
+        console.warn('[canGenerateVoice_DEBUG] No profile settings found. Denying voice generation.');
+        return false;
+      }
+
+      // b. Get values safely
+      const subscriptionStatus = settings.subscription_status;
+      const monthlyGenerationsUsed = settings.monthly_voice_generations_used ?? 0;
+      const voiceCredits = settings.voice_credits ?? 0;
+
+      // c. Determine if premium
+      const isPremium = subscriptionStatus === 'active' || subscriptionStatus === 'trialing';
+      console.log(`[canGenerateVoice_DEBUG] User Status: ${subscriptionStatus}, Is Premium: ${isPremium}`);
+
+      // d. Main logic
+      if (isPremium) {
+        const hasMonthlyGenerations = monthlyGenerationsUsed < PREMIUM_MONTHLY_VOICE_ALLOWANCE;
+        const hasPurchasedCredits = voiceCredits > 0;
+        const allowed = hasMonthlyGenerations || hasPurchasedCredits;
+        console.log(`[canGenerateVoice_DEBUG] Premium Check - Monthly Used: ${monthlyGenerationsUsed}/${PREMIUM_MONTHLY_VOICE_ALLOWANCE}, Credits: ${voiceCredits}. Allowed: ${allowed}`);
+        return allowed;
+      } else {
+        // Non-premium (Free, Canceled, etc.)
+        const hasPurchasedCredits = voiceCredits > 0;
+        console.log(`[canGenerateVoice_DEBUG] Non-Premium Check - Credits: ${voiceCredits}. Allowed: ${hasPurchasedCredits}`);
+        return hasPurchasedCredits; // Only allowed if they have purchased credits
+      }
     },
 
     canContinueStory: (storyId: string) => {

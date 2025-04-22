@@ -80,7 +80,9 @@ The loading of user-specific data from Supabase upon login or app initialization
     *   `getRemainingMonthlyVoiceGenerations()`: Returns the number of *included* monthly voice generations remaining for premium users (e.g., `20 - monthly_voice_generations_used`). Returns 0 for non-premium users.
     *   `getAvailableVoiceCredits()`: Returns the number of *purchased* `voice_credits`.
     *   `canGenerateStory()`: Checks if the user (free or premium) has available story generations (monthly limit or purchased credits, though story credits are not fully implemented yet).
-    *   `canGenerateVoice()`: Checks if the user is premium AND has either remaining monthly voice generations OR available purchased voice credits.
+    *   `canGenerateVoice()`: Determines if the user can generate voice based on subscription status and voice credits.
+        * **Premium users (`active` or `trialing`):** Allowed if they have remaining monthly voice generations (quota) OR purchased voice credits.
+        * **Non-premium users (`free`, `canceled`, etc.):** Allowed only if they have purchased voice credits.
     *   `hasCompletedProfile()`: A selector returning `true` if `profileSettings` exists and `profileSettings.has_completed_setup` is true. Used by components like `Home` and `AuthGuard` to check if the user needs to be sent to profile configuration.
 *   **Important Distinction: Monthly Quota vs. Purchased Credits:**
     It's crucial to understand the difference in how voice generation allowances work:
@@ -243,3 +245,26 @@ This modular Zustand architecture, coupled with a well-defined data synchronizat
 - Added `isLoadingStories: boolean` to `StoriesState` and initialized it in `storiesStore.ts`.
 - In `storiesStore.ts`, `loadStoriesFromSupabase` sets `isLoadingStories` to `true` at start and resets it to `false` in `finally`.
 - Updated `StoryViewer.tsx` to depend on `isLoadingStories` in its main `useEffect`, exiting early if `true`, and rendering a loading spinner until stories are loaded. Navigation to `/not-found` only occurs if the story remains `undefined` after loading.
+
+## 9. Flujo de Parámetros Contextuales en la Generación de Opciones de Continuación
+
+### 3.2. `@store/stories/storyGenerator.ts`
+
+*   **Propósito:** Orquesta la generación de historias y la continuación de las mismas, gestionando tanto la creación inicial como la obtención de opciones de continuación adaptadas al usuario.
+*   **Estado Clave:**
+    *   `currentStory: Story | null`: Historia activa en el flujo.
+    *   `storyChapters: StoryChapter[]`: Capítulos generados hasta el momento.
+    *   `continuationOptions: Option[]`: Opciones generadas para continuar la historia, adaptadas al contexto del usuario.
+*   **Acciones Clave:**
+    *   `generateOptions()`: Llama a `StoryContinuationService.generateContinuationOptions`, pasando además de la historia y capítulos, los parámetros contextuales:
+        - `childAge`: Edad del niño/a (desde `profileSettings`).
+        - `specialNeed`: Necesidad especial del usuario (desde `profileSettings`).
+        - `language`: Idioma preferido del usuario (desde `profileSettings` o historia).
+    *   El store se encarga de obtener estos valores desde `userStore.profileSettings` y asegurarse de que se pasan correctamente al servicio y a la Edge Function.
+*   **Flujo de Datos:**
+    1. El usuario inicia la generación de opciones de continuación desde la UI.
+    2. El store recupera los valores de contexto del perfil del usuario.
+    3. Se invoca el método del servicio, que a su vez llama a la Edge Function con el prompt contextualizado.
+    4. Las opciones generadas se almacenan en el estado y se muestran en la UI.
+*   **Impacto:**
+    - Esto garantiza que las opciones de historia sean relevantes para la edad, necesidades y preferencias lingüísticas del usuario final, mejorando la personalización y adecuación del contenido.

@@ -141,9 +141,4 @@ export interface StoryState
   setCharacterProfession: (profession: string) => void;
   setCharacterType: (type: string) => void;
   setCharacterPersonality: (personality: string) => void;
-
-  // Métodos de StoryOptions para compatibilidad
-  setDuration: (duration: StoryDuration) => void;
-  setMoral: (moral: string) => void;
-  setGenre: (genre: string) => void;
 }

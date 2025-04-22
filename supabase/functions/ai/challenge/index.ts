@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { corsHeaders } from "../../_shared/cors.ts";
+import { corsHeaders } from '../_shared/cors.ts';
 import { v4 as uuidv4 } from "npm:uuid@9.0.0";
 
 // Configuración de la API de Gemini
