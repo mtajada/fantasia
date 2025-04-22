@@ -359,7 +359,7 @@ export default function StoryViewer() {
 
                 {/* Segunda fila: Narrar */}
                 <button
-                  // onClick={toggleAudioPlayer}
+                  onClick={toggleAudioPlayer}
                   disabled={!isAllowedToGenerateVoice}
                   className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-[#f7c59f] hover:bg-[#ffd7ba] text-white active:bg-[#ffd7ba] focus:bg-[#ffd7ba]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
                   title={!isAllowedToGenerateVoice ? "Límite de voz o créditos agotados" : "Escuchar narración"}
