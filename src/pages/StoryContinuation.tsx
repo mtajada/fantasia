@@ -171,28 +171,46 @@ export default function StoryContinuation() {
   }, [story, storyId, isAllowedToContinue, addChapter, chapters, navigate]);
 
   const handleSelectFree = () => {
+    if (!story) return; // Añadir guarda por si acaso
+    // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
+    const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
+    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to freeContinuation service.`);
+
     handleGenerateAndSaveChapter(
-      StoryContinuationService.generateFreeContinuation(story!, chapters),
+      // Pasar los capítulos correctos del store
+      StoryContinuationService.generateFreeContinuation(story, currentChaptersFromStore),
       "free"
     );
   };
 
   const handleSelectOption = (index: number) => {
+    if (!story) return; // Añadir guarda
     const selectedOptionSummary = continuationOptions[index]?.summary;
     if (!selectedOptionSummary) {
       toast.error("Opción seleccionada no válida.");
       return;
     }
+    // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
+    const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
+    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to optionContinuation service.`);
+
     handleGenerateAndSaveChapter(
-      StoryContinuationService.generateOptionContinuation(story!, chapters, selectedOptionSummary),
+      // Pasar los capítulos correctos del store
+      StoryContinuationService.generateOptionContinuation(story, currentChaptersFromStore, selectedOptionSummary),
       `option${index + 1}` as "option1" | "option2" | "option3"
     );
   };
 
   const handleCustomContinuation = (userDirection: string) => {
+    if (!story) return; // Añadir guarda
     setShowCustomInput(false);
+    // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
+    const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
+    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to directedContinuation service.`);
+
     handleGenerateAndSaveChapter(
-      StoryContinuationService.generateDirectedContinuation(story!, chapters, userDirection),
+      // Pasar los capítulos correctos del store
+      StoryContinuationService.generateDirectedContinuation(story, currentChaptersFromStore, userDirection),
       "custom",
       userDirection
     );

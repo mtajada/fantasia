@@ -24,33 +24,33 @@ const model = genAI.getGenerativeModel({
 // --- Funciones Helper ---
 // generateContinuationOptions: MODIFICADO para incluir más contexto y adaptar al idioma
 async function generateContinuationOptions(
-  story, 
-  chapters, 
-  language = 'es', 
-  childAge = 7, 
+  story,
+  chapters,
+  language = 'es',
+  childAge = 7,
   specialNeed = null,
 ) {
   console.log(`[Helper v6.1-adapted] generateContinuationOptions for story ${story?.id}`);
   if (!story || !story.id || !story.title || !story.content || !story.options) throw new Error("Datos de historia inválidos/incompletos.");
   if (!Array.isArray(chapters)) throw new Error("Datos de capítulos inválidos.");
-  
+
   const cleanOriginalTitle = story.title.replace(/^\d+\.\s+/, '').trim();
   const storyOptions = story.options;
   console.log(`[DEBUG v6.1-adapted] Opts: Story ID: ${story.id}, Title: "${cleanOriginalTitle}", Lang: ${language}, Age: ${childAge}, Chapters: ${chapters.length}`);
-  
+
   // Usar el contenido del ÚLTIMO capítulo existente como contexto primario.
   // Si no hay capítulos, usar el contenido de la historia inicial.
   let contextContent = story.content; // Default a historia inicial
   if (chapters.length > 0 && chapters[chapters.length - 1]?.content) {
     contextContent = chapters[chapters.length - 1].content;
-    console.log(`[DEBUG v6.1-adapted] Using content from chapter ${chapters[chapters.length - 1].chapter_number} for options context.`);
+    console.log(`[DEBUG v6.1-adapted] Using content from chapter ${chapters[chapters.length - 1].chapterNumber} for options context.`);
   } else {
     console.log(`[DEBUG v6.1-adapted] Using initial story content for options context.`);
   }
-  
+
   // Tomar un fragmento significativo del final del contexto relevante
   const contextPreview = contextContent?.substring(Math.max(0, contextContent.length - 600)).trim() || '(No context)';
-  
+
   // --- Construir Prompt con más contexto ---
   let promptContext = `CONTEXTO:\n`;
   promptContext += `- Idioma del cuento: ${language}\n`;
@@ -59,7 +59,7 @@ async function generateContinuationOptions(
   promptContext += `- Título Original: "${cleanOriginalTitle}"\n`;
   promptContext += `- Género: ${storyOptions.genre}\n`;
   promptContext += `- Moraleja/Tema: ${storyOptions.moral}\n`;
-  
+
   if (storyOptions.character) {
     const character = storyOptions.character;
     promptContext += `- Personaje Principal: ${character.name || 'Protagonista'} `;
@@ -67,41 +67,43 @@ async function generateContinuationOptions(
     if (character.personality) promptContext += `- Personalidad: ${character.personality}`;
     promptContext += `\n`;
   }
-  
+
   promptContext += `- Final del Último Capítulo/Texto:\n...${contextPreview}\n\n`;
-  
+
   // --- Instrucciones Adaptadas al Idioma ---
   let instructions = '';
   let example = '';
   let commonInstructions = `Sugiere 3 posibles caminos MUY CORTOS (frases concisas indicando la siguiente acción o evento) y distintos para continuar la historia, basados en el ÚLTIMO contexto y coherentes con el género, moraleja y personaje. Las opciones deben ser apropiadas para un niño de ${childAge ?? '?'} años`;
-  
+
   if (specialNeed && specialNeed !== 'Ninguna') {
     commonInstructions = commonInstructions + ` (considerando ${specialNeed})`;
   }
-  
+
+  commonInstructions += ` IMPORTANTE: Los resúmenes ('summary') dentro del JSON deben estar escritos en ${language}.`;
+
   commonInstructions = commonInstructions + `.\nResponde SOLO con un JSON array válido de objetos, cada uno con una clave "summary" (string). No incluyas NADA MÁS antes o después del JSON array.`;
-  
+
   if (language.toLowerCase().startsWith('en')) {
-    instructions = `Based on the LAST context provided above, ${commonInstructions.replace('niño', 'child').replace('años','years old')}`;
+    instructions = `Based on the LAST context provided above, ${commonInstructions.replace('niño', 'child').replace('años', 'years old')}`;
     example = `Example: [{"summary":"The character decided to follow the map."}, {"summary":"A mysterious sound echoed nearby."}, {"summary":"They found a hidden note."}]`;
   } else { // Default a Español
     instructions = `Basado en el ÚLTIMO contexto proporcionado arriba, ${commonInstructions}`;
     example = `Ejemplo: [{"summary":"El personaje decidió seguir el mapa."}, {"summary":"Un sonido misterioso resonó cerca."}, {"summary":"Encontraron una nota escondida."}]`;
   }
-  
+
   const prompt = `${promptContext}${instructions}\n${example}`;
   // --- Fin Prompt Adaptado ---
-  
+
   console.log(`[DEBUG v6.1-adapted] Prompt for options generation (lang: ${language}):\n---\n${prompt}\n---`);
-  
+
   let rawAiResponseText = '';
   try {
     const result = await model.generateContent(prompt); // Usar el modelo global
     rawAiResponseText = result?.response?.text?.() ?? '';
     console.log(`[DEBUG v6.1-adapted] Raw AI Response Text for options:\n---\n${rawAiResponseText}\n---`);
-    
+
     if (!rawAiResponseText) throw new Error("IA response empty for options.");
-    
+
     let options;
     try {
       // Limpiar fences ANTES de parsear, por si acaso la IA los añade aquí también
@@ -155,11 +157,11 @@ function createContinuationPrompt(mode, story, chapters, context, language, chil
   let fullStoryContext = `\n\n--- HISTORIA COMPLETA HASTA AHORA ---\n\n`;
   fullStoryContext += `**Título Original:** ${cleanOriginalTitle}\n**Capítulo 1 (Inicio):**\n${story.content.trim()}\n\n`;
   if (chapters.length > 0) {
-    // Ordenar capítulos por chapter_number por si acaso
-    chapters.sort((a, b) => (a.chapter_number || 0) - (b.chapter_number || 0));
+    // Ordenar capítulos por chapterNumber por si acaso
+    chapters.sort((a, b) => (a.chapterNumber || 0) - (b.chapterNumber || 0));
     chapters.forEach((chapter) => {
-      if (chapter && chapter.chapter_number && chapter.title && chapter.content) {
-        fullStoryContext += `--- Capítulo ${chapter.chapter_number}: ${chapter.title} ---\n${chapter.content.trim()}\n\n`;
+      if (chapter && chapter.chapterNumber && chapter.title && chapter.content) {
+        fullStoryContext += `--- Capítulo ${chapter.chapterNumber}: ${chapter.title} ---\n${chapter.content.trim()}\n\n`;
       } else {
         console.warn(`[Helper v6.1-adapted] Saltando capítulo inválido en contexto:`, chapter);
       }
@@ -345,10 +347,10 @@ serve(async (req) => {
     if (action === 'generateOptions') {
       // Mantenemos la lógica original que pide JSON para las opciones pero pasamos más contexto
       responsePayload = await generateContinuationOptions(
-        story, 
-        chapters, 
-        language, 
-        childAge, 
+        story,
+        chapters,
+        language,
+        childAge,
         specialNeed
       );
     } else if (isContinuationAction) {
