@@ -49,6 +49,11 @@ export default function StoryViewer() {
   const isAllowedToContinue = storyId ? canContinueStory(storyId) : false;
   const isAllowedToGenerateVoice = canGenerateVoice();
 
+  // --- Cálculo para saber si es el último capítulo ---
+  const totalChapters = chapters.length;
+  const currentChapterNumber = currentChapterIndex + 1;
+  const isLastChapter = totalChapters > 0 && currentChapterNumber === totalChapters;
+
   // --- Efecto para cargar historia y capítulos ---
   useEffect(() => {
     if (!storyId) { navigate("/home", { replace: true }); return; }
@@ -335,9 +340,17 @@ export default function StoryViewer() {
 
                   <button
                     onClick={goToContinuationPage}
-                    disabled={!isAllowedToContinue}
-                    className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue ? 'bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
-                    title={!isAllowedToContinue ? "Límite de continuación gratuita alcanzado" : "Continuar la historia"}
+                    // Deshabilitado si NO se permite continuar (plan) O si NO es el último capítulo
+                    disabled={!isAllowedToContinue || !isLastChapter}
+                    className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue && isLastChapter ? 'bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
+                    // Título dinámico según la razón de la deshabilitación
+                    title={
+                      !isAllowedToContinue
+                        ? "Límite de continuación gratuita alcanzado"
+                        : !isLastChapter
+                        ? "Solo puedes continuar desde el último capítulo"
+                        : "Continuar la historia"
+                    }
                   >
                     <BookOpen size={22} className="mr-2" />
                     Continuar Historia

@@ -37,6 +37,11 @@ const SettingsPage: React.FC = () => {
     const [isLogoutLoading, setIsLogoutLoading] = useState(false);
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
+    // --- Voice Credits Constants ---
+    const PREMIUM_MONTHLY_VOICE_ALLOWANCE = 20; // O usa el valor correcto si es diferente
+    const VOICE_CREDITS_PACKAGE_AMOUNT = 20; // O usa el valor correcto si es diferente
+    const VOICE_CREDITS_PACKAGE_PRICE_EUR = 10; // O usa el valor correcto si es diferente
+
     const handleLogout = async () => {
         setIsLogoutLoading(true);
         try {
@@ -297,7 +302,7 @@ const SettingsPage: React.FC = () => {
                             {/* Premium User Content */}
                             {premiumUser && (
                                 <div className="space-y-5">
-                                    {/* Voice Credits - siguiendo el mismo diseño del Free */}
+                                    {/* Voice Credits Section Separada */}
                                     <div className="bg-white/70 rounded-2xl p-4 border border-[#A5D6F6]/30 shadow-sm">
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
@@ -308,16 +313,29 @@ const SettingsPage: React.FC = () => {
                                                 <p className="text-[#7DC4E0] text-sm">Para narrar tus cuentos</p>
                                             </div>
                                         </div>
-                                        <div className="flex justify-between items-center mb-2 px-2">
-                                            <span className="text-[#222] font-medium">Disponibles:</span>
-                                            <span className="font-mono font-bold text-xl text-[#A5D6F6]">{profileSettings.monthly_voice_generations_used !== undefined ? Math.max(0, 20 - profileSettings.monthly_voice_generations_used) : 'N/A'}</span>
+                                        {/* Créditos del plan mensual */}
+                                        <div className="flex justify-between items-center px-2">
+                                            <span className="text-[#222] font-medium">Del plan este mes:</span>
+                                            <span className="font-mono font-bold text-lg text-[#A5D6F6]">
+                                                {profileSettings.monthly_voice_generations_used !== undefined
+                                                    ? Math.max(0, PREMIUM_MONTHLY_VOICE_ALLOWANCE - profileSettings.monthly_voice_generations_used)
+                                                    : 'N/A'}
+                                                {' / '}{PREMIUM_MONTHLY_VOICE_ALLOWANCE}
+                                            </span>
                                         </div>
+                                        {/* Créditos comprados adicionales */}
+                                        <div className="flex justify-between items-center mt-1 px-2 pt-2 border-t border-[#A5D6F6]/20">
+                                            <span className="text-[#222] font-medium">Adicionales comprados:</span>
+                                            <span className="font-mono font-bold text-lg text-[#A5D6F6]">
+                                                {profileSettings.voice_credits ?? 0}
+                                            </span>
+                                        </div>
+                                        {/* Texto explicativo actualizado */}
                                         <div className="text-sm text-white mt-3 flex items-center bg-[#A5D6F6] p-2 rounded-lg">
                                             <CalendarClock className="h-4 w-4 mr-2 text-white" />
-                                            <span>El límite se reiniciará a 20 generaciones {resetDateString}. Puedes comprar más créditos si los necesitas antes.</span>
+                                            <span>Recibes {PREMIUM_MONTHLY_VOICE_ALLOWANCE} narraciones con tu plan cada mes (próximo reinicio {resetDateString}). Los créditos que compres se añaden a tu cuenta, no caducan, y se utilizan cuando agotes los de tu plan.</span>
                                         </div>
-
-                                        {/* Botón Comprar Créditos Voz (Premium user) - mismo estilo que Free */}
+                                        {/* Botón Comprar Créditos Voz (Premium user) */}
                                         <button
                                             onClick={() => handleCheckout('credits')}
                                             disabled={isCheckoutLoading}
@@ -325,7 +343,7 @@ const SettingsPage: React.FC = () => {
                                         >
                                             <div className="flex items-center gap-2 text-white font-bold">
                                                 <CreditCard className="h-4 w-4" />
-                                                <span>Comprar 20 créditos más por 10€</span>
+                                                <span>Comprar {VOICE_CREDITS_PACKAGE_AMOUNT} créditos más por {VOICE_CREDITS_PACKAGE_PRICE_EUR}€</span>
                                             </div>
                                             {isCheckoutLoading ? (
                                                 <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
@@ -334,8 +352,7 @@ const SettingsPage: React.FC = () => {
                                             )}
                                         </button>
                                     </div>
-
-                                    {/* Gestionar Suscripción */}
+                                    {/* Gestionar Suscripción (sin cambios) */}
                                     {profileSettings.stripe_customer_id && (
                                         <div className="border-t border-[#BB79D1]/10 pt-4">
                                             <button

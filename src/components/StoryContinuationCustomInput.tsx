@@ -28,19 +28,19 @@ export default function StoryContinuationCustomInput({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/20 backdrop-blur-md rounded-3xl p-6 mb-8 text-white leading-relaxed shadow-xl"
+      className="bg-white/80 backdrop-blur-md rounded-3xl p-6 mb-8 text-[#222] leading-relaxed shadow-xl border border-[#BB79D1]/30"
     >
       <div className="flex items-center mb-6">
         <button 
           onClick={onBack}
-          className="mr-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+          className="mr-4 p-2 rounded-full bg-[#BB79D1]/20 hover:bg-[#BB79D1]/30 transition-all text-[#BB79D1]"
         >
           <ArrowLeft size={20} />
         </button>
-        <h2 className="text-2xl font-bold">Describe tu continuación</h2>
+        <h2 className="text-2xl font-bold text-[#BB79D1]">Describe tu continuación</h2>
       </div>
 
-      <p className="mb-4 text-white/80">
+      <p className="mb-4 text-[#222] font-medium">
         Describe cómo te gustaría que continuara la historia. Puedes incluir nuevos personajes, 
         lugares o situaciones. ¡Sé creativo!
       </p>
@@ -49,7 +49,7 @@ export default function StoryContinuationCustomInput({
         value={userInput}
         onChange={(e) => setUserInput(e.target.value)}
         placeholder="Ejemplo: Me gustaría que el protagonista descubriera un objeto mágico que le permita..."
-        className="w-full h-40 p-4 rounded-xl bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-story-orange-400 resize-none mb-4"
+        className="w-full h-40 p-4 rounded-xl bg-[#F6A5B7]/10 text-[#222] placeholder-[#222]/50 focus:outline-none focus:ring-2 focus:ring-[#BB79D1] resize-none mb-4 border border-[#F6A5B7]/30"
         disabled={isSubmitting || disabled}
       />
 
@@ -59,8 +59,8 @@ export default function StoryContinuationCustomInput({
           disabled={!userInput.trim() || isSubmitting || disabled}
           className={`px-6 py-3 rounded-full font-medium flex items-center ${
             !userInput.trim() || isSubmitting || disabled
-              ? "bg-white/20 text-white/50 cursor-not-allowed"
-              : "bg-story-orange-400 text-white hover:bg-story-orange-500 transition-all shadow-lg"
+              ? "bg-[#BB79D1]/30 text-[#222]/50 cursor-not-allowed"
+              : "bg-[#BB79D1] text-white hover:bg-[#BB79D1]/90 transition-all shadow-lg"
           }`}
         >
           {isSubmitting ? (

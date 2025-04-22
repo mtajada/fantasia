@@ -1,0 +1,21 @@
+// supabase/edge-functions/deno.jsonc
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "lib": [
+            "deno.window",
+            "deno.unstable"
+        ], // Añade las libs que necesiten tus funciones
+        "strict": true
+        // No necesitas "jsx" aquí si no usas JSX en las funciones
+    },
+    "imports": {
+        // Define aquí alias específicos si los necesitas DENTRO de las funciones
+        // Ejemplo: "shared/": "./_shared/"
+        "stripe": "https://esm.sh/stripe@14.13.0?target=deno",
+        "supabase": "https://esm.sh/@supabase/supabase-js@2.39.8",
+        "jose": "https://deno.land/x/jose@v5.6.3/index.ts"
+        // ...otros imports comunes para tus funciones...
+    }
+    // Puedes añadir config de lint/fmt si quieres usarlos específicamente aquí
+}

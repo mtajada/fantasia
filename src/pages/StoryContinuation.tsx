@@ -1,7 +1,7 @@
 // src/pages/StoryContinuation.tsx
 // VERSIÓN CORREGIDA para manejar la respuesta { content, title } del servicio
 
-import React, { useState, useEffect, useCallback } from "react"; 
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
@@ -86,7 +86,15 @@ export default function StoryContinuation() {
     setIsLoadingOptions(true);
     setContinuationOptions([]);
     try {
-      const response = await StoryContinuationService.generateContinuationOptions(story, chapters);
+      // Obtener profileSettings para pasar childAge y specialNeed
+      const profileSettings = useUserStore.getState().profileSettings;
+      
+      const response = await StoryContinuationService.generateContinuationOptions(
+        story, 
+        chapters,
+        profileSettings?.childAge,
+        profileSettings?.specialNeed
+      );
       if (response?.options?.length === 3) {
         setContinuationOptions(response.options);
       } else {
@@ -163,28 +171,46 @@ export default function StoryContinuation() {
   }, [story, storyId, isAllowedToContinue, addChapter, chapters, navigate]);
 
   const handleSelectFree = () => {
+    if (!story) return; // Añadir guarda por si acaso
+    // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
+    const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
+    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to freeContinuation service.`);
+
     handleGenerateAndSaveChapter(
-      StoryContinuationService.generateFreeContinuation(story!, chapters),
+      // Pasar los capítulos correctos del store
+      StoryContinuationService.generateFreeContinuation(story, currentChaptersFromStore),
       "free"
     );
   };
 
   const handleSelectOption = (index: number) => {
+    if (!story) return; // Añadir guarda
     const selectedOptionSummary = continuationOptions[index]?.summary;
     if (!selectedOptionSummary) {
       toast.error("Opción seleccionada no válida.");
       return;
     }
+    // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
+    const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
+    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to optionContinuation service.`);
+
     handleGenerateAndSaveChapter(
-      StoryContinuationService.generateOptionContinuation(story!, chapters, selectedOptionSummary),
+      // Pasar los capítulos correctos del store
+      StoryContinuationService.generateOptionContinuation(story, currentChaptersFromStore, selectedOptionSummary),
       `option${index + 1}` as "option1" | "option2" | "option3"
     );
   };
 
   const handleCustomContinuation = (userDirection: string) => {
+    if (!story) return; // Añadir guarda
     setShowCustomInput(false);
+    // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
+    const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
+    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to directedContinuation service.`);
+
     handleGenerateAndSaveChapter(
-      StoryContinuationService.generateDirectedContinuation(story!, chapters, userDirection),
+      // Pasar los capítulos correctos del store
+      StoryContinuationService.generateDirectedContinuation(story, currentChaptersFromStore, userDirection),
       "custom",
       userDirection
     );
@@ -193,7 +219,7 @@ export default function StoryContinuation() {
   if (isLoading) {
     return (
       <PageTransition>
-        <div 
+        <div
           className="min-h-screen flex flex-col items-center justify-center p-6"
           style={{
             backgroundImage: "url(/fondo_png.png)",
@@ -211,7 +237,7 @@ export default function StoryContinuation() {
             >
               <IconLoadingAnimation message="Generando continuación..." />
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -219,7 +245,7 @@ export default function StoryContinuation() {
               className="bg-white/70 text-[#222] p-4 rounded-xl max-w-sm text-center shadow-md"
             >
               <p className="font-medium">Estamos personalizando una continuación mágica para tu historia...</p>
-              
+
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {story?.options?.character && (
                   <div className="bg-[#7DC4E0]/20 p-2 rounded-lg border border-[#7DC4E0]/30">
@@ -227,14 +253,14 @@ export default function StoryContinuation() {
                     <p className="text-sm truncate">{story.options.character.name || "Personaje"}</p>
                   </div>
                 )}
-                
+
                 {story?.options?.genre && (
                   <div className="bg-[#BB79D1]/20 p-2 rounded-lg border border-[#BB79D1]/30">
                     <p className="text-xs font-semibold text-[#BB79D1]">Género</p>
                     <p className="text-sm truncate">{story.options.genre}</p>
                   </div>
                 )}
-                
+
                 {story?.options?.duration && (
                   <div className="bg-[#F9DA60]/20 p-2 rounded-lg border border-[#F9DA60]/30">
                     <p className="text-xs font-semibold text-[#F9DA60]">Duración</p>

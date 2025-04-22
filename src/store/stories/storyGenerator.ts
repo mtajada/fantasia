@@ -75,6 +75,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
         character: characterForStory,
         genre: options.genre || "aventura",
         duration: options.duration || "medium",
+        language: payload.language,
       },
       additional_details: additionalDetails, 
       createdAt: new Date().toISOString(),
