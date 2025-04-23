@@ -24,30 +24,10 @@ const ProfileConfigPage: React.FC = () => {
     const [language, setLanguage] = useState("Español");
     const [childAge, setChildAge] = useState(5);
     const [specialNeed, setSpecialNeed] = useState("Ninguna");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // Let useEffect manage loading state
     const [isSaving, setIsSaving] = useState(false);
 
-    // Efecto para cargar datos iniciales del perfil
-    useEffect(() => {
-        setIsLoading(true);
-        if (storeProfileSettings) {
-            console.log("ProfileConfigPage: Usando datos del store", storeProfileSettings);
-            setLanguage(storeProfileSettings.language || "Español");
-            setChildAge(storeProfileSettings.childAge || 5);
-            setSpecialNeed(storeProfileSettings.specialNeed || "Ninguna");
-            setIsLoading(false);
-        } else if (user) {
-            console.log("ProfileConfigPage: Usuario existe, pero sin settings en store. Usando defaults.");
-            setLanguage("Español");
-            setChildAge(5);
-            setSpecialNeed("Ninguna");
-            setIsLoading(false);
-        } else {
-            console.log("ProfileConfigPage: Esperando datos del usuario y perfil...");
-        }
-    }, [user, storeProfileSettings]);
-
-    // Definiciones de idiomas y necesidades especiales
+    // Definiciones de idiomas y necesidades especiales (Moved up for use in Trigger)
     const languages = [
         { value: "Español", label: "Español", flag: "🇪🇸" },
         { value: "Inglés", label: "Inglés", flag: "🇬🇧" },
@@ -65,6 +45,35 @@ const ProfileConfigPage: React.FC = () => {
         { value: "Down", label: "Síndrome de Down" },
         { value: "Comprension", label: "Dificultades de Comprensión Auditiva o Lingüística" }
     ];
+
+    // Efecto para cargar datos iniciales del perfil
+    useEffect(() => {
+        setIsLoading(true);
+        const profileComplete = hasCompletedProfile(); // Check completion status first
+
+        if (profileComplete && storeProfileSettings) {
+            // Profile is complete, use stored settings (with fallback just in case)
+            console.log("ProfileConfigPage: Profile complete, using store data:", storeProfileSettings);
+            setLanguage(storeProfileSettings.language || "Español");
+            setChildAge(storeProfileSettings.childAge || 5);
+            setSpecialNeed(storeProfileSettings.specialNeed || "Ninguna");
+        } else if (user) {
+            // Profile NOT complete (or store settings missing), OR user exists but profile status unknown yet. Set defaults.
+            console.log(`ProfileConfigPage: Profile incomplete or store settings missing (Complete: ${profileComplete}). Using defaults.`);
+            setLanguage("Español");
+            setChildAge(5);
+            setSpecialNeed("Ninguna");
+        } else {
+            // Waiting for user data
+            console.log("ProfileConfigPage: Waiting for user data...");
+        }
+        setIsLoading(false); // Set loading false after logic runs
+
+    // Dependencies: user, storeProfileSettings, and hasCompletedProfile function reference
+    }, [user, storeProfileSettings, hasCompletedProfile]);
+
+    // Find the selected language object for display in Trigger
+    const selectedLang = languages.find(l => l.value === language);
 
     // Manejador del envío del formulario
     const handleSubmit = async (e: React.FormEvent) => {
@@ -197,14 +206,18 @@ const ProfileConfigPage: React.FC = () => {
 
                                 <Select value={language} onValueChange={setLanguage}>
                                     <SelectTrigger className="w-full bg-white/10 border-[#A5D6F6]/30 backdrop-blur-sm text-[#222] hover:bg-white/20 transition-colors h-12">
-                                        <SelectValue placeholder="Selecciona un idioma">
-                                            {language && (
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-xl">{languages.find(lang => lang.value === language)?.flag}</span>
-                                                    <span>{language}</span>
-                                                </span>
-                                            )}
-                                        </SelectValue>
+                                        {/* --- MODIFICATION START --- */}
+                                        {/* Render flag and label directly if language is selected */}
+                                        {selectedLang ? (
+                                            <div className="flex items-center">
+                                                <span role="img" aria-label={selectedLang.label} className="mr-2">{selectedLang.flag}</span>
+                                                {selectedLang.label}
+                                            </div>
+                                        ) : (
+                                            /* Fallback to placeholder if no language (shouldn't happen) */
+                                            <SelectValue placeholder="Selecciona un idioma..." />
+                                        )}
+                                        {/* --- MODIFICATION END --- */}
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border-[#BB79D1]/40 shadow-xl rounded-2xl text-[#222]">
                                         {languages.map((lang) => (
@@ -277,8 +290,12 @@ const ProfileConfigPage: React.FC = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 type="submit"
-                                disabled={isSaving}
-                                className="w-full mt-6 py-4 px-6 bg-[#BB79D1]/30 border border-[#BB79D1]/30 hover:bg-[#BB79D1]/40 text-[#222] rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all"
+                                disabled={isSaving || isLoading} /* Disable also while loading initial data */
+                                className={`w-full mt-6 py-4 px-6 rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all ${
+                                    (isSaving || isLoading)
+                                        ? 'bg-gray-400/30 border-gray-400/30 text-gray-500 cursor-not-allowed'
+                                        : 'bg-[#BB79D1]/30 border border-[#BB79D1]/30 hover:bg-[#BB79D1]/40 text-[#222]'
+                                }`}
                             >
                                 {isSaving ? (
                                     <div className="h-5 w-5 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin mr-2"></div>
