@@ -10,6 +10,7 @@ import AuthGuard from "./components/AuthGuard";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import SignupSuccess from "./pages/SignupSuccess";
 // import ProfileSetup from "./pages/ProfileSetup"; 
 import Home from "./pages/Home";
 import CharacterSelection from "./pages/CharacterSelection";
@@ -56,6 +57,7 @@ const App = () => {
               <Route path="/" element={<Welcome />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/signup-success" element={<SignupSuccess />} />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/auth/callback" element={<AuthCallback />} />

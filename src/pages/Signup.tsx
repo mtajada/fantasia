@@ -61,11 +61,11 @@ export default function Signup() {
       if (user) {
         toast({
           title: "Registro exitoso",
-          description: "¡Tu cuenta ha sido creada! Por favor, revisa tu correo electrónico para confirmar tu registro.",
+          description: "¡Tu cuenta ha sido creada!",
         });
         // Redirigir a la página de login después de un registro exitoso
         setTimeout(() => {
-          navigate("/login");
+          navigate("/signup-success");
         }, 2000);
       } else {
         toast({
