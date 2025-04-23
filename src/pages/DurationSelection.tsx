@@ -60,13 +60,16 @@ export default function DurationSelection() {
             
             <div 
               onClick={() => handleSelectDuration("medium")}
-              className={`
+              className={`relative
                 flex flex-col items-center justify-center p-6 cursor-pointer
                 bg-white/70 rounded-2xl border-2 border-[#F9DA60]/60
                 ${selectedDuration === "medium" ? 'ring-4 ring-[#F9DA60] shadow-lg transform scale-105' : 'hover:bg-[#F9DA60]/10 hover:scale-105 hover:shadow-md'}
                 transition-all duration-300
               `}
             >
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#E6B7D9]/70 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
+                Narración no disponible
+              </div>
               <div className="text-[#F9DA60] text-3xl mb-3">
                 <Timer />
               </div>
@@ -75,13 +78,16 @@ export default function DurationSelection() {
             
             <div 
               onClick={() => handleSelectDuration("long")}
-              className={`
+              className={`relative
                 flex flex-col items-center justify-center p-6 cursor-pointer
                 bg-white/70 rounded-2xl border-2 border-[#7DC4E0]/60
                 ${selectedDuration === "long" ? 'ring-4 ring-[#7DC4E0] shadow-lg transform scale-105' : 'hover:bg-[#7DC4E0]/10 hover:scale-105 hover:shadow-md'}
                 transition-all duration-300
               `}
             >
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[#E6B7D9]/70 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
+                Narración no disponible
+              </div>
               <div className="text-[#7DC4E0] text-3xl mb-3">
                 <Watch />
               </div>
