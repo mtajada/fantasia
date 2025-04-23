@@ -15,8 +15,11 @@ export default function DurationSelection() {
   );
   
   const handleSelectDuration = (duration: StoryDuration) => {
-    setDuration(duration);
-    setSelectedDuration(duration);
+    // Solo permitir la selección de "short"
+    if (duration === "short") {
+      setDuration(duration);
+      setSelectedDuration(duration);
+    }
   };
   
   const handleContinue = () => {
@@ -59,33 +62,37 @@ export default function DurationSelection() {
             </div>
             
             <div 
-              onClick={() => handleSelectDuration("medium")}
               className={`
-                flex flex-col items-center justify-center p-6 cursor-pointer
-                bg-white/70 rounded-2xl border-2 border-[#F9DA60]/60
-                ${selectedDuration === "medium" ? 'ring-4 ring-[#F9DA60] shadow-lg transform scale-105' : 'hover:bg-[#F9DA60]/10 hover:scale-105 hover:shadow-md'}
+                flex flex-col items-center justify-center p-6 cursor-not-allowed
+                bg-white/50 rounded-2xl border-2 border-[#F9DA60]/30
+                relative
                 transition-all duration-300
               `}
             >
-              <div className="text-[#F9DA60] text-3xl mb-3">
+              <span className="absolute -top-2 right-0 bg-[#F6A5B7] text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">
+                Próximamente
+              </span>
+              <div className="text-[#F9DA60]/60 text-3xl mb-3">
                 <Timer />
               </div>
-              <span className="text-[#222] text-center font-medium">Media (5-10 min)</span>
+              <span className="text-[#222]/60 text-center font-medium">Media (5-10 min)</span>
             </div>
             
             <div 
-              onClick={() => handleSelectDuration("long")}
               className={`
-                flex flex-col items-center justify-center p-6 cursor-pointer
-                bg-white/70 rounded-2xl border-2 border-[#7DC4E0]/60
-                ${selectedDuration === "long" ? 'ring-4 ring-[#7DC4E0] shadow-lg transform scale-105' : 'hover:bg-[#7DC4E0]/10 hover:scale-105 hover:shadow-md'}
+                flex flex-col items-center justify-center p-6 cursor-not-allowed
+                bg-white/50 rounded-2xl border-2 border-[#7DC4E0]/30
+                relative
                 transition-all duration-300
               `}
             >
-              <div className="text-[#7DC4E0] text-3xl mb-3">
+              <span className="absolute -top-2 right-0 bg-[#F6A5B7] text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">
+                Próximamente
+              </span>
+              <div className="text-[#7DC4E0]/60 text-3xl mb-3">
                 <Watch />
               </div>
-              <span className="text-[#222] text-center font-medium">Larga (10-15 min)</span>
+              <span className="text-[#222]/60 text-center font-medium">Larga (10-15 min)</span>
             </div>
           </div>
           
