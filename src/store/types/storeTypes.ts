@@ -28,7 +28,7 @@ export interface UserState {
   canCreateStory: () => boolean;
   getRemainingMonthlyVoiceGenerations: () => number;
   getAvailableVoiceCredits: () => number;
-  canGenerateVoice: () => boolean;
+  canGeneraeVoice: () => boolean;
   canContinueStory: (storyId: string) => boolean;
 }
 

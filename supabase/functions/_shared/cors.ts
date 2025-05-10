@@ -1,12 +1,14 @@
 // supabase/functions/_shared/cors.ts
 
 export const corsHeaders = {
-  // IMPORTANTE: En producción, reemplaza '*' con la URL exacta de tu aplicación frontend.
-  // Ejemplo: 'Access-Control-Allow-Origin': 'https://tu-cuenta-cuentos.com',
-  'Access-Control-Allow-Origin': '*', // Permitir cualquier origen por ahora (Cámbialo en producción)
-
+  // For development: include localhost
+  'Access-Control-Allow-Origin': '*',
+  
+  // If you need to support multiple origins, you can use this instead
+  // and add logic in your function to set the appropriate origin
+  // 'Access-Control-Allow-Origin': '*', 
+  
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-
-  // Asegúrate de que OPTIONS está incluido si tu frontend hace preflight requests
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Max-Age': '86400',  // 24 hours caching for preflight requests
 };

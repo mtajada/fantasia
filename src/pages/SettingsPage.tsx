@@ -268,10 +268,11 @@ const SettingsPage: React.FC = () => {
                                         {/* Botón Comprar Créditos Voz (Free user) */}
                                         <button
                                             onClick={() => handleCheckout('credits')}
-                                            disabled={isCheckoutLoading || isPortalLoading}
+                                            // disabled={isCheckoutLoading || isPortalLoading}
+                                            disabled={true}
                                             className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-[#A5D6F6]/40 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            <div className="flex items-center gap-2 text-white font-bold">
+                                            <div className="flex items-center gap-2 text-[#BB79D1] font-bold">
                                                 <CreditCard className="h-4 w-4" />
                                                 <span>Comprar 20 créditos más por 10€</span>
                                             </div>

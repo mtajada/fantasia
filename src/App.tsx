@@ -10,6 +10,7 @@ import AuthGuard from "./components/AuthGuard";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import SignupSuccess from "./pages/SignupSuccess";
 // import ProfileSetup from "./pages/ProfileSetup"; 
 import Home from "./pages/Home";
 import CharacterSelection from "./pages/CharacterSelection";
@@ -32,6 +33,9 @@ import CharactersManagement from "./pages/CharactersManagement";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import StoryDetailsInput from "./pages/StoryDetailsInput";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Contact from "./pages/Contact";
 
 // New Pages for Refactor
 import ProfileConfigPage from './pages/ProfileConfigPage';
@@ -53,9 +57,13 @@ const App = () => {
               <Route path="/" element={<Welcome />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/signup-success" element={<SignupSuccess />} />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/contact" element={<Contact />} />
 
               {/* Payment routes */}
               <Route path="/payment-success" element={<AuthGuard><PaymentSuccess /></AuthGuard>} />
