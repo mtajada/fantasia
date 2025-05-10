@@ -170,7 +170,7 @@ export default function StoryViewer() {
   const toggleAudioPlayer = () => {
     // Usar el estado derivado isAllowedToGenerateVoice
     if (isAllowedToGenerateVoice) {
-        navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
+      navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
     } else {
       toast.error("Límite de voz alcanzado", {
         description: "No tienes generaciones de voz gratuitas o créditos disponibles."

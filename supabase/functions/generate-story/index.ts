@@ -5,21 +5,7 @@ import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts'; // Asegúrate que la ruta es correcta
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
-// --- Configuración ---
-const API_KEY = Deno.env.get("GEMINI_API_KEY");
-if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
-// --- Instancia con Librería Original ---
-const genAI = new GoogleGenerativeAI(API_KEY);
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
-if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
-const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
-// --- Modelo ---
-const modelName = "gemini-2.0-flash-thinking-exp-01-21";
-console.log(`generate-story v6.1: Using model: ${modelName} (Separator Strategy - Deployment Fix)`);
-const model = genAI.getGenerativeModel({
-  model: modelName
-});
+
 // --- Funciones Helper ---
 // createSystemPrompt: Sin cambios
 function createSystemPrompt(language, childAge, specialNeed) {
@@ -45,8 +31,8 @@ function createUserPrompt_SeparatorFormat({ options, additionalDetails }) {
   request += `**Instrucciones de Contenido, Longitud y Estructura:**\n`;
   request += `1.  **Duración Objetivo:** '${storyDuration}'.\n`;
   if (storyDuration === 'short') request += `    *   Guía (Corta): ~800 tokens.\n`;
-  else if (storyDuration === 'long') request += `    *   Guía (Larga): ~2500 tokens.\n`;
-  else request += `    *   Guía (Media): ~1500 tokens.\n`;
+  else if (storyDuration === 'long') request += `    *   Guía (Larga): ~2150 tokens.\n`;
+  else request += `    *   Guía (Media): ~1350 tokens.\n`;
   if (additionalDetails && typeof additionalDetails === 'string' && additionalDetails.trim()) {
     request += `\n**Instrucciones Adicionales del Usuario:**\n${additionalDetails.trim()}\n`;
   }
@@ -100,6 +86,22 @@ serve(async (req) => {
       headers: corsHeaders
     });
   }
+    // --- Configuración ---
+  const API_KEY = Deno.env.get("GEMINI_API_KEY");
+  if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
+  // --- Instancia con Librería Original ---
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+  const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
+  if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
+  const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
+  
+  // --- Modelo ---
+  const modelName = "gemini-2.5-pro-exp-03-25";
+  console.log(`generate-story v6.1: Using model: ${modelName} (Separator Strategy - Deployment Fix)`);
+  const model = genAI.getGenerativeModel({
+    model: modelName
+  });
   // 2. Verificar Método POST
   if (req.method !== 'POST') {
     console.log(`Method ${req.method} not allowed.`);
