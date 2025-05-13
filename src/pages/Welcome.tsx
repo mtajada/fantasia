@@ -190,7 +190,6 @@ export default function Welcome() {
               />
             </div>
           </motion.div>
-
         </main>
       </div>
     </PageTransition>
