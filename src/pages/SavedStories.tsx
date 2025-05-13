@@ -53,6 +53,7 @@ export default function SavedStories() {
   // Group stories that have chapters
   const storiesWithChaptersInfo = generatedStories.map(story => {
     const chapters = getChaptersByStoryId(story.id);
+    console.log("🚀 ~ SavedStories ~ chapters:", chapters)
     return {
       ...story,
       hasMultipleChapters: chapters.length > 1,

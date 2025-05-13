@@ -372,7 +372,7 @@ export default function StoryViewer() {
                 {/* Tercera fila: Volver al Inicio */}
                 <button
                   onClick={() => navigate("/home")}
-                  className="flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-semibold bg-white/60 hover:bg-white/80 text-[#BB79D1] transition-all shadow w-full sm:w-48 text-base sm:text-lg"
+                  className="flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-semibold bg-white/60 hover:bg-white/80 text-[#BB79D1] transition-all shadow w-full sm:w-48 text-base"
                 >
                   <Home size={18} className="mr-2" /> Volver al Inicio
                 </button>

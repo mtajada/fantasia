@@ -7,8 +7,9 @@ import { v4 as uuidv4 } from "npm:uuid@9.0.0";
 const API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
+const modelName = Deno.env.get('TEXT_MODEL_GENERATE');
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.0-flash-thinking-exp-01-21",
+  model: modelName,
 });
 
 // Generar un UUID
