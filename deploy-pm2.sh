@@ -16,7 +16,7 @@ if ! command -v pm2 &> /dev/null; then
 fi
 
 # Verify if .env file exists
-if [ ! -f .env ]; then
+if [ ! -f .env.production ]; then
     echo -e "${YELLOW}File .env not found. Copying from .env.example...${NC}"
     if [ -f .env.example ]; then
         cp .env.example .env
