@@ -22,6 +22,7 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
       }),
 
     addGeneratedStory: async (story) => {
+      console.log("🚀 ~ addGeneratedStory: ~ story:", story)
       // Guardar localmente primero
       set((state) => ({
         generatedStories: [story, ...state.generatedStories],

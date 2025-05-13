@@ -99,6 +99,7 @@ export type Challenge = {
 };
 
 export type StoryChapter = {
+  id: string;
   chapterNumber: number;
   title: string;
   content: string;

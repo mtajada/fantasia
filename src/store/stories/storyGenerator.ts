@@ -15,7 +15,6 @@ import { useChaptersStore } from "./chapters/chaptersStore";
 export const generateStory = async (options: Partial<StoryOptions>): Promise<Story | null> => { 
   const storiesStore = useStoriesStore.getState();
   const chaptersStore = useChaptersStore.getState(); 
-  const userStore = useUserStore.getState();
   const characterStore = useCharacterStore.getState();
   const storyOptionsState = useStoryOptionsStore.getState(); 
 
@@ -91,6 +90,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
     // 2. Crear y guardar el Capítulo 1
     const firstChapter: StoryChapter = {
+      id: generateId(),
       chapterNumber: 1,
       title: story.title, 
       content: story.content, 

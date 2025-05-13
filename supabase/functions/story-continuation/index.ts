@@ -16,13 +16,14 @@ const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
 if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
 const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
 // --- Modelo ---
-const modelName = "gemini-2.0-flash-thinking-exp-01-21";
+const modelName = Deno.env.get('TEXT_MODEL_GENERATE');
 console.log(`story-continuation v6.1-adapted: Using model: ${modelName} (Separator Strategy for Continuations)`);
 const model = genAI.getGenerativeModel({
   model: modelName
 });
 // --- Funciones Helper ---
 // generateContinuationOptions: MODIFICADO para incluir más contexto y adaptar al idioma
+// generateContinuationOptions: Mejorada con mayor claridad y optimización
 async function generateContinuationOptions(
   story,
   chapters,
@@ -31,27 +32,32 @@ async function generateContinuationOptions(
   specialNeed = null,
 ) {
   console.log(`[Helper v6.1-adapted] generateContinuationOptions for story ${story?.id}`);
-  if (!story || !story.id || !story.title || !story.content || !story.options) throw new Error("Datos de historia inválidos/incompletos.");
-  if (!Array.isArray(chapters)) throw new Error("Datos de capítulos inválidos.");
+  
+  // Validación de datos de la historia
+  if (!story || !story.id || !story.title || !story.content || !story.options) {
+    throw new Error("Datos de historia inválidos/incompletos.");
+  }
+  if (!Array.isArray(chapters)) {
+    throw new Error("Datos de capítulos inválidos.");
+  }
 
   const cleanOriginalTitle = story.title.replace(/^\d+\.\s+/, '').trim();
   const storyOptions = story.options;
   console.log(`[DEBUG v6.1-adapted] Opts: Story ID: ${story.id}, Title: "${cleanOriginalTitle}", Lang: ${language}, Age: ${childAge}, Chapters: ${chapters.length}`);
 
-  // Usar el contenido del ÚLTIMO capítulo existente como contexto primario.
-  // Si no hay capítulos, usar el contenido de la historia inicial.
-  let contextContent = story.content; // Default a historia inicial
+  // Seleccionar el contenido más reciente para continuar la historia (último capítulo o historia inicial)
+  let contextContent = story.content; // Predeterminado a historia inicial
   if (chapters.length > 0 && chapters[chapters.length - 1]?.content) {
     contextContent = chapters[chapters.length - 1].content;
-    console.log(`[DEBUG v6.1-adapted] Using content from chapter ${chapters[chapters.length - 1].chapterNumber} for options context.`);
+    console.log(`[DEBUG v6.1-adapted] Usando contenido del capítulo ${chapters[chapters.length - 1].chapterNumber} como contexto.`);
   } else {
-    console.log(`[DEBUG v6.1-adapted] Using initial story content for options context.`);
+    console.log(`[DEBUG v6.1-adapted] Usando contenido inicial como contexto.`);
   }
 
   // Tomar un fragmento significativo del final del contexto relevante
-  const contextPreview = contextContent?.substring(Math.max(0, contextContent.length - 600)).trim() || '(No context)';
+  const contextPreview = contextContent?.substring(Math.max(0, contextContent.length - 600)).trim() || '(Sin contexto)';
 
-  // --- Construir Prompt con más contexto ---
+  // --- Construcción del Prompt con contexto adicional ---
   let promptContext = `CONTEXTO:\n`;
   promptContext += `- Idioma del cuento: ${language}\n`;
   promptContext += `- Edad del niño: ${childAge ?? 'No especificada'}\n`;
@@ -60,6 +66,7 @@ async function generateContinuationOptions(
   promptContext += `- Género: ${storyOptions.genre}\n`;
   promptContext += `- Moraleja/Tema: ${storyOptions.moral}\n`;
 
+  // Detalles del personaje principal
   if (storyOptions.character) {
     const character = storyOptions.character;
     promptContext += `- Personaje Principal: ${character.name || 'Protagonista'} `;
@@ -70,18 +77,18 @@ async function generateContinuationOptions(
 
   promptContext += `- Final del Último Capítulo/Texto:\n...${contextPreview}\n\n`;
 
-  // --- Instrucciones Adaptadas al Idioma ---
+  // --- Instrucciones para la IA ---
   let instructions = '';
   let example = '';
-  let commonInstructions = `Sugiere 3 posibles caminos MUY CORTOS (frases concisas indicando la siguiente acción o evento) y distintos para continuar la historia, basados en el ÚLTIMO contexto y coherentes con el género, moraleja y personaje. Las opciones deben ser apropiadas para un niño de ${childAge ?? '?'} años`;
+  let commonInstructions = `Sugiere 3 posibles caminos MUY CORTOS (frases concisas indicando la siguiente acción o evento) y distintos para continuar la historia, basados en el ÚLTIMO contexto y coherentes con el género, moraleja y personaje. Las opciones deben ser apropiadas para un niño de ${childAge ?? '?'} años.`;
 
   if (specialNeed && specialNeed !== 'Ninguna') {
     commonInstructions = commonInstructions + ` (considerando ${specialNeed})`;
   }
 
-  commonInstructions += ` IMPORTANTE: Los resúmenes ('summary') dentro del JSON deben estar escritos en ${language}.`;
+  commonInstructions += ` IMPORTANTE: Los resúmenes dentro del JSON deben estar escritos en ${language}.`;
 
-  commonInstructions = commonInstructions + `.\nResponde SOLO con un JSON array válido de objetos, cada uno con una clave "summary" (string). No incluyas NADA MÁS antes o después del JSON array.`;
+  commonInstructions += `.\nResponde SOLO con un JSON array válido de objetos, cada uno con una clave "summary" (string). No incluyas NADA MÁS antes o después del JSON array.`;
 
   if (language.toLowerCase().startsWith('en')) {
     instructions = `Based on the LAST context provided above, ${commonInstructions.replace('niño', 'child').replace('años', 'years old')}`;
@@ -94,70 +101,76 @@ async function generateContinuationOptions(
   const prompt = `${promptContext}${instructions}\n${example}`;
   // --- Fin Prompt Adaptado ---
 
-  console.log(`[DEBUG v6.1-adapted] Prompt for options generation (lang: ${language}):\n---\n${prompt}\n---`);
+  console.log(`[DEBUG v6.1-adapted] Prompt para generación de opciones (lang: ${language}):\n---\n${prompt}\n---`);
 
   let rawAiResponseText = '';
   try {
+    // Llamada al modelo para generar las opciones
     const result = await model.generateContent(prompt); // Usar el modelo global
     rawAiResponseText = result?.response?.text?.() ?? '';
     console.log(`[DEBUG v6.1-adapted] Raw AI Response Text for options:\n---\n${rawAiResponseText}\n---`);
 
-    if (!rawAiResponseText) throw new Error("IA response empty for options.");
+    if (!rawAiResponseText) throw new Error("Respuesta vacía de la IA para las opciones.");
 
     let options;
     try {
-      // Limpiar fences ANTES de parsear, por si acaso la IA los añade aquí también
+      // Limpiar y parsear el JSON, manejando posibles marcadores de código
       const jsonRegex = /^```(?:json)?\s*([\s\S]*?)\s*```$/;
       const match = rawAiResponseText.match(jsonRegex);
       let textToParse = rawAiResponseText.trim();
       if (match && match[1]) {
-        console.log("[DEBUG v6.1-adapted] Options: Markdown fences detected, extracting JSON...");
+        console.log("[DEBUG v6.1-adapted] Opciones: Se detectaron fences de Markdown, extrayendo JSON...");
         textToParse = match[1].trim();
       }
       options = JSON.parse(textToParse);
     } catch (parseError) {
-      throw new Error(`IA did not return valid JSON for options: ${parseError.message}. Received: ${rawAiResponseText.substring(0, 150)}...`);
+      throw new Error(`La IA no devolvió un JSON válido para las opciones: ${parseError.message}. Recibido: ${rawAiResponseText.substring(0, 150)}...`);
     }
     if (Array.isArray(options) && options.length > 0 && options.every((o) => typeof o.summary === 'string' && o.summary.trim())) {
-      console.log(`[DEBUG v6.1-adapted] Successfully parsed options:`, options);
-      return {
-        options
-      };
+      console.log(`[DEBUG v6.1-adapted] Opciones correctamente parseadas:`, options);
+      return { options };
     }
-    throw new Error("Invalid options format after parsing JSON from AI.");
+    throw new Error("Formato de opciones inválido después de parsear el JSON de la IA.");
   } catch (e) {
-    console.error(`[DEBUG v6.1-adapted] Error processing AI response for options: ${e.message}. Returning fallback.`, e);
-    // Fallback más genérico
+    console.error(`[DEBUG v6.1-adapted] Error procesando la respuesta de la IA para las opciones: ${e.message}. Retornando opción de fallback.`, e);
+    // Opción de fallback si ocurre un error
     return {
       options: [
-        {
-          summary: "Continuar la aventura"
-        },
-        {
-          summary: "Explorar algo nuevo"
-        },
-        {
-          summary: "Encontrar un amigo"
-        }
+        { summary: "Continuar la aventura" },
+        { summary: "Explorar algo nuevo" },
+        { summary: "Encontrar un amigo" }
       ]
     };
   }
 }
+
 // createContinuationPrompt: MODIFICADO para pedir SEPARADORES
+// createContinuationPrompt: Mejorada con claridad y optimización
 function createContinuationPrompt(mode, story, chapters, context, language, childAge, specialNeed, storyDuration) {
   console.log(`[Helper v6.1-adapted] createContinuationPrompt (Separator Format): mode=${mode}, story=${story?.id}, duration=${storyDuration}, chapters: ${chapters?.length}`);
-  if (!story || !story.title || !story.options?.character?.name || !story.content) throw new Error("Datos esenciales de la historia faltantes.");
-  if (!Array.isArray(chapters)) throw new Error("Formato de capítulos incorrecto.");
+  
+  // Validaciones iniciales
+  if (!story || !story.title || !story.options?.character?.name || !story.content) {
+    throw new Error("Datos esenciales de la historia faltantes.");
+  }
+  if (!Array.isArray(chapters)) {
+    throw new Error("Formato de capítulos incorrecto.");
+  }
+
   const cleanOriginalTitle = story.title.replace(/^\d+\.\s+/, '').trim();
+
+  // Crear el mensaje de contexto del sistema
   let systemPrompt = `Eres un escritor experto continuando un cuento infantil en ${language} para niños de aproximadamente ${childAge} años.`;
   systemPrompt += ` El cuento original se titula "${cleanOriginalTitle}" y su protagonista es ${story.options.character.name}. Género: ${story.options.genre || 'aventura'}. Moraleja: ${story.options.moral || 'ser valiente'}.`;
   if (specialNeed && specialNeed !== 'Ninguna') systemPrompt += ` Considera adaptar lenguaje/situaciones para ${specialNeed}.`;
-  systemPrompt += ` Mantén la coherencia con la trama, personajes y tono establecidos en los capítulos anteriores.`;
-  // Construir contexto completo
+  systemPrompt += ` Mantén la coherencia con la trama, personajes y tono establecidos en los capítulos anteriores.\n`;
+
+  // Construcción del contexto completo de la historia
   let fullStoryContext = `\n\n--- HISTORIA COMPLETA HASTA AHORA ---\n\n`;
   fullStoryContext += `**Título Original:** ${cleanOriginalTitle}\n**Capítulo 1 (Inicio):**\n${story.content.trim()}\n\n`;
+
   if (chapters.length > 0) {
-    // Ordenar capítulos por chapterNumber por si acaso
+    // Ordenar capítulos por número de capítulo para asegurar el orden correcto
     chapters.sort((a, b) => (a.chapterNumber || 0) - (b.chapterNumber || 0));
     chapters.forEach((chapter) => {
       if (chapter && chapter.chapterNumber && chapter.title && chapter.content) {
@@ -167,14 +180,20 @@ function createContinuationPrompt(mode, story, chapters, context, language, chil
       }
     });
   }
+  
   fullStoryContext += `--- FIN DE LA HISTORIA HASTA AHORA ---\n\n`;
+
   const nextChapterNumber = (chapters?.length ?? 0) + 2; // El siguiente capítulo será el 2 o más
+
+  // Instrucciones específicas según el modo de continuación
   let userInstruction = `--- INSTRUCCIONES PARA GENERAR EL PRÓXIMO CAPÍTULO (${nextChapterNumber}) (Duración objetivo: ${storyDuration}) ---\n`;
-  // Guías de longitud
+  
+  // Guías de longitud según la duración
   if (storyDuration === 'short') userInstruction += `**Guía Longitud (Corta):** Escribe un capítulo breve (aprox. 5-8 párrafos).\n`;
   else if (storyDuration === 'long') userInstruction += `**Guía Longitud (Larga):** Escribe un capítulo detallado y extenso (aprox. 15+ párrafos).\n`;
   else userInstruction += `**Guía Longitud (Media):** Escribe un capítulo de longitud moderada (aprox. 10-14 párrafos).\n`;
-  // Instrucción específica de continuación
+
+  // Instrucciones de continuación según el modo
   switch (mode) {
     case 'optionContinuation':
       userInstruction += `**Tarea:** Continúa la historia DESPUÉS del último capítulo, desarrollando la siguiente idea elegida: "${context.optionSummary}".\n`;
@@ -186,8 +205,10 @@ function createContinuationPrompt(mode, story, chapters, context, language, chil
       userInstruction += `**Tarea:** Continúa la historia DESPUÉS del último capítulo de forma libre, creativa y coherente con TODO lo anterior.\n`;
       break;
   }
+  
   userInstruction += `**Importante:** El capítulo debe tener un inicio, desarrollo y un final o punto de pausa claro. ¡NO termines abruptamente!\n`;
   userInstruction += `**Título:** Genera también un título corto y atractivo para ESTE NUEVO capítulo (4-7 palabras).\n`;
+
   // Instrucciones de formato con separadores
   let formatInstruction = `\n**Instrucciones de Formato de Respuesta (¡MUY IMPORTANTE!):**\n`;
   formatInstruction += `*   Responde usando **exactamente** los siguientes separadores:\n`;
@@ -199,10 +220,12 @@ function createContinuationPrompt(mode, story, chapters, context, language, chil
   formatInstruction += `    <content_end>\n`;
   formatInstruction += `*   **NO incluyas NADA antes de <title_start> ni después de <content_end>.**\n`;
   formatInstruction += `*   Asegúrate de incluir saltos de línea entre separadores y texto.\n`;
-  formatInstruction += `*   NO uses ningún otro formato. Solo texto plano con estos separadores.`;
-  // Combinar todo
+  formatInstruction += `*   **NO uses ningún otro formato.** Solo texto plano con estos separadores.\n`;
+
+  // Combinar todo en el prompt final
   const finalPrompt = `${systemPrompt}\n${fullStoryContext}\n${userInstruction}\n${formatInstruction}`;
   console.log(`[Helper v6.1-adapted] Continuation Prompt generated (Separator Format - Start): "${finalPrompt.substring(0, 200)}..."`);
+  
   return finalPrompt;
 }
 // cleanExtractedText: Copiada de generate-story v6.1
