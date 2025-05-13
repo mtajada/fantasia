@@ -1,89 +1,56 @@
-# TaleMe! - Generador de Cuentos Infantiles Personalizados
+# TaleMe - Cuentos Personalizados
 
-![TaleMe! Logo](https://lovable.dev/projects/f290b21d-9a8e-415b-8025-bebb8625aa3d)
+TaleMe es una aplicación para la creación de cuentos personalizados con narración por voz para niños, diseñada para fomentar la lectura y el aprendizaje.
 
-## Descripción del Proyecto
+## Versión Actual
 
-TaleMe! es una aplicación web que permite a padres, madres y educadores crear cuentos infantiles personalizados para niños. La aplicación utiliza tecnologías modernas para ofrecer una experiencia de usuario fluida y atractiva, permitiendo:
-
-- Crear y gestionar personajes personalizados
-- Seleccionar géneros y temáticas para las historias
-- Generar cuentos únicos adaptados a los intereses del niño
-- Guardar y acceder a historias anteriores
-- Compartir las historias generadas
-
-## Tecnologías Utilizadas
-
-Este proyecto está construido con un stack moderno de tecnologías web:
-
-### Frontend
-- **React**: Biblioteca para construir interfaces de usuario
-- **TypeScript**: Superset tipado de JavaScript para mayor robustez
-- **Vite**: Herramienta de compilación rápida para desarrollo
-- **Framer Motion**: Biblioteca para animaciones fluidas
-- **Tailwind CSS**: Framework CSS utility-first para diseño rápido
-- **Lucide Icons**: Conjunto de iconos SVG
-
-### Estado y Gestión de Datos
-- **Zustand**: Biblioteca ligera de gestión de estado
-- **React Router**: Enrutamiento declarativo para React
-
-### Backend y Autenticación
-- **Supabase**: Plataforma backend-as-a-service que proporciona:
-  - Base de datos PostgreSQL
-  - Autenticación y gestión de usuarios
-  - Almacenamiento de archivos
-  - Funciones serverless
-
-## Autenticación
-
-La aplicación implementa un sistema completo de autenticación con Supabase, que incluye:
-- Registro con email/contraseña
-- Inicio de sesión con Google
-- Gestión de perfiles de usuario
-- Protección de rutas para usuarios autenticados
+**v1.1.2** - Consulta el [CHANGELOG](./CHANGELOG.md) para más detalles sobre los cambios en cada versión.
 
 ## Características Principales
 
-### Gestión de Personajes
-- Creación de personajes con nombre, tipo, profesión, hobbies y personalidad
-- Edición y eliminación de personajes existentes
-- Interfaz intuitiva para la configuración de personajes
+- **Historias Personalizadas**: Cuentos adaptados a los gustos, edad y personalidad de cada niño.
+- **Narración de Voz**: Narraciones profesionales con diferentes tonos y personalidades.
+- **Retos Educativos**: Mejora la lectura, matemáticas e idiomas con actividades integradas.
+- **Interfaz Intuitiva**: Diseño centrado en la experiencia de usuario para todas las edades.
+- **Configuración de Personajes**: Crea y personaliza los personajes de tus historias.
 
-### Generación de Historias
-- Selección de géneros y temáticas
-- Personalización de elementos narrativos
-- Generación de cuentos adaptados a los personajes creados
+## Tecnologías Utilizadas
 
-### Experiencia de Usuario
-- Diseño responsive para dispositivos móviles y de escritorio
-- Animaciones suaves para mejorar la interacción
-- Flujos de navegación intuitivos
+- React + Vite
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Supabase
+- OpenAI TTS
 
-## Instalación y Desarrollo
+## Estructura del Proyecto
 
-```sh
-# Clonar el repositorio
-git clone https://github.com/mtajada/CuentaSuenos-investigacion.git
+La aplicación sigue una estructura organizada por características:
 
-# Navegar al directorio del proyecto
-cd CuentaSuenos-investigacion
+- `/src/components`: Componentes reutilizables de la UI
+- `/src/pages`: Vistas principales de la aplicación
+- `/src/services`: Servicios para interactuar con APIs externas
+- `/src/store`: Estado global de la aplicación usando stores
+- `/src/config`: Configuraciones globales de la aplicación
 
-# Instalar dependencias
-npm install
+## Configuración 
 
-# Iniciar servidor de desarrollo
-npm run dev
-```
+El archivo `src/config/app.ts` contiene las configuraciones globales de la aplicación, incluida la versión actual.
 
-## Contribuciones
+## Mejoras Recientes
 
-Las contribuciones son bienvenidas. Por favor, abre un issue o un pull request para sugerir cambios o mejoras.
+- Mejoras en la generación de historias
+- Sistema de preview de voces para las narraciones
+- Footer global con información de versión
+- Mejoras en la personalidad de los personajes
 
-## Licencia
+## Desarrollo Local
 
-Este proyecto está bajo licencia [MIT](LICENSE).
+1. Clona el repositorio
+2. Instala las dependencias con `npm install`
+3. Configura las variables de entorno en un archivo `.env` (ver `.env.example`)
+4. Ejecuta la aplicación con `npm run dev`
 
----
+## Changelog
 
-Desarrollado con ❤️ para inspirar la imaginación de los más pequeños.
+Consulta el [CHANGELOG](./CHANGELOG.md) para ver la historia completa de cambios en el proyecto.
