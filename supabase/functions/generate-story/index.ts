@@ -8,48 +8,76 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 
 // --- Funciones Helper ---
 // createSystemPrompt: Sin cambios
+// createSystemPrompt: Mejorada
 function createSystemPrompt(language, childAge, specialNeed) {
   console.log(`[Helper v6.1] createSystemPrompt: lang=${language}, age=${childAge}, need=${specialNeed}`);
-  let base = `Eres un escritor experto de cuentos infantiles creativos y educativos. Escribe siempre en ${language}.`;
-  base += ` El público objetivo son niños de ${childAge ?? 7} años.`;
+  
+  let base = `Eres un escritor experto en crear cuentos infantiles educativos y creativos. Escribe siempre en ${language}, con un estilo adecuado para niños de ${childAge ?? 7} años.`;
   if (specialNeed && specialNeed !== 'Ninguna') {
-    base += ` Adapta sutilmente la historia considerando ${specialNeed}. Prioriza claridad y tono positivo.`;
+    base += ` Asegúrate de adaptar sutilmente la historia para considerar las necesidades de ${specialNeed}. Prioriza la claridad, la comprensión y un tono positivo.`;
   }
-  base += ` Sé creativo, asegúrate de que la historia sea coherente y tenga una estructura narrativa clara (inicio, desarrollo, final).`;
+  base += ` La historia debe seguir una estructura narrativa clara: un inicio que capte la atención, un desarrollo con un conflicto claro y un final que resuelva el problema de manera positiva y educativa.`;
+
+  base += ` Sé creativo, asegurándote de que la trama sea coherente y atractiva. Utiliza un lenguaje sencillo, pero emocionalmente resonante.`;
+  base += ` Recuerda, la historia debe ser adecuada para su edad y debe ofrecer un aprendizaje valioso al final, manteniendo siempre un enfoque amigable y accesible para los niños.`;
   return base;
 }
-// createUserPrompt_SeparatorFormat: Pide separadores
+// createUserPrompt_SeparatorFormat: Mejorada con instrucciones adicionales
 function createUserPrompt_SeparatorFormat({ options, additionalDetails }) {
   console.log(`[Helper v6.1] createUserPrompt_SeparatorFormat: options=`, options, `details=`, additionalDetails);
   const char = options.character;
   const storyDuration = options.duration || 'medium';
-  let request = `Crea un cuento infantil. Género: ${options.genre}. Moraleja: ${options.moral}. Personaje: ${char.name}`;
-  if (char.profession) request += `, profesión ${char.profession}`;
-  if (char.hobbies?.length) request += `, hobbies ${char.hobbies.join(', ')}`;
-  if (char.personality) request += `, personalidad ${char.personality}`;
+  
+  // Create base request
+  let request = `Crea un cuento infantil. Género: ${options.genre}. Moraleja: ${options.moral}. Personaje principal: ${char.name}`;
+  if (char.profession) request += `, profesión: ${char.profession}`;
+  if (char.hobbies?.length) request += `, hobbies: ${char.hobbies.join(', ')}`;
+  if (char.personality) request += `, personalidad: ${char.personality}`;
   request += `.\n\n`;
+
+  // Content, length and structure instructions
   request += `**Instrucciones de Contenido, Longitud y Estructura:**\n`;
-  request += `1.  **Duración Objetivo:** '${storyDuration}'.\n`;
-  if (storyDuration === 'short') request += `    *   Guía (Corta): ~800 tokens.\n`;
-  else if (storyDuration === 'long') request += `    *   Guía (Larga): ~2150 tokens.\n`;
-  else request += `    *   Guía (Media): ~1350 tokens.\n`;
+  request += `1. **Duración objetivo:** '${storyDuration}'.\n`;
+  
+  // Determine length based on duration
+  if (storyDuration === 'short') request += `    * Guía (Corta): ~800 tokens.\n`;
+  else if (storyDuration === 'long') request += `    * Guía (Larga): ~2150 tokens.\n`;
+  else request += `    * Guía (Media): ~1350 tokens.\n`;
+  
+  // Additional user details (if any)
   if (additionalDetails && typeof additionalDetails === 'string' && additionalDetails.trim()) {
-    request += `\n**Instrucciones Adicionales del Usuario:**\n${additionalDetails.trim()}\n`;
+    request += `\n**Instrucciones adicionales del usuario:**\n${additionalDetails.trim()}\n`;
   }
-  request += `2.  **Estructura COMPLETA:** Inicio, desarrollo y final claros.\n`;
-  request += `3.  **Título:** Genera un título EXTRAORDINARIO (memorable, original, etc.).\n`;
-  request += `\n**Instrucciones de Formato de Respuesta (¡MUY IMPORTANTE!):**\n`;
-  request += `*   Responde usando **exactamente** los siguientes separadores:\n`;
+
+  // Story structure instructions
+  request += `2. **Estructura completa:** Inicio, desarrollo y final claros.\n`;
+
+  // Tone and style
+  request += `3. **Tono y estilo:** Emplea onomatopeyas o pequeñas preguntas como: “¿Te imaginas…?”, “¡Splash!”, etc., para mantener la atención de los niños.\n`;
+  request += `   Además, usa ocasionalmente la estructura de fábula, especialmente si el género lo permite (aventura, fantasía, etc.).\n`;
+
+  // **Inspiration**
+  request += `4. **Inspiración:** Toma elementos de la tradición oral y de los clásicos de Disney (magia, amistad, humor inocente), pero crea personajes y situaciones originales. Evita copiar y busca innovar con ideas frescas y emocionantes.\n`;
+
+  // Title request
+  request += `5. **Título:** Genera un título extraordinario (memorable, original, etc.).\n`;
+
+  // Response format instructions
+  request += `\n**Instrucciones de formato de respuesta (¡MUY IMPORTANTE!):**\n`;
+  request += `* Responde usando **exactamente** los siguientes separadores:\n`;
   request += `    <title_start>\n`;
-  request += `    Aquí SOLAMENTE el título generado (4-7 palabras).\n`;
+  request += `    Aquí SOLO el título generado (4-7 palabras).\n`;
   request += `    <title_end>\n`;
   request += `    <content_start>\n`;
-  request += `    Aquí TODO el contenido del cuento, empezando directamente con la primera frase.\n`;
+  request += `    Aquí TODO el contenido del cuento, comenzando directamente con la primera frase.\n`;
   request += `    <content_end>\n`;
-  request += `*   **NO incluyas NADA antes de <title_start>.**\n`;
-  request += `*   **NO incluyas NADA después de <content_end>.**\n`;
-  request += `*   Asegúrate de incluir saltos de línea exactamente como se muestra entre los separadores y el texto.\n`;
-  request += `*   NO uses ningún otro formato (como markdown, JSON, etc.). Solo texto plano con estos separadores.`;
+
+  // Format rules
+  request += `* **NO incluyas NADA antes de <title_start>.**\n`;
+  request += `* **NO incluyas NADA después de <content_end>.**\n`;
+  request += `* Asegúrate de incluir saltos de línea **exactamente** como se muestra entre los separadores y el texto.\n`;
+  request += `* **NO uses ningún otro formato** (como markdown, JSON, etc.). Solo texto plano con estos separadores.\n`;
+
   return request;
 }
 // cleanExtractedText: Limpia texto extraído entre separadores
@@ -97,7 +125,7 @@ serve(async (req) => {
   const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
   
   // --- Modelo ---
-  const modelName = "gemini-2.5-pro-exp-03-25";
+  const modelName = Deno.env.get('TEXT_MODEL_GENERATE');
   console.log(`generate-story v6.1: Using model: ${modelName} (Separator Strategy - Deployment Fix)`);
   const model = genAI.getGenerativeModel({
     model: modelName

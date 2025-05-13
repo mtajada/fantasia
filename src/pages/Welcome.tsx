@@ -63,9 +63,9 @@ export default function Welcome() {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-6 flex items-center justify-between">
+        <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/logo_png.png" alt="TaleMe Logo" className="h-16 md:h-20" />
+            <img src="/logo_png.png" alt="TaleMe Logo" className="h-20 md:h-24" />
           </div>
           <div className="flex gap-3">
             <button
@@ -83,13 +83,13 @@ export default function Welcome() {
           </div>
         </header>
 
-        <main className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-8 md:py-12 flex flex-col items-center">
+        <main className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col items-center">
           {/* Hero Section */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center mb-12 md:mb-16"
+            className="text-center mb-10 md:mb-12"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-[#222]">
               Historias mágicas <span className="text-[#BB79D1]">personalizadas</span>
@@ -118,7 +118,7 @@ export default function Welcome() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-            className="w-full mb-16"
+            className="w-full mb-12"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
               ¿Qué hace especial a <span className="text-[#BB79D1]">TaleMe</span>?
@@ -151,7 +151,7 @@ export default function Welcome() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-            className="w-full mb-16 bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20"
+            className="w-full mb-12 bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
               Beneficios para toda la familia
@@ -193,15 +193,15 @@ export default function Welcome() {
 
         </main>
 
-        <footer className="w-full bg-white/80 py-6 backdrop-blur-sm">
+        <footer className="w-full bg-white/80 py-4 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <img src="/logo_png.png" alt="TaleMe Logo" className="h-10" />
+            <div className="mb-2 md:mb-0">
+              <img src="/logo_png.png" alt="TaleMe Logo" className="h-14" />
             </div>
             <div className="text-[#555] text-sm">
               &copy; {new Date().getFullYear()} TaleMe. Todos los derechos reservados.
             </div>
-            <div className="mt-4 md:mt-0 flex gap-4">
+            <div className="mt-2 md:mt-0 flex gap-4">
               <Link to="/terms" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Términos</Link>
               <Link to="/privacy-policy" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Privacidad</Link>
               <Link to="/contact" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Contacto</Link>
