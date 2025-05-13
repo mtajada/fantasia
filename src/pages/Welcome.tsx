@@ -192,22 +192,6 @@ export default function Welcome() {
           </motion.div>
 
         </main>
-
-        <footer className="w-full bg-white/80 py-4 backdrop-blur-sm">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-2 md:mb-0">
-              <img src="/logo_png.png" alt="TaleMe Logo" className="h-14" />
-            </div>
-            <div className="text-[#555] text-sm">
-              &copy; {new Date().getFullYear()} TaleMe. Todos los derechos reservados.
-            </div>
-            <div className="mt-2 md:mt-0 flex gap-4">
-              <Link to="/terms" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Términos</Link>
-              <Link to="/privacy-policy" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Privacidad</Link>
-              <Link to="/contact" className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors">Contacto</Link>
-            </div>
-          </div>
-        </footer>
       </div>
     </PageTransition>
   );
