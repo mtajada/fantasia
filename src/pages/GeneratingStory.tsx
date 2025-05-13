@@ -10,7 +10,6 @@ import PageTransition from "../components/PageTransition";
 export default function GeneratingStory() {
   const navigate = useNavigate();
   const { currentStoryOptions } = useStoryOptionsStore();
-  const { isGeneratingStory } = useStoriesStore();
   
   useEffect(() => {
     const generate = async () => {

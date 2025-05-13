@@ -1,4 +1,5 @@
 // src/services/ai/ttsService.ts
+import { SYSTEM_PROMPT } from '@/constants/story-voices.constant';
 import OpenAI from 'openai';
 
 /**
@@ -22,8 +23,6 @@ export interface TTSOptions {
   model?: string;
   instructions?: string;
 }
-
-const SYSTEM_PROMPT = "Eres un narrador de cuentos infantiles. Narra con un ritmo adecuado, haciendo pausas en los momentos correctos y enfatizando las partes importantes. Adapta tu narración para que sea adecuada para niños.";
 
 // Voces disponibles en OpenAI
 export const OPENAI_VOICES = [
@@ -70,9 +69,8 @@ export const generateSpeech = async ({
     ? `${SYSTEM_PROMPT} ${instructions}`
     : SYSTEM_PROMPT;
 
-  console.log(`Iniciando generación de audio... Texto: ${cleanedText.length} caracteres`);
+  console.log(`Iniciando generación de audio... Texto limpio: ${cleanedText.length} caracteres`);
 
-  console.log(`Iniciando generación de audio... Texto: ${text.length} caracteres`);
   console.log(`Configuración: Voz=${voice}, Modelo=${model}`);
   
   try {
@@ -80,7 +78,7 @@ export const generateSpeech = async ({
     const response = await openai.audio.speech.create({
       model,
       voice,
-      input: text,
+      input: cleanedText,
       instructions: fullInstructions
     });
 

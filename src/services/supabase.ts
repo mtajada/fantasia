@@ -354,10 +354,12 @@ export const getChapterCountForStory = async (storyId: string): Promise<{ count:
 // --- Funciones para Capítulos ---
 
 export const syncChapter = async (chapter: StoryChapter, storyId: string): Promise<{ success: boolean; error?: any }> => {
+    console.log("🚀 ~ syncChapter ~ chapter:", chapter)
     try {
         const { error } = await supabase
             .from("story_chapters")
             .upsert({
+                id: chapter.id,
                 story_id: storyId,
                 chapter_number: chapter.chapterNumber,
                 title: chapter.title,
@@ -390,6 +392,7 @@ export const getStoryChapters = async (storyId: string): Promise<{ success: bool
             throw error;
         }
         const chapters: StoryChapter[] = data ? data.map((chapter) => ({
+            id: chapter.id,
             chapterNumber: chapter.chapter_number,
             title: chapter.title,
             content: chapter.content,
