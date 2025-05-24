@@ -2,12 +2,19 @@ import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
 import { v4 as uuidv4 } from "npm:uuid@9.0.0";
+import {
+  getSystemPromptPreamble,
+  getLanguageChallengeInstruction,
+  getMathChallengeInstruction,
+  getComprehensionChallengeInstruction,
+  getSpecialNeedInstruction,
+} from "./prompt.ts"; // Asegúrate que la ruta a prompt.ts sea correcta
 
 // Configuración de la API de Gemini
 const API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-const modelName = Deno.env.get('TEXT_MODEL_GENERATE');
+const modelName = Deno.env.get('TEXT_MODEL_GENERATE') || "gemini-pro"; // Default model si no está en env
 const model = genAI.getGenerativeModel({
   model: modelName,
 });
@@ -22,23 +29,27 @@ interface ProfileSettings {
   language: string;
 }
 
+interface StoryCharacter {
+  id: string;
+  name: string;
+  profession: string;
+  characterType: string;
+  hobbies: string[];
+  personality?: string;
+}
+
+interface StoryOptions {
+  character: StoryCharacter;
+  genre: string;
+  moral: string;
+  duration: "short" | "medium" | "long";
+}
+
 interface Story {
   id: string;
   title: string;
   content: string;
-  options: {
-    character: {
-      id: string;
-      name: string;
-      profession: string;
-      characterType: string;
-      hobbies: string[];
-      personality?: string;
-    };
-    genre: string;
-    moral: string;
-    duration: "short" | "medium" | "long";
-  };
+  options: StoryOptions;
 }
 
 type ChallengeCategory = "language" | "math" | "comprehension";
@@ -76,126 +87,31 @@ async function generateChallengeQuestion(
 }> {
   try {
     // Extraer datos relevantes del perfil y la historia
-    const { childAge, specialNeed = "Ninguna", language } = profileSettings;
+    const { childAge, specialNeed, language } = profileSettings;
     const { character, genre, moral } = story.options;
 
-    // Build the system prompt based on the category
-    let systemPrompt =
-      `Eres un experto educador infantil especializado en crear preguntas educativas para niños. Tu tarea es crear una pregunta de desafío educativo basada en el siguiente contexto:
+    const profileDataForPrompt = { childAge, language, specialNeed };
+    const storyDataForPrompt = { title: story.title, genre, moral, content: story.content };
+    const characterDataForPrompt = { ...character };
 
-DATOS DEL OYENTE:
-- Edad: ${childAge} años
-- Idioma principal: ${language}
-${specialNeed !== "Ninguna" ? `- Necesidad especial: ${specialNeed}` : ""}
-
-DATOS DE LA HISTORIA:
-- Título: ${story.title}
-- Género: ${genre}
-- Moraleja/Enseñanza: ${moral}
-
-PERSONAJE PRINCIPAL:
-- Nombre: ${character.name}
-- Profesión: ${character.profession}
-- Tipo de personaje: ${character.characterType}
-- Aficiones: ${character.hobbies.join(", ")}
-- Personalidad: ${character.personality || "No especificada"}
-
-HISTORIA COMPLETA:
-${story.content}
-
-`;
+    let systemPrompt = getSystemPromptPreamble(profileDataForPrompt, storyDataForPrompt, characterDataForPrompt);
 
     switch (category) {
       case "language":
-        systemPrompt += `
-INSTRUCCIÓN:
-Crea una pregunta para aprender el idioma ${targetLanguage} relacionada con elementos de la historia. La pregunta debe:
-1. Contener una palabra o frase en ${targetLanguage} relacionada con un elemento clave de la historia (personaje, objeto, acción, etc.)
-2. Ofrecer 4 opciones de respuesta (solo una correcta)
-3. Ser apropiada para un niño de ${childAge} años ${
-          specialNeed !== "Ninguna" ? `con ${specialNeed}` : ""
+        if (!targetLanguage) {
+          throw new Error("targetLanguage es requerido para la categoría 'language'");
         }
-4. Incluir una explicación clara de por qué la respuesta es correcta
-
-FORMATO DE RESPUESTA (es obligatorio usar este formato exacto):
-{
-  "question": "Texto de la pregunta en español incluyendo la palabra en ${targetLanguage}",
-  "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
-  "correctOptionIndex": 0,
-  "explanation": "Explicación de la respuesta correcta"
-}`;
+        systemPrompt += getLanguageChallengeInstruction(childAge, specialNeed, targetLanguage);
         break;
-
       case "math":
-        systemPrompt += `
-INSTRUCCIÓN:
-Crea un problema matemático relacionado con elementos de la historia. El problema debe:
-1. Utilizar personajes, objetos o situaciones que aparecen en la historia
-2. Ser apropiado para el nivel educativo de un niño de ${childAge} años ${
-          specialNeed !== "Ninguna" ? `con ${specialNeed}` : ""
-        }
-3. Ofrecer 4 opciones de respuesta (solo una correcta)
-4. Incluir una explicación clara de cómo se resuelve el problema
-
-FORMATO DE RESPUESTA (es obligatorio usar este formato exacto):
-{
-  "question": "Texto del problema matemático contextualizado en la historia",
-  "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
-  "correctOptionIndex": 0,
-  "explanation": "Explicación paso a paso de cómo resolver el problema"
-}`;
+        systemPrompt += getMathChallengeInstruction(childAge, specialNeed);
         break;
-
       case "comprehension":
-        systemPrompt += `
-INSTRUCCIÓN:
-Crea una pregunta de comprensión lectora relacionada con la historia. La pregunta debe:
-1. Evaluar la comprensión de la trama, personajes, motivaciones o enseñanza de la historia
-2. Ser apropiada para un niño de ${childAge} años ${
-          specialNeed !== "Ninguna" ? `con ${specialNeed}` : ""
-        }
-3. Ofrecer 4 opciones de respuesta (solo una correcta)
-4. Incluir una explicación clara de por qué la respuesta es correcta, citando elementos específicos de la historia
-
-FORMATO DE RESPUESTA (es obligatorio usar este formato exacto):
-{
-  "question": "Texto de la pregunta de comprensión",
-  "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
-  "correctOptionIndex": 0,
-  "explanation": "Explicación detallada de la respuesta correcta con referencias a la historia"
-}`;
+        systemPrompt += getComprehensionChallengeInstruction(childAge, specialNeed);
         break;
     }
 
-    // Adaptación adicional según necesidades especiales
-    if (specialNeed !== "Ninguna") {
-      systemPrompt +=
-        `\n\nIMPORTANTE: La pregunta debe estar adaptada para un niño con ${specialNeed}. Asegúrate de que:`;
-
-      switch (specialNeed) {
-        case "TEA":
-          systemPrompt += `
-- El lenguaje sea claro, directo y literal
-- Las instrucciones sean explícitas
-- Evita el uso de metáforas o lenguaje figurado
-- Las opciones de respuesta sean concretas`;
-          break;
-        case "TDAH":
-          systemPrompt += `
-- La pregunta sea breve y directa
-- El contenido sea visualmente atractivo
-- Las opciones de respuesta sean concisas
-- La explicación sea dinámica y enfocada`;
-          break;
-        case "Dislexia":
-          systemPrompt += `
-- La pregunta use vocabulario sencillo y familiar
-- Las frases sean cortas y estructuradas
-- Evita palabras visualmente similares
-- Las opciones de respuesta sean claramente diferenciables`;
-          break;
-      }
-    }
+    systemPrompt += getSpecialNeedInstruction(specialNeed);
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
@@ -209,8 +125,6 @@ FORMATO DE RESPUESTA (es obligatorio usar este formato exacto):
     const text = response.text();
 
     try {
-      // Parse the JSON response
-      // Find JSON in the text (may be surrounded by markdown code blocks)
       const jsonMatch = text.match(/```json\s*(\{[\s\S]*?\})\s*```/) ||
         text.match(/```\s*(\{[\s\S]*?\})\s*```/) ||
         text.match(/(\{[\s\S]*?\})/);
@@ -218,7 +132,6 @@ FORMATO DE RESPUESTA (es obligatorio usar este formato exacto):
       if (jsonMatch && jsonMatch[1]) {
         const jsonResponse = JSON.parse(jsonMatch[1]);
 
-        // Validate required fields
         if (
           !jsonResponse.question || !jsonResponse.options ||
           typeof jsonResponse.correctOptionIndex !== "number" ||
@@ -234,14 +147,15 @@ FORMATO DE RESPUESTA (es obligatorio usar este formato exacto):
           explanation: jsonResponse.explanation,
         };
       } else {
+        console.error("AI Response Text:", text); // Loguear la respuesta si no se encuentra JSON
         throw new Error("Could not extract JSON from AI response");
       }
     } catch (parseError) {
-      // Fallback question if parsing fails
+      console.error("Failed to parse AI response:", text, parseError);
       return generateFallbackQuestion(category, targetLanguage, story);
     }
   } catch (error) {
-    // Return a fallback question
+    console.error("Error in generateChallengeQuestion:", error);
     return generateFallbackQuestion(category, targetLanguage, story);
   }
 }
@@ -259,20 +173,17 @@ function generateFallbackQuestion(
   correctOptionIndex: number;
   explanation: string;
 } {
-  // Extract character name if available
   const characterName = story?.options?.character?.name || "protagonista";
 
   switch (category) {
     case "language":
       return {
-        question: `¿Cómo se dice "${story ? "amigo" : "amigo"}" en ${
-          targetLanguage || "inglés"
-        }?`,
+        question: `¿Cómo se dice "${story ? "amigo" : "amigo"}" en ${targetLanguage || "inglés"
+          }?`,
         options: ["Friend", "House", "Book", "Play"],
         correctOptionIndex: 0,
-        explanation: `"Amigo" en ${
-          targetLanguage || "inglés"
-        } se dice "Friend". Es una palabra importante para las relaciones personales.`,
+        explanation: `"Amigo" en ${targetLanguage || "inglés"
+          } se dice "Friend". Es una palabra importante para las relaciones personales.`,
       };
 
     case "math":
@@ -311,7 +222,6 @@ async function createChallenge(
   targetLanguage?: string,
 ): Promise<Challenge> {
   try {
-    // Generate a question for the challenge
     const questionData = await generateChallengeQuestion(
       story,
       category,
@@ -319,14 +229,13 @@ async function createChallenge(
       targetLanguage,
     );
 
-    const question = {
+    const question: ChallengeQuestion = {
       id: generateId(),
       category,
-      targetLanguage,
+      targetLanguage: category === "language" ? targetLanguage : undefined,
       ...questionData,
     };
 
-    // Create the challenge
     const challenge: Challenge = {
       id: generateId(),
       storyId: story.id,
@@ -336,7 +245,8 @@ async function createChallenge(
 
     return challenge;
   } catch (error) {
-    throw error;
+    console.error("Error creating challenge:", error);
+    throw error; // Re-throw para que sea manejado por el handler principal
   }
 }
 
@@ -359,7 +269,6 @@ function getAvailableLanguages(
     { code: "ko", name: "Coreano" },
   ];
 
-  // Filter out the current language
   return languages.filter((lang) => lang.code !== currentLanguage);
 }
 
@@ -367,16 +276,44 @@ function getAvailableLanguages(
  * Función principal para manejar las solicitudes
  */
 serve(async (req) => {
-  // Manejar las solicitudes OPTIONS para CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { action, story, category, profileSettings, targetLanguage } =
-      await req.json();
+    const body = await req.json();
+    const { action, story, category, profileSettings, targetLanguage } = body;
+
+    if (!action) {
+      return new Response(
+        JSON.stringify({ error: "La acción no fue proporcionada." }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, // Bad Request
+        },
+      );
+    }
 
     if (action === "createChallenge") {
+      if (!story || !category || !profileSettings) {
+        return new Response(
+          JSON.stringify({ error: "Faltan parámetros para createChallenge: story, category o profileSettings." }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          },
+        );
+      }
+      if (category === "language" && !targetLanguage) {
+        return new Response(
+          JSON.stringify({ error: "Falta el parámetro targetLanguage para la categoría 'language'." }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          },
+        );
+      }
+
       const challenge = await createChallenge(
         story,
         category,
@@ -392,6 +329,15 @@ serve(async (req) => {
         },
       );
     } else if (action === "getLanguages") {
+      if (!profileSettings || !profileSettings.language) {
+        return new Response(
+          JSON.stringify({ error: "Falta profileSettings.language para getLanguages." }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          },
+        );
+      }
       const languages = getAvailableLanguages(profileSettings.language);
 
       return new Response(
@@ -402,15 +348,25 @@ serve(async (req) => {
         },
       );
     } else {
-      throw new Error(`Acción no soportada: ${action}`);
+      return new Response(
+        JSON.stringify({ error: `Acción no soportada: ${action}` }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, // Bad Request para acciones no válidas
+        },
+      );
     }
   } catch (error) {
+    console.error("Server Error:", error); // Log del error en el servidor
+    const errorMessage = error instanceof Error ? error.message : "Error interno del servidor";
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
+        status: 500, // Internal Server Error
       },
     );
   }
 });
+
+console.log("Challenge generation service running...");
