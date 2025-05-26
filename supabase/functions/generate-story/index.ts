@@ -1,27 +1,26 @@
-// supabase/edge-functions/generate-story/index.ts
-// v6.1 (Refactored): Lógica de Edge Function. Prompts en prompt.ts
-// Usa LIBRERÍA ORIGINAL (@google/generative-ai), UNA LLAMADA,
-// y espera SEPARADORES. Corregido error de despliegue en validación 'if'.
-import { GoogleGenerativeAI } from "npm:@google/generative-ai";
+// supabase/functions/generate-story/index.ts
+// v7.0 (OpenAI Client + JSON Output): Uses OpenAI client for Gemini, expects JSON.
+// IMPORTANT: prompt.ts has been updated to instruct AI for JSON output.
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { corsHeaders } from '../_shared/cors.ts'; // Asegúrate que la ruta es correcta
+import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
+import OpenAI from "npm:openai@^4.33.0"; // Using OpenAI client
 
 // Importar funciones de prompt desde prompt.ts
-import { createSystemPrompt, createUserPrompt_SeparatorFormat } from './prompt.ts';
+// createUserPrompt_JsonFormat (antes createUserPrompt_SeparatorFormat) ahora genera un prompt que pide JSON.
+import { createSystemPrompt, createUserPrompt_JsonFormat } from './prompt.ts';
 
-// --- Funciones Helper (las que quedan en este archivo) ---
-
-// cleanExtractedText: Limpia texto extraído entre separadores
+// --- Helper Function (remains largely the same, adapted for potentially cleaner inputs from JSON) ---
 function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content'): string {
   const defaultText = type === 'title' ? `Aventura Inolvidable` : 'El cuento tiene un giro inesperado...';
-  if (!text || typeof text !== 'string') {
-    console.warn(`[Helper v6.1] cleanExtractedText (${type}): Input empty/not string.`);
+  if (text === null || text === undefined || typeof text !== 'string') {
+    console.warn(`[Helper v7.0] cleanExtractedText (${type}): Input empty/not string.`);
     return defaultText;
   }
-  console.log(`[Helper v6.1] cleanExtractedText (${type}) - BEFORE: "${text.substring(0, 150)}..."`);
-  let cleaned = text.trim(); // Trim inicial
-  // Limpiezas específicas que podrían quedar DESPUÉS de extraer
+  console.log(`[Helper v7.0] cleanExtractedText (${type}) - BEFORE: "${text.substring(0, 150)}..."`);
+  let cleaned = text.trim();
+
+  // These might be less necessary if AI strictly adheres to JSON values, but good for robustness
   cleaned = cleaned.replace(/^Título:\s*/i, '').trim();
   cleaned = cleaned.replace(/^Contenido:\s*/i, '').trim();
   if (type === 'content') {
@@ -31,28 +30,50 @@ function cleanExtractedText(text: string | undefined | null, type: 'title' | 'co
   if (type === 'title') {
     cleaned = cleaned.replace(/^["'“‘](.*)["'”’]$/s, '$1').trim(); // Quitar comillas alrededor del título
   }
-  // Quitar prefijos o sufijos que la IA podría añadir AUNQUE se le pida que no
   cleaned = cleaned.replace(/^(Respuesta|Aquí tienes el título|El título es):\s*/i, '').trim();
   cleaned = cleaned.replace(/^(Aquí tienes el cuento|El cuento es):\s*/i, '').trim();
-  console.log(`[Helper v6.1] cleanExtractedText (${type}) - AFTER: "${cleaned.substring(0, 150)}..."`);
-  return cleaned.trim() || defaultText;
-}
-// --- Fin Funciones Helper ---
 
+  console.log(`[Helper v7.0] cleanExtractedText (${type}) - AFTER: "${cleaned.substring(0, 150)}..."`);
+  return cleaned || defaultText; // Ensure non-empty string or default
+}
+
+// --- Interface for Structured AI Response ---
+interface StoryGenerationResult {
+  title: string;
+  content: string;
+}
+
+function isValidStoryResult(data: any): data is StoryGenerationResult {
+  return data &&
+    typeof data.title === 'string' &&
+    typeof data.content === 'string';
+}
+
+// --- Main Handler ---
 serve(async (req: Request) => {
+  const functionVersion = "v7.0 (OpenAI Client + JSON)";
   // 1. MANEJAR PREFLIGHT PRIMERO
   if (req.method === "OPTIONS") {
-    console.log("Handling OPTIONS preflight request...");
-    return new Response("ok", {
-      headers: corsHeaders
-    });
+    console.log(`[${functionVersion}] Handling OPTIONS preflight request...`);
+    return new Response("ok", { headers: corsHeaders });
   }
-  // --- Configuración ---
-  const API_KEY = Deno.env.get("GEMINI_API_KEY");
-  if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
 
-  // --- Instancia con Librería Original ---
-  const genAI = new GoogleGenerativeAI(API_KEY);
+  // --- Configuración ---
+  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+  const GEMINI_COMPATIBLE_ENDPOINT = Deno.env.get("GEMINI_COMPATIBLE_ENDPOINT") || 'https://generativelanguage.googleapis.com/v1beta/openai/';
+  const TEXT_MODEL_GENERATE = Deno.env.get('TEXT_MODEL_GENERATE'); // Model name for Gemini via OpenAI endpoint
+
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
+  if (!GEMINI_COMPATIBLE_ENDPOINT) throw new Error("GEMINI_COMPATIBLE_ENDPOINT environment variable not set and no fallback could be used");
+  if (!TEXT_MODEL_GENERATE) throw new Error("TEXT_MODEL_GENERATE environment variable not set for OpenAI client.");
+
+  // --- Initialize OpenAI Client for Gemini ---
+  const openai = new OpenAI({
+    apiKey: GEMINI_API_KEY,
+    baseURL: GEMINI_COMPATIBLE_ENDPOINT.endsWith('/') ? GEMINI_COMPATIBLE_ENDPOINT : GEMINI_COMPATIBLE_ENDPOINT + '/',
+  });
+  console.log(`[${functionVersion}] OpenAI client configured for Gemini model '${TEXT_MODEL_GENERATE}' via baseURL: ${openai.baseURL}`);
+
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
   const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
 
@@ -62,50 +83,25 @@ serve(async (req: Request) => {
   }
   const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
 
-  // --- Modelo ---
-  const modelName = Deno.env.get('TEXT_MODEL_GENERATE');
-  if (!modelName) {
-    console.error("TEXT_MODEL_GENERATE environment variable not set.");
-    throw new Error("TEXT_MODEL_GENERATE environment variable not set.");
-  }
-  console.log(`generate-story v6.1: Using model: ${modelName} (Separator Strategy - Deployment Fix)`);
-  const model = genAI.getGenerativeModel({
-    model: modelName
-  });
-
   // 2. Verificar Método POST
   if (req.method !== 'POST') {
-    console.log(`Method ${req.method} not allowed.`);
-    return new Response(JSON.stringify({
-      error: 'Método no permitido. Usar POST.'
-    }), {
-      status: 405,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+    console.log(`[${functionVersion}] Method ${req.method} not allowed.`);
+    return new Response(JSON.stringify({ error: 'Método no permitido. Usar POST.' }), {
+      status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 
-  // Variables inicializadas
-  let userIdForIncrement: string | null = null;
-  let isPremiumUser = false;
   let userId: string | null = null;
+  let userIdForIncrement: string | null = null;
 
   try {
     // 3. AUTENTICACIÓN
-    console.log("Handling POST request...");
+    console.log(`[${functionVersion}] Handling POST request...`);
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       console.error("Authorization header missing or invalid.");
-      return new Response(JSON.stringify({
-        error: 'Token inválido o ausente.'
-      }), {
-        status: 401,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
+      return new Response(JSON.stringify({ error: 'Token inválido o ausente.' }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
     const token = authHeader.replace('Bearer ', '');
@@ -113,18 +109,12 @@ serve(async (req: Request) => {
 
     if (authError || !user) {
       console.error("Auth Error:", authError);
-      return new Response(JSON.stringify({
-        error: authError?.message || 'No autenticado.'
-      }), {
-        status: authError?.status || 401,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
+      return new Response(JSON.stringify({ error: authError?.message || 'No autenticado.' }), {
+        status: authError?.status || 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
     userId = user.id;
-    console.log(`generate-story v6.1: User Auth: ${userId}`);
+    console.log(`[${functionVersion}] User Auth: ${userId}`);
 
     // 4. Perfil y Límites
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -138,6 +128,7 @@ serve(async (req: Request) => {
       throw new Error(`Error al obtener perfil de usuario: ${profileError.message}`);
     }
 
+    let isPremiumUser = false;
     if (profile) {
       isPremiumUser = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
     } else {
@@ -145,34 +136,29 @@ serve(async (req: Request) => {
     }
 
     let currentStoriesGenerated = profile?.monthly_stories_generated ?? 0;
-    const FREE_STORY_LIMIT = 10; // Asegúrate que este valor es consistente o configurable
+    const FREE_STORY_LIMIT = 10;
 
     if (!isPremiumUser) {
       userIdForIncrement = userId;
-      console.log(`generate-story v6.1: Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
+      console.log(`[${functionVersion}] Free user ${userId}. Stories: ${currentStoriesGenerated}/${FREE_STORY_LIMIT}`);
       if (currentStoriesGenerated >= FREE_STORY_LIMIT) {
         return new Response(JSON.stringify({
           error: `Límite mensual (${FREE_STORY_LIMIT}) alcanzado.`
         }), {
           status: 429,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
     } else {
-      console.log(`generate-story v6.1: Premium user ${userId}.`);
+      console.log(`[${functionVersion}] Premium user ${userId}.`);
     }
 
     // 5. Body y Validación
-    let params: any; // Considerar definir una interfaz más estricta para params
+    let params: any;
     try {
       params = await req.json();
-      console.log("--- DEBUG v6.1: Params Recibidos ---", params);
+      console.log(`[${functionVersion}] Params Recibidos:`, params);
 
-      // --- VALIDACIÓN CORREGIDA (sin comentario interno) ---
-      // Es importante validar todos los campos esperados de params.options y params.options.character
       if (!params || typeof params !== 'object' ||
         !params.options || typeof params.options !== 'object' ||
         !params.options.character || typeof params.options.character !== 'object' || !params.options.character.name ||
@@ -187,7 +173,7 @@ serve(async (req: Request) => {
           hasCharacter: !!params.options?.character,
           hasCharacterName: !!params.options?.character?.name,
           hasLanguage: typeof params.language === 'string' && !!params.language,
-          hasChildAge: params.childAge !== undefined, // Loguea si está presente
+          hasChildAge: params.childAge !== undefined,
           hasDuration: typeof params.options?.duration === 'string' && !!params.options.duration,
           hasGenre: typeof params.options?.genre === 'string' && !!params.options.genre,
           hasMoral: typeof params.options?.moral === 'string' && !!params.options.moral
@@ -195,132 +181,88 @@ serve(async (req: Request) => {
         throw new Error("Parámetros inválidos/incompletos (revisar character.name, language, childAge, options.duration, options.genre, options.moral).");
       }
     } catch (error) {
-      console.error(`[DEBUG v6.1] Failed to parse/validate JSON body for user ${userId}. Error:`, error);
-      // Asegurar que el error que se propaga es una instancia de Error
+      console.error(`[${functionVersion}] Failed to parse/validate JSON body for user ${userId}. Error:`, error);
       const message = error instanceof Error ? error.message : "Error desconocido al procesar JSON.";
       throw new Error(`Invalid/empty/incomplete JSON in body: ${message}.`);
     }
 
-    // 6. Generación IA con UNA LLAMADA y Separadores
+    // 6. Generación IA con OpenAI Client y Esperando JSON
     const systemPrompt = createSystemPrompt(params.language, params.childAge, params.specialNeed);
-    const userPrompt = createUserPrompt_SeparatorFormat({
+    const userPrompt = createUserPrompt_JsonFormat({ // Esta función ahora genera un prompt pidiendo JSON
       options: params.options,
       additionalDetails: params.additionalDetails
     });
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-    console.log(`generate-story v6.1: Calling AI for combined output (User: ${userId})... Prompt length: ${combinedPrompt.length}`);
+    console.log(`[${functionVersion}] Calling AI (${TEXT_MODEL_GENERATE}) for JSON output (User: ${userId}). Prompt length: ${combinedPrompt.length}`);
 
-    const generationConfig = {
-      temperature: 0.8,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 16000 // Asegúrate que este límite es adecuado para Gemini
-    };
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: combinedPrompt
-            }
-          ]
-        }
-      ],
-      generationConfig: generationConfig
+    const chatCompletion = await openai.chat.completions.create({
+      model: TEXT_MODEL_GENERATE,
+      messages: [{ role: "user", content: combinedPrompt }],
+      response_format: { type: "json_object" }, // Request JSON output
+      temperature: 0.8, // From original generationConfig
+      top_p: 0.95,      // From original generationConfig
+      max_tokens: 16000 // From original generationConfig, ensure adequate for Gemini via OpenAI
     });
 
-    const response = result?.response;
-    const rawApiResponseText = response?.text?.(); // Llama a la función text()
-    const blockReason = response?.promptFeedback?.blockReason;
+    const aiResponseContent = chatCompletion.choices[0]?.message?.content;
+    const finishReason = chatCompletion.choices[0]?.finish_reason;
 
-    console.log(`[EDGE_FUNC_DEBUG v6.1] Raw AI Separator response text (first 200 chars): ${rawApiResponseText?.substring(0, 200) || '(No text received)'}...`);
+    console.log(`[${functionVersion}] Raw AI JSON response (first 200 chars): ${aiResponseContent?.substring(0, 200) || '(No text received)'}... Finish Reason: ${finishReason}`);
 
-    if (blockReason) {
-      console.error(`AI Generation BLOCKED. Reason: ${blockReason}`);
-      throw new Error(`Generación bloqueada por seguridad: ${blockReason}`);
+    if (finishReason === 'length') {
+      console.warn(`[${functionVersion}] AI generation may have been truncated due to 'length' finish_reason.`);
     }
-    if (!rawApiResponseText) {
-      console.error("AI response was empty or text could not be extracted. Full response:", response);
-      throw new Error("Fallo al generar: Respuesta IA vacía o inválida (sin bloqueo explícito).");
-    }
+    // Nota: blockReason específico como en GoogleGenerativeAI no está directamente disponible.
+    // Se confía en finish_reason o contenido vacío para problemas.
 
-    // 7. Extraer Título y Contenido usando Separadores
-    let rawTitle = '';
-    let rawContent = '';
+    // 7. Procesar Respuesta JSON de la IA
     let finalTitle = 'Aventura Inolvidable'; // Default
-    let finalContent = '';
-    let extractionSuccess = false;
+    let finalContent = ''; // Default
+    let parsedSuccessfully = false;
 
-    try {
-      const titleStartTag = '<title_start>';
-      const titleEndTag = '<title_end>';
-      const contentStartTag = '<content_start>';
-      const contentEndTag = '<content_end>';
-
-      const titleStartIndex = rawApiResponseText.indexOf(titleStartTag);
-      const titleEndIndex = rawApiResponseText.indexOf(titleEndTag);
-      // Buscar content_start DESPUÉS de title_end
-      const contentStartIndex = rawApiResponseText.indexOf(contentStartTag, titleEndIndex + titleEndTag.length);
-      // Buscar content_end DESPUÉS de content_start
-      const contentEndIndex = rawApiResponseText.indexOf(contentEndTag, contentStartIndex + contentStartTag.length);
-
-      // Verificar que todos los tags existen y están en el orden correcto
-      if (titleStartIndex !== -1 &&
-        titleEndIndex > titleStartIndex &&
-        contentStartIndex > titleEndIndex && // content_start debe estar después de title_end
-        contentEndIndex > contentStartIndex    // content_end debe estar después de content_start
-      ) {
-        rawTitle = rawApiResponseText.substring(titleStartIndex + titleStartTag.length, titleEndIndex).trim();
-        rawContent = rawApiResponseText.substring(contentStartIndex + contentStartTag.length, contentEndIndex).trim();
-
-        console.log(`[DEBUG v6.1] Extracted rawTitle: "${rawTitle}"`);
-        console.log(`[DEBUG v6.1] Extracted rawContent starts: "${rawContent.substring(0, 100)}..."`);
-
-        finalTitle = cleanExtractedText(rawTitle, 'title');
-        finalContent = cleanExtractedText(rawContent, 'content');
-        extractionSuccess = true;
-      } else {
-        console.warn(`Separators not found or in wrong order. Indices: titleStart=${titleStartIndex}, titleEnd=${titleEndIndex}, contentStart=${contentStartIndex}, contentEnd=${contentEndIndex}`);
-        console.warn(`Full response text for manual inspection (first 500 chars): ${rawApiResponseText.substring(0, 500)}`);
+    if (aiResponseContent) {
+      try {
+        const storyResult: StoryGenerationResult = JSON.parse(aiResponseContent);
+        if (isValidStoryResult(storyResult)) {
+          finalTitle = cleanExtractedText(storyResult.title, 'title');
+          finalContent = cleanExtractedText(storyResult.content, 'content');
+          parsedSuccessfully = true;
+          console.log(`[${functionVersion}] Parsed AI JSON successfully. Title: "${finalTitle}"`);
+        } else {
+          console.warn(`[${functionVersion}] AI response JSON structure is invalid. Received: ${aiResponseContent.substring(0, 500)}...`);
+        }
+      } catch (parseError) {
+        console.error(`[${functionVersion}] Failed to parse JSON from AI response. Error: ${parseError.message}. Raw content: ${aiResponseContent.substring(0, 500)}...`);
       }
-    } catch (extractError) {
-      console.error("Error during separator extraction:", extractError);
-      // No lanzar error aquí, se manejará con el fallback
+    } else {
+      console.error(`[${functionVersion}] AI response was empty or text could not be extracted. Finish Reason: ${finishReason}`);
     }
 
-    // --- Fallback si la extracción falló ---
-    if (!extractionSuccess) {
-      console.warn("Using fallback: Default title, full response as content (after cleaning).");
-      // Si falla la extracción, usamos el título por defecto y limpiamos toda la respuesta como contenido.
-      // No reasignamos finalTitle aquí si ya tiene un default, a menos que queramos uno específico para error.
-      finalContent = cleanExtractedText(rawApiResponseText, 'content'); // Limpiar toda la respuesta
+    if (!parsedSuccessfully) {
+      console.warn(`[${functionVersion}] Using fallback: Default title, and attempting to use raw AI response (if any) as content (after cleaning).`);
+      finalContent = cleanExtractedText(aiResponseContent, 'content'); // aiResponseContent could be null here
+      // finalTitle remains the default 'Aventura Inolvidable'
     }
 
-    // Asegurarnos de que el contenido no esté vacío al final
     if (!finalContent) {
-      console.error("Content is empty even after extraction/fallback and cleaning.");
-      // Considerar devolver la respuesta cruda o un mensaje de error específico si el contenido siempre debe existir.
-      finalContent = "Hubo un problema al generar el contenido del cuento, pero aquí está la respuesta cruda de la IA (puede no estar formateada): " + rawApiResponseText;
-      // O lanzar un error si esto se considera crítico:
-      // throw new Error("Error interno: Contenido vacío después del procesamiento.");
+      console.error(`[${functionVersion}] Content is empty even after JSON parsing/fallback and cleaning.`);
+      // Considerar devolver la respuesta cruda o un mensaje de error específico
+      finalContent = "Hubo un problema al generar el contenido del cuento, pero aquí está la respuesta cruda de la IA (puede no estar formateada): " + (aiResponseContent || "No se recibió respuesta de la IA.");
     }
 
-    console.log(`generate-story v6.1: Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
+    console.log(`[${functionVersion}] Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
 
     // 8. Incrementar Contador
     if (userIdForIncrement) {
-      console.log(`generate-story v6.1: Incrementing count for ${userIdForIncrement}...`);
+      console.log(`[${functionVersion}] Incrementing count for ${userIdForIncrement}...`);
       const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
         user_uuid: userIdForIncrement
       });
       if (incrementError) {
-        // Registrar el error pero no fallar la solicitud por esto, ya que el cuento se generó.
-        console.error(`CRITICAL: Failed count increment for ${userIdForIncrement}: ${incrementError.message}`);
+        console.error(`[${functionVersion}] CRITICAL: Failed count increment for ${userIdForIncrement}: ${incrementError.message}`);
       } else {
-        console.log(`generate-story v6.1: Count incremented for ${userIdForIncrement}.`);
+        console.log(`[${functionVersion}] Count incremented for ${userIdForIncrement}.`);
       }
     }
 
@@ -330,15 +272,12 @@ serve(async (req: Request) => {
       title: finalTitle
     }), {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (error) {
     // 10. Manejo de Errores
-    console.error(`Error in generate-story v6.1 (User: ${userId || 'UNKNOWN'}):`, error);
+    console.error(`[${functionVersion}] Error (User: ${userId || 'UNKNOWN'}):`, error);
     let statusCode = 500;
     const message = error instanceof Error ? error.message : "Error interno desconocido.";
 
@@ -347,17 +286,15 @@ serve(async (req: Request) => {
       if (lowerMessage.includes("autenticado") || lowerMessage.includes("token inválido")) statusCode = 401;
       else if (lowerMessage.includes("límite")) statusCode = 429;
       else if (lowerMessage.includes("inválido") || lowerMessage.includes("json in body") || lowerMessage.includes("parámetros")) statusCode = 400;
-      else if (lowerMessage.includes("fallo al generar") || lowerMessage.includes("bloqueada por seguridad") || lowerMessage.includes("respuesta ia vacía")) statusCode = 502; // Bad Gateway
+      // Actualizado para errores de IA con JSON
+      else if (lowerMessage.includes("ai response was not valid json") || lowerMessage.includes("ai response was empty") || lowerMessage.includes("ai response json structure is invalid") || lowerMessage.includes("blocked") || lowerMessage.includes("filter")) statusCode = 502; // Bad Gateway
     }
 
     return new Response(JSON.stringify({
       error: `Error procesando solicitud: ${message}`
     }), {
       status: statusCode,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
 });

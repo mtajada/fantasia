@@ -77,6 +77,18 @@ export default function GeneratingStory() {
               )}
             </div>
           </motion.div>
+
+          {/* Nuevo cuadro de aviso */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 1 }}
+            className="mt-6 bg-white/70 text-[#222] p-4 rounded-xl max-w-sm text-center shadow-md"
+          >
+            <p className="font-medium">
+              ¡Tu cuento está casi listo! Para que la magia continúe, por favor, no abandones esta página mientras se crea. ✨
+            </p>
+          </motion.div>
         </div>
       </div>
     </PageTransition>
