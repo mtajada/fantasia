@@ -123,6 +123,13 @@ export function createContinuationPrompt(
   Escribe siempre en ${language}, con un estilo adecuado para niños de ${childAge} años.
   La historia original tiene un género de '${story.options.genre}' y una moraleja principal de '${story.options.moral}'.`;
 
+    // Guía de longitud de capítulo
+    prompt += `\n\n**Guía de longitud del capítulo:**`;
+    if (storyDuration === 'short') prompt += `\n* Capítulo corto: ~800 tokens (aprox. 600-700 palabras).`;
+    else if (storyDuration === 'long') prompt += `\n* Capítulo largo: ~2150 tokens (aprox. 1600-1800 palabras).`;
+    else prompt += `\n* Capítulo de longitud media: ~1350 tokens (aprox. 1000-1200 palabras).`;
+    prompt += `\nEstas cifras son aproximadas y sirven como referencia para la extensión esperada.`;
+
     if (specialNeed && specialNeed !== 'Ninguna') {
         prompt += `\nLa adaptación para "${specialNeed}" debe ser sutil, priorizando siempre la claridad, la comprensión y un tono positivo en la narración.`;
         prompt += ` A continuación, algunas guías específicas para "${specialNeed}":\n`;
@@ -199,9 +206,11 @@ export function createContinuationPrompt(
 
     prompt += `\n\nGuías para el Nuevo Capítulo:`;
     prompt += `\n1. **Longitud del Capítulo:** Apunta a una longitud '${storyDuration}'.`;
-    if (storyDuration === 'short') prompt += ` (aproximadamente 300-500 palabras).`;
-    else if (storyDuration === 'long') prompt += ` (aproximadamente 700-1000 palabras).`;
-    else prompt += ` (aproximadamente 500-700 palabras).`;
+    // INICIO DE CAMBIOS *****
+    if (storyDuration === 'short') prompt += ` (aproximadamente 600-700 palabras).`;
+    else if (storyDuration === 'long') prompt += ` (aproximadamente 1600-1800 palabras).`;
+    else prompt += ` (aproximadamente 1000-1200 palabras).`;
+    // FIN DE CAMBIOS *****
 
     prompt += `\n2. **Estructura del Capítulo:** Debe tener un flujo narrativo claro, conectando con el capítulo anterior y avanzando la trama general. Puede introducir un nuevo pequeño desafío o desarrollo.`;
     prompt += `\n3. **Tono y Estilo:** Mantén el tono y estilo del cuento original. Usa un lenguaje sencillo, pero emocionalmente resonante. Emplea onomatopeyas o pequeñas preguntas si es apropiado.`;
