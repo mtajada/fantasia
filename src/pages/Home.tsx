@@ -87,10 +87,14 @@ export default function Home() {
         {/* Botones principales */}
         <div className="flex flex-col items-center w-full max-w-xs gap-5 -mt-4">
           <button
-            className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#f6a5b7] hover:bg-[#fbb6ce]"
+            className={`w-full py-4 rounded-2xl text-lg font-semibold shadow-lg transition-all duration-200 ${
+              canCreateStory()
+                ? "bg-[#f6a5b7] hover:bg-[#fbb6ce] text-white"
+                : "bg-[#f6a5b7]/50 text-white/90 cursor-not-allowed"
+            }`}
             onClick={handleNewStory}
-            disabled={!canCreateStory()}
-            title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}
+            aria-disabled={!canCreateStory()}
+            title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : "Crear nueva historia"}
           >
             Generar una Nueva Historia
           </button>
