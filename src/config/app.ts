@@ -8,7 +8,7 @@ export const APP_CONFIG = {
    * Versión actual de la aplicación
    * Formato: major.minor.patch
    */
-  version: '1.1.2',
+  version: '1.1.3',
 
   /**
    * Nombre de la aplicación
@@ -35,6 +35,7 @@ export const APP_CONFIG = {
   footerLinks: {
     terms: '/terms',
     privacy: '/privacy-policy',
-    contact: '/contact'
+    contact: '/contact',
+    changelog: '/changelog'
   }
 }; 

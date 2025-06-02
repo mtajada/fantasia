@@ -22,6 +22,7 @@ export default function Footer() {
           <Link to={APP_CONFIG.footerLinks.terms} className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors text-sm">Términos</Link>
           <Link to={APP_CONFIG.footerLinks.privacy} className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors text-sm">Privacidad</Link>
           <Link to={APP_CONFIG.footerLinks.contact} className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors text-sm">Contacto</Link>
+          <Link to={APP_CONFIG.footerLinks.changelog} className="text-[#BB79D1] hover:text-[#A5D6F6] transition-colors text-sm">Changelog</Link>
         </div>
       </div>
     </footer>
