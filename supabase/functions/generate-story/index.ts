@@ -50,7 +50,7 @@ function createUserPrompt_SeparatorFormat({ options, additionalDetails }) {
   }
 
   // Story structure instructions
-  request += `2. **Estructura completa:** Inicio, desarrollo y final claros.\n`;
+  request += `2. **Estructura completa:** Inicio, desarrollo y final claros. Usa "marcadores de diálogo exclamativo" o "marco exclamativo", que alude al uso de estas interjecciones y fórmulas en la narrativa de los cuentos.\n`;
 
   // Tone and style
   request += `3. **Tono y estilo:** Emplea onomatopeyas o pequeñas preguntas como: “¿Te imaginas…?”, “¡Splash!”, etc., para mantener la atención de los niños.\n`;
@@ -66,7 +66,7 @@ function createUserPrompt_SeparatorFormat({ options, additionalDetails }) {
   request += `\n**Instrucciones de formato de respuesta (¡MUY IMPORTANTE!):**\n`;
   request += `* Responde usando **exactamente** los siguientes separadores:\n`;
   request += `    <title_start>\n`;
-  request += `    Aquí SOLO el título generado (4-7 palabras).\n`;
+  request += `    Aquí SOLO el título generado (4-6 palabras).\n`;
   request += `    <title_end>\n`;
   request += `    <content_start>\n`;
   request += `    Aquí TODO el contenido del cuento, comenzando directamente con la primera frase.\n`;
