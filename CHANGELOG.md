@@ -4,7 +4,7 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.3] - 2024-12-19
+## [1.1.3] - 2025-06-03
 
 ### Mejoras
 - **Sistema de alertas mejorado**: Implementación de `toastManager` para evitar alertas duplicadas y mejorar la experiencia del usuario
@@ -25,7 +25,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - **Espaciado de párrafos**: Eliminación de espacios innecesarios generados por el split de contenido
 - **Manejo de errores específicos**: Mensajes claros para diferentes tipos de errores en la generación de audio
 
-## [1.1.2] - 2024-09-10
+## [1.1.2] - 2025-05-10
 
 ### Mejoras
 - Mejoras en la generación de las historias
@@ -38,7 +38,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Fix al momento de generar una historia y sus capítulos
 - Resolución de bugs generales
 
-## [1.1.1] - 2024-08-25
+## [1.1.1] - 2025-04-25
 
 ### Mejoras
 - Implementación del sistema de audio en las historias
@@ -48,7 +48,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Corrección de errores en la autenticación
 - Mejoras en la estabilidad de la aplicación
 
-## [1.1.0] - 2024-08-10
+## [1.1.0] - 2025-04-23
 
 ### Añadido
 - Sistema de narración por voz
@@ -59,7 +59,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Rediseño de la interfaz de usuario
 - Optimización del rendimiento en dispositivos móviles
 
-## [1.0.0] - 2024-07-15
+## [1.0.0] - 2025-04-15
 
 ### Añadido
 - Versión inicial de TaleMe
