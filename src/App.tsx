@@ -37,6 +37,7 @@ import StoryDetailsInput from "./pages/StoryDetailsInput";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Contact from "./pages/Contact";
+import Changelog from "./pages/Changelog";
 
 // New Pages for Refactor
 import ProfileConfigPage from './pages/ProfileConfigPage';
@@ -66,6 +67,7 @@ const App = () => {
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/changelog" element={<Changelog />} />
 
                 {/* Payment routes */}
                 <Route path="/payment-success" element={<AuthGuard><PaymentSuccess /></AuthGuard>} />
