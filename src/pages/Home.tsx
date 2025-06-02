@@ -89,7 +89,7 @@ export default function Home() {
           <button
             className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#f6a5b7] hover:bg-[#fbb6ce]"
             onClick={handleNewStory}
-            disabled={!canCreateStory()}
+            // disabled={!canCreateStory()}
             title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}
           >
             Generar una Nueva Historia
