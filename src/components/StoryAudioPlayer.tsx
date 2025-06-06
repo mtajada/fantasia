@@ -8,66 +8,8 @@ import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ai/tt
 import { useAudioStore } from "@/store/stories/audio/audioStore";
 import { useUserStore } from "@/store/user/userStore";
 import { toast } from "sonner";
+import { STORY_VOICES, PLAYBACK_SPEEDS } from "@/constants/story-voices.constant";
 
-// Voice types with their details
-export const STORY_VOICES = [
-  { 
-    id: "el-sabio", 
-    name: "El Sabio", 
-    description: "Voz grave y serena, ideal para transmitir conocimiento.",
-    color: "bg-blue-500",
-    icon: "📚"
-  },
-  { 
-    id: "el-capitan", 
-    name: "El Capitán", 
-    description: "Voz ruda y aventurera, perfecta para historias de acción.",
-    color: "bg-red-600",
-    icon: "⚓"
-  },
-  { 
-    id: "el-animado", 
-    name: "El Animado", 
-    description: "Voz aguda y caricaturesca, ideal para historias divertidas.",
-    color: "bg-green-500",
-    icon: "🎭"
-  },
-  { 
-    id: "el-elegante", 
-    name: "El Elegante", 
-    description: "Voz refinada y clara, perfecta para cuentos sofisticados.",
-    color: "bg-purple-500",
-    icon: "🎩"
-  },
-  { 
-    id: "el-aventurero", 
-    name: "El Aventurero", 
-    description: "Voz dinámica y entusiasta, ideal para historias de aventuras.",
-    color: "bg-amber-500",
-    icon: "🗺️"
-  },
-  { 
-    id: "el-enigmatico", 
-    name: "El Enigmático", 
-    description: "Voz pausada y misteriosa, perfecta para cuentos intrigantes.",
-    color: "bg-indigo-700",
-    icon: "🔮"
-  },
-  { 
-    id: "el-risueno", 
-    name: "El Risueño", 
-    description: "Voz juguetona y con inflexiones cómicas, para historias alegres.",
-    color: "bg-yellow-500",
-    icon: "😄"
-  },
-  { 
-    id: "el-tierno", 
-    name: "El Tierno", 
-    description: "Voz suave y amigable, ideal para cuentos dulces y tiernos.",
-    color: "bg-pink-400",
-    icon: "🌸"
-  }
-];
 
 // Function to format time
 const formatTime = (seconds: number): string => {
@@ -76,8 +18,6 @@ const formatTime = (seconds: number): string => {
   const remainingSeconds = Math.floor(seconds % 60);
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
-
-const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 interface StoryAudioPlayerProps {
   text: string;

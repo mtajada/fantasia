@@ -165,8 +165,8 @@ export const PdfService = {
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     
-    // Establecer el color de fondo
-    pdf.setFillColor(255, 246, 224); // #fff6e0 en RGB
+    // Establecer el color de fondo blanco para las páginas de contenido
+    pdf.setFillColor(255, 255, 255); // Blanco
     pdf.rect(0, 0, pageWidth, pageHeight, 'F');
     
     // Añadir encabezado con logo y título
@@ -201,7 +201,7 @@ export const PdfService = {
       // Verificar si necesitamos una nueva página para este párrafo
       if (yPos + lines.length * 9 > pageHeight - margin) {
         pdf.addPage();
-        pdf.setFillColor(255, 246, 224); // #fff6e0 en RGB para la nueva página
+        pdf.setFillColor(255, 255, 255); // Fondo blanco para las nuevas páginas de contenido
         pdf.rect(0, 0, pageWidth, pageHeight, 'F');
         
         // Añadir encabezado en la nueva página
@@ -218,8 +218,8 @@ export const PdfService = {
       // Agregar las líneas del párrafo
       pdf.text(lines, margin, yPos);
       
-      // Actualizar la posición Y para el siguiente párrafo
-      yPos += lines.length * 9 + 8; // Espaciado adicional entre párrafos
+      // Actualizar la posición Y para el siguiente párrafo con menos espaciado
+      yPos += lines.length * 9 + 3; // Reducido el espaciado entre párrafos
     }
   },
 
@@ -280,7 +280,7 @@ export const PdfService = {
       const titleWidth = pdf.getStringUnitWidth(displayTitle) * 12 / pdf.internal.scaleFactor;
       const padding = 3; // Padding en mm
       
-      pdf.setFillColor(255, 240, 250); // Fondo rosado muy suave
+      pdf.setFillColor(240, 248, 255); // Fondo azul muy suave para mejor contraste en fondo blanco
       pdf.roundedRect(pageWidth - titleWidth - 20, 8, titleWidth + 10, 10, 2, 2, 'F');
       
       // Posicionar en esquina superior derecha con fondo
