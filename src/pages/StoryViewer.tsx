@@ -18,6 +18,7 @@ import ChallengeQuestion from "../components/ChallengeQuestion";
 import { toast } from "sonner"; // Asegurarse que toast está importado
 import { ChallengeCategory, ChallengeQuestion as ChallengeQuestionType, StoryChapter, Story } from "../types"; // Importar Story
 import { ChallengeService } from "../services/ai/ChallengeService"; // Asumiendo ruta
+import { parseTextToParagraphs } from '@/lib/utils';
 import StoryPdfPreview from "../components/StoryPdfPreview";
 
 export default function StoryViewer() {
@@ -298,8 +299,10 @@ export default function StoryViewer() {
               className="bg-white/80 rounded-2xl p-4 sm:p-8 mb-6 text-[#222] leading-relaxed text-base sm:text-lg shadow-lg max-w-full"
               style={{ minHeight: '40vh', boxShadow: '0 2px 24px 0 rgba(187,121,209,0.10)' }}
             >
-              {currentChapter.content.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-4 last:mb-0 text-[1.08em]" style={{ wordBreak: 'break-word' }}>{paragraph || '\u00A0'}</p>
+              {parseTextToParagraphs(currentChapter.content).map((paragraph, index) => (
+                <p key={index} className="mb-4 last:mb-0 text-[1.08em]" style={{ wordBreak: 'break-word' }}>
+                  {paragraph}
+                </p>
               ))}
             </motion.div>
           )}

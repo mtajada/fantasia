@@ -1,247 +1,148 @@
 // supabase/edge-functions/story-continuation/index.ts
-// v6.1-adapted: Usa Librería Original (@google/generative-ai).
-// - generateOptions: Pide y parsea JSON (como antes).
-// - Continuaciones (optionContinuation, etc.): Pide UNA respuesta con SEPARADORES.
-import { GoogleGenerativeAI } from "npm:@google/generative-ai";
+// v7.0 (OpenAI Client + JSON Output): Uses OpenAI client for Gemini, expects structured JSON.
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { corsHeaders } from '../_shared/cors.ts'; // Asegúrate que la ruta es correcta
+import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
-// --- Configuración ---
-const API_KEY = Deno.env.get("GEMINI_API_KEY");
-if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
-// --- Instancia con Librería Original ---
-const genAI = new GoogleGenerativeAI(API_KEY);
+import OpenAI from "npm:openai@^4.33.0";
+
+import {
+  createContinuationOptionsPrompt,
+  createContinuationPrompt,
+  type Story, // Assuming Story type is defined in prompt.ts
+  type Chapter, // Assuming Chapter type is defined in prompt.ts
+  type ContinuationContextType,
+} from './prompt.ts';
+
+// --- Configuración Global ---
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+const GEMINI_COMPATIBLE_ENDPOINT = Deno.env.get("GEMINI_COMPATIBLE_ENDPOINT") || 'https://generativelanguage.googleapis.com/v1beta/openai/';
+const TEXT_MODEL_GENERATE = Deno.env.get('TEXT_MODEL_GENERATE');
+
+if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
+if (!GEMINI_COMPATIBLE_ENDPOINT) throw new Error("GEMINI_COMPATIBLE_ENDPOINT environment variable not set");
+if (!TEXT_MODEL_GENERATE) throw new Error("TEXT_MODEL_GENERATE environment variable not set for OpenAI client.");
+
+const openai = new OpenAI({
+  apiKey: GEMINI_API_KEY,
+  baseURL: GEMINI_COMPATIBLE_ENDPOINT.endsWith('/') ? GEMINI_COMPATIBLE_ENDPOINT : GEMINI_COMPATIBLE_ENDPOINT + '/',
+});
+const functionVersion = "v7.0 (OpenAI Client + JSON)";
+console.log(`story-continuation ${functionVersion}: Using model ${TEXT_MODEL_GENERATE} via ${openai.baseURL}`);
+
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
 if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
 const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
-// --- Modelo ---
-const modelName = Deno.env.get('TEXT_MODEL_GENERATE');
-console.log(`story-continuation v6.1-adapted: Using model: ${modelName} (Separator Strategy for Continuations)`);
-const model = genAI.getGenerativeModel({
-  model: modelName
-});
+
+// --- Interfaces for AI JSON Responses ---
+interface AiContinuationOption {
+  summary: string;
+}
+interface AiContinuationOptionsResponse {
+  options: AiContinuationOption[];
+}
+interface AiContinuationResponse {
+  title: string;
+  content: string;
+}
+
+// --- Validation functions for AI responses ---
+function isValidOptionsResponse(data: any): data is AiContinuationOptionsResponse {
+  return data &&
+    Array.isArray(data.options) &&
+    data.options.every((opt: any) => typeof opt.summary === 'string' && opt.summary.trim() !== '');
+}
+
+function isValidContinuationResponse(data: any): data is AiContinuationResponse {
+  return data &&
+    typeof data.title === 'string' && // Title can be empty initially, cleanExtractedText handles default
+    typeof data.content === 'string' && data.content.trim() !== '';
+}
+
+
 // --- Funciones Helper ---
-// generateContinuationOptions: MODIFICADO para incluir más contexto y adaptar al idioma
-// generateContinuationOptions: Mejorada con mayor claridad y optimización
 async function generateContinuationOptions(
-  story,
-  chapters,
-  language = 'es',
-  childAge = 7,
-  specialNeed = null,
-) {
-  console.log(`[Helper v6.1-adapted] generateContinuationOptions for story ${story?.id}`);
-  
-  // Validación de datos de la historia
+  story: Story,
+  chapters: Chapter[],
+  language: string = 'es',
+  childAge: number = 7,
+  specialNeed: string | null = null,
+): Promise<AiContinuationOptionsResponse> {
+  console.log(`[${functionVersion}] generateContinuationOptions for story ${story?.id}`);
+
   if (!story || !story.id || !story.title || !story.content || !story.options) {
-    throw new Error("Datos de historia inválidos/incompletos.");
+    throw new Error("Datos de historia inválidos/incompletos para generar opciones.");
   }
   if (!Array.isArray(chapters)) {
-    throw new Error("Datos de capítulos inválidos.");
+    throw new Error("Datos de capítulos inválidos para generar opciones.");
   }
 
-  const cleanOriginalTitle = story.title.replace(/^\d+\.\s+/, '').trim();
-  const storyOptions = story.options;
-  console.log(`[DEBUG v6.1-adapted] Opts: Story ID: ${story.id}, Title: "${cleanOriginalTitle}", Lang: ${language}, Age: ${childAge}, Chapters: ${chapters.length}`);
+  const prompt = createContinuationOptionsPrompt(story, chapters, language, childAge, specialNeed);
+  console.log(`[${functionVersion}] Prompt para generación de opciones (lang: ${language}):\n---\n${prompt.substring(0, 300)}...\n---`);
 
-  // Seleccionar el contenido más reciente para continuar la historia (último capítulo o historia inicial)
-  let contextContent = story.content; // Predeterminado a historia inicial
-  if (chapters.length > 0 && chapters[chapters.length - 1]?.content) {
-    contextContent = chapters[chapters.length - 1].content;
-    console.log(`[DEBUG v6.1-adapted] Usando contenido del capítulo ${chapters[chapters.length - 1].chapterNumber} como contexto.`);
-  } else {
-    console.log(`[DEBUG v6.1-adapted] Usando contenido inicial como contexto.`);
-  }
-
-  // Tomar un fragmento significativo del final del contexto relevante
-  const contextPreview = contextContent?.substring(Math.max(0, contextContent.length - 600)).trim() || '(Sin contexto)';
-
-  // --- Construcción del Prompt con contexto adicional ---
-  let promptContext = `CONTEXTO:\n`;
-  promptContext += `- Idioma del cuento: ${language}\n`;
-  promptContext += `- Edad del niño: ${childAge ?? 'No especificada'}\n`;
-  if (specialNeed && specialNeed !== 'Ninguna') promptContext += `- Necesidad especial: ${specialNeed}\n`;
-  promptContext += `- Título Original: "${cleanOriginalTitle}"\n`;
-  promptContext += `- Género: ${storyOptions.genre}\n`;
-  promptContext += `- Moraleja/Tema: ${storyOptions.moral}\n`;
-
-  // Detalles del personaje principal
-  if (storyOptions.character) {
-    const character = storyOptions.character;
-    promptContext += `- Personaje Principal: ${character.name || 'Protagonista'} `;
-    if (character.profession) promptContext += `(${character.profession}) `;
-    if (character.personality) promptContext += `- Personalidad: ${character.personality}`;
-    promptContext += `\n`;
-  }
-
-  promptContext += `- Final del Último Capítulo/Texto:\n...${contextPreview}\n\n`;
-
-  // --- Instrucciones para la IA ---
-  let instructions = '';
-  let example = '';
-  let commonInstructions = `Sugiere 3 posibles caminos MUY CORTOS (frases concisas indicando la siguiente acción o evento) y distintos para continuar la historia, basados en el ÚLTIMO contexto y coherentes con el género, moraleja y personaje. Las opciones deben ser apropiadas para un niño de ${childAge ?? '?'} años.`;
-
-  if (specialNeed && specialNeed !== 'Ninguna') {
-    commonInstructions = commonInstructions + ` (considerando ${specialNeed})`;
-  }
-
-  commonInstructions += ` IMPORTANTE: Los resúmenes dentro del JSON deben estar escritos en ${language}.`;
-
-  commonInstructions += `.\nResponde SOLO con un JSON array válido de objetos, cada uno con una clave "summary" (string). No incluyas NADA MÁS antes o después del JSON array.`;
-
-  if (language.toLowerCase().startsWith('en')) {
-    instructions = `Based on the LAST context provided above, ${commonInstructions.replace('niño', 'child').replace('años', 'years old')}`;
-    example = `Example: [{"summary":"The character decided to follow the map."}, {"summary":"A mysterious sound echoed nearby."}, {"summary":"They found a hidden note."}]`;
-  } else { // Default a Español
-    instructions = `Basado en el ÚLTIMO contexto proporcionado arriba, ${commonInstructions}`;
-    example = `Ejemplo: [{"summary":"El personaje decidió seguir el mapa."}, {"summary":"Un sonido misterioso resonó cerca."}, {"summary":"Encontraron una nota escondida."}]`;
-  }
-
-  const prompt = `${promptContext}${instructions}\n${example}`;
-  // --- Fin Prompt Adaptado ---
-
-  console.log(`[DEBUG v6.1-adapted] Prompt para generación de opciones (lang: ${language}):\n---\n${prompt}\n---`);
-
-  let rawAiResponseText = '';
+  let aiResponseContent: string | null = null;
   try {
-    // Llamada al modelo para generar las opciones
-    const result = await model.generateContent(prompt); // Usar el modelo global
-    rawAiResponseText = result?.response?.text?.() ?? '';
-    console.log(`[DEBUG v6.1-adapted] Raw AI Response Text for options:\n---\n${rawAiResponseText}\n---`);
-
-    if (!rawAiResponseText) throw new Error("Respuesta vacía de la IA para las opciones.");
-
-    let options;
-    try {
-      // Limpiar y parsear el JSON, manejando posibles marcadores de código
-      const jsonRegex = /^```(?:json)?\s*([\s\S]*?)\s*```$/;
-      const match = rawAiResponseText.match(jsonRegex);
-      let textToParse = rawAiResponseText.trim();
-      if (match && match[1]) {
-        console.log("[DEBUG v6.1-adapted] Opciones: Se detectaron fences de Markdown, extrayendo JSON...");
-        textToParse = match[1].trim();
-      }
-      options = JSON.parse(textToParse);
-    } catch (parseError) {
-      throw new Error(`La IA no devolvió un JSON válido para las opciones: ${parseError.message}. Recibido: ${rawAiResponseText.substring(0, 150)}...`);
-    }
-    if (Array.isArray(options) && options.length > 0 && options.every((o) => typeof o.summary === 'string' && o.summary.trim())) {
-      console.log(`[DEBUG v6.1-adapted] Opciones correctamente parseadas:`, options);
-      return { options };
-    }
-    throw new Error("Formato de opciones inválido después de parsear el JSON de la IA.");
-  } catch (e) {
-    console.error(`[DEBUG v6.1-adapted] Error procesando la respuesta de la IA para las opciones: ${e.message}. Retornando opción de fallback.`, e);
-    // Opción de fallback si ocurre un error
-    return {
-      options: [
-        { summary: "Continuar la aventura" },
-        { summary: "Explorar algo nuevo" },
-        { summary: "Encontrar un amigo" }
-      ]
-    };
-  }
-}
-
-// createContinuationPrompt: MODIFICADO para pedir SEPARADORES
-// createContinuationPrompt: Mejorada con claridad y optimización
-function createContinuationPrompt(mode, story, chapters, context, language, childAge, specialNeed, storyDuration) {
-  console.log(`[Helper v6.1-adapted] createContinuationPrompt (Separator Format): mode=${mode}, story=${story?.id}, duration=${storyDuration}, chapters: ${chapters?.length}`);
-  
-  // Validaciones iniciales
-  if (!story || !story.title || !story.options?.character?.name || !story.content) {
-    throw new Error("Datos esenciales de la historia faltantes.");
-  }
-  if (!Array.isArray(chapters)) {
-    throw new Error("Formato de capítulos incorrecto.");
-  }
-
-  const cleanOriginalTitle = story.title.replace(/^\d+\.\s+/, '').trim();
-
-  // Crear el mensaje de contexto del sistema
-  let systemPrompt = `Eres un escritor experto continuando un cuento infantil en ${language} para niños de aproximadamente ${childAge} años.`;
-  systemPrompt += ` El cuento original se titula "${cleanOriginalTitle}" y su protagonista es ${story.options.character.name}. Género: ${story.options.genre || 'aventura'}. Moraleja: ${story.options.moral || 'ser valiente'}.`;
-  if (specialNeed && specialNeed !== 'Ninguna') systemPrompt += ` Considera adaptar lenguaje/situaciones para ${specialNeed}.`;
-  systemPrompt += ` Mantén la coherencia con la trama, personajes y tono establecidos en los capítulos anteriores.\n`;
-
-  // Construcción del contexto completo de la historia
-  let fullStoryContext = `\n\n--- HISTORIA COMPLETA HASTA AHORA ---\n\n`;
-  fullStoryContext += `**Título Original:** ${cleanOriginalTitle}\n**Capítulo 1 (Inicio):**\n${story.content.trim()}\n\n`;
-
-  if (chapters.length > 0) {
-    // Ordenar capítulos por número de capítulo para asegurar el orden correcto
-    chapters.sort((a, b) => (a.chapterNumber || 0) - (b.chapterNumber || 0));
-    chapters.forEach((chapter) => {
-      if (chapter && chapter.chapterNumber && chapter.title && chapter.content) {
-        fullStoryContext += `--- Capítulo ${chapter.chapterNumber}: ${chapter.title} ---\n${chapter.content.trim()}\n\n`;
-      } else {
-        console.warn(`[Helper v6.1-adapted] Saltando capítulo inválido en contexto:`, chapter);
-      }
+    const chatCompletion = await openai.chat.completions.create({
+      model: TEXT_MODEL_GENERATE,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.7, // Adjusted temperature for option generation (can be tuned)
+      max_tokens: 8192, // Sufficient for a few options
     });
+
+    aiResponseContent = chatCompletion.choices[0]?.message?.content;
+    const finishReason = chatCompletion.choices[0]?.finish_reason;
+
+    console.log(`[${functionVersion}] Raw AI JSON for options (first 200 chars): ${aiResponseContent?.substring(0, 200) || '(No content received)'}... Finish Reason: ${finishReason}`);
+
+    if (finishReason === 'length') {
+      console.warn(`[${functionVersion}] AI option generation may have been truncated.`);
+    }
+    if (!aiResponseContent) {
+      throw new Error("Respuesta vacía de la IA para las opciones.");
+    }
+
+    const parsedResponse = JSON.parse(aiResponseContent);
+
+    if (isValidOptionsResponse(parsedResponse)) {
+      console.log(`[${functionVersion}] Opciones JSON parseadas y validadas:`, parsedResponse.options);
+      return parsedResponse; // Return the whole object: { options: [...] }
+    }
+    console.error(`[${functionVersion}] Formato de opciones inválido después de parsear. Data:`, parsedResponse);
+    throw new Error("Formato de opciones inválido después de parsear el JSON de la IA.");
+
+  } catch (e: any) {
+    console.error(`[${functionVersion}] Error procesando la respuesta de la IA para las opciones: ${e.message}. Raw response: ${aiResponseContent?.substring(0, 500)}`, e);
+    // Fallback
+    const defaultOptions = [
+      { summary: language.startsWith('en') ? "Continue the adventure" : "Continuar la aventura" },
+      { summary: language.startsWith('en') ? "Explore something new" : "Explorar algo nuevo" },
+      { summary: language.startsWith('en') ? "Meet a new friend" : "Encontrar un amigo" }
+    ].map(opt => ({ summary: `${opt.summary} (${language.startsWith('en') ? 'default option' : 'opción por defecto'})` }));
+    return { options: defaultOptions };
   }
-  
-  fullStoryContext += `--- FIN DE LA HISTORIA HASTA AHORA ---\n\n`;
-
-  const nextChapterNumber = (chapters?.length ?? 0) + 2; // El siguiente capítulo será el 2 o más
-
-  // Instrucciones específicas según el modo de continuación
-  let userInstruction = `--- INSTRUCCIONES PARA GENERAR EL PRÓXIMO CAPÍTULO (${nextChapterNumber}) (Duración objetivo: ${storyDuration}) ---\n`;
-  
-  // Guías de longitud según la duración
-  if (storyDuration === 'short') userInstruction += `**Guía Longitud (Corta):** Escribe un capítulo breve (aprox. 5-8 párrafos).\n`;
-  else if (storyDuration === 'long') userInstruction += `**Guía Longitud (Larga):** Escribe un capítulo detallado y extenso (aprox. 15+ párrafos).\n`;
-  else userInstruction += `**Guía Longitud (Media):** Escribe un capítulo de longitud moderada (aprox. 10-14 párrafos).\n`;
-
-  // Instrucciones de continuación según el modo
-  switch (mode) {
-    case 'optionContinuation':
-      userInstruction += `**Tarea:** Continúa la historia DESPUÉS del último capítulo, desarrollando la siguiente idea elegida: "${context.optionSummary}".\n`;
-      break;
-    case 'directedContinuation':
-      userInstruction += `**Tarea:** Continúa la historia DESPUÉS del último capítulo, siguiendo esta dirección del usuario: "${context.userDirection}".\n`;
-      break;
-    default:
-      userInstruction += `**Tarea:** Continúa la historia DESPUÉS del último capítulo de forma libre, creativa y coherente con TODO lo anterior.\n`;
-      break;
-  }
-  
-  userInstruction += `**Importante:** El capítulo debe tener un inicio, desarrollo y un final o punto de pausa claro. ¡NO termines abruptamente!\n`;
-  userInstruction += `**Título:** Genera también un título corto y atractivo para ESTE NUEVO capítulo (4-7 palabras).\n`;
-
-  // Instrucciones de formato con separadores
-  let formatInstruction = `\n**Instrucciones de Formato de Respuesta (¡MUY IMPORTANTE!):**\n`;
-  formatInstruction += `*   Responde usando **exactamente** los siguientes separadores:\n`;
-  formatInstruction += `    <title_start>\n`;
-  formatInstruction += `    Aquí SOLAMENTE el título generado para este capítulo.\n`;
-  formatInstruction += `    <title_end>\n`;
-  formatInstruction += `    <content_start>\n`;
-  formatInstruction += `    Aquí TODO el contenido de este NUEVO capítulo.\n`;
-  formatInstruction += `    <content_end>\n`;
-  formatInstruction += `*   **NO incluyas NADA antes de <title_start> ni después de <content_end>.**\n`;
-  formatInstruction += `*   Asegúrate de incluir saltos de línea entre separadores y texto.\n`;
-  formatInstruction += `*   **NO uses ningún otro formato.** Solo texto plano con estos separadores.\n`;
-
-  // Combinar todo en el prompt final
-  const finalPrompt = `${systemPrompt}\n${fullStoryContext}\n${userInstruction}\n${formatInstruction}`;
-  console.log(`[Helper v6.1-adapted] Continuation Prompt generated (Separator Format - Start): "${finalPrompt.substring(0, 200)}..."`);
-  
-  return finalPrompt;
 }
-// cleanExtractedText: Copiada de generate-story v6.1
-function cleanExtractedText(text, type) {
-  const defaultText = type === 'title' ? `Un Nuevo Capítulo` : 'La historia continúa de forma misteriosa...'; // Default diferente
-  if (!text || typeof text !== 'string') {
-    console.warn(`[Helper v6.1-adapted] cleanExtractedText (${type}): Input empty/not string.`);
+
+// cleanExtractedText: Se mantiene, ya que procesa strings provenientes de la IA (dentro del JSON).
+function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content'): string {
+  const defaultText = type === 'title' ? `Un Nuevo Capítulo` : 'La historia continúa de forma misteriosa...';
+  if (text === null || text === undefined || typeof text !== 'string') { // Allow empty string from AI, will return default
+    console.warn(`[${functionVersion}] cleanExtractedText (${type}): Input null, undefined, or not a string.`);
     return defaultText;
   }
-  console.log(`[Helper v6.1-adapted] cleanExtractedText (${type}) - BEFORE: "${text.substring(0, 150)}..."`);
+  // No console.log BEFORE for potentially very long content strings.
   let cleaned = text;
-  cleaned = cleaned.replace(/^```(?:json|text)?\s*([\s\S]*?)\s*```$/gm, '$1').trim();
+  // Markdown fences around the *whole string* should not happen with response_format: json_object,
+  // but if AI puts them *inside* a JSON string value, this might be useful.
+  // However, the primary instruction is AI should not use markdown *inside* string values unless natural.
+  // cleaned = cleaned.replace(/^```(?:json|text)?\s*([\s\S]*?)\s*```$/gm, '$1').trim(); // Less likely needed now
+
+  cleaned = cleaned.trim(); // Trim first
   cleaned = cleaned.replace(/^(Título|Title|Contenido|Content|Respuesta|Response):\s*/i, '').trim();
   cleaned = cleaned.replace(/^(Aquí tienes el (título|contenido|cuento|capítulo)|Claro, aquí está el (título|contenido|cuento|capítulo)):\s*/i, '').trim();
   cleaned = cleaned.replace(/\n\n\(Espero que te guste.*$/i, '').trim();
   cleaned = cleaned.replace(/\n\n\[.*?\]$/i, '').trim();
+
   if (type === 'content') {
     cleaned = cleaned.replace(/^\s*\d+\.\s+/gm, '');
     cleaned = cleaned.replace(/^\s*[-\*]\s+/gm, '');
@@ -249,238 +150,210 @@ function cleanExtractedText(text, type) {
   if (type === 'title') {
     cleaned = cleaned.replace(/^["'“‘](.*)["'”’]$/s, '$1').trim();
   }
-  cleaned = cleaned.replace(/\n{3,}$/, '\n\n');
-  console.log(`[Helper v6.1-adapted] cleanExtractedText (${type}) - AFTER: "${cleaned.substring(0, 150)}..."`);
-  return cleaned.trim() || defaultText;
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  // console.log(`[${functionVersion}] cleanExtractedText (${type}) - AFTER: "${cleaned.substring(0, 150)}..."`);
+  return cleaned.trim() || defaultText; // Ensure it returns default if cleaning results in empty
 }
 // --- Fin Funciones Helper ---
-serve(async (req) => {
-  // 1. MANEJAR PREFLIGHT PRIMERO
+
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    console.log("Handling OPTIONS preflight request...");
-    return new Response("ok", {
-      headers: corsHeaders
-    });
+    return new Response("ok", { headers: corsHeaders });
   }
-  // 2. Verificar Método POST
   if (req.method !== 'POST') {
-    console.log(`Method ${req.method} not allowed.`);
-    return new Response(JSON.stringify({
-      error: 'Método no permitido. Usar POST.'
-    }), {
-      status: 405,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+    return new Response(JSON.stringify({ error: 'Método no permitido. Usar POST.' }), {
+      status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
-  // Variables inicializadas
+
   let requestedAction = 'unknown';
-  let userId = null;
+  let userId: string | null = null;
+
   try {
-    // 3. AUTENTICACIÓN
-    console.log("Handling POST request...");
+    console.log(`[${functionVersion}] Handling POST request...`);
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) { }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error("Authorization header missing or invalid.");
+      return new Response(JSON.stringify({ error: 'Token inválido o ausente.' }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !user) { }
+    if (authError || !user) {
+      console.error("Auth Error:", authError);
+      return new Response(JSON.stringify({ error: authError?.message || 'No autenticado.' }), {
+        status: authError?.status || 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
     userId = user.id;
-    console.log(`story-continuation v6.1-adapted: User Auth: ${userId}`);
-    // 4. Body y Validación
-    let body;
+    console.log(`[${functionVersion}] User Auth: ${userId}`);
+
+    let body: any;
     try {
       body = await req.json();
-      console.log(`[DEBUG v6.1-adapted] Parsed body OK for user ${userId}:`, {
-        action: body?.action,
-        storyId: body?.story?.id
-      });
       if (!body || typeof body !== 'object') throw new Error("Parsed body is not an object.");
-    } catch (error) {
-      console.error(`[DEBUG v6.1-adapted] Failed to parse JSON body for user ${userId}. Error:`, error);
+    } catch (error: any) {
+      console.error(`[${functionVersion}] Failed to parse JSON body for user ${userId}. Error:`, error);
       throw new Error(`Invalid/empty JSON in body: ${error.message}.`);
     }
+
     const { action, story, chapters = [], selectedOptionSummary, userDirection } = body;
     requestedAction = action || 'unknown';
-    console.log(`[DEBUG v6.1-adapted] Processing action '${requestedAction}'...`);
     const story_id = story?.id;
-    const isContinuationAction = [
-      'freeContinuation',
-      'optionContinuation',
-      'directedContinuation'
-    ].includes(action);
+
+    const isContinuationAction = ['freeContinuation', 'optionContinuation', 'directedContinuation'].includes(action);
     const requiresStoryForContext = isContinuationAction || action === 'generateOptions';
-    // Validaciones de entrada
+
+    // Validaciones de entrada (largely same as v6.1)
     if (!action) throw new Error("'action' es requerida.");
     if (requiresStoryForContext) {
-      if (!story || typeof story !== 'object' || !story_id) throw new Error(`Objeto 'story' inválido/ausente para '${action}'.`);
-      // Verificar campos necesarios dentro de story y options para los prompts
-      if (!story.content || !story.options || !story.options.character?.name || !story.title || !story.options.duration) {
-        console.warn(`[DEBUG v6.1-adapted] Datos incompletos en 'story' o 'story.options'. Necesarios: content, options.character.name, title, options.duration`);
-        // Podría ser necesario lanzar un error si son críticos
-        // throw new Error("Datos incompletos en el objeto 'story' recibido.");
+      if (!story || typeof story !== 'object' || !story_id) {
+        throw new Error(`Objeto 'story' (con 'id') inválido/ausente para la acción '${action}'.`);
       }
-      if (!Array.isArray(chapters)) throw new Error(`Array 'chapters' requerido (puede ser vacío) para '${action}'.`);
+      if (!story.content || !story.options || !story.options.character?.name || !story.title) {
+        throw new Error("Datos incompletos en el objeto 'story' recibido (content, options.character.name, title son necesarios).");
+      }
+      if (!Array.isArray(chapters)) {
+        throw new Error(`Array 'chapters' requerido (puede ser vacío) para la acción '${action}'.`);
+      }
     }
-    if (action === 'optionContinuation' && (typeof selectedOptionSummary !== 'string' || !selectedOptionSummary.trim())) throw new Error("'selectedOptionSummary' requerido para 'optionContinuation'.");
-    if (action === 'directedContinuation' && (typeof userDirection !== 'string' || !userDirection.trim())) throw new Error("'userDirection' requerido para 'directedContinuation'.");
-    // Obtener parámetros para los prompts
+    if (action === 'optionContinuation' && (typeof selectedOptionSummary !== 'string' || !selectedOptionSummary.trim())) {
+      throw new Error("'selectedOptionSummary' (string no vacío) requerido para 'optionContinuation'.");
+    }
+    if (action === 'directedContinuation' && (typeof userDirection !== 'string' || !userDirection.trim())) {
+      throw new Error("'userDirection' (string no vacío) requerido para 'directedContinuation'.");
+    }
+
     const language = body.language || story?.options?.language || 'es';
     const childAge = body.childAge || story?.options?.childAge || 7;
     const specialNeed = body.specialNeed || story?.options?.specialNeed || 'Ninguna';
-    const storyDuration = story?.options?.duration || 'medium'; // Duración original como guía
-    // 5. Límites (para acciones de continuación)
+    const storyDuration = body.storyDuration || story?.options?.duration || 'medium';
+
+    // Límites (largely same logic as v6.1)
     if (isContinuationAction) {
-      console.log(`story-continuation v6.1-adapted: Checking limits for '${action}', user ${userId}, story ${story_id}`);
-      const { data: profile } = await supabaseAdmin.from('profiles').select('subscription_status').eq('id', userId).maybeSingle();
-      let isPremium = false;
-      if (profile) isPremium = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
-      else console.warn(`Perfil no encontrado para ${userId}, tratando como no premium.`);
+      const { data: profile, error: profileError } = await supabaseAdmin.from('profiles').select('subscription_status').eq('id', userId).maybeSingle();
+      if (profileError) throw new Error("Error al verificar el perfil de usuario para límites.");
+
+      const isPremium = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
       if (!isPremium) {
-        const { count: chapterCount } = await supabaseAdmin.from('story_chapters').select('*', {
-          count: 'exact',
-          head: true
-        }).eq('story_id', story_id);
-        const FREE_LIMIT = 2; // Historia base (cap 1 implícito) + 1 continuación (cap 2)
-        // El conteo de la tabla es sobre capítulos *guardados* (a partir del 2)
-        // Si ya hay 1 guardado (cap 2), el límite gratuito está alcanzado.
-        if (chapterCount !== null && chapterCount >= FREE_LIMIT) {
-          console.log(`story-continuation v6.1-adapted: Free limit reached (${chapterCount}/${FREE_LIMIT} continuations) for ${userId}, story ${story_id}.`);
-          return new Response(JSON.stringify({
-            error: 'Límite de continuaciones gratuitas alcanzado.'
-          }), {
-            status: 403,
-            headers: {
-              ...corsHeaders,
-              "Content-Type": "application/json"
-            }
+        const { count: chapterCount, error: countError } = await supabaseAdmin.from('story_chapters')
+          .select('*', { count: 'exact', head: true })
+          .eq('story_id', story_id);
+        if (countError) throw new Error("Error al verificar límites de continuación.");
+
+        const FREE_CHAPTER_LIMIT = 2; // Límite de capítulos *adicionales* generables (no se si el capitulo 0 lo cuenta)
+        if (chapterCount !== null && chapterCount >= FREE_CHAPTER_LIMIT) {
+          return new Response(JSON.stringify({ error: 'Límite de continuaciones gratuitas alcanzado.' }), {
+            status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
-        console.log(`story-continuation v6.1-adapted: Free user OK (${chapterCount ?? 0}/${FREE_LIMIT} continuations) for ${userId}, story ${story_id}`);
-      } else {
-        console.log(`story-continuation v6.1-adapted: Premium user ${userId}, no chapter limit.`);
       }
-    } else {
-      console.log(`story-continuation v6.1-adapted: No limit check needed for '${action}'.`);
     }
-    // --- 6. Ejecutar Acción Principal ---
-    let responsePayload = {};
-    console.log(`story-continuation v6.1-adapted: Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`)
+
+    // --- Ejecutar Acción Principal ---
+    let responsePayload: any = {}; // Use 'any' for flexibility, or a union type
+    console.log(`[${functionVersion}] Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`);
+
     if (action === 'generateOptions') {
-      // Mantenemos la lógica original que pide JSON para las opciones pero pasamos más contexto
-      responsePayload = await generateContinuationOptions(
-        story,
-        chapters,
-        language,
-        childAge,
-        specialNeed
-      );
+      const optionsResponse = await generateContinuationOptions(story as Story, chapters as Chapter[], language, childAge, specialNeed);
+      responsePayload = optionsResponse; // This is already { options: [...] }
     } else if (isContinuationAction) {
-      // --- NUEVA LÓGICA: Una llamada con separadores ---
-      const continuationContext = {};
+      const continuationContext: ContinuationContextType = {};
       if (action === 'optionContinuation') continuationContext.optionSummary = selectedOptionSummary;
       if (action === 'directedContinuation') continuationContext.userDirection = userDirection;
-      const continuationPrompt = createContinuationPrompt(action, story, chapters, continuationContext, language, childAge, specialNeed, storyDuration);
-      console.log(`story-continuation v6.1-adapted: Calling AI for combined output (User: ${userId})...`);
-      const generationConfig = {
-        temperature: 0.8,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 8192 // Ajustar según necesidad para continuaciones
-      };
-      const result = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: continuationPrompt
-              }
-            ]
-          }
-        ],
-        generationConfig: generationConfig
+
+      const continuationPrompt = createContinuationPrompt(
+        action as 'freeContinuation' | 'optionContinuation' | 'directedContinuation',
+        story as Story,
+        chapters as Chapter[],
+        continuationContext,
+        language,
+        childAge,
+        specialNeed,
+        storyDuration
+      );
+
+      console.log(`[${functionVersion}] Calling AI for continuation. Prompt start: ${continuationPrompt.substring(0, 200)}...`);
+
+      const chatCompletion = await openai.chat.completions.create({
+        model: TEXT_MODEL_GENERATE,
+        messages: [{ role: "user", content: continuationPrompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.8, // from v6.1
+        top_p: 0.95,      // from v6.1
+        max_tokens: 8192  // from v6.1
       });
-      const response = result?.response;
-      const rawApiResponseText = response?.text?.();
-      const blockReason = response?.promptFeedback?.blockReason;
-      console.log(`[EDGE_FUNC_DEBUG v6.1-adapted] Raw AI Separator response text: ${rawApiResponseText?.substring(0, 200) || '(No text received)'}...`);
-      if (blockReason) {
-        console.error(`AI Continuation Generation BLOCKED. Reason: ${blockReason}`);
-        throw new Error(`Generación de continuación bloqueada por seguridad: ${blockReason}`);
+
+      const aiResponseContent = chatCompletion.choices[0]?.message?.content;
+      const finishReason = chatCompletion.choices[0]?.finish_reason;
+      console.log(`[${functionVersion}] Raw AI JSON for continuation (first 200 chars): ${aiResponseContent?.substring(0, 200) || '(No content received)'}... Finish Reason: ${finishReason}`);
+
+      if (finishReason === 'content_filter') {
+        console.error(`[${functionVersion}] AI Continuation Generation BLOCKED due to content filter.`);
+        throw new Error(`Generación de continuación bloqueada por seguridad: filtro de contenido.`);
       }
-      if (!rawApiResponseText) {
+      if (finishReason === 'length') {
+        console.warn(`[${functionVersion}] AI continuation generation may have been truncated.`);
+      }
+      if (!aiResponseContent) {
         throw new Error("Fallo al generar continuación: Respuesta IA vacía (sin bloqueo explícito).");
       }
-      // Extraer Título y Contenido usando Separadores
-      let rawTitle = '';
-      let rawContent = '';
-      let finalTitle = 'Un Nuevo Capítulo'; // Default específico para continuación
+
+      let finalTitle = 'Un Nuevo Capítulo'; // Default
       let finalContent = '';
-      let extractionSuccess = false;
+      let parsedSuccessfully = false;
+
       try {
-        const titleStartTag = '<title_start>';
-        const titleEndTag = '<title_end>';
-        const contentStartTag = '<content_start>';
-        const contentEndTag = '<content_end>';
-        const titleStartIndex = rawApiResponseText.indexOf(titleStartTag);
-        const titleEndIndex = rawApiResponseText.indexOf(titleEndTag);
-        const contentStartIndex = rawApiResponseText.indexOf(contentStartTag, titleEndIndex);
-        const contentEndIndex = rawApiResponseText.indexOf(contentEndTag, contentStartIndex);
-        if (titleStartIndex !== -1 && titleEndIndex > titleStartIndex && contentStartIndex > titleEndIndex && contentEndIndex > contentStartIndex) {
-          rawTitle = rawApiResponseText.substring(titleStartIndex + titleStartTag.length, titleEndIndex).trim();
-          rawContent = rawApiResponseText.substring(contentStartIndex + contentStartTag.length, contentEndIndex).trim();
-          console.log(`[DEBUG v6.1-adapted] Extracted rawTitle: "${rawTitle}"`);
-          console.log(`[DEBUG v6.1-adapted] Extracted rawContent starts: "${rawContent.substring(0, 100)}..."`);
-          finalTitle = cleanExtractedText(rawTitle, 'title');
-          finalContent = cleanExtractedText(rawContent, 'content');
-          extractionSuccess = true;
+        const parsedResponse = JSON.parse(aiResponseContent);
+        if (isValidContinuationResponse(parsedResponse)) {
+          finalTitle = cleanExtractedText(parsedResponse.title, 'title');
+          finalContent = cleanExtractedText(parsedResponse.content, 'content');
+          parsedSuccessfully = true;
+          console.log(`[${functionVersion}] Parsed AI continuation JSON successfully.`);
         } else {
-          console.warn(`Separators not found/wrong order in continuation response.`);
+          console.warn(`[${functionVersion}] AI continuation response JSON structure invalid. Data:`, parsedResponse);
         }
-      } catch (extractError) {
-        console.error("Error during separator extraction for continuation:", extractError);
+      } catch (parseError: any) {
+        console.error(`[${functionVersion}] Failed to parse JSON from AI continuation response. Error: ${parseError.message}. Raw: ${aiResponseContent.substring(0, 300)}`);
       }
-      if (!extractionSuccess) {
-        console.warn("Using fallback for continuation: Default title, full response as content.");
-        finalContent = cleanExtractedText(rawApiResponseText, 'content'); // Limpiar toda la respuesta
+
+      if (!parsedSuccessfully) {
+        console.warn(`[${functionVersion}] Using fallback for continuation: Default title, full raw response as content (if available).`);
+        finalContent = cleanExtractedText(aiResponseContent, 'content'); // aiResponseContent might be the non-JSON string
       }
-      if (!finalContent) {
-        throw new Error("Error interno: Contenido de continuación vacío después del procesamiento.");
+
+      if (!finalContent) { // If content is still empty after parsing/fallback and cleaning
+        console.error(`[${functionVersion}] Critical error: Final continuation content is empty after all processing.`);
+        finalContent = "La historia no pudo continuar esta vez. Intenta con otra opción o una nueva dirección.";
+        // Optionally throw, but providing a message might be better UX for continuations
       }
-      console.log(`story-continuation v6.1-adapted: Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
-      responsePayload = {
-        content: finalContent,
-        title: finalTitle
-      };
-      // --- FIN NUEVA LÓGICA ---
+
+      console.log(`[${functionVersion}] Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
+      responsePayload = { content: finalContent, title: finalTitle };
+
     } else {
       throw new Error(`Acción no soportada: ${action}`);
     }
-    console.log(`story-continuation v6.1-adapted: Action ${action} completed successfully for ${userId}.`);
-    // --- 7. Devolver Respuesta Exitosa ---
+
+    console.log(`[${functionVersion}] Action ${action} completed successfully for ${userId}.`);
     return new Response(JSON.stringify(responsePayload), {
-      status: 200,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
-  } catch (error) {
-    // --- 8. Manejo Centralizado de Errores ---
-    console.error(`Error in story-continuation v6.1-adapted (User: ${userId || 'UNKNOWN'}, Action: ${requestedAction}):`, error);
+
+  } catch (error: any) {
+    console.error(`Error in ${functionVersion} (User: ${userId || 'UNKNOWN'}, Action: ${requestedAction}):`, error.message, error.stack);
     let statusCode = 500;
-    if (error instanceof Error) { }
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    return new Response(JSON.stringify({
-      error: `Error procesando solicitud (${requestedAction}): ${errorMessage}`
-    }), {
-      status: statusCode,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+    const lowerMessage = error.message.toLowerCase();
+
+    if (lowerMessage.includes("token inválido") || lowerMessage.includes("no autenticado")) statusCode = 401;
+    else if (lowerMessage.includes("límite de continuaciones")) statusCode = 403;
+    else if (lowerMessage.includes("json in body") || lowerMessage.includes("inválido/ausente") || lowerMessage.includes("requerido")) statusCode = 400;
+    else if (lowerMessage.includes("bloqueada por seguridad") || lowerMessage.includes("respuesta ia vacía") || lowerMessage.includes("filtro de contenido")) statusCode = 502;
+    else if (lowerMessage.includes("acción no soportada")) statusCode = 400;
+
+    return new Response(JSON.stringify({ error: `Error procesando solicitud (${requestedAction}): ${error.message}` }), {
+      status: statusCode, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
