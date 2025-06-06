@@ -24,6 +24,16 @@ export interface TTSOptions {
   instructions?: string;
 }
 
+interface OpenAIError {
+  status?: number;
+  code?: string | number;
+  message?: string;
+}
+
+function isOpenAIError(error: unknown): error is OpenAIError {
+  return typeof error === 'object' && error !== null;
+}
+
 // Voces disponibles en OpenAI
 export const OPENAI_VOICES = [
   { id: 'alloy' as const, name: 'Alloy', description: 'Alloy (Neutral)' },
@@ -90,9 +100,30 @@ export const generateSpeech = async ({
     console.log('Audio generado correctamente');
     
     return audioBlob;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error en generación de voz:', error);
-    throw error;
+    
+    const openAIError = isOpenAIError(error) ? error as OpenAIError : null;
+    
+    // Manejar específicamente el error 429 (Too Many Requests)
+    if (openAIError?.status === 429 || openAIError?.code === 429) {
+      throw new Error('Alcanzaste el máximo de créditos para generar un audio');
+    }
+    
+    if (openAIError?.status === 401 || openAIError?.code === 'invalid_api_key') {
+      throw new Error('Error de autenticación con el servicio de voz');
+    }
+    
+    if (openAIError?.status === 400) {
+      throw new Error('El texto proporcionado no es válido para generar audio');
+    }
+    
+    if (openAIError?.status && openAIError.status >= 500) {
+      throw new Error('El servicio de voz no está disponible temporalmente');
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Error inesperado al generar el audio';
+    throw new Error(errorMessage);
   }
 };
 

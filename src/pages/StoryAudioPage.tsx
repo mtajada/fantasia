@@ -15,6 +15,7 @@ import { PreviewVoiceModal } from "@/components/PreviewVoiceModal";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Howl } from 'howler';
 import { useUserStore } from "../store/user/userStore";
+import { toastManager } from "@/lib/utils";
 
 // Configuración del cliente de Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -153,10 +154,23 @@ export default function StoryAudioPage() {
     ? chapters[currentChapterIndex].content
     : story?.content || "";
 
+  // Estado para controlar si ya se mostró un toast para la combinación actual
+  const [lastAudioState, setLastAudioState] = useState<{
+    storyId: string | null;
+    chapterIndex: number | null;
+    voiceId: string | null;
+    hasAudio: boolean | null;
+  }>({
+    storyId: null,
+    chapterIndex: null,
+    voiceId: null,
+    hasAudio: null
+  });
+
   // Nueva función para obtener audio desde Supabase
   const getAudioFromSupabase = async (storyIdToFetch: string, chapterIdx: number, voiceIdToFetch: string) => {
     if (!supabase) {
-      toast.error("Cliente Supabase no inicializado.");
+      console.error("Cliente Supabase no inicializado.");
       return null;
     }
     if (!chapters[chapterIdx]) {
@@ -167,8 +181,6 @@ export default function StoryAudioPage() {
     if (!chapter || !chapter.id) {
       return null;
     }
-
-    
 
     try {
       // Buscar en la tabla chapter_audio_files
@@ -181,7 +193,7 @@ export default function StoryAudioPage() {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        toast.error('Error al buscar audio existente: ' + error.message);
+        console.error('Error al buscar audio existente:', error.message);
         return null;
       }
 
@@ -220,37 +232,89 @@ export default function StoryAudioPage() {
       return null;
     } catch (e) {
       console.error('Error al buscar audio existente:', e);
-      toast.error('Error al buscar audio existente.');
       return null;
     }
   };
 
-  // Efecto para cargar audio existente o limpiar si no hay
+  // Efecto para cargar audio existente con control de toasts mejorado
   useEffect(() => {
-    if (storyId && currentChapterIndex !== undefined && selectedVoice && chapters.length > 0 && chapters[currentChapterIndex]) {
-      const chapter = chapters[currentChapterIndex];
-      if (chapter && chapter.id) { // Asegurarse que el capítulo y su ID existen
-        setIsLoading(true); // Indicar carga mientras se busca
-        setAudioUrl(null); // Limpiar URL anterior mientras se busca
-        getAudioFromSupabase(storyId, currentChapterIndex, selectedVoice.id)
-          .then(url => {
-            if (url) {
-              setAudioUrl(url);
-              toast.success("Audio cargado correctamente");
-            } else {
-              setAudioUrl(null); // Asegurar que esté nulo si no se encontró
-              toast.info("No hay audio grabado para esta voz y capítulo");
-            }
-          })
-          .catch(() => setAudioUrl(null)) // Manejar error de promesa
-          .finally(() => setIsLoading(false));
-      } else {
-        setAudioUrl(null); // No hay capítulo o ID, limpiar
+    const loadAudio = async () => {
+      if (!storyId || currentChapterIndex === undefined || !selectedVoice || chapters.length === 0 || !chapters[currentChapterIndex]) {
+        setAudioUrl(null);
+        return;
       }
-    } else {
-      setAudioUrl(null); // Limpiar si faltan datos clave
-    }
-  }, [storyId, currentChapterIndex, selectedVoice.id, chapters]); // chapters como dependencia
+
+      const chapter = chapters[currentChapterIndex];
+      if (!chapter?.id) {
+        setAudioUrl(null);
+        return;
+      }
+
+      // Verificar si ya procesamos esta combinación para evitar toasts duplicados
+      const currentState = {
+        storyId,
+        chapterIndex: currentChapterIndex,
+        voiceId: selectedVoice.id,
+        hasAudio: null
+      };
+
+      const isNewCombination = (
+        lastAudioState.storyId !== currentState.storyId ||
+        lastAudioState.chapterIndex !== currentState.chapterIndex ||
+        lastAudioState.voiceId !== currentState.voiceId
+      );
+
+      if (!isNewCombination) {
+        return; // No hacer nada si es la misma combinación
+      }
+
+      setIsLoading(true);
+      setAudioUrl(null);
+      
+      // Limpiar toasts previos solo cuando cambiamos de combinación
+      toastManager.clear();
+
+      try {
+        const url = await getAudioFromSupabase(storyId, currentChapterIndex, selectedVoice.id);
+        
+        const newStateWithAudio = {
+          ...currentState,
+          hasAudio: !!url
+        };
+        
+        setLastAudioState(newStateWithAudio);
+        
+        if (url) {
+          setAudioUrl(url);
+          // Solo mostrar toast de éxito si es una nueva combinación
+          if (isNewCombination) {
+            toastManager.show('success', "Audio cargado correctamente");
+          }
+        } else {
+          setAudioUrl(null);
+          // Solo mostrar toast de info si es una nueva combinación
+          if (isNewCombination) {
+            toastManager.show('info', "No hay audio grabado para esta voz y capítulo");
+          }
+        }
+      } catch (error) {
+        console.error('Error loading audio:', error);
+        setAudioUrl(null);
+        setLastAudioState({
+          ...currentState,
+          hasAudio: false
+        });
+        
+        if (isNewCombination) {
+          toastManager.show('error', "Error al cargar el audio");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAudio();
+  }, [storyId, currentChapterIndex, selectedVoice?.id, chapters]);
 
 
   // Configurar Howler cuando cambia el audioUrl
@@ -283,7 +347,7 @@ export default function StoryAudioPage() {
       },
       onloaderror: () => {
         setIsLoading(false);
-        toast.error("No se pudo cargar el audio. Posible problema de CORS o formato.");
+        toastManager.show('error', "No se pudo cargar el audio", "Posible problema de CORS o formato");
       },
       onplay: () => {
         setIsPlaying(true);
@@ -359,7 +423,7 @@ export default function StoryAudioPage() {
    
     const url = PREVIEW_FILES[voiceId];
     if (!url) {
-      toast.error("Vista previa no disponible para esta voz");
+      toastManager.show('error', "Vista previa no disponible para esta voz");
       return;
     }
     setPreviewUrl(url);
@@ -368,10 +432,12 @@ export default function StoryAudioPage() {
 
   // Handle voice change with arrow navigation
   const handlePreviousVoice = () => {
+    toastManager.clear(); // Limpiar toasts al cambiar voz
     setVoiceIndex((prev) => (prev === 0 ? STORY_VOICES.length - 1 : prev - 1));
   };
 
   const handleNextVoice = () => {
+    toastManager.clear(); // Limpiar toasts al cambiar voz
     setVoiceIndex((prev) => (prev === STORY_VOICES.length - 1 ? 0 : prev + 1));
   };
 
@@ -388,7 +454,7 @@ export default function StoryAudioPage() {
     }
 
     if (!howlRef.current) {
-      toast.error("Reproductor no inicializado");
+      toastManager.show('error', "Reproductor no inicializado");
       return;
     }
 
