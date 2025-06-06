@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"; // Añadido useCallback
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Share, Printer, Volume2, Home, Award, BookOpen, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react"; // Eliminado ArrowLeft si no se usa
+import { Share, Printer, Volume2, Home, Award, BookOpen, ChevronLeft, ChevronRight, AlertCircle, FileText, FileDown } from "lucide-react"; // Eliminado ArrowLeft si no se usa
 import { motion } from "framer-motion";
 import { useStoriesStore } from "../store/stories/storiesStore";
 import { useChaptersStore } from "../store/stories/chapters/chaptersStore";
@@ -19,6 +19,7 @@ import { toast } from "sonner"; // Asegurarse que toast está importado
 import { ChallengeCategory, ChallengeQuestion as ChallengeQuestionType, StoryChapter, Story } from "../types"; // Importar Story
 import { ChallengeService } from "../services/ai/ChallengeService"; // Asumiendo ruta
 import { parseTextToParagraphs } from '@/lib/utils';
+import StoryPdfPreview from "../components/StoryPdfPreview";
 
 export default function StoryViewer() {
   const { storyId } = useParams<{ storyId: string }>();
@@ -44,6 +45,7 @@ export default function StoryViewer() {
   const [challengeQuestion, setChallengeQuestion] = useState<ChallengeQuestionType | null>(null);
   const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
   const [isGeneratingContinuation, setIsGeneratingContinuation] = useState(false); // Estado de carga para continuación
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   // --- Permisos derivados del store ---
   // Estos se actualizan reactivamente si el estado del userStore cambia
@@ -164,8 +166,8 @@ export default function StoryViewer() {
   };
 
   const handlePrint = () => {
-    // Simplemente llama a la función de impresión del navegador
-    window.print();
+    // Mostrar el modal de generación de PDF en lugar de la impresión del navegador
+    setShowPdfPreview(true);
   };
 
   const toggleAudioPlayer = () => {
@@ -272,9 +274,10 @@ export default function StoryViewer() {
           <button
             onClick={handlePrint}
             className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#BB79D1] hover:bg-white/40 hover:scale-105 active:scale-95 transition-all shadow-md"
-            aria-label="Imprimir"
+            aria-label="Generar PDF"
+            title="Generar PDF del cuento"
           >
-            <Printer className="h-5 w-5" />
+            <FileDown className="h-5 w-5" />
           </button>
         </div>
 
@@ -383,6 +386,14 @@ export default function StoryViewer() {
             </motion.div>
           )}
         </div> {/* Fin container */}
+
+        {/* Modal de generación de PDF */}
+        <StoryPdfPreview
+          isOpen={showPdfPreview}
+          onClose={() => setShowPdfPreview(false)}
+          title={currentChapter?.title || story?.title || "Tu cuento TaleMe!"}
+          content={currentChapter?.content || ""}
+        />
       </div> {/* Fin fondo */}
     </PageTransition>
   );
