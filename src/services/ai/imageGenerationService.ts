@@ -25,7 +25,7 @@ interface ImageGenerationResult {
  * Service for generating story images using OpenAI GPT-4.1-mini with image generation tools
  */
 export class ImageGenerationService {
-  private static readonly MODEL = 'dall-e-3';
+  private static readonly MODEL = 'gpt-image-1';
   private static openai = new OpenAI({
     apiKey: import.meta.env.VITE_OPEN_AI_API_KEY,
     dangerouslyAllowBrowser: true // Solo para desarrollo, en producción usar Edge Functions
@@ -88,6 +88,7 @@ export class ImageGenerationService {
 
   /**
    * Creates specific prompts for each image type
+   * CHARACTER is generated first to establish visual consistency for scenes
    */
   private static createImagePrompts(title: string, content: string): Record<string, string> {
     const baseContext = `**Cuento:**
@@ -95,29 +96,23 @@ Título: ${title}
 Cuento: ${content}`;
 
     return {
-      [IMAGES_TYPE.COVER]: `${SYSTEM_PROMPT_BASE}
+    [IMAGES_TYPE.COVER]: `${SYSTEM_PROMPT_BASE}
 
 ${baseContext}
 
-Genera una imagen de PORTADA que capture la esencia del cuento. Debe incluir el título de manera artística y elementos visuales que representen la historia principal. Estilo acuarela tradicional de cuento infantil.`,
+Genera una imagen de PORTADA que capture la esencia del cuento. Debe incluir el título de manera artística y elementos visuales que representen la historia principal, manteniendo la misma estética del personaje principal. Estilo acuarela tradicional de cuento infantil.`,
 
       [IMAGES_TYPE.SCENE_1]: `${SYSTEM_PROMPT_BASE}
 
 ${baseContext}
 
-Genera una imagen de la PRIMERA ESCENA más importante del cuento. Debe mostrar un momento clave de la historia con los personajes principales en acción. Estilo acuarela tradicional de cuento infantil.`,
+Genera una imagen de la PRIMERA ESCENA más importante del cuento, donde el PERSONAJE PRINCIPAL debe ser el elemento central de la composición. Debe mostrar un momento clave de la historia con el protagonista en acción, manteniendo las características visuales establecidas del personaje. Estilo acuarela tradicional de cuento infantil.`,
 
       [IMAGES_TYPE.SCENE_2]: `${SYSTEM_PROMPT_BASE}
 
 ${baseContext}
 
-Genera una imagen de la SEGUNDA ESCENA más importante del cuento. Debe representar otro momento crucial diferente al anterior, manteniendo continuidad visual. Estilo acuarela tradicional de cuento infantil.`,
-
-      [IMAGES_TYPE.CHARACTER]: `${SYSTEM_PROMPT_BASE}
-
-${baseContext}
-
-Genera una imagen del PERSONAJE PRINCIPAL del cuento. Debe mostrar al protagonista con sus características distintivas en una pose característica. Estilo acuarela tradicional de cuento infantil.`
+Genera una imagen de la SEGUNDA ESCENA más importante del cuento, donde el PERSONAJE PRINCIPAL debe ser prominente en la escena. Debe representar otro momento crucial diferente al anterior, mostrando al protagonista en una situación distinta pero manteniendo continuidad visual y las características del personaje establecidas. Estilo acuarela tradicional de cuento infantil.`
     };
   }
 
@@ -172,30 +167,17 @@ Genera una imagen del PERSONAJE PRINCIPAL del cuento. Debe mostrar al protagonis
    */
   private static async callOpenAIImageGeneration(prompt: string): Promise<string | null> {
     try {
-      console.log('[ImageGeneration] Calling OpenAI with GPT-4.1-mini...');
-      
-      const response = await this.openai.responses.create({
+      const response = await this.openai.images.generate({
         model: this.MODEL,
-        input: prompt,
-        tools: [{ type: "image_generation" }],
+        prompt: prompt,
+        n: 1,
+        quality: "medium",
+        size: "1024x1536",
+        background: "opaque"
       });
 
-      console.log('[ImageGeneration] OpenAI response received');
 
-      // Filter and extract image data
-      const imageData = response.output
-        .filter((output) => output.type === "image_generation_call")
-        .map((output) => output.result);
-
-      if (imageData.length > 0) {
-        // Return base64 data instead of URL
-        const imageBase64 = imageData[0];
-        console.log('[ImageGeneration] Image base64 data received');
-        return imageBase64;
-      } else {
-        console.warn('[ImageGeneration] No image data found in response');
-        return null;
-      }
+      return response.data[0].b64_json;
     } catch (error) {
       console.error('[ImageGeneration] OpenAI API error:', error);
       throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : 'Unknown error'}`);

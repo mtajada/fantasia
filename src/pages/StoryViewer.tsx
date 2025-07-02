@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"; // Añadido useCallback
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Share, Printer, Volume2, Home, Award, BookOpen, ChevronLeft, ChevronRight, AlertCircle, FileText, FileDown, Camera } from "lucide-react"; // Añadido Camera para las imágenes
+import { Share, Printer, Volume2, Home, Award, BookOpen, ChevronLeft, ChevronRight, AlertCircle, FileText, FileDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStoriesStore } from "../store/stories/storiesStore";
 import { useChaptersStore } from "../store/stories/chapters/chaptersStore";
@@ -21,7 +21,6 @@ import { ChallengeService } from "../services/ai/ChallengeService"; // Asumiendo
 import { parseTextToParagraphs } from '@/lib/utils';
 import { generateId } from "../store/core/utils";
 import StoryPdfPreview from "../components/StoryPdfPreview";
-import { ImageGenerationService } from "../services/ai/imageGenerationService";
 
 export default function StoryViewer() {
   const { storyId } = useParams<{ storyId: string }>();
@@ -48,7 +47,6 @@ export default function StoryViewer() {
   const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
   const [isGeneratingContinuation, setIsGeneratingContinuation] = useState(false); // Estado de carga para continuación
   const [showPdfPreview, setShowPdfPreview] = useState(false);
-  const [isGeneratingImages, setIsGeneratingImages] = useState(false); // Estado para generación de imágenes
 
   // --- Permisos derivados del store ---
   // Estos se actualizan reactivamente si el estado del userStore cambia
@@ -246,54 +244,6 @@ export default function StoryViewer() {
     }
   };
 
-  // --- *** MANEJADOR PARA GENERAR IMÁGENES *** ---
-  const handleGenerateImages = async () => {
-    if (!story || !currentChapter) {
-      toast.error("Error", { description: "No se encontró la historia o capítulo actual" });
-      return;
-    }
-
-    setIsGeneratingImages(true);
-    
-    try {
-      toast.loading('Generando imágenes del cuento...', { 
-        description: 'Esto puede tomar unos minutos. Generando 4 imágenes simultáneamente.'
-      });
-
-      const result = await ImageGenerationService.generateStoryImages({
-        title: story.title || "Cuento sin título",
-        content: currentChapter.content,
-        storyId: story.id,
-        chapterId: currentChapterIndex + 1
-      });
-
-      toast.dismiss();
-
-      if (result.success && result.images.length > 0) {
-        toast.success(`¡Imágenes generadas exitosamente!`, {
-          description: `Se generaron ${result.images.length} de 4 imágenes. ${result.error ? 'Algunas fallaron: ' + result.error : ''}`
-        });
-        
-        // Mostrar URLs en consola para pruebas
-        console.log('Imágenes generadas:', result.images);
-        result.images.forEach(img => {
-          console.log(`${img.type}: ${img.url}`);
-        });
-      } else {
-        toast.error("Error al generar imágenes", {
-          description: result.error || "No se pudo generar ninguna imagen"
-        });
-      }
-    } catch (error) {
-      console.error('Error generando imágenes:', error);
-      toast.dismiss();
-      toast.error("Error inesperado", {
-        description: error instanceof Error ? error.message : "Error desconocido al generar imágenes"
-      });
-    } finally {
-      setIsGeneratingImages(false);
-    }
-  };
   // --- *** FIN: Lógica de Continuación MODIFICADA *** ---
 
   // --- Renderizado ---
@@ -430,18 +380,7 @@ export default function StoryViewer() {
                   {!isAllowedToGenerateVoice && <AlertCircle className="ml-1 h-4 w-4" />}
                 </button>
 
-                {/* Tercera fila: Generar Imágenes (Botón de prueba) */}
-                <button
-                  onClick={handleGenerateImages}
-                  disabled={isGeneratingImages}
-                  className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isGeneratingImages ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white'}`}
-                  title="Generar imágenes del cuento (Prueba)"
-                >
-                  <Camera size={22} className="mr-2" />
-                  {isGeneratingImages ? 'Generando...' : 'Generar Imágenes'}
-                </button>
-
-                {/* Cuarta fila: Volver al Inicio */}
+                {/* Tercera fila: Volver al Inicio */}
                 <button
                   onClick={() => navigate("/home")}
                   className="flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-semibold bg-white/60 hover:bg-white/80 text-[#BB79D1] transition-all shadow w-full sm:w-48 text-base"
@@ -459,6 +398,8 @@ export default function StoryViewer() {
           onClose={() => setShowPdfPreview(false)}
           title={currentChapter?.title || story?.title || "Tu cuento TaleMe!"}
           content={currentChapter?.content || ""}
+          storyId={storyId!}
+          chapterId={currentChapter?.id || "1"}
         />
       </div> {/* Fin fondo */}
     </PageTransition>
