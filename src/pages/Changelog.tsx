@@ -43,10 +43,9 @@ const Changelog: React.FC = () => {
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
               <Button
-                variant="ghost"
                 size="sm"
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 text-[#BB79D1] hover:text-[#A5D6F6]"
+                className="bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Volver
