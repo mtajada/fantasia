@@ -93,8 +93,8 @@ export default function Home() {
                 : "bg-[#f6a5b7]/50 text-white/90 cursor-not-allowed"
             }`}
             onClick={handleNewStory}
-            aria-disabled={!canCreateStory()}
-            title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : "Crear nueva historia"}
+            // disabled={!canCreateStory()}
+            title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}
           >
             Generar una Nueva Historia
           </button>
