@@ -280,7 +280,8 @@ export default function StoryPdfPreview({
             </div>
           )}
           
-          {/* Progress Bar - Shown during image generation */}
+          {/* Progress Bar y Confirmation Dialog - COMENTADOS PARA DEMO */}
+          {/* 
           {generationProgress && (
             <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center mb-2">
@@ -299,7 +300,6 @@ export default function StoryPdfPreview({
             </div>
           )}
 
-          {/* Confirmation Dialog for Image Generation */}
           {showConfirmGeneration && imageValidationResult && !imageValidationResult.canGenerate && (
             <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
               <div className="flex items-start">
@@ -336,6 +336,7 @@ export default function StoryPdfPreview({
               </div>
             </div>
           )}
+          */}
           
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
@@ -345,7 +346,7 @@ export default function StoryPdfPreview({
 
           {/* Opciones de generación */}
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-3 text-gray-800">Elige el formato:</h3>
+            <h3 className="text-lg font-semibold mb-3 text-gray-800">Generar PDF:</h3>
             
             {/* Opción 1: Formato TaleMe */}
             <div className="mb-3 p-4 border border-pink-200 rounded-lg bg-pink-50">
@@ -364,7 +365,7 @@ export default function StoryPdfPreview({
                 </div>
                 <Button
                   onClick={handleGenerateStandard}
-                  disabled={isGenerating || isGeneratingIllustrated || isValidatingImages}
+                  disabled={isGenerating}
                   className="ml-4 bg-[#F6A5B7] hover:bg-[#F6A5B7]/90"
                 >
                   {isGenerating ? (
@@ -379,7 +380,8 @@ export default function StoryPdfPreview({
               </div>
             </div>
 
-            {/* Opción 2: Cuento Ilustrado */}
+            {/* Opción 2: Cuento Ilustrado - COMENTADO PARA DEMO */}
+            {/* 
             <div className="p-4 border border-purple-200 rounded-lg bg-purple-50">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -415,13 +417,14 @@ export default function StoryPdfPreview({
                 </Button>
               </div>
             </div>
+            */}
           </div>
           
           <div className="flex justify-end">
             <Button
               variant="outline"
               onClick={onClose}
-              disabled={isGenerating || isGeneratingIllustrated || isValidatingImages}
+              disabled={isGenerating}
             >
               Cancelar
             </Button>
@@ -431,3 +434,12 @@ export default function StoryPdfPreview({
     </div>
   );
 }
+
+// NOTA: Las siguientes funciones están temporalmente comentadas para la demo
+// pero siguen disponibles para cuando se reactive la funcionalidad ilustrada:
+// - handleGenerateIllustrated
+// - handleConfirmImageGeneration
+// - generateIllustratedPdfDirectly
+// - handleCancelGeneration
+// - Estados: isGeneratingIllustrated, isValidatingImages, needsImageGeneration, 
+//   showConfirmGeneration, imageValidationResult, generationProgress
