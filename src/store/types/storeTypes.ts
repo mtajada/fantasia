@@ -33,16 +33,15 @@ export interface UserState {
 }
 
 export interface CharacterState {
-  currentCharacter: StoryCharacter | null;
   savedCharacters: StoryCharacter[];
-  // Multiple character selection support
   selectedCharacters: StoryCharacter[];
   maxCharacters: number;
+  currentCharacter: StoryCharacter;
 
   updateCharacter: (updates: Partial<StoryCharacter>) => void;
   resetCharacter: () => void;
-  saveCurrentCharacter: () => Promise<{ success: boolean; error?: any }>;
-  selectCharacter: (characterId: string) => void;
+  setCurrentCharacter: (character: StoryCharacter) => void;
+  saveCurrentCharacter: () => Promise<{ success: boolean; error?: string }>;
   deleteCharacter: (characterId: string) => void;
   loadCharactersFromSupabase: () => Promise<void>;
   
@@ -147,16 +146,6 @@ export interface AudioState {
 // Estado combinado para mantener compatibilidad con el código existente
 export interface StoryState
   extends UserState, StoriesState, ChallengesState, ChaptersState, AudioState {
-  currentStoryOptions: Partial<StoryOptions> & {
-    character?: StoryCharacter;
-  };
+  currentStoryOptions: Partial<StoryOptions>;
   savedCharacters: StoryCharacter[];
-
-  // Métodos específicos de Character para compatibilidad
-  setCharacterName: (name: string) => void;
-  setCharacterHobbies: (hobbies: string[]) => void;
-  setCharacterDescription: (description: string) => void;
-  setCharacterProfession: (profession: string) => void;
-  setCharacterType: (type: string) => void;
-  setCharacterPersonality: (personality: string) => void;
 }

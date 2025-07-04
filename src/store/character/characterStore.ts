@@ -1,7 +1,7 @@
 import { CharacterState } from "../types/storeTypes";
 import { StoryCharacter } from "../../types";
 import { createPersistentStore, registerStoreRefresh } from "../core/createStore";
-import { createDefaultCharacter, generateId } from "../core/utils";
+import { generateId } from "../core/utils";
 import {
   deleteCharacter as deleteSupabaseCharacter,
   getUserCharacters,
@@ -14,12 +14,20 @@ import { validateCharacterSelection, validateMultipleCharacterSelection, CHARACT
 // Estado inicial
 const initialState: Pick<
   CharacterState,
-  "currentCharacter" | "savedCharacters" | "selectedCharacters" | "maxCharacters"
+  "savedCharacters" | "selectedCharacters" | "maxCharacters" | "currentCharacter"
 > = {
-  currentCharacter: createDefaultCharacter(),
   savedCharacters: [],
   selectedCharacters: [],
   maxCharacters: 4, // Límite máximo de personajes según especificación
+  currentCharacter: {
+    id: "",
+    name: "",
+    hobbies: [],
+    description: "",
+    profession: "",
+    characterType: "",
+    personality: "",
+  },
 };
 
 export const useCharacterStore = createPersistentStore<CharacterState>(
@@ -108,6 +116,10 @@ export const useCharacterStore = createPersistentStore<CharacterState>(
             personality: "",
           }
         });
+      },
+
+      setCurrentCharacter: (character: StoryCharacter) => {
+        set({ currentCharacter: character });
       },
 
       saveCurrentCharacter: async () => {
@@ -219,22 +231,6 @@ export const useCharacterStore = createPersistentStore<CharacterState>(
         }
       },
 
-      selectCharacter: (characterId) =>
-        set((state) => {
-          const character = state.savedCharacters.find((char) =>
-            char.id === characterId
-          );
-
-          if (!character) {
-            return state;
-          }
-
-          // Backward compatibility: también actualizar selectedCharacters para consistencia
-          return {
-            currentCharacter: character,
-            selectedCharacters: [character], // Selección única para compatibilidad
-          };
-        }),
 
       deleteCharacter: async (characterId) => {
         const user = useUserStore.getState().user;
@@ -248,10 +244,10 @@ export const useCharacterStore = createPersistentStore<CharacterState>(
           savedCharacters: state.savedCharacters.filter((char) =>
             char.id !== characterId
           ),
-          // Si el personaje actual es el que se elimina, resetearlo
-          currentCharacter: state.currentCharacter.id === characterId 
-            ? createDefaultCharacter() 
-            : state.currentCharacter
+          // También eliminar de selectedCharacters si está seleccionado
+          selectedCharacters: state.selectedCharacters.filter((char) =>
+            char.id !== characterId
+          )
         }));
 
         // Luego sincronizar con Supabase
@@ -393,18 +389,3 @@ export {
   CHARACTER_LIMITS 
 } from "./characterValidation";
 
-// Helper function for backward compatibility: sync selectedCharacters with currentCharacter
-export const syncCharacterSelection = () => {
-  const characterState = useCharacterStore.getState();
-  
-  // Si hay un currentCharacter pero no está en selectedCharacters, agregarlo
-  if (characterState.currentCharacter && 
-      !characterState.selectedCharacters.some(char => char.id === characterState.currentCharacter?.id)) {
-    useCharacterStore.getState().setSelectedCharacters([characterState.currentCharacter]);
-  }
-  
-  // Si hay selectedCharacters pero no currentCharacter, establecer el primero como current
-  if (characterState.selectedCharacters.length > 0 && !characterState.currentCharacter) {
-    useCharacterStore.getState().selectCharacter(characterState.selectedCharacters[0].id);
-  }
-};

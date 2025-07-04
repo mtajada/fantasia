@@ -55,10 +55,8 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
         selectedCharacterIds: characterIds,
         currentStoryOptions: {
           ...state.currentStoryOptions,
-          // Mantener compatibilidad: si solo hay un personaje, establecerlo como character
-          character: characters.length === 1 ? characters[0] : state.currentStoryOptions.character,
-          // Añadir array de personajes para múltiples
-          characters: characters.length > 1 ? characters : undefined
+          // Usar siempre el array de personajes (simplificado)
+          characters: characters
         }
       }));
     },
