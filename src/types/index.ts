@@ -56,6 +56,8 @@ export type StoryOptions = {
   duration: StoryDuration;
   language?: string;
   userProvidedContext?: string;
+  // Multiple character support (backward compatible)
+  characters?: StoryCharacter[];
 }
 
 export type Story = {
