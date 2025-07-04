@@ -159,26 +159,59 @@ serve(async (req: Request) => {
       params = await req.json();
       console.log(`[${functionVersion}] Params Recibidos:`, params);
 
+      // Validate basic structure
       if (!params || typeof params !== 'object' ||
         !params.options || typeof params.options !== 'object' ||
-        !params.options.character || typeof params.options.character !== 'object' || !params.options.character.name ||
         typeof params.language !== 'string' || !params.language ||
         params.childAge === undefined || // childAge puede ser 0, así que undefined es la comprobación correcta
         typeof params.options.duration !== 'string' || !params.options.duration ||
         typeof params.options.genre !== 'string' || !params.options.genre ||
         typeof params.options.moral !== 'string' || !params.options.moral
       ) {
-        console.error("Validation failed. Missing or invalid fields in params:", {
+        console.error("Validation failed. Missing or invalid basic fields in params:", {
           hasOptions: !!params.options,
-          hasCharacter: !!params.options?.character,
-          hasCharacterName: !!params.options?.character?.name,
           hasLanguage: typeof params.language === 'string' && !!params.language,
           hasChildAge: params.childAge !== undefined,
           hasDuration: typeof params.options?.duration === 'string' && !!params.options.duration,
           hasGenre: typeof params.options?.genre === 'string' && !!params.options.genre,
           hasMoral: typeof params.options?.moral === 'string' && !!params.options.moral
         });
-        throw new Error("Parámetros inválidos/incompletos (revisar character.name, language, childAge, options.duration, options.genre, options.moral).");
+        throw new Error("Parámetros básicos inválidos/incompletos (revisar language, childAge, options.duration, options.genre, options.moral).");
+      }
+
+      // Validate character data - support both single character and multiple characters
+      const hasMultipleCharacters = params.options.characters && Array.isArray(params.options.characters) && params.options.characters.length > 0;
+      const hasSingleCharacter = params.options.character && typeof params.options.character === 'object' && params.options.character.name;
+      
+      if (!hasMultipleCharacters && !hasSingleCharacter) {
+        console.error("Validation failed. No valid character data found:", {
+          hasCharacters: !!params.options.characters,
+          charactersIsArray: Array.isArray(params.options.characters),
+          charactersLength: params.options.characters?.length,
+          hasCharacter: !!params.options.character,
+          hasCharacterName: !!params.options.character?.name
+        });
+        throw new Error("Se requiere al menos un personaje válido (options.character.name o options.characters[] con al menos un elemento).");
+      }
+
+      // Additional validation for multiple characters
+      if (hasMultipleCharacters) {
+        if (params.options.characters.length > 4) {
+          throw new Error("Máximo 4 personajes permitidos por historia.");
+        }
+        
+        const invalidCharacters = params.options.characters.filter(char => 
+          !char || typeof char !== 'object' || !char.name || typeof char.name !== 'string'
+        );
+        
+        if (invalidCharacters.length > 0) {
+          console.error("Validation failed. Invalid characters found:", invalidCharacters);
+          throw new Error("Todos los personajes deben tener un nombre válido.");
+        }
+        
+        console.log(`[${functionVersion}] Multiple characters mode: ${params.options.characters.length} characters - ${params.options.characters.map(c => c.name).join(', ')}`);
+      } else {
+        console.log(`[${functionVersion}] Single character mode: ${params.options.character.name}`);
       }
     } catch (error) {
       console.error(`[${functionVersion}] Failed to parse/validate JSON body for user ${userId}. Error:`, error);

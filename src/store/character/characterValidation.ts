@@ -200,7 +200,7 @@ export const validateStoryGeneration = (characters: StoryCharacter[]): Character
 
   // Usar la validación múltiple
   const validation = validateMultipleCharacterSelection(characters);
-  
+
   return {
     isValid: validation.isValid,
     errors: validation.errors,
