@@ -35,6 +35,9 @@ export interface UserState {
 export interface CharacterState {
   currentCharacter: StoryCharacter | null;
   savedCharacters: StoryCharacter[];
+  // Multiple character selection support
+  selectedCharacters: StoryCharacter[];
+  maxCharacters: number;
 
   updateCharacter: (updates: Partial<StoryCharacter>) => void;
   resetCharacter: () => void;
@@ -42,11 +45,21 @@ export interface CharacterState {
   selectCharacter: (characterId: string) => void;
   deleteCharacter: (characterId: string) => void;
   loadCharactersFromSupabase: () => Promise<void>;
+  
+  // Multiple character selection functions
+  toggleCharacterSelection: (characterId: string) => void;
+  clearSelectedCharacters: () => void;
+  getSelectedCharacters: () => StoryCharacter[];
+  isCharacterSelected: (characterId: string) => boolean;
+  canSelectMoreCharacters: () => boolean;
+  setSelectedCharacters: (characters: StoryCharacter[]) => void;
 }
 
 export interface StoryOptionsState {
   currentStoryOptions: Partial<StoryOptions>;
   additionalDetails?: string | null;
+  // Multiple character selection support
+  selectedCharacterIds: string[];
 
   updateStoryOptions: (options: Partial<StoryOptions>) => void;
   resetStoryOptions: () => void;
@@ -54,6 +67,11 @@ export interface StoryOptionsState {
   setMoral: (moral: string) => void;
   setGenre: (genre: string) => void;
   setAdditionalDetails: (details?: string | null) => void;
+  
+  // Multiple character selection functions
+  setSelectedCharacterIds: (characterIds: string[]) => void;
+  getSelectedCharactersForStory: () => StoryCharacter[];
+  updateSelectedCharacters: (characters: StoryCharacter[]) => void;
 }
 
 export interface StoriesState {
