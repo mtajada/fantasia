@@ -67,28 +67,29 @@ interface CharacterState {
 
 ## Plan de Tareas
 
-### Fase 1: Preparación y Tipos de Datos ✅ COMPLETADA
+### Fase 1: Preparación y Tipos de Datos ✅ COMPLETADA CON BREAKING CHANGES
 - [x] **Extender tipos de datos en `storeTypes.ts`** ✅
   - Añadir `selectedCharacters: StoryCharacter[]` a `CharacterState`
   - Añadir `characters?: StoryCharacter[]` a `StoryOptions`
-  - Mantener campos existentes para compatibilidad
+  - 🔥 **REMOVIDO**: Funciones legacy de selección única
 - [x] **Actualizar `characterStore.ts`** ✅
   - Implementar `selectedCharacters` en el estado
   - Crear funciones: `toggleCharacterSelection()`, `clearSelectedCharacters()`, `getSelectedCharacters()`, `isCharacterSelected()`, `canSelectMoreCharacters()`, `setSelectedCharacters()`
-  - Mantener funciones existentes para compatibilidad
+  - 🔥 **REMOVIDO**: `selectCharacter()` y funciones legacy
 - [x] **Actualizar `storyOptionsStore.ts`** ✅
   - Añadir soporte para almacenar múltiples personajes
-  - Crear función `setSelectedCharacters()` que popule tanto `character` como `characters`
+  - Simplificar lógica - solo usar array `characters`
 
-#### 📋 NOTA TÉCNICA PARA FUTUROS AGENTES - FASE 1 COMPLETADA
+#### 📋 NOTA TÉCNICA PARA FUTUROS AGENTES - FASE 1 COMPLETADA (SISTEMA SIMPLIFICADO)
 
 **Estado Actual del Sistema:**
-La infraestructura de almacenamiento para selección múltiple de personajes está **completamente implementada y funcional**. Los siguientes componentes están listos:
+La infraestructura para selección múltiple de personajes está **completamente implementada con arquitectura simplificada**. Los siguientes componentes están listos:
 
-**🏗️ Arquitectura de Stores:**
-- **`CharacterState`**: Extendido con `selectedCharacters: StoryCharacter[]` y `maxCharacters: 4`
+**🏗️ Arquitectura de Stores (SIMPLIFICADA):**
+- **`CharacterState`**: Con `selectedCharacters: StoryCharacter[]` y `maxCharacters: 4`
+- **`currentCharacter`**: MANTENIDO solo para flujo de creación de personajes
 - **`StoryOptionsState`**: Añadido `selectedCharacterIds: string[]` para tracking
-- **`StoryOptions`**: Campo opcional `characters?: StoryCharacter[]` para compatibilidad
+- **`StoryOptions`**: Campo `characters?: StoryCharacter[]` para array de personajes
 
 **⚙️ Funciones Implementadas (6 nuevas en CharacterStore):**
 1. `toggleCharacterSelection(characterId)` - Seleccionar/deseleccionar con validación
@@ -105,11 +106,11 @@ La infraestructura de almacenamiento para selección múltiple de personajes est
 - **Validaciones**: Duplicados, límites, caracteres inválidos
 - **Funciones clave**: `validateCharacterSelection()`, `validateMultipleCharacterSelection()`, `getCharacterSelectionMessage()`
 
-**🔄 Compatibilidad hacia Atrás:**
-- ✅ **100% Compatible**: Toda funcionalidad existente funciona sin cambios
-- ✅ **Función `selectCharacter()`**: Actualizada para sincronizar ambos sistemas
-- ✅ **Helper `syncCharacterSelection()`**: Mantiene consistencia entre stores
-- ✅ **Tipos**: Extensiones opcionales que no rompen código existente
+**🔥 CAMBIOS ARQUITECTURALES (BREAKING CHANGES):**
+- ❌ **REMOVIDO**: Función `selectCharacter()` - Ya no existe en el sistema
+- ❌ **REMOVIDO**: `syncCharacterSelection()` - No necesaria en el sistema simplificado
+- ✅ **SIMPLIFICADO**: Sistema unificado que siempre permite selección múltiple (1-4)
+- ✅ **MANTENIDO**: `currentCharacter` solo para flujo de creación de personajes
 
 **🚀 Listos para Fase 2:**
 - **CharacterStore**: Todas las funciones exportadas y listas para UI
@@ -132,17 +133,18 @@ La infraestructura de almacenamiento para selección múltiple de personajes est
 
 ---
 
-### Fase 2: Interfaz de Usuario - Selección Múltiple ✅ COMPLETADA
+### Fase 2: Interfaz de Usuario - Selección Múltiple ✅ COMPLETADA (SIMPLIFICADA)
 - [x] **Modificar `CharacterSelection.tsx`** ✅
   - Cambiar de navegación inmediata a selección con checkboxes
-  - Implementar estado local para seguimiento de selecciones (máximo 4 personajes)
-  - Añadir botón "Continuar" independiente (habilitado con ≥1 personaje)
+  - 🔥 **REMOVIDO**: Toggle entre modos único/múltiple - siempre modo múltiple
+  - Implementar seguimiento de selecciones (1-4 personajes)
+  - Añadir botón "Continuar" siempre presente (habilitado con ≥1 personaje)
   - Mantener indicadores visuales de selección
-  - Implementar lógica para manejar tanto selección única como múltiple
+  - 🔥 **ELIMINADO**: Lógica dual - solo selección múltiple
   - **Añadir mensaje explicativo**: "✨ ¡Puedes elegir hasta 4 personajes para tu historia! Para cuentos cortitos, recomendamos menos personajes para que cada uno brille más."
 - [x] **Actualizar estilos y UX** ✅
   - Diseñar indicadores visuales para personajes seleccionados
-  - Implementar animaciones de selección/deselección
+  - Implementar animaciones de selección/deselección  
   - Añadir contador de personajes seleccionados (ej: "2/4 personajes seleccionados")
   - Deshabilitar selección cuando se alcancen 4 personajes
 
@@ -166,17 +168,17 @@ La infraestructura de almacenamiento para selección múltiple de personajes est
 **Estado Actual del Sistema UI:**
 La interfaz de usuario para selección múltiple de personajes está **completamente implementada y funcional**. Los siguientes componentes están listos:
 
-**🎨 UI de Selección Múltiple:**
-- **Toggle de Modo**: Botón para alternar entre selección única y múltiple
+**🎨 UI de Selección Múltiple (SIMPLIFICADA):**
+- **REMOVIDO**: Toggle de modo - Ahora siempre es selección múltiple
 - **Checkboxes**: Componente Radix UI checkbox en tarjetas de personajes
 - **Indicadores Visuales**: Badges, iconos UserCheck, bordes purple para seleccionados
 - **Contador**: Badge con "2/4" personajes seleccionados visible
 - **Mensajes**: Sistema completo con `getCharacterSelectionMessage()`
 
-**🔄 Flujo de Navegación:**
-- **Modo Único**: Comportamiento original preservado (clic → navegar)
-- **Modo Múltiple**: Clic → toggle selection, botón "Continuar" independiente
-- **Validación**: Límite 4 personajes, deshabilita selección cuando máximo alcanzado
+**🔄 Flujo de Navegación (UNIFICADO):**
+- **Modo Único ELIMINADO**: Ya no existe navegación inmediata al hacer clic
+- **Selección Múltiple**: Único modo - Clic → toggle selection, botón "Continuar" siempre presente
+- **Validación**: Límite 1-4 personajes, deshabilita selección cuando máximo alcanzado
 - **Feedback**: Botón "Limpiar Selección", contador dinámico en texto del botón
 
 **🏗️ Flujo de Creación Arreglado:**
@@ -185,18 +187,18 @@ La interfaz de usuario para selección múltiple de personajes está **completam
 - **Archivos Actualizados**: CharacterName, CharacterHobbies, CharacterPersonality, CharacterProfession
 - **URL Management**: Uso consistente de `URLSearchParams` para parámetros
 
-**🎯 Estado de Funcionalidad:**
-- ✅ **Selección Única**: Funciona exactamente igual que antes
-- ✅ **Selección Múltiple**: Permite 1-4 personajes con validación
+**🎯 Estado de Funcionalidad (SISTEMA SIMPLIFICADO):**
+- 🔥 **Selección Única REMOVIDA**: Ya no existe como modo separado
+- ✅ **Selección Múltiple**: Sistema unificado 1-4 personajes con validación
 - ✅ **Creación de Personajes**: Regresa correctamente a selección
 - ✅ **Validación**: Sistema completo con mensajes amigables
 - ✅ **UX**: Animaciones, hover effects, disabled states
-- ✅ **Compatibilidad**: 100% hacia atrás preservada
+- ❌ **BREAKING CHANGE**: Sistema anterior de selección única eliminado
 
-**📱 Componentes UI Implementados:**
-- `isMultipleMode` state toggle para cambiar entre modos
-- Checkbox overlay en modo múltiple con estilos brand purple
-- Badge counter en toggle button y en tarjetas seleccionadas
+**📱 Componentes UI Implementados (SIMPLIFICADOS):**
+- 🔥 **REMOVIDO**: `isMultipleMode` state - Ya no existe toggle de modos
+- ✅ **Checkboxes**: Siempre visibles con estilos brand purple
+- ✅ **Badge counter**: En contador central y tarjetas seleccionadas
 - Botón "Limpiar Selección" para reset
 - Texto dinámico en botón "Continuar" con count de personajes
 - Deshabilita tarjetas cuando se alcanza máximo (opacity-50)
@@ -214,10 +216,10 @@ La interfaz de usuario para selección múltiple de personajes está **completam
 - ✅ **Feedback mejorado**: Botón "Continuar" muestra estado actual claramente
 
 **🧹 Limpieza de Código Legacy Completada:**
-- ✅ **CharacterStore**: Eliminado `currentCharacter` y `selectCharacter` legacy
+- ✅ **CharacterStore**: Eliminado `selectCharacter` legacy (MANTENIDO `currentCharacter` para creación)
 - ✅ **StoreTypes**: Removidos tipos y funciones de selección única
 - ✅ **StoryOptionsStore**: Eliminada lógica de compatibilidad hacia atrás
-- ✅ **CharacterSelection**: Removidos imports y referencias legacy
+- ✅ **CharacterSelection**: Removidos imports y referencias legacy (sin `isMultipleMode`)
 - ✅ **Páginas actualizadas**: CharactersManagement y páginas de creación funcionando
 - ✅ **Build exitoso**: TypeScript compila sin errores, funcionalidad verificada
 
@@ -226,6 +228,62 @@ La interfaz de usuario para selección múltiple de personajes está **completam
 - `storyOptionsStore` ya tiene `selectedCharacterIds` y funciones necesarias
 - Los servicios deben usar tanto `character` como `characters` del payload
 - Edge functions deben manejar arrays de personajes en prompts automáticamente
+
+---
+
+## 🔥 BREAKING CHANGES IMPLEMENTADOS
+
+### Funciones y Conceptos Eliminados
+
+**❌ REMOVIDO COMPLETAMENTE:**
+- `selectCharacter()` - Función legacy de selección única eliminada
+- `syncCharacterSelection()` - Helper de sincronización ya no necesario
+- Toggle de modos único/múltiple - Interfaz simplificada
+- `isMultipleMode` state - Solo existe modo selección múltiple
+- Compatibilidad hacia atrás - Sistema completamente nuevo
+
+**❌ ARQUITECTURA ANTERIOR:**
+- **Sistema Dual**: Antes había dos modos (único vs múltiple)
+- **Navegación Automática**: Clic en personaje navegaba inmediatamente
+- **Función Legacy**: `selectCharacter()` manejaba selección única
+- **Estado Complejo**: Múltiples formas de manejar selección
+
+**✅ ARQUITECTURA NUEVA:**
+- **Sistema Unificado**: Solo selección múltiple (1-4 personajes)
+- **Selección Manual**: Checkboxes + botón "Continuar" explícito
+- **Funciones Modernas**: `toggleCharacterSelection()` maneja todo
+- **Estado Simplificado**: Una sola forma de seleccionar personajes
+
+### Impacto en el Código
+
+**🏗️ Stores Afectados:**
+- `CharacterStore`: Eliminado `selectCharacter()`, mantenido `currentCharacter` solo para creación
+- `StoryOptionsStore`: Simplificado para usar solo array `characters`
+- `CharacterState`: Removidas interfaces legacy de selección única
+
+**🎨 UI Simplificada:**
+- `CharacterSelection.tsx`: Eliminado toggle, siempre checkboxes visibles
+- Flujo unificado: Seleccionar → Continuar (no navegación automática)
+- UX más clara: Un solo modo de interacción
+
+### Migración para Desarrolladores
+
+**Si estás integrando con este sistema:**
+```typescript
+// ❌ ANTES (ya no funciona)
+const character = useCharacterStore(state => state.currentCharacter);
+characterStore.selectCharacter(character);
+
+// ✅ AHORA (forma correcta)
+const { selectedCharacters, toggleCharacterSelection } = useCharacterStore();
+toggleCharacterSelection(characterId);
+```
+
+**Para servicios que usan personajes:**
+```typescript
+// ✅ Usar siempre el array characters
+const characters = storyOptions.characters; // Array de 1-4 personajes
+```
 
 ---
 
