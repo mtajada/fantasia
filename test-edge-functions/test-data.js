@@ -31,44 +31,23 @@ export const testCharacters = [
   }
 ];
 
-export const singleCharacter = {
-  id: "char-solo-001",
-  name: "Capitán Leo",
-  profession: "Pirata",
-  hobbies: ["navegar", "buscar tesoros"],
-  personality: "aventurero",
-  description: "Un pirata aventurero en busca del gran tesoro",
-  characterType: "custom"
-};
+// singleCharacter removed - now using unified multiple character system
 
-// Payload para test de múltiples personajes
+// Payload para test de múltiples personajes (con compatibilidad temporal)
 export const multipleCharactersPayload = {
   options: {
     characters: testCharacters,
-    character: testCharacters[0], // Compatibilidad hacia atrás
+    character: testCharacters[0], // Temporal: para compatibilidad con versión actual deployada
     genre: "aventura",
     moral: "La amistad y el trabajo en equipo son más valiosos que cualquier tesoro",
-    duration: "medium",
-    language: "es"
+    duration: "medium"
   },
   language: "es",
   childAge: 7,
   additionalDetails: "Una historia donde Luna, Chef Max y Dra. Ruby trabajan juntos para resolver un misterio. Cada uno debe usar sus habilidades únicas."
 };
 
-// Payload para test de compatibilidad hacia atrás (personaje único)
-export const singleCharacterPayload = {
-  options: {
-    character: singleCharacter,
-    genre: "fantasía",
-    moral: "La perseverancia lleva al éxito",
-    duration: "short",
-    language: "es"
-  },
-  language: "es", 
-  childAge: 8,
-  additionalDetails: "Una aventura marina donde el Capitán Leo debe superar sus miedos."
-};
+// singleCharacterPayload removed - now using unified multiple character system
 
 // Datos para test de continuación
 export const mockStory = {

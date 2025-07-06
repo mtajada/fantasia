@@ -72,8 +72,7 @@ interface CharacterOptions {
 }
 
 interface UserPromptOptions {
-    character?: CharacterOptions;      // Mantener para compatibilidad hacia atrás
-    characters?: CharacterOptions[];   // Nuevo: array de múltiples personajes
+    characters: CharacterOptions[];   // Unified: array de personajes (1-4)
     genre: string;
     moral: string;
     duration?: string;
@@ -93,8 +92,8 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
     const storyDuration = options.duration || 'medium';
     const language = options.language || 'es';
 
-    // Determine if we're using multiple characters or single character
-    const characters = options.characters && options.characters.length > 0 ? options.characters : (options.character ? [options.character] : []);
+    // Unified character system - always use characters array (1-4 characters)
+    const characters = options.characters || [];
     const isMultipleCharacters = characters.length > 1;
 
     // Create base request with character handling
