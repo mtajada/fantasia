@@ -7,6 +7,9 @@ import {
   singleCharacterPayload,
   mockStory,
   mockChapters,
+  optionContinuationPayload,
+  freeContinuationPayload,
+  directedContinuationPayload,
   createHeaders,
   validateStoryResponse,
   validateContinuationOptionsResponse,
@@ -301,6 +304,125 @@ async function testContinuationOptions(userToken, verbose = false) {
   return result.data;
 }
 
+// Test 4: Continuación con opción seleccionada
+async function testOptionContinuation(userToken, verbose = false) {
+  log.header('Test 4: Continuación con Opción Seleccionada');
+  
+  const result = await callEdgeFunction('story-continuation', optionContinuationPayload, userToken, verbose);
+  
+  if (!result.success) {
+    log.error(`Error: ${result.error}`);
+    return null;
+  }
+  
+  log.success(`✅ Capítulo generado en ${result.responseTime}ms`);
+  
+  const validation = validateStoryResponse(result.data);
+  if (!validation.isValid) {
+    log.error(`Validación fallida: ${validation.errors.join(', ')}`);
+    return null;
+  }
+  
+  // Análisis de personajes en el capítulo generado
+  const characterAnalysis = analyzeCharacterPresence(result.data.content, testCharacters);
+  const charactersPresent = Object.values(characterAnalysis).filter(a => a.mentions > 0).length;
+  
+  console.log(`\n${colors.bright}📊 Análisis de Personajes en Capítulo:${colors.reset}`);
+  Object.entries(characterAnalysis).forEach(([name, analysis]) => {
+    const status = analysis.mentions > 0 ? '✅' : '❌';
+    console.log(`  ${status} ${name}: ${analysis.mentions} menciones`);
+  });
+  
+  console.log(`\n${colors.bright}📖 Capítulo Generado:${colors.reset}`);
+  console.log(`${colors.bright}Título:${colors.reset} ${result.data.title}`);
+  console.log(`\n${colors.bright}Contenido:${colors.reset}`);
+  console.log(result.data.content);
+  
+  if (charactersPresent >= 2) {
+    log.success(`Consistencia de personajes mantenida (${charactersPresent}/3 personajes presentes)`);
+  } else {
+    log.warning(`Algunos personajes podrían haberse perdido (${charactersPresent}/3 presentes)`);
+  }
+  
+  return result.data;
+}
+
+// Test 5: Continuación libre
+async function testFreeContinuation(userToken, verbose = false) {
+  log.header('Test 5: Continuación Libre');
+  
+  const result = await callEdgeFunction('story-continuation', freeContinuationPayload, userToken, verbose);
+  
+  if (!result.success) {
+    log.error(`Error: ${result.error}`);
+    return null;
+  }
+  
+  log.success(`✅ Capítulo libre generado en ${result.responseTime}ms`);
+  
+  const validation = validateStoryResponse(result.data);
+  if (!validation.isValid) {
+    log.error(`Validación fallida: ${validation.errors.join(', ')}`);
+    return null;
+  }
+  
+  // Análisis de personajes
+  const characterAnalysis = analyzeCharacterPresence(result.data.content, testCharacters);
+  const charactersPresent = Object.values(characterAnalysis).filter(a => a.mentions > 0).length;
+  
+  console.log(`\n${colors.bright}📊 Análisis de Personajes:${colors.reset}`);
+  Object.entries(characterAnalysis).forEach(([name, analysis]) => {
+    const status = analysis.mentions > 0 ? '✅' : '❌';
+    console.log(`  ${status} ${name}: ${analysis.mentions} menciones`);
+  });
+  
+  console.log(`\n${colors.bright}📖 Continuación Libre:${colors.reset}`);
+  console.log(`${colors.bright}Título:${colors.reset} ${result.data.title}`);
+  console.log(`\n${colors.bright}Contenido (primeras 400 chars):${colors.reset}`);
+  console.log(result.data.content.substring(0, 400) + '...');
+  
+  return result.data;
+}
+
+// Test 6: Continuación dirigida
+async function testDirectedContinuation(userToken, verbose = false) {
+  log.header('Test 6: Continuación Dirigida');
+  
+  log.info(`Dirección: "${directedContinuationPayload.userDirection}"`);
+  
+  const result = await callEdgeFunction('story-continuation', directedContinuationPayload, userToken, verbose);
+  
+  if (!result.success) {
+    log.error(`Error: ${result.error}`);
+    return null;
+  }
+  
+  log.success(`✅ Capítulo dirigido generado en ${result.responseTime}ms`);
+  
+  const validation = validateStoryResponse(result.data);
+  if (!validation.isValid) {
+    log.error(`Validación fallida: ${validation.errors.join(', ')}`);
+    return null;
+  }
+  
+  // Análisis de personajes
+  const characterAnalysis = analyzeCharacterPresence(result.data.content, testCharacters);
+  const charactersPresent = Object.values(characterAnalysis).filter(a => a.mentions > 0).length;
+  
+  console.log(`\n${colors.bright}📊 Análisis de Personajes:${colors.reset}`);
+  Object.entries(characterAnalysis).forEach(([name, analysis]) => {
+    const status = analysis.mentions > 0 ? '✅' : '❌';
+    console.log(`  ${status} ${name}: ${analysis.mentions} menciones`);
+  });
+  
+  console.log(`\n${colors.bright}📖 Continuación Dirigida:${colors.reset}`);
+  console.log(`${colors.bright}Título:${colors.reset} ${result.data.title}`);
+  console.log(`\n${colors.bright}Contenido (primeras 400 chars):${colors.reset}`);
+  console.log(result.data.content.substring(0, 400) + '...');
+  
+  return result.data;
+}
+
 // Función principal
 async function main() {
   const args = Deno.args;
@@ -316,6 +438,7 @@ async function main() {
     const userToken = await createTestUserToken();
     log.separator();
     
+    // Story Generation Tests
     if (testType === 'multiple' || !testType) {
       await testMultipleCharacters(userToken, verbose);
       log.separator();
@@ -326,8 +449,35 @@ async function main() {
       log.separator();
     }
     
-    if (testType === 'continue' || !testType) {
+    // Story Continuation Tests
+    if (testType === 'continue' || testType === 'continue-options' || !testType) {
       await testContinuationOptions(userToken, verbose);
+      log.separator();
+    }
+    
+    if (testType === 'continue-selected') {
+      await testOptionContinuation(userToken, verbose);
+      log.separator();
+    }
+    
+    if (testType === 'continue-free') {
+      await testFreeContinuation(userToken, verbose);
+      log.separator();
+    }
+    
+    if (testType === 'continue-directed') {
+      await testDirectedContinuation(userToken, verbose);
+      log.separator();
+    }
+    
+    if (testType === 'continue-all') {
+      await testContinuationOptions(userToken, verbose);
+      log.separator();
+      await testOptionContinuation(userToken, verbose);
+      log.separator();
+      await testFreeContinuation(userToken, verbose);
+      log.separator();
+      await testDirectedContinuation(userToken, verbose);
       log.separator();
     }
     
@@ -350,18 +500,28 @@ ${colors.bright}🧪 Test Edge Functions TaleMe${colors.reset}
 ${colors.bright}Uso:${colors.reset}
   deno run --allow-env --allow-net test-simple.js [tipo] [opciones]
 
-${colors.bright}Tipos:${colors.reset}
-  multiple    Test múltiples personajes (para debugging)
-  single      Test personaje único
-  continue    Test continuación
-  (vacío)     Todos los tests
+${colors.bright}📖 Story Generation:${colors.reset}
+  multiple              Test múltiples personajes (3 personajes)
+  single                Test personaje único (compatibilidad)
 
+${colors.bright}📚 Story Continuation:${colors.reset}
+  continue              Generar opciones de continuación (legacy)
+  continue-options      Generar opciones de continuación
+  continue-selected     Continuar con opción seleccionada
+  continue-free         Continuación libre
+  continue-directed     Continuación dirigida por usuario
+  continue-all          Todos los tests de continuación
+
+${colors.bright}🔍 Tests Completos:${colors.reset}
+  (vacío)               Todos los tests básicos
+  
 ${colors.bright}Opciones:${colors.reset}
-  --verbose, -v    Output completo con payloads y respuestas
-  --help, -h       Esta ayuda
+  --verbose, -v         Output completo con payloads y respuestas
+  --help, -h            Esta ayuda
 
-${colors.bright}Debugging - Para diagnosticar problemas:${colors.reset}
+${colors.bright}🔧 Debugging - Para diagnosticar problemas:${colors.reset}
   deno run --allow-env --allow-net test-simple.js multiple --verbose
+  deno run --allow-env --allow-net test-simple.js continue-selected --verbose
   
   Esto muestra:
   • Payload completo enviado a la Edge Function
@@ -369,10 +529,19 @@ ${colors.bright}Debugging - Para diagnosticar problemas:${colors.reset}
   • Respuesta completa del modelo de lenguaje
   • Análisis detallado de personajes
 
-${colors.bright}Ejemplos:${colors.reset}
-  deno run --allow-env --allow-net test-simple.js
+${colors.bright}📋 Ejemplos por Funcionalidad:${colors.reset}
+
+  ${colors.bright}Story Generation:${colors.reset}
+  deno run --allow-env --allow-net test-simple.js multiple
   deno run --allow-env --allow-net test-simple.js multiple --verbose
-  deno run --allow-env --allow-net test-simple.js continue
+
+  ${colors.bright}Story Continuation:${colors.reset}
+  deno run --allow-env --allow-net test-simple.js continue-options
+  deno run --allow-env --allow-net test-simple.js continue-selected
+  deno run --allow-env --allow-net test-simple.js continue-all --verbose
+
+  ${colors.bright}Testing Completo:${colors.reset}
+  deno run --allow-env --allow-net test-simple.js
 `);
   Deno.exit(0);
 }
