@@ -226,6 +226,37 @@ export const analyzeCharacterPresence = (content, characters) => {
   return analysis;
 };
 
+// Payloads para Story Continuation Actions
+
+// Payload para test de continuación con opción seleccionada
+export const optionContinuationPayload = {
+  action: 'optionContinuation',
+  story: mockStory,
+  chapters: mockChapters,
+  selectedOptionSummary: "La pequeña criatura espacial emite sonidos curiosos. Los amigos intentan descubrir si puede hablar o necesita algo.",
+  language: 'es',
+  childAge: 7
+};
+
+// Payload para test de continuación libre
+export const freeContinuationPayload = {
+  action: 'freeContinuation',
+  story: mockStory,
+  chapters: mockChapters,
+  language: 'es',
+  childAge: 7
+};
+
+// Payload para test de continuación dirigida
+export const directedContinuationPayload = {
+  action: 'directedContinuation',
+  story: mockStory,
+  chapters: mockChapters,
+  userDirection: "Los tres amigos descubren que la criatura espacial puede hablar y les cuenta que viene de un planeta lejano donde necesitan ayuda urgente.",
+  language: 'es',
+  childAge: 7
+};
+
 console.log('📦 Test data loaded successfully');
 console.log(`🎭 ${testCharacters.length} test characters available`);
 console.log(`⚙️ ${Object.keys(testConfigurations).length} test configurations ready`);

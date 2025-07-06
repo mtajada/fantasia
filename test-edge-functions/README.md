@@ -9,7 +9,12 @@ Scripts para testear Edge Functions de múltiples personajes con autenticación 
 - **`single`**: Genera historia con 1 personaje (Capitán Leo) - *Compatibilidad hacia atrás*
 
 ### 📚 Story Continuation (story-continuation) 
-- **`continue`**: Genera opciones de continuación para historia existente
+- **`continue-options`**: Genera 3 opciones de continuación (solo opciones)
+- **`continue-selected`**: Continúa historia con opción seleccionada (genera capítulo completo)
+- **`continue-free`**: Continuación libre sin opción específica (genera capítulo completo)
+- **`continue-directed`**: Continuación dirigida por usuario (genera capítulo completo)
+- **`continue-all`**: Ejecuta todos los tests de continuación
+- **`continue`**: Alias para `continue-options` (legacy)
 
 ---
 
@@ -27,8 +32,20 @@ deno run --allow-env --allow-net test-simple.js
 # Solo Story Generation - Múltiples personajes
 deno run --allow-env --allow-net test-simple.js multiple
 
-# Solo Story Continuation 
-deno run --allow-env --allow-net test-simple.js continue
+# Solo Story Continuation - Generar opciones
+deno run --allow-env --allow-net test-simple.js continue-options
+
+# Story Continuation - Continuar con opción seleccionada  
+deno run --allow-env --allow-net test-simple.js continue-selected
+
+# Story Continuation - Continuación libre
+deno run --allow-env --allow-net test-simple.js continue-free
+
+# Story Continuation - Continuación dirigida
+deno run --allow-env --allow-net test-simple.js continue-directed
+
+# Todos los tests de Story Continuation
+deno run --allow-env --allow-net test-simple.js continue-all
 
 # Solo compatibilidad hacia atrás (personaje único)
 deno run --allow-env --allow-net test-simple.js single
@@ -46,8 +63,17 @@ deno run --allow-env --allow-net test-simple.js multiple --verbose
 # Diagnosticar por qué faltan personajes en historias
 deno run --allow-env --allow-net test-simple.js multiple --verbose
 
-# Ver respuesta completa del modelo de lenguaje
-deno run --allow-env --allow-net test-simple.js continue --verbose
+# Ver respuesta completa del modelo de lenguaje - Opciones
+deno run --allow-env --allow-net test-simple.js continue-options --verbose
+
+# Ver respuesta completa - Continuación con opción seleccionada
+deno run --allow-env --allow-net test-simple.js continue-selected --verbose
+
+# Ver respuesta completa - Continuación libre
+deno run --allow-env --allow-net test-simple.js continue-free --verbose
+
+# Ver respuesta completa - Continuación dirigida
+deno run --allow-env --allow-net test-simple.js continue-directed --verbose
 
 # Debugging completo (todos los tests con logs)
 deno run --allow-env --allow-net test-simple.js --verbose
@@ -62,8 +88,17 @@ cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
 # Problema: Dra. Ruby no aparece en historias
 deno run --allow-env --allow-net test-simple.js multiple --verbose
 
-# Verificar que Story Continuation funciona
-deno run --allow-env --allow-net test-simple.js continue
+# Verificar que Story Continuation - Opciones funciona
+deno run --allow-env --allow-net test-simple.js continue-options
+
+# Verificar que Story Continuation - Capítulos completos funciona
+deno run --allow-env --allow-net test-simple.js continue-selected
+
+# Probar continuación libre sin opciones
+deno run --allow-env --allow-net test-simple.js continue-free
+
+# Probar continuación dirigida por usuario
+deno run --allow-env --allow-net test-simple.js continue-directed
 
 # Validar compatibilidad hacia atrás sin gastar créditos extra
 deno run --allow-env --allow-net test-simple.js single
@@ -71,6 +106,34 @@ deno run --allow-env --allow-net test-simple.js single
 # Ver ayuda completa
 deno run --allow-env --allow-net test-simple.js --help
 ```
+
+---
+
+## 🎯 Diferencias entre Tests de Story Continuation
+
+### ✅ **continue-options** (generateOptions)
+- **Qué hace**: Genera 3 opciones de continuación
+- **Output**: Array de opciones con `summary` 
+- **NO genera contenido**: Solo devuelve opciones para elegir
+- **Ejemplo output**: `["Opción 1", "Opción 2", "Opción 3"]`
+
+### ✅ **continue-selected** (optionContinuation) 
+- **Qué hace**: Toma una opción y genera capítulo completo
+- **Output**: `{ title: string, content: string }`
+- **SÍ genera contenido**: Historia completa basada en la opción
+- **Ejemplo output**: Capítulo completo de 1000+ palabras
+
+### ✅ **continue-free** (freeContinuation)
+- **Qué hace**: Continúa la historia libremente
+- **Output**: `{ title: string, content: string }`
+- **SÍ genera contenido**: Historia sin opción específica
+- **Ejemplo output**: Capítulo completo siguiendo la narrativa
+
+### ✅ **continue-directed** (directedContinuation)
+- **Qué hace**: Continúa basándose en dirección del usuario
+- **Output**: `{ title: string, content: string }`
+- **SÍ genera contenido**: Historia siguiendo la dirección especificada
+- **Ejemplo output**: Capítulo que incluye los elementos solicitados
 
 ---
 
@@ -144,8 +207,9 @@ El script muestra automáticamente:
 - Usuario free tiene límite de 10 historias/mes
 - **Solución**: Usar tests específicos para no gastar créditos:
   ```bash
-  deno run --allow-env --allow-net test-simple.js continue  # Solo continuación
-  deno run --allow-env --allow-net test-simple.js multiple # Solo múltiples
+  deno run --allow-env --allow-net test-simple.js continue-options  # Solo opciones
+  deno run --allow-env --allow-net test-simple.js multiple          # Solo múltiples
+  deno run --allow-env --allow-net test-simple.js continue-selected # Solo un capítulo
   ```
 
 ### 🐛 Problemas de Personajes
@@ -167,8 +231,11 @@ cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
 # Test rápido después de cambios en Edge Functions
 deno run --allow-env --allow-net test-simple.js multiple
 
-# Validar Story Continuation tras cambios
-deno run --allow-env --allow-net test-simple.js continue
+# Validar Story Continuation - Opciones tras cambios
+deno run --allow-env --allow-net test-simple.js continue-options
+
+# Validar Story Continuation - Capítulos completos tras cambios
+deno run --allow-env --allow-net test-simple.js continue-selected
 ```
 
 ### 🔧 Debugging
@@ -178,8 +245,11 @@ cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
 # Investigar problemas de personajes
 deno run --allow-env --allow-net test-simple.js multiple --verbose
 
-# Ver logs completos de continuación
-deno run --allow-env --allow-net test-simple.js continue --verbose
+# Ver logs completos de opciones de continuación
+deno run --allow-env --allow-net test-simple.js continue-options --verbose
+
+# Ver logs completos de capítulos de continuación
+deno run --allow-env --allow-net test-simple.js continue-selected --verbose
 ```
 
 ### ✅ Testing Completo
@@ -194,4 +264,6 @@ deno run --allow-env --allow-net test-simple.js
 
 **¡Todo listo para testear! 🎉**
 
-**Comando más usado**: `deno run --allow-env --allow-net test-simple.js multiple --verbose`
+**Comandos más usados**: 
+- Para Story Generation: `deno run --allow-env --allow-net test-simple.js multiple --verbose`
+- Para Story Continuation: `deno run --allow-env --allow-net test-simple.js continue-selected --verbose`
