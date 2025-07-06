@@ -428,6 +428,68 @@ interface StoryOptionsWithRoles extends StoryOptions {
 
 **Total Estimado**: 10-14 días de desarrollo
 
+## ⚠️ PENDIENTE: Eliminación Completa de Single Character Legacy
+
+### Análisis Post-Implementación (Enero 2025)
+
+**DISCREPANCIA DETECTADA** entre documentación y implementación real:
+
+**📋 Documentación dice:**
+> "Compatibilidad hacia atrás - Sistema completamente nuevo"  
+> "REMOVIDO COMPLETAMENTE"
+
+**🔍 Realidad encontrada:**
+- ✅ **Frontend eliminado**: UI solo permite selección múltiple (1-4 personajes)
+- ❌ **Backend mantenido**: Edge Functions procesan tanto `character` como `characters`
+- ❌ **Tests mantienen compatibilidad**: Scripts incluyen tests de `single` character
+- ❌ **Documentación desactualizada**: ANALISIS_PROBLEMA.md no refleja estado real
+
+### Archivos que Mantienen Single Character Legacy:
+
+**Tests:**
+- `test-simple.js` líneas 243-261: Función `testSingleCharacter()` completa
+- `test-data.js` líneas 59-71: `singleCharacterPayload` con estructura legacy
+- `README.md`: Documenta comando `single` como opción válida
+
+**Backend (posiblemente):**
+- Edge Functions procesan campo `character` (singular) además de `characters` (array)
+- Validation logic maneja ambos formatos para compatibilidad
+
+### Propuesta de Unificación
+
+**HIPÓTESIS TÉCNICA**: Con el sistema actual de múltiples personajes, seleccionar **1 solo personaje** debería ser funcionalmente **idéntico** al sistema legacy:
+
+```javascript
+// Sistema Legacy (a eliminar)
+{ character: { name: "Luna", profession: "Astronauta" } }
+
+// Sistema Nuevo (seleccionar 1 personaje)  
+{ characters: [{ name: "Luna", profession: "Astronauta" }] }
+```
+
+**PLAN DE LIMPIEZA PROPUESTO:**
+
+1. **Validar hipótesis**: Confirmar que seleccionar 1 personaje = funcionalidad legacy
+2. **Eliminar tests legacy**: Remover `testSingleCharacter()` y `singleCharacterPayload`
+3. **Simplificar Edge Functions**: Eliminar procesamiento de campo `character` singular
+4. **Actualizar documentación**: Corregir ANALISIS_PROBLEMA.md para reflejar realidad
+5. **Confirmar no breaking changes**: Asegurar que no afecta funcionalidad existente
+
+### Beneficios de la Limpieza:
+
+- ✅ **Código más simple**: Una sola forma de manejar personajes
+- ✅ **Tests más claros**: Eliminar confusion entre modos
+- ✅ **Documentación precisa**: Reflejar estado real del sistema
+- ✅ **Mantenimiento reducido**: Menos código legacy que mantener
+
+### Estado Actual: **PENDIENTE DE IMPLEMENTAR**
+
+**Prioridad**: Media (no afecta funcionalidad, solo limpieza técnica)  
+**Riesgo**: Bajo (cambio cosmético, no funcional)  
+**Estimación**: 2-3 horas de limpieza de código
+
+---
+
 ## Criterios de Éxito
 
 - [ ] ✅ Usuarios pueden seleccionar múltiples personajes (1-4)
