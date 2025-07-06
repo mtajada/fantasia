@@ -32,9 +32,7 @@ export class GenerateStoryService {
       const token = sessionData.session.access_token;
 
       // DEBUG: Log the exact payload being sent including character info
-      const charactersInfo = params.options.characters ? 
-        `Multiple characters (${params.options.characters.length}): ${params.options.characters.map(c => c.name).join(', ')}` :
-        `Single character: ${params.options.character?.name || 'Unknown'}`;
+      const charactersInfo = `Characters (${params.options.characters?.length || 0}): ${params.options.characters?.map(c => c.name).join(', ') || 'None'}`;
       console.log(`>>> Payload being sent to generate-story: ${charactersInfo}`);
       console.log(">>> Full payload:", JSON.stringify(params, null, 2));
 

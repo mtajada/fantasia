@@ -6,7 +6,7 @@ Scripts para testear Edge Functions de múltiples personajes con autenticación 
 
 ### 📖 Story Generation (generate-story)
 - **`multiple`**: Genera historia con 3 personajes (Luna, Chef Max, Dra. Ruby)
-- **`single`**: Genera historia con 1 personaje (Capitán Leo) - *Compatibilidad hacia atrás*
+- **REMOVIDO `single`**: Sistema unificado maneja 1-4 personajes automáticamente
 
 ### 📚 Story Continuation (story-continuation) 
 - **`continue-options`**: Genera 3 opciones de continuación (solo opciones)
@@ -47,8 +47,8 @@ deno run --allow-env --allow-net test-simple.js continue-directed
 # Todos los tests de Story Continuation
 deno run --allow-env --allow-net test-simple.js continue-all
 
-# Solo compatibilidad hacia atrás (personaje único)
-deno run --allow-env --allow-net test-simple.js single
+# Sistema unificado - test con 1 personaje usando múltiples
+# Nota: El sistema ahora maneja 1-4 personajes de forma unificada
 ```
 
 ### 🔍 Debugging & Diagnóstico
@@ -100,8 +100,8 @@ deno run --allow-env --allow-net test-simple.js continue-free
 # Probar continuación dirigida por usuario
 deno run --allow-env --allow-net test-simple.js continue-directed
 
-# Validar compatibilidad hacia atrás sin gastar créditos extra
-deno run --allow-env --allow-net test-simple.js single
+# Sistema unificado - usar multiple con 1 personaje si necesario
+# Nota: El comando 'single' ha sido eliminado
 
 # Ver ayuda completa
 deno run --allow-env --allow-net test-simple.js --help

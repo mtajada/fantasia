@@ -4,7 +4,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 import {
   multipleCharactersPayload,
-  singleCharacterPayload,
+  // singleCharacterPayload removed
   mockStory,
   mockChapters,
   optionContinuationPayload,
@@ -242,32 +242,7 @@ async function testMultipleCharacters(userToken, verbose = false) {
   return result.data;
 }
 
-// Test 2: Personaje único (compatibilidad)
-async function testSingleCharacter(userToken, verbose = false) {
-  log.header('Test 2: Personaje Único (Compatibilidad)');
-  
-  const result = await callEdgeFunction('generate-story', singleCharacterPayload, userToken, verbose);
-  
-  if (!result.success) {
-    log.error(`Error: ${result.error}`);
-    return null;
-  }
-  
-  log.success(`✅ Historia generada en ${result.responseTime}ms`);
-  
-  const validation = validateStoryResponse(result.data);
-  if (!validation.isValid) {
-    log.error(`Validación fallida: ${validation.errors.join(', ')}`);
-    return null;
-  }
-  
-  console.log(`\n${colors.bright}📖 Historia:${colors.reset}`);
-  console.log(`${colors.bright}Título:${colors.reset} ${result.data.title}`);
-  console.log(`\n${colors.bright}Contenido (300 chars):${colors.reset}`);
-  console.log(result.data.content.substring(0, 300) + '...');
-  
-  return result.data;
-}
+// testSingleCharacter removed - now using unified multiple character system
 
 // Test 3: Opciones de continuación
 async function testContinuationOptions(userToken, verbose = false) {
@@ -444,10 +419,7 @@ async function main() {
       log.separator();
     }
     
-    if (testType === 'single' || !testType) {
-      await testSingleCharacter(userToken, verbose);
-      log.separator();
-    }
+    // single character test removed - unified system handles 1-4 characters
     
     // Story Continuation Tests
     if (testType === 'continue' || testType === 'continue-options' || !testType) {
@@ -502,7 +474,7 @@ ${colors.bright}Uso:${colors.reset}
 
 ${colors.bright}📖 Story Generation:${colors.reset}
   multiple              Test múltiples personajes (3 personajes)
-  single                Test personaje único (compatibilidad)
+  // single command removed - unified system handles 1-4 characters
 
 ${colors.bright}📚 Story Continuation:${colors.reset}
   continue              Generar opciones de continuación (legacy)

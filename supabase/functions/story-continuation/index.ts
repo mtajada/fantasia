@@ -220,7 +220,7 @@ serve(async (req: Request) => {
           hasCharacterData: hasCharacterData,
           hasTitle: !!story.title,
           charactersCount: story.options.characters?.length || 0,
-          singleCharacterName: story.options.character?.name
+          primaryCharacterName: story.options.characters?.[0]?.name
         });
         throw new Error("Datos incompletos en el objeto 'story' recibido (content, options con al menos un personaje, title son necesarios).");
       }

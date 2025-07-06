@@ -11,8 +11,7 @@ export interface CharacterOptions {
 }
 
 export interface StoryOptions {
-    character?: CharacterOptions;      // Mantener para compatibilidad hacia atrás
-    characters?: CharacterOptions[];   // Nuevo: array de múltiples personajes
+    characters: CharacterOptions[];   // Unified: array de personajes (1-4)
     genre: string;
     moral: string;
     duration?: string; // 'short', 'medium', 'long'
@@ -66,10 +65,8 @@ export function createContinuationOptionsPrompt(
     prompt += `\n\n--- CONTEXTO COMPLETO DE LA HISTORIA HASTA AHORA ---`;
     prompt += `\n\n**Historia Original (Título General: "${story.title}")**`;
     
-    // Handle multiple characters or single character
-    const characters = story.options.characters && story.options.characters.length > 0 ? 
-        story.options.characters : 
-        (story.options.character ? [story.options.character] : []);
+    // Unified character system - always use characters array
+    const characters = story.options.characters || [];
     
     if (characters.length > 1) {
         prompt += `\nPersonajes Principales (${characters.length}): `;
@@ -198,10 +195,8 @@ export function createContinuationPrompt(
     prompt += `\n\n--- CONTEXTO COMPLETO DE LA HISTORIA HASTA AHORA ---`;
     prompt += `\n\n**Historia Original (Título General: "${story.title}")**`;
     
-    // Handle multiple characters or single character
-    const characters = story.options.characters && story.options.characters.length > 0 ? 
-        story.options.characters : 
-        (story.options.character ? [story.options.character] : []);
+    // Unified character system - always use characters array
+    const characters = story.options.characters || [];
     
     if (characters.length > 1) {
         prompt += `\nPersonajes Principales (${characters.length}): `;

@@ -143,9 +143,4 @@ export interface AudioState {
   loadAudioFromSupabase: () => Promise<void>;
 }
 
-// Estado combinado para mantener compatibilidad con el código existente
-export interface StoryState
-  extends UserState, StoriesState, ChallengesState, ChaptersState, AudioState {
-  currentStoryOptions: Partial<StoryOptions>;
-  savedCharacters: StoryCharacter[];
-}
+// StoryState legacy interface removed - using individual state interfaces instead
