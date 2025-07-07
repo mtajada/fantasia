@@ -83,8 +83,7 @@ export const getUserProfile = async (userId: string): Promise<{ success: boolean
             // Mapea todos los campos recuperados
             const profile: ProfileSettings = {
                 language: data.language,
-                childAge: data.child_age,
-                specialNeed: data.special_need,
+                preferences: data.preferences,
                 stripe_customer_id: data.stripe_customer_id,
                 subscription_status: data.subscription_status,
                 subscription_id: data.subscription_id,

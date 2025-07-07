@@ -69,16 +69,12 @@ export class StoryContinuationService {
    */
   public static async generateContinuationOptions(
     story: Story, 
-    chapters: StoryChapter[],
-    childAge?: number,
-    specialNeed?: string | null
+    chapters: StoryChapter[]
   ): Promise<OptionsResponse> {
     const response = await this.invokeContinuationFunction<OptionsResponse>('generateOptions', { 
       story, 
       chapters, 
-      language: story.options.language,
-      childAge,
-      specialNeed
+      language: story.options.language
     });
     if (!response || !Array.isArray(response.options)) {
       console.error("Respuesta inválida para generateOptions:", response);
