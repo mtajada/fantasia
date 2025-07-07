@@ -4,7 +4,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "CuentaSuenos-investigacion-Narraciones-d"
+project_id = "vgzhkvnrutesdynrrlpm"
 
 [api]
 enabled = true

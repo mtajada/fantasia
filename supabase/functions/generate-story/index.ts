@@ -119,7 +119,7 @@ serve(async (req: Request) => {
     // 4. Perfil y Límites
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('subscription_status, monthly_stories_generated')
+      .select('subscription_status, monthly_stories_generated, language, preferences')
       .eq('id', userId)
       .maybeSingle();
 
@@ -159,8 +159,8 @@ serve(async (req: Request) => {
       params = await req.json();
       console.log(`[${functionVersion}] Params Recibidos:`, JSON.stringify(params, null, 2));
       console.log(`[${functionVersion}] Validando estructura básica...`);
-      console.log(`[${functionVersion}] params.language:`, params.language, typeof params.language);
-      console.log(`[${functionVersion}] params.childAge:`, params.childAge, typeof params.childAge);
+      console.log(`[${functionVersion}] profile.language:`, profile?.language, typeof profile?.language);
+      console.log(`[${functionVersion}] profile.preferences:`, profile?.preferences ? 'provided' : 'none');
       console.log(`[${functionVersion}] params.options:`, params.options);
       if (params.options) {
         console.log(`[${functionVersion}] params.options.duration:`, params.options.duration, typeof params.options.duration);
@@ -196,14 +196,10 @@ serve(async (req: Request) => {
       // Validate individual fields with more detailed error messages
       const errors = [];
       
-      if (typeof params.language !== 'string' || !params.language) {
-        errors.push('language debe ser un string no vacío');
-        console.error("[VALIDATION ERROR] language:", params.language, typeof params.language);
-      }
-      
-      if (params.childAge === undefined) {
-        errors.push('childAge es requerido');
-        console.error("[VALIDATION ERROR] childAge:", params.childAge);
+      // Language and preferences come from profile, not params
+      if (!profile?.language || typeof profile.language !== 'string') {
+        errors.push('User profile must have a valid language setting');
+        console.error("[VALIDATION ERROR] profile.language:", profile?.language, typeof profile?.language);
       }
       
       if (typeof params.options.duration !== 'string' || !params.options.duration) {
@@ -279,7 +275,7 @@ serve(async (req: Request) => {
     }
 
     // 6. Generación IA con OpenAI Client y Esperando JSON
-    const systemPrompt = createSystemPrompt(params.language, params.childAge, params.specialNeed);
+    const systemPrompt = createSystemPrompt(profile?.language || 'en', profile?.preferences || null);
     const userPrompt = createUserPrompt_JsonFormat({ // Esta función ahora genera un prompt pidiendo JSON
       options: params.options,
       additionalDetails: params.additionalDetails

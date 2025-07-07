@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Configuración de Supabase (usar las mismas credenciales que en el proyecto)
-const supabaseUrl = 'https://xivpepuqgfqvcaalrpcn.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdnBlcHVxZ2ZxdmNhYWxycGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTE1MjcsImV4cCI6MjA1Nzg4NzUyN30.tvVnrSY6SJZQUa5MJw1g4558sbm_gsN1RA_BqUVYIGY';
+const supabaseUrl = 'https://vgzhkvnrutesdynrrlpm.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnemhrdm5ydXRlc2R5bnJybHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDc4NzksImV4cCI6MjA2NzQ4Mzg3OX0.cjWfW_GdhQpiF_-hq6IcoWNEDLx2Yncqe8Bx0DqvW3E';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Función para probar la generación de títulos
