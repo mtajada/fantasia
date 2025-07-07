@@ -16,9 +16,6 @@ import SignupSuccess from "./pages/SignupSuccess";
 import Home from "./pages/Home";
 import CharacterSelection from "./pages/CharacterSelection";
 import CharacterName from "./pages/CharacterName";
-import CharacterHobbies from "./pages/CharacterHobbies";
-import CharacterPersonality from "./pages/CharacterPersonality";
-import CharacterProfession from "./pages/CharacterProfession";
 import DurationSelection from "./pages/DurationSelection";
 import StoryGenre from "./pages/StoryGenre";
 import StoryMoral from "./pages/StoryMoral";
@@ -79,9 +76,6 @@ const App = () => {
                 <Route path="/characters-management" element={<AuthGuard><CharactersManagement /></AuthGuard>} />
                 <Route path="/character-selection" element={<AuthGuard><CharacterSelection /></AuthGuard>} />
                 <Route path="/character-name" element={<AuthGuard><CharacterName /></AuthGuard>} />
-                <Route path="/character-hobbies" element={<AuthGuard><CharacterHobbies /></AuthGuard>} />
-                <Route path="/character-personality" element={<AuthGuard><CharacterPersonality /></AuthGuard>} />
-                <Route path="/character-profession" element={<AuthGuard><CharacterProfession /></AuthGuard>} />
                 <Route path="/story-genre" element={<AuthGuard><StoryGenre /></AuthGuard>} />
                 <Route path="/story-moral" element={<AuthGuard><StoryMoral /></AuthGuard>} />
                 <Route path="/story-details-input" element={<AuthGuard><StoryDetailsInput /></AuthGuard>} />

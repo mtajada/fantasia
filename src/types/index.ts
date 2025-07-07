@@ -31,22 +31,12 @@ export type StoryDuration = 'short' | 'medium' | 'long';
 export type StoryCharacter = {
   id: string;
   name: string;
-  hobbies: string[];
+  gender: 'male' | 'female' | 'non-binary';
   description: string;
-  profession: string;
-  characterType: string;
-  personality?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export type PartialStoryCharacter = {
-  id: string;
-  name?: string;
-  hobbies?: string[];
-  description?: string;
-  profession?: string;
-  characterType?: string;
-  personality?: string;
-}
 
 export type StoryOptions = {
   moral: string;
@@ -72,11 +62,6 @@ export type User = {
   id: string;
 }
 
-export type HobbyOption = {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-}
 
 export type StoryChapter = {
   id: string;
