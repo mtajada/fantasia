@@ -1,5 +1,5 @@
 // supabase/edge-functions/story-continuation/index.ts
-// v7.0 (OpenAI Client + JSON Output): Uses OpenAI client for Gemini, expects structured JSON.
+// v8.0 (Adult Content + Preferences): Uses OpenAI client for Gemini, expects structured JSON. Adult content with preferences.
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
@@ -26,7 +26,7 @@ const openai = new OpenAI({
   apiKey: GEMINI_API_KEY,
   baseURL: GEMINI_COMPATIBLE_ENDPOINT.endsWith('/') ? GEMINI_COMPATIBLE_ENDPOINT : GEMINI_COMPATIBLE_ENDPOINT + '/',
 });
-const functionVersion = "v7.0 (OpenAI Client + JSON)";
+const functionVersion = "v8.0 (Adult Content + Preferences)";
 console.log(`story-continuation ${functionVersion}: Using model ${TEXT_MODEL_GENERATE} via ${openai.baseURL}`);
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
@@ -64,9 +64,8 @@ function isValidContinuationResponse(data: any): data is AiContinuationResponse 
 async function generateContinuationOptions(
   story: Story,
   chapters: Chapter[],
-  language: string = 'es',
-  childAge: number = 7,
-  specialNeed: string | null = null,
+  language: string = 'en',
+  preferences: string | null = null,
 ): Promise<AiContinuationOptionsResponse> {
   console.log(`[${functionVersion}] generateContinuationOptions for story ${story?.id}`);
 
@@ -77,7 +76,7 @@ async function generateContinuationOptions(
     throw new Error("Datos de capítulos inválidos para generar opciones.");
   }
 
-  const prompt = createContinuationOptionsPrompt(story, chapters, language, childAge, specialNeed);
+  const prompt = createContinuationOptionsPrompt(story, chapters, language, preferences);
   console.log(`[${functionVersion}] Prompt para generación de opciones (lang: ${language}):\n---\n${prompt.substring(0, 300)}...\n---`);
 
   let aiResponseContent: string | null = null;
@@ -115,9 +114,9 @@ async function generateContinuationOptions(
     console.error(`[${functionVersion}] Error procesando la respuesta de la IA para las opciones: ${e.message}. Raw response: ${aiResponseContent?.substring(0, 500)}`, e);
     // Fallback
     const defaultOptions = [
-      { summary: language.startsWith('en') ? "Continue the adventure" : "Continuar la aventura" },
-      { summary: language.startsWith('en') ? "Explore something new" : "Explorar algo nuevo" },
-      { summary: language.startsWith('en') ? "Meet a new friend" : "Encontrar un amigo" }
+      { summary: language.startsWith('en') ? "Continue the intimate encounter" : "Continuar el encuentro íntimo" },
+      { summary: language.startsWith('en') ? "Explore deeper desires" : "Explorar deseos más profundos" },
+      { summary: language.startsWith('en') ? "Try something new together" : "Probar algo nuevo juntos" }
     ].map(opt => ({ summary: `${opt.summary} (${language.startsWith('en') ? 'default option' : 'opción por defecto'})` }));
     return { options: defaultOptions };
   }
@@ -125,7 +124,7 @@ async function generateContinuationOptions(
 
 // cleanExtractedText: Se mantiene, ya que procesa strings provenientes de la IA (dentro del JSON).
 function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content'): string {
-  const defaultText = type === 'title' ? `Un Nuevo Capítulo` : 'La historia continúa de forma misteriosa...';
+  const defaultText = type === 'title' ? `A New Chapter` : 'The story continues mysteriously...';
   if (text === null || text === undefined || typeof text !== 'string') { // Allow empty string from AI, will return default
     console.warn(`[${functionVersion}] cleanExtractedText (${type}): Input null, undefined, or not a string.`);
     return defaultText;
@@ -235,9 +234,15 @@ serve(async (req: Request) => {
       throw new Error("'userDirection' (string no vacío) requerido para 'directedContinuation'.");
     }
 
-    const language = body.language || story?.options?.language || 'es';
-    const childAge = body.childAge || story?.options?.childAge || 7;
-    const specialNeed = body.specialNeed || story?.options?.specialNeed || 'Ninguna';
+    // Get preferences from profile instead of legacy parameters
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('language, preferences')
+      .eq('id', userId)
+      .single();
+
+    const language = profile?.language || story?.options?.language || 'en';
+    const preferences = profile?.preferences || null;
     const storyDuration = body.storyDuration || story?.options?.duration || 'medium';
 
     // Límites (largely same logic as v6.1)
@@ -266,7 +271,7 @@ serve(async (req: Request) => {
     console.log(`[${functionVersion}] Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`);
 
     if (action === 'generateOptions') {
-      const optionsResponse = await generateContinuationOptions(story as Story, chapters as Chapter[], language, childAge, specialNeed);
+      const optionsResponse = await generateContinuationOptions(story as Story, chapters as Chapter[], language, preferences);
       responsePayload = optionsResponse; // This is already { options: [...] }
     } else if (isContinuationAction) {
       const continuationContext: ContinuationContextType = {};
@@ -279,8 +284,7 @@ serve(async (req: Request) => {
         chapters as Chapter[],
         continuationContext,
         language,
-        childAge,
-        specialNeed,
+        preferences,
         storyDuration
       );
 
@@ -335,7 +339,7 @@ serve(async (req: Request) => {
 
       if (!finalContent) { // If content is still empty after parsing/fallback and cleaning
         console.error(`[${functionVersion}] Critical error: Final continuation content is empty after all processing.`);
-        finalContent = "La historia no pudo continuar esta vez. Intenta con otra opción o una nueva dirección.";
+        finalContent = language.startsWith('en') ? "The story couldn't continue this time. Try another option or a new direction." : "La historia no pudo continuar esta vez. Intenta con otra opción o una nueva dirección.";
         // Optionally throw, but providing a message might be better UX for continuations
       }
 
