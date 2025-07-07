@@ -2,8 +2,7 @@ export type ProfileSettings = {
   // --- DATOS PRINCIPALES ---
   // Muestra estos campos en gris oscuro (#222) sobre fondo claro para máxima legibilidad
   language: string; // Idioma preferido del usuario
-  childAge: number; // Edad del niño/a
-  specialNeed?: string | null; // Necesidad especial (si aplica)
+  preferences?: string | null; // Gustos, fetiches y preferencias para contenido adulto personalizado
 
   // --- CAMPOS DE STRIPE ---
   // Datos sensibles, mostrar en gris oscuro o azul claro solo si es info secundaria
