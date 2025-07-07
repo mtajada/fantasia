@@ -18,9 +18,9 @@ import {
 } from './test-data.js';
 
 // Variables de entorno
-const SUPABASE_URL = "https://vljseinehlxrvlghxcyk.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsanNlaW5laGx4cnZsZ2h4Y3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzMTc2MTQsImV4cCI6MjA2MDg5MzYxNH0.n-JRSlefofQkWdBKFKZ6uLV7kaZ1IsJmR-ytysQCFmg";
-const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsanNlaW5laGx4cnZsZ2h4Y3lrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTMxNzYxNCwiZXhwIjoyMDYwODkzNjE0fQ.ZVOnRDiDs5OgoVTQT7_KaCexeT2ZpmX4ANBRtBb9OoE";
+const SUPABASE_URL = "https://vgzhkvnrutesdynrrlpm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnemhrdm5ydXRlc2R5bnJybHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDc4NzksImV4cCI6MjA2NzQ4Mzg3OX0.cjWfW_GdhQpiF_-hq6IcoWNEDLx2Yncqe8Bx0DqvW3E";
+const SUPABASE_SERVICE_ROLE_KEY = "[NECESITA_SER_CONFIGURADO_CON_SERVICE_ROLE_KEY_DEL_NUEVO_PROYECTO]";
 const GEMINI_API_KEY = "AIzaSyDTy4EX8f-GNIJJi1mSr5qHKtIgmPTtNYA";
 
 // Datos de usuario real
