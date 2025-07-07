@@ -36,13 +36,10 @@ export default function Welcome() {
 
   if (isLoading) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="w-16 h-16 rounded-full bg-white/30 flex items-center justify-center p-3 backdrop-blur-sm">
@@ -54,18 +51,15 @@ export default function Welcome() {
 
   return (
     <PageTransition>
-      <div 
+      <div
         className="min-h-screen flex flex-col items-center overflow-auto"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/logo_png.png" alt="TaleMe Logo" className="h-20 md:h-24" />
+            <img src="/logo_png.png" alt="Fantasia Logo" className="h-20 md:h-24" />
           </div>
           <div className="flex gap-3">
             <button
@@ -121,7 +115,7 @@ export default function Welcome() {
             className="w-full mb-12"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
-              ¿Qué hace especial a <span className="text-[#BB79D1]">TaleMe</span>?
+              ¿Qué hace especial a <span className="text-[#BB79D1]">Fantasia</span>?
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -200,7 +194,7 @@ function FeatureCard({ icon, title, description, color }: FeatureCardProps) {
   return (
     <div className="bg-white/70 rounded-2xl p-6 shadow-lg border border-[#BB79D1]/20 h-full transition-all duration-300 hover:shadow-xl hover:transform hover:scale-105">
       <div className="flex items-center mb-4">
-        <div 
+        <div
           className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
           style={{ backgroundColor: `${color}30` }}
         >

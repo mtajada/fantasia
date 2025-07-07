@@ -1,4 +1,4 @@
-# Pautas de Diseño UI/UX – TaleMe
+# Pautas de Diseño UI/UX – FantasIA
 
 ## ⚠️ DISCLAIMER IMPORTANTE: PRESERVACIÓN DE FUNCIONALIDAD
 
@@ -15,7 +15,7 @@ El objetivo es **ÚNICAMENTE mejorar la apariencia visual** manteniendo toda la 
 
 ## 1. Identidad Visual
 - **Logotipo:** Utiliza siempre el logotipo oficial en sus variantes de color y fondo según el manual de marca.
-- **Iconografía:** Usa los iconos oficiales de TaleMe, preferiblemente en formato SVG o PNG de alta calidad.
+- **Iconografía:** Usa los iconos oficiales de FantasIA, preferiblemente en formato SVG o PNG de alta calidad.
 
 ## 2. Paleta de Colores
 Utiliza la paleta oficial para todos los elementos de la interfaz:
@@ -251,7 +251,7 @@ _Última actualización: 17 de abril de 2025_
 ---
 
 **Referencia:**
-Estas pautas se basan en el manual de marca oficial de TaleMe (ver imágenes adjuntas en docs/manual_marca.png o docs/manual_marca.pdf si están disponibles).
+Estas pautas se basan en el manual de marca oficial de FantasIA (ver imágenes adjuntas en docs/manual_marca.png o docs/manual_marca.pdf si están disponibles).
 
 ---
 

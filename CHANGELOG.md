@@ -85,7 +85,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [1.0.0] - 2025-04-15
 
 ### Añadido
-- Versión inicial de TaleMe
+- Versión inicial de FantasIA
 - Generación de historias personalizadas
 - Sistema de usuarios y autenticación
 - Interfaz básica para la generación de cuentos

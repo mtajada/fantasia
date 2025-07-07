@@ -1,4 +1,4 @@
-# Edge Functions de TaleMe!
+# Edge Functions de FantasIA!
 
 Este documento describe las Edge Functions implementadas en Supabase para
 manejar la generación de contenido utilizando modelos de lenguaje.
@@ -9,8 +9,7 @@ Se han implementado las siguientes Edge Functions:
 
 1. **generate-story**: Genera historias personalizadas basadas en las opciones
    proporcionadas.
-2. **challenge**: Crea desafíos educativos basados en historias.
-3. **story-continuation**: Genera continuaciones para historias existentes.
+2. **story-continuation**: Genera continuaciones para historias existentes.
 
 Estas funciones utilizan el modelo de lenguaje
 **gemini-2.0-flash-thinking-exp-01-21** de Google para generar contenido de alta
@@ -106,91 +105,6 @@ proporcionadas.
 *   **Causa Raíz (Cliente):** La función `syncUserProfile` en `src/services/supabase.ts` recibía los datos mapeados desde `userStore` (con nombres de columna como `child_age`, `special_need`), pero intentaba acceder a ellos usando los nombres de propiedad originales de TypeScript (`profileSettings.childAge`, `profileSettings.specialNeed`), los cuales eran `undefined` en ese contexto. Esto causaba que se guardaran `null` o valores incorrectos en la base de datos.
 *   **Solución (Cliente):** Se corrigió `syncUserProfile` para que utilizara directamente el objeto de datos mapeado (`dataToSync`) al preparar el objeto para la operación `upsert` de Supabase, asegurando que los nombres de columna correctos (`child_age`, `special_need`) se usaran con los valores correctos.
 *   **Impacto en la Edge Function:** Una vez corregido el guardado en el cliente, la Edge Function comenzó a recibir los valores correctos para `childAge` y `specialNeed`, permitiéndole adaptar la generación de historias según lo previsto.
-
-### challenge
-
-Genera desafíos educativos basados en historias.
-
-#### Acción: createChallenge
-
-##### Solicitud:
-
-```json
-{
-    "action": "createChallenge",
-    "story": {
-        "id": "id-de-la-historia",
-        "title": "Título de la historia",
-        "content": "Contenido completo de la historia...",
-        "options": {
-            "character": {
-                "id": "id-del-personaje",
-                "name": "Nombre del personaje",
-                "profession": "Profesión",
-                "characterType": "Tipo de personaje",
-                "hobbies": ["Afición 1", "Afición 2"],
-                "personality": "Personalidad"
-            },
-            "genre": "Género de la historia",
-            "moral": "Enseñanza o moraleja",
-            "duration": "short|medium|long"
-        }
-    },
-    "category": "language|math|comprehension",
-    "profileSettings": {
-        "childAge": 7,
-        "specialNeed": "Ninguna|TEA|TDAH|Dislexia",
-        "language": "es"
-    },
-    "targetLanguage": "en" // Solo para desafíos de idiomas
-}
-```
-
-##### Respuesta:
-
-```json
-{
-    "id": "id-del-desafío",
-    "storyId": "id-de-la-historia",
-    "questions": [
-        {
-            "id": "id-de-la-pregunta",
-            "category": "language|math|comprehension",
-            "question": "Texto de la pregunta",
-            "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
-            "correctOptionIndex": 0,
-            "explanation": "Explicación de la respuesta correcta",
-            "targetLanguage": "en" // Solo para desafíos de idiomas
-        }
-    ],
-    "createdAt": "2023-01-01T00:00:00.000Z"
-}
-```
-
-#### Acción: getLanguages
-
-##### Solicitud:
-
-```json
-{
-    "action": "getLanguages",
-    "profileSettings": {
-        "language": "es"
-    }
-}
-```
-
-##### Respuesta:
-
-```json
-{
-    "languages": [
-        { "code": "en", "name": "Inglés" },
-        { "code": "fr", "name": "Francés" }
-        // Otros idiomas...
-    ]
-}
-```
 
 ### story-continuation
 

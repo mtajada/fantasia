@@ -3,7 +3,7 @@
 ## Problema
 
 ### Descripción del Problema Actual
-La aplicación TaleMe actualmente solo permite seleccionar un personaje para generar historias. Los usuarios no pueden crear historias con múltiples personajes interactuando entre sí, lo que limita la narrativa y la experiencia del usuario.
+La aplicación FantasIA actualmente solo permite seleccionar un personaje para generar historias. Los usuarios no pueden crear historias con múltiples personajes interactuando entre sí, lo que limita la narrativa y la experiencia del usuario.
 
 ### Análisis Técnico del Estado Actual
 

@@ -30,10 +30,7 @@ export default function GeneratingStory() {
       <div 
         className="min-h-screen flex flex-col items-center justify-center p-6"
         style={{
-          backgroundImage: "url(/fondo_png.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: 'black',
         }}
       >
         <div className="w-full max-w-md flex flex-col items-center justify-center">

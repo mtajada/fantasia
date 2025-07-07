@@ -1,4 +1,4 @@
-# 🧪 Test Edge Functions - TaleMe
+# 🧪 Test Edge Functions - FantasIA
 
 Scripts para testear Edge Functions de múltiples personajes con autenticación real.
 
@@ -24,7 +24,7 @@ Scripts para testear Edge Functions de múltiples personajes con autenticación 
 
 ```bash
 # SIEMPRE ejecutar desde la carpeta correcta:
-cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
+cd "/Users/miguel/Mizat Ventures/FantasIA/test-edge-functions"
 
 # Ejecutar todos los tests (consume más créditos)
 deno run --allow-env --allow-net test-simple.js
@@ -55,7 +55,7 @@ deno run --allow-env --allow-net test-simple.js continue-all
 
 ```bash
 # PRIMERO: Ir a la carpeta correcta
-cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
+cd "/Users/miguel/Mizat Ventures/FantasIA/test-edge-functions"
 
 # Ver payload completo enviado a Edge Functions
 deno run --allow-env --allow-net test-simple.js multiple --verbose
@@ -83,7 +83,7 @@ deno run --allow-env --allow-net test-simple.js --verbose
 
 ```bash
 # PRIMERO: Ir a la carpeta correcta
-cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
+cd "/Users/miguel/Mizat Ventures/FantasIA/test-edge-functions"
 
 # Problema: Dra. Ruby no aparece en historias
 deno run --allow-env --allow-net test-simple.js multiple --verbose
@@ -168,7 +168,7 @@ El script muestra automáticamente:
 ## 🔧 Configuración
 
 ### Variables Ya Configuradas ✅
-- **SUPABASE_URL**: Proyecto TaleMe  
+- **SUPABASE_URL**: Proyecto FantasIA  
 - **SUPABASE_ANON_KEY**: Autenticación pública
 - **SUPABASE_SERVICE_ROLE_KEY**: Autenticación admin (fallback)
 - **GEMINI_API_KEY**: Google Generative AI
@@ -226,7 +226,7 @@ El script muestra automáticamente:
 
 ### 👨‍💻 Desarrollo
 ```bash
-cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
+cd "/Users/miguel/Mizat Ventures/FantasIA/test-edge-functions"
 
 # Test rápido después de cambios en Edge Functions
 deno run --allow-env --allow-net test-simple.js multiple
@@ -240,7 +240,7 @@ deno run --allow-env --allow-net test-simple.js continue-selected
 
 ### 🔧 Debugging
 ```bash
-cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
+cd "/Users/miguel/Mizat Ventures/FantasIA/test-edge-functions"
 
 # Investigar problemas de personajes
 deno run --allow-env --allow-net test-simple.js multiple --verbose
@@ -254,7 +254,7 @@ deno run --allow-env --allow-net test-simple.js continue-selected --verbose
 
 ### ✅ Testing Completo
 ```bash
-cd "/Users/miguel/Mizat Ventures/TaleMe/test-edge-functions"
+cd "/Users/miguel/Mizat Ventures/FantasIA/test-edge-functions"
 
 # Ejecutar suite completa (cuidado con límites de créditos)
 deno run --allow-env --allow-net test-simple.js

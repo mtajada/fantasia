@@ -95,10 +95,7 @@ export default function CharactersManagement() {
       <div
         className="min-h-screen flex flex-col items-center justify-center relative overflow-auto"
         style={{
-          backgroundImage: "url(/fondo_png.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: 'black',
         }}
       >
         <BackButton onClick={() => navigate("/home")} />

@@ -46,10 +46,7 @@ export default function Home() {
       <div
         className="relative min-h-screen flex flex-col items-center justify-center p-0"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         {/* Botones superiores */}
@@ -81,17 +78,16 @@ export default function Home() {
 
         {/* Logo y título */}
         <div className="flex flex-col items-center mt-10 mb-8 select-none">
-          <img src="/logo_png.png" alt="TaleMe Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
+          <img src="/logo_png.png" alt="Fantasia Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
         </div>
 
         {/* Botones principales */}
         <div className="flex flex-col items-center w-full max-w-xs gap-5 -mt-4">
           <button
-            className={`w-full py-4 rounded-2xl text-lg font-semibold shadow-lg transition-all duration-200 ${
-              canCreateStory()
+            className={`w-full py-4 rounded-2xl text-lg font-semibold shadow-lg transition-all duration-200 ${canCreateStory()
                 ? "bg-[#f6a5b7] hover:bg-[#fbb6ce] text-white"
                 : "bg-[#f6a5b7]/50 text-white/90 cursor-not-allowed"
-            }`}
+              }`}
             onClick={handleNewStory}
             // disabled={!canCreateStory()}
             title={!canCreateStory() ? `Te quedan ${getRemainingMonthlyStories()} historias este mes` : ""}

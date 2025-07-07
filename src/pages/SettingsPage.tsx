@@ -148,15 +148,12 @@ const SettingsPage: React.FC = () => {
             <div
                 className="min-h-screen flex flex-col items-center justify-start bg-[#FFF6FA] relative"
                 style={{
-                    backgroundImage: 'url(/fondo_png.png)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
+                    backgroundColor: 'black',
                 }}
             >
                 {/* Logo centrado arriba */}
                 <div className="flex flex-col items-center mt-6 mb-2 select-none">
-                    <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-xs mx-auto mb-2 drop-shadow-xl" />
+                    <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-xs mx-auto mb-2 drop-shadow-xl" />
                 </div>
                 <div className="container mx-auto px-4 py-2 max-w-2xl">
                     {/* Back button */}

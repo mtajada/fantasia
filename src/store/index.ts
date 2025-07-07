@@ -4,7 +4,6 @@ export * from './character/characterStore';
 export * from './storyOptions/storyOptionsStore';
 export * from './stories/storiesStore';
 export * from './stories/chapters/chaptersStore';
-export * from './stories/challenges/challengesStore';
 export * from './stories/audio/audioStore';
 
 // Exportación del generador de historias

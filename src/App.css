@@ -14,12 +14,12 @@
 
 .logo:hover {
   filter: drop-shadow(0 0 2em #BB79D1aa);
-  /* Morado TaleMe! */
+  /* Morado Fantasia! */
 }
 
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #7DC4E0aa);
-  /* Azul TaleMe! */
+  /* Azul Fantasia! */
 }
 
 @keyframes logo-spin {

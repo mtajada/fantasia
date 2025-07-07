@@ -1,13 +1,13 @@
 # Guía: Exportación de Cuentos a PDF
 
-TaleMe ahora permite exportar tus historias a archivos PDF con un formato personalizado y profesional.
+FantasIA ahora permite exportar tus historias a archivos PDF con un formato personalizado y profesional.
 
 ## Características del PDF generado
 
 - **Portada personalizada** con el título del cuento y el nombre del autor
 - **Diseño elegante** con fondo en tonalidad #fff6e0 (color pergamino suave)
 - **Letra grande y en color** optimizada para lectura infantil en tono #ce9789
-- **Logo de TaleMe** en la portada
+- **Logo de FantasIA** en la portada
 - **Encabezado en cada página** con logo en miniatura y título del cuento
 - **Contraportada** con mensaje de cierre y año de generación
 - **Numeración de páginas**

@@ -79,25 +79,6 @@ export type HobbyOption = {
   icon: React.ReactNode;
 }
 
-export type ChallengeCategory = 'language' | 'math' | 'comprehension';
-
-export type ChallengeQuestion = {
-  id: string;
-  question: string;
-  options: string[];
-  correctOptionIndex: number;
-  explanation: string;
-  category: ChallengeCategory;
-  targetLanguage?: string; // Only for language challenges
-};
-
-export type Challenge = {
-  id: string;
-  storyId: string;
-  questions: ChallengeQuestion[];
-  createdAt: string;
-};
-
 export type StoryChapter = {
   id: string;
   chapterNumber: number;

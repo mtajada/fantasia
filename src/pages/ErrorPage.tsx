@@ -16,10 +16,7 @@ export default function ErrorPage() {
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="w-full max-w-md bg-white/90 rounded-3xl shadow-lg overflow-hidden">
@@ -37,7 +34,7 @@ export default function ErrorPage() {
             </h1>
 
             <p className="text-[#333] mb-10 text-center">
-              Nuestros asistentes de TaleMe! están teniendo problemas para crear tu historia. Por favor, inténtalo de nuevo.
+              Nuestros asistentes de Fantasia! están teniendo problemas para crear tu historia. Por favor, inténtalo de nuevo.
             </p>
 
             <div className="w-full">
