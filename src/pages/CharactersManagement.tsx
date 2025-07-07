@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { User, Plus, Edit, Trash2, ArrowLeft } from "lucide-react";
-import { useCharacterStore } from "../store/character/characterStore";
 import { useEffect, useState } from "react";
 import { useUserStore } from "../store/user/userStore";
 import PageTransition from "../components/PageTransition";
@@ -9,42 +8,57 @@ import { motion } from "framer-motion";
 import BackButton from "../components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { StoryCharacter } from "../types";
+import { getUserCharacters, deleteCharacter } from "../services/supabase";
 
 export default function CharactersManagement() {
   const navigate = useNavigate();
-  const { savedCharacters, loadCharactersFromSupabase, deleteCharacter, resetCharacter } = useCharacterStore();
+  const { user } = useUserStore();
+  
+  // Local state management
+  const [characters, setCharacters] = useState<StoryCharacter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [characterToDelete, setCharacterToDelete] = useState<StoryCharacter | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
 
-  // Cargar personajes al montar el componente
+  // Load characters directly from Supabase
   useEffect(() => {
     const loadCharacters = async () => {
+      console.log("[DEBUG] CharactersManagement montado - cargando personajes directamente desde Supabase");
       setIsLoading(true);
-      
-      const user = useUserStore.getState().user;
+      setError(null);
+
       if (!user) {
-        console.error("No hay usuario autenticado para cargar personajes");
+        console.error("[DEBUG] No hay usuario autenticado para cargar personajes");
+        setError("No hay usuario autenticado");
         setIsLoading(false);
         return;
       }
-      
-      // Limpiar personajes existentes antes de cargar
-      useCharacterStore.setState({ savedCharacters: [] });
-      
-      // Forzar recarga limpia desde Supabase
-      await loadCharactersFromSupabase();
-      
-      setIsLoading(false);
+
+      try {
+        const { success, characters: loadedCharacters, error: loadError } = await getUserCharacters(user.id);
+        
+        if (success && loadedCharacters) {
+          setCharacters(loadedCharacters);
+          console.log(`[DEBUG] Cargados ${loadedCharacters.length} personajes para usuario ${user.id}`);
+        } else {
+          console.error("[DEBUG] Error cargando personajes:", loadError);
+          setError("Error cargando personajes");
+        }
+      } catch (err) {
+        console.error("[DEBUG] Error inesperado cargando personajes:", err);
+        setError("Error inesperado cargando personajes");
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
+
     loadCharacters();
-  }, [loadCharactersFromSupabase]);
+  }, [user]);
 
   const handleCreateNewCharacter = () => {
-    // Resetear el personaje actual para asegurar un ID único
-    resetCharacter();
+    // Navigate to character creation page
     navigate("/character-name?from=management");
   };
 
@@ -60,13 +74,36 @@ export default function CharactersManagement() {
 
   const confirmDelete = async () => {
     if (characterToDelete) {
-      await deleteCharacter(characterToDelete.id);
-      setShowDeleteConfirm(false);
-      setCharacterToDelete(null);
-      toast({
-        title: "Personaje eliminado",
-        description: `El personaje ${characterToDelete.name} ha sido eliminado`,
-      });
+      try {
+        const { success, error: deleteError } = await deleteCharacter(characterToDelete.id);
+        
+        if (success) {
+          // Remove character from local state
+          setCharacters(prev => prev.filter(char => char.id !== characterToDelete.id));
+          
+          toast({
+            title: "Personaje eliminado",
+            description: `El personaje ${characterToDelete.name} ha sido eliminado`,
+          });
+        } else {
+          console.error("[DEBUG] Error eliminando personaje:", deleteError);
+          toast({
+            title: "Error",
+            description: "No se pudo eliminar el personaje. Inténtalo de nuevo.",
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        console.error("[DEBUG] Error inesperado eliminando personaje:", err);
+        toast({
+          title: "Error",
+          description: "Error inesperado eliminando personaje",
+          variant: "destructive",
+        });
+      } finally {
+        setShowDeleteConfirm(false);
+        setCharacterToDelete(null);
+      }
     }
   };
 
@@ -119,9 +156,19 @@ export default function CharactersManagement() {
             <div className="flex justify-center my-8 bg-white/70 rounded-xl p-6 shadow-md">
               <div className="animate-spin h-10 w-10 border-4 border-[#BB79D1] rounded-full border-t-transparent"></div>
             </div>
+          ) : error ? (
+            <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
+              <div className="text-red-500 font-medium">{error}</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-2 text-[#BB79D1] underline"
+              >
+                Reintentar
+              </button>
+            </div>
           ) : (
             <>
-              {savedCharacters.length === 0 ? (
+              {characters.length === 0 ? (
                 <div className="bg-white/80 rounded-xl p-8 text-center text-[#222] shadow-md">
                   <User size={48} className="mx-auto mb-4 text-[#BB79D1] opacity-70" />
                   <h3 className="text-xl font-semibold mb-2 text-[#222]">No tienes personajes</h3>
@@ -144,7 +191,7 @@ export default function CharactersManagement() {
                   animate="show"
                   className="space-y-4"
                 >
-                  {savedCharacters.map((character) => (
+                  {characters.map((character) => (
                     <motion.div key={character.id} variants={item}>
                       <div className="bg-white/80 rounded-xl p-4 flex items-center shadow-md">
                         <div className="w-12 h-12 rounded-full bg-[#7DC4E0]/20 border-2 border-[#7DC4E0]/40 flex items-center justify-center mr-4 flex-shrink-0">
@@ -152,9 +199,12 @@ export default function CharactersManagement() {
                         </div>
                         <div className="flex-grow mr-4">
                           <h3 className="text-[#222] font-semibold text-lg">{character.name}</h3>
-                          <p className="text-[#555] text-sm">
-                            {character.characterType && 
-                              `${character.characterType}${character.profession ? ` · ${character.profession}` : ''}`}
+                          <p className="text-[#555] text-sm line-clamp-2">
+                            {character.description || 'Sin descripción'}
+                          </p>
+                          <p className="text-[#7DC4E0] text-xs mt-1">
+                            {character.gender === 'male' ? '♂ Masculino' : 
+                             character.gender === 'female' ? '♀ Femenino' : '⚧ No binario'}
                           </p>
                         </div>
                         <div className="flex gap-2">

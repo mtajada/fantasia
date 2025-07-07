@@ -193,7 +193,7 @@ serve(async (req: Request) => {
   } catch (error) {
     // Captura errores generales (JSON parse, errores inesperados, etc.)
     console.error(`[GENERATE_AUDIO_ERROR] Unhandled error in generate-audio function for user ${userId || 'UNKNOWN'}:`, error);
-    let errorMessage = 'Error interno del servidor al generar el audio.';
+    const errorMessage = 'Error interno del servidor al generar el audio.';
     // Evitar exponer detalles internos en producción
     // if (error instanceof Error) errorMessage = error.message;
     // Usar 500 Internal Server Error para errores no manejados específicamente

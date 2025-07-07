@@ -135,7 +135,7 @@ serve(async (req: Request) => {
       console.warn(`Perfil no encontrado para ${userId}. Tratando como gratuito.`);
     }
 
-    let currentStoriesGenerated = profile?.monthly_stories_generated ?? 0;
+    const currentStoriesGenerated = profile?.monthly_stories_generated ?? 0;
     const FREE_STORY_LIMIT = 10;
 
     if (!isPremiumUser) {
