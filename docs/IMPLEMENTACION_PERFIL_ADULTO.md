@@ -803,15 +803,29 @@ public static async generateContinuationOptions(
 2. ✅ Reescribir `ProfileConfigPage.tsx`
 3. ✅ Actualizar Edge Function `generate-story/index.ts`
 
-### Fase 2: Content Adaptation (1-2 horas)
-4. ✅ Reescribir prompts para contenido adulto
-5. ✅ Actualizar Edge Function `story-continuation`
-6. ✅ Adaptar prompts de continuación
+### Fase 2: Content Adaptation (1-2 horas) - ✅ COMPLETADA
+4. ✅ **COMPLETADO**: Reescribir prompts para contenido adulto
+   - `supabase/functions/generate-story/prompt.ts` completamente reescrito
+   - Sistema de prompts transformado de contenido infantil a erótico adulto
+   - Integración natural de preferencias del usuario
+5. ✅ **COMPLETADO**: Actualizar Edge Function `story-continuation`
+   - `supabase/functions/story-continuation/index.ts` actualizado
+   - Eliminados parámetros legacy `childAge`/`specialNeed`
+   - Implementada consulta directa a `preferences` desde perfil
+6. ✅ **COMPLETADO**: Adaptar prompts de continuación
+   - `supabase/functions/story-continuation/prompt.ts` completamente reescrito
+   - Prompts adaptados para contenido adulto consensual y sofisticado
 
-### Fase 3: Cleanup & Testing (1 hora)
-7. ✅ Limpiar UserStore mappings
-8. ✅ Actualizar Services interfaces
-9. ✅ Testing completo del flujo
+### Fase 3: Cleanup & Testing (1 hora) - ⏳ PENDIENTE
+7. ⏳ **PENDIENTE**: Limpiar UserStore mappings
+   - Eliminar referencias a `childAge`/`specialNeed` en `src/store/user/userStore.ts`
+   - Añadir mapping correcto para `preferences`
+8. ⏳ **PENDIENTE**: Actualizar Services interfaces
+   - Limpiar `src/services/ai/GenerateStoryService.ts`
+   - Limpiar `src/services/ai/StoryContinuationService.ts`
+9. ⏳ **PENDIENTE**: Testing completo del flujo
+   - Verificar flujo completo Profile → Story Generation → Continuation
+   - Validar integración de preferencias en contenido generado
 
 ## Notas de Implementación
 
@@ -843,3 +857,51 @@ Después de esta implementación:
 6. **✅ Personalización mejorada** - Sistema de `preferences` para contenido personalizado
 
 La aplicación estará completamente migrada de cuentos infantiles a contenido erótico para adultos, con un sistema robusto de personalización basado en preferencias del usuario.
+
+---
+
+## Estado de Implementación: Fase 2 Completada ✅
+
+### Resumen de lo Completado (Enero 2025):
+
+#### ✅ **Fase 2: Content Adaptation - COMPLETADA**
+- **Edge Functions Actualizadas**: Ambas funciones (`generate-story` y `story-continuation`) ahora:
+  - Obtienen `preferences` directamente de la tabla `profiles`
+  - Eliminaron completamente los parámetros legacy `childAge` y `specialNeed`
+  - Generan contenido adulto sofisticado y consensual
+- **Sistema de Prompts Transformado**: 
+  - Prompts completamente reescritos para audiencia adulta (18+)
+  - Integración natural de preferencias del usuario en el contenido
+  - Énfasis en contenido consensual, emocional y de alta calidad
+- **Idioma por Defecto**: Cambiado de español ('es') a inglés ('en') para expansión internacional
+- **Validación**: Build exitoso, sin errores de compilación TypeScript
+
+### Próximos Pasos - Fase 3:
+
+#### 🔧 **Cleanup Técnico Requerido**:
+1. **UserStore Legacy Cleanup**: Eliminar mapeos de `childAge`/`specialNeed`
+2. **Services Interface Cleanup**: Limpiar interfaces de servicios de AI
+3. **Comprehensive Testing**: Validar flujo completo end-to-end
+
+#### 📋 **Recomendaciones para Fase 3**:
+- **Prioridad Alta**: Completar cleanup de UserStore para evitar inconsistencias
+- **Testing Strategy**: Validar que las preferencias se integren correctamente en el contenido generado
+- **Performance**: Verificar que las consultas directas a Supabase funcionen correctamente sin la cache de Zustand
+
+#### 🚀 **Estado Funcional Actual**:
+- ✅ **Backend**: Edge Functions completamente actualizadas y funcionales
+- ✅ **AI Prompts**: Sistema de prompts adultos implementado
+- ✅ **Database**: Schema actualizado y funcional
+- ⏳ **Frontend**: Requiere completar Fase 1 (ProfileConfigPage) para funcionalidad completa
+
+### Notas Técnicas Importantes:
+
+#### **Cambios en Arquitectura**:
+- **Eliminación de Dependencies**: Los Edge Functions ya no dependen de parámetros del frontend
+- **Database-First Approach**: Todas las preferencias se obtienen directamente de la base de datos
+- **Version Bumping**: Edge Functions actualizadas a v8.0 (Adult Content + Preferences)
+
+#### **Consideraciones de Seguridad Mantenidas**:
+- **RLS Policies**: Sin cambios, funcionan correctamente con el nuevo sistema
+- **Authentication**: Validación de usuario mantenida en todas las funciones
+- **Privacy**: Campo `preferences` permite valores null para máxima privacidad del usuario
