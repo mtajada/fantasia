@@ -78,8 +78,9 @@ FantasIA/
 ### Story Generation
 - **Personalized Adult Stories**: AI-generated erotic tales based on character preferences, kinks, and interests
 - **Chapter System**: Multi-chapter stories with continuation options
+- **Story Format Choice**: Users can choose between 'single' self-contained stories or 'episodic' stories designed for multiple chapters
 - **Multiple Genres**: Romance, BDSM, fantasy, contemporary, etc.
-- **Character Customization**: Name, profession, personality, physical attributes, preferences
+- **Character Customization**: Name, gender ('male', 'female', 'non-binary'), and free-text description
 
 ### Audio Features
 - **Text-to-Speech**: Professional voice narration using OpenAI TTS with sensual voices
@@ -88,9 +89,9 @@ FantasIA/
 - **Voice Preview**: Sample voices before selection
 
 ### Image Generation
-- **AI-Generated Images**: DALL-E 3 integration for story illustrations (adult content)
-- **Multiple Image Types**: Cover, scenes, character portraits
-- **Automatic Generation**: Asynchronous image creation for stories
+- **Currently Deactivated**: Image generation functionality is temporarily disabled
+- **Database Ready**: The schema includes a 'cover_image_url' field in the 'stories' table for future implementation
+- **Planned Features**: DALL-E 3 integration for story illustrations, cover images, and character portraits
 
 ### Adult Content Features
 - **Content Warnings**: Appropriate warnings for different types of adult content
@@ -157,12 +158,13 @@ Required environment variables:
 ## Database Schema
 
 ### Main Tables
-- `profiles` - User profiles and preferences
-- `characters` - Custom story characters
-- `stories` - Generated stories with metadata
-- `story_chapters` - Individual story chapters
+- `profiles` - User profiles with language settings and adult content preferences (free-text field for tastes, kinks, etc.)
+- `characters` - Simplified custom characters with only name, gender, and description
+- `stories` - Generated stories with metadata, including story_format ('single' or 'episodic'), flexible genre field, and cover_image_url for future use
+- `story_chapters` - Individual story chapters (used for stories marked as 'episodic')
 - `audio_files` - Generated audio recordings
 - `user_voices` - Voice preferences
+- `preset_suggestions` - Story prompt presets for generation
 
 ### Security
 - **Row Level Security (RLS)** on all tables
@@ -170,9 +172,21 @@ Required environment variables:
 - **Secure API key management** in Edge Functions
 
 ### SQL Documentation
-For detailed SQL schema and RLS policies, consult:
-- `/docs/supabase_tables.sql` - Complete table definitions and structure
-- `/docs/supabase_RLS.sql` - Row Level Security policies and permissions
+**IMPORTANT**: `/docs/sql_supabase.sql` is the **canonical reference** for the database schema. This is the definitive migration script that contains:
+- Complete table definitions and structure
+- All RLS policies and permissions
+- Database enums and constraints
+- The exact SQL to be executed in Supabase SQL Editor
+
+**Development Guidelines**:
+- **Always refer to** `/docs/sql_supabase.sql` for any SQL-related queries or modifications
+- **Do NOT modify** this file unless absolutely necessary for new functionality
+- This script is designed to be executed in the Supabase SQL Editor to apply changes remotely
+- Other SQL files in `/docs/` may be outdated and should be considered legacy
+
+Legacy files (may be outdated):
+- `/docs/supabase_tables.sql` - Legacy table definitions
+- `/docs/supabase_RLS.sql` - Legacy RLS policies
 
 ## Testing
 
@@ -246,7 +260,7 @@ For detailed SQL schema and RLS policies, consult:
 - `generate-story` - AI adult story generation with mature themes
 - `story-continuation` - Story continuation options for adult narratives
 - `generate-audio` - Text-to-speech conversion with sensual voices
-- `upload-story-image` - Adult content image generation and storage
+- `upload-story-image` - Adult content image generation and storage (Currently Deactivated)
 - Stripe functions for payment processing
 
 ### External APIs
@@ -277,7 +291,7 @@ For detailed SQL schema and RLS policies, consult:
 
 ### Phase 1: Content Migration (Current)
 - **Story Generation**: Update prompts for adult content
-- **Character System**: Adapt for adult themes and preferences
+- **Character System**: ✅ Completed - Simplified to name, gender, and description
 - **Content Warnings**: Implement age verification and content warnings
 - **Language**: Begin Spanish to English migration
 
@@ -295,6 +309,7 @@ For detailed SQL schema and RLS policies, consult:
 - **Spanish Language Content**: Systematic translation needed
 - **Zustand Dependencies**: Local storage elimination required
 - **Component Localization**: Adult content UI adaptations needed
+- **Image Generation**: Re-enable functionality when ready for production
 
 ## Implementation Guidelines
 
