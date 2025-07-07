@@ -70,7 +70,7 @@ export default function CharacterName() {
     updateCharacter({ name: name });
     toast.success("¡Nombre guardado!", { 
       duration: 1500,
-      description: "Continuando a las aficiones..."
+      description: "Continuando a la selección de género..."
     });
     
     setTimeout(() => {
@@ -78,7 +78,7 @@ export default function CharacterName() {
       if (fromManagement) params.set('from', 'management');
       if (actionCreate) params.set('action', 'create');
       if (editCharacterId) params.set('edit', editCharacterId);
-      navigate(`/character-hobbies${params.toString() ? '?' + params.toString() : ''}`);
+      navigate(`/story-genre${params.toString() ? '?' + params.toString() : ''}`);
     }, 1000);
   };
   
