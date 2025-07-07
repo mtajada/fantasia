@@ -5,8 +5,6 @@ import { supabase } from "../../supabaseClient";
 export interface GenerateStoryParams {
   options: Partial<StoryOptions>; // O el tipo completo si siempre está completo
   language?: string;
-  childAge?: number;
-  specialNeed?: string;
   additionalDetails?: string; // <-- Añadir nueva propiedad
 }
 

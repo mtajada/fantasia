@@ -86,14 +86,9 @@ export default function StoryContinuation() {
     setIsLoadingOptions(true);
     setContinuationOptions([]);
     try {
-      // Obtener profileSettings para pasar childAge y specialNeed
-      const profileSettings = useUserStore.getState().profileSettings;
-      
       const response = await StoryContinuationService.generateContinuationOptions(
         story, 
-        chapters,
-        profileSettings?.childAge,
-        profileSettings?.specialNeed
+        chapters
       );
       if (response?.options?.length === 3) {
         setContinuationOptions(response.options);

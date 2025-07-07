@@ -96,8 +96,7 @@ export const useUserStore = createPersistentStore<UserState>(
         const syncData: { [key: string]: any } = {};
         // Mapeo de camelCase (TypeScript) a snake_case (Supabase)
         const keyMap: { [K in keyof ProfileSettings]?: string } = {
-          childAge: 'child_age',
-          specialNeed: 'special_need',
+          preferences: 'preferences',
           language: 'language',
           has_completed_setup: 'has_completed_setup', // Añadir mapeo si alguna vez se actualiza por aquí
           // Añadir otros campos editables si es necesario

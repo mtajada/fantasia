@@ -49,8 +49,6 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
         duration: storyOptionsState.currentStoryOptions.duration, 
       },
       language: profileSettings.language, 
-      childAge: profileSettings.childAge ?? 5, 
-      specialNeed: profileSettings.specialNeed, 
       additionalDetails: additionalDetails || undefined, 
     };
 
