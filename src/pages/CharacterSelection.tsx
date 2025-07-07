@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Plus, User, Users, UserCheck } from "lucide-react";
-import { useCharacterStore, validateMultipleCharacterSelection, getCharacterSelectionMessage } from "../store/character/characterStore";
 import { useStoryOptionsStore } from "../store/storyOptions/storyOptionsStore";
 import BackButton from "../components/BackButton";
 import StoryButton from "../components/StoryButton";
@@ -10,59 +9,118 @@ import { Badge } from "../components/ui/badge";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useUserStore } from "../store/user/userStore";
+import { getUserCharacters } from "../services/supabase";
+import { StoryCharacter } from "../types";
+
+// Local utility functions
+const validateMultipleCharacterSelection = (selectedCharacters: StoryCharacter[]) => {
+  const errors: string[] = [];
+  
+  if (selectedCharacters.length === 0) {
+    errors.push('Debes seleccionar al menos un personaje');
+  }
+  
+  if (selectedCharacters.length > 4) {
+    errors.push('No puedes seleccionar más de 4 personajes');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+const getCharacterSelectionMessage = (count: number): string => {
+  if (count === 0) return "Selecciona hasta 4 personajes para tu historia";
+  if (count === 1) return "¡Perfecto! Puedes añadir hasta 3 personajes más";
+  if (count === 2) return "¡Excelente! Puedes añadir hasta 2 personajes más";
+  if (count === 3) return "¡Genial! Puedes añadir 1 personaje más";
+  if (count === 4) return "¡Máximo alcanzado! Tienes 4 personajes seleccionados";
+  return "Has seleccionado demasiados personajes";
+};
 
 export default function CharacterSelection() {
   const navigate = useNavigate();
-  const {
-    savedCharacters,
-    loadCharactersFromSupabase,
-    selectedCharacters,
-    toggleCharacterSelection,
-    clearSelectedCharacters,
-    isCharacterSelected,
-    canSelectMoreCharacters
-  } = useCharacterStore();
-  const { updateStoryOptions, updateSelectedCharacters } = useStoryOptionsStore();
+  const { updateSelectedCharacters } = useStoryOptionsStore();
+  const { user } = useUserStore();
+  
+  // Local state for characters and selection
+  const [characters, setCharacters] = useState<StoryCharacter[]>([]);
+  const [selectedCharacters, setSelectedCharacters] = useState<StoryCharacter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // Removido isMultipleMode - ahora siempre permitimos selección múltiple
+  const [error, setError] = useState<string | null>(null);
+  
+  // Helper functions
+  const isCharacterSelected = (characterId: string): boolean => {
+    return selectedCharacters.some(char => char.id === characterId);
+  };
+  
+  const canSelectMoreCharacters = (): boolean => {
+    return selectedCharacters.length < 4;
+  };
+  
+  const toggleCharacterSelection = (characterId: string) => {
+    const character = characters.find(char => char.id === characterId);
+    if (!character) return;
+    
+    if (isCharacterSelected(characterId)) {
+      // Remove character from selection
+      setSelectedCharacters(prev => prev.filter(char => char.id !== characterId));
+    } else {
+      // Add character to selection (if under limit)
+      if (canSelectMoreCharacters()) {
+        setSelectedCharacters(prev => [...prev, character]);
+      }
+    }
+  };
+  
+  const clearSelectedCharacters = () => {
+    setSelectedCharacters([]);
+  };
 
-  // Cargar personajes al montar el componente
+  // Load characters from Supabase directly
   useEffect(() => {
     const loadCharacters = async () => {
       console.log("[DEBUG] CharacterSelection montado - cargando personajes directamente desde Supabase");
       setIsLoading(true);
+      setError(null);
 
-      const user = useUserStore.getState().user;
       if (!user) {
         console.error("[DEBUG] No hay usuario autenticado para cargar personajes");
+        setError("No hay usuario autenticado");
         setIsLoading(false);
         return;
       }
 
-      // Limpiar personajes existentes antes de cargar
-      useCharacterStore.setState({ savedCharacters: [] });
-
-      // Forzar recarga limpia desde Supabase - el método internamente usa user.id
-      await loadCharactersFromSupabase();
-
-      // Asegurarnos de que se cargaron los personajes
-      const chars = useCharacterStore.getState().savedCharacters;
-      console.log(`[DEBUG] Después de cargar: ${chars.length} personajes para usuario ${user.id}`);
-
-      setIsLoading(false);
+      try {
+        const { success, characters: loadedCharacters, error: loadError } = await getUserCharacters(user.id);
+        
+        if (success && loadedCharacters) {
+          setCharacters(loadedCharacters);
+          console.log(`[DEBUG] Cargados ${loadedCharacters.length} personajes para usuario ${user.id}`);
+        } else {
+          console.error("[DEBUG] Error cargando personajes:", loadError);
+          setError("Error cargando personajes");
+        }
+      } catch (err) {
+        console.error("[DEBUG] Error inesperado cargando personajes:", err);
+        setError("Error inesperado cargando personajes");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadCharacters();
-  }, [loadCharactersFromSupabase]);
+  }, [user]);
 
-  // Mostrar personajes disponibles
+  // Log available characters
   useEffect(() => {
-    console.log(`CharacterSelection tiene ${savedCharacters.length} personajes disponibles:`,
-      savedCharacters.map(char => `${char.name} (${char.id})`));
-  }, [savedCharacters]);
+    console.log(`CharacterSelection tiene ${characters.length} personajes disponibles:`,
+      characters.map(char => `${char.name} (${char.id})`));
+  }, [characters]);
 
   const handleSelectCharacter = (characterId: string) => {
-    // Siempre usar modo selección múltiple - solo toggle, no navegar automáticamente
+    // Always use multiple selection mode - just toggle, don't navigate automatically
     toggleCharacterSelection(characterId);
   };
 
@@ -81,9 +139,7 @@ export default function CharacterSelection() {
   };
 
   const handleCreateNewCharacter = () => {
-    // Resetear el personaje actual para asegurar un ID único
-    const { resetCharacter } = useCharacterStore.getState();
-    resetCharacter();
+    // Navigate to character creation page
     navigate("/character-name?action=create");
   };
 
@@ -144,6 +200,16 @@ export default function CharacterSelection() {
             <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
               <div className="text-[#BB79D1] font-medium">Cargando personajes...</div>
             </div>
+          ) : error ? (
+            <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
+              <div className="text-red-500 font-medium">{error}</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-2 text-[#BB79D1] underline"
+              >
+                Reintentar
+              </button>
+            </div>
           ) : (
             <>
               <motion.div
@@ -165,9 +231,13 @@ export default function CharacterSelection() {
                   </div>
                 </motion.div>
 
-                {savedCharacters.map((character) => {
+                {characters.map((character) => {
                   const isSelected = isCharacterSelected(character.id);
                   const canSelect = canSelectMoreCharacters() || isCharacterSelected(character.id);
+                  
+                  // Gender icon mapping
+                  const genderIcon = character.gender === 'male' ? '♂' : character.gender === 'female' ? '♀' : '⚧';
+                  const genderText = character.gender === 'male' ? 'Masculino' : character.gender === 'female' ? 'Femenino' : 'No binario';
 
                   return (
                     <motion.div key={character.id} variants={item}>
@@ -203,7 +273,12 @@ export default function CharacterSelection() {
                         )}
 
                         <span className="text-[#222] text-center font-medium">{character.name}</span>
-                        <span className="text-[#555] text-xs">{character.profession}</span>
+                        <div className="text-center">
+                          <span className="text-[#7DC4E0] text-xs font-medium">{genderIcon} {genderText}</span>
+                          <p className="text-[#555] text-xs mt-1 line-clamp-2">
+                            {character.description || 'Sin descripción'}
+                          </p>
+                        </div>
 
                         {/* Badge de seleccionado */}
                         {isCharacterSelected(character.id) && (
@@ -217,13 +292,13 @@ export default function CharacterSelection() {
                 })}
               </motion.div>
 
-              {savedCharacters.length === 0 && (
+              {characters.length === 0 && (
                 <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
                   <div className="text-[#555] font-medium">No tienes personajes guardados. ¡Crea uno nuevo!</div>
                 </div>
               )}
 
-              {savedCharacters.length > 0 && (
+              {characters.length > 0 && (
                 <div className="flex flex-col items-center gap-4">
                   {/* Botón limpiar selección */}
                   {selectedCharacters.length > 0 && (

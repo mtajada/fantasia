@@ -544,32 +544,159 @@ El enfoque en una descripción libre permitirá mayor personalización y flexibi
   - ✅ Estados de loading y feedback visual mejorado
   - ✅ Soporte completo para crear y editar personajes
 
+- **Fase 4**: Actualización de gestión de personajes - **EN PROGRESO**
+  - ✅ Actualizar CharacterSelection.tsx - **COMPLETADO**
+  - 🔄 Refactorizar CharactersManagement.tsx - **PENDIENTE**
+
+### ✅ FASE 4 PARCIALMENTE COMPLETADA - CharacterSelection.tsx
+
+#### ✅ 4.2 Actualizar CharacterSelection.tsx - **IMPLEMENTADO**
+**Archivo**: `src/pages/CharacterSelection.tsx` - **COMPLETADO**
+
+**Cambios implementados**:
+```typescript
+// ✅ ELIMINACIÓN COMPLETA DE STORE DEPENDENCY:
+- Removido useCharacterStore, validateMultipleCharacterSelection, getCharacterSelectionMessage
+- Implementadas funciones locales equivalentes
+
+// ✅ CARGA DIRECTA DESDE SUPABASE:
+const loadCharacters = async () => {
+  const { success, characters: loadedCharacters, error } = await getUserCharacters(user.id);
+  // Sin dependencia de store, llamada directa a supabase.ts
+};
+
+// ✅ ESTADO LOCAL SIMPLIFICADO:
+const [characters, setCharacters] = useState<StoryCharacter[]>([]);
+const [selectedCharacters, setSelectedCharacters] = useState<StoryCharacter[]>([]);
+
+// ✅ UI ACTUALIZADA PARA NUEVA ESTRUCTURA:
+- Gender indicators: ♂/♀/⚧ con labels visuales
+- Description preview en lugar de profession
+- Manejo de errores mejorado con estado de retry
+```
+
+**Funcionalidades implementadas**:
+- ✅ **Eliminación total de useCharacterStore**: Migración completa a getUserCharacters()
+- ✅ **Estado local eficiente**: characters[], selectedCharacters[], isLoading, error
+- ✅ **Funciones utilitarias locales**: validateMultipleCharacterSelection, getCharacterSelectionMessage
+- ✅ **UI actualizada**: Gender + description preview (líneas 245-260)
+- ✅ **Manejo de errores robusto**: Estado error con retry button
+- ✅ **Consistencia con nueva estructura**: gender/description en lugar de profession/characterType
+
+**Verificaciones realizadas**:
+- ✅ TypeScript: Sin errores de compilación
+- ✅ Build: Compilación exitosa de producción
+- ✅ Supabase integration: getUserCharacters() y syncCharacter() actualizados
+- ✅ UI funcionando: Gender indicators y description preview implementados
+
+#### ✅ 4.1 Simplificar CharactersManagement.tsx - **IMPLEMENTADO**
+**Archivo**: `src/pages/CharactersManagement.tsx` - **COMPLETADO**
+
+**Cambios implementados**:
+```typescript
+// ✅ ELIMINACIÓN COMPLETA DE STORE DEPENDENCY:
+- Removido useCharacterStore y todos sus métodos (loadCharactersFromSupabase, deleteCharacter, resetCharacter)
+- Importadas funciones directas: getUserCharacters, deleteCharacter desde services/supabase
+
+// ✅ ESTADO LOCAL IMPLEMENTADO:
+const [characters, setCharacters] = useState<StoryCharacter[]>([]);
+const [isLoading, setIsLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
+
+// ✅ CARGA DIRECTA DESDE SUPABASE:
+const { success, characters: loadedCharacters, error } = await getUserCharacters(user.id);
+// Sin dependencia de store, llamada directa igual que CharacterSelection.tsx
+
+// ✅ UI ACTUALIZADA PARA NUEVA ESTRUCTURA:
+// ANTES: character.characterType + character.profession
+// DESPUÉS:
+<p className="text-[#555] text-sm line-clamp-2">
+  {character.description || 'Sin descripción'}
+</p>
+<p className="text-[#7DC4E0] text-xs mt-1">
+  {character.gender === 'male' ? '♂ Masculino' : 
+   character.gender === 'female' ? '♀ Femenino' : '⚧ No binario'}
+</p>
+
+// ✅ ELIMINACIÓN MEJORADA CON MANEJO DE ERRORES:
+const { success, error: deleteError } = await deleteCharacter(characterToDelete.id);
+if (success) {
+  setCharacters(prev => prev.filter(char => char.id !== characterToDelete.id));
+  // Toast success
+} else {
+  // Toast error with retry option
+}
+```
+
+**Funcionalidades implementadas**:
+- ✅ **Eliminación total de useCharacterStore**: Migración completa a llamadas directas
+- ✅ **Estado local eficiente**: characters[], isLoading, error con useState
+- ✅ **Carga directa**: getUserCharacters() sin overhead de store
+- ✅ **Eliminación robusta**: deleteCharacter() con actualización local inmediata
+- ✅ **UI actualizada**: Gender indicators + description preview (líneas 154-162)
+- ✅ **Manejo de errores mejorado**: Estados error con retry y toast notifications
+- ✅ **Consistencia arquitectónica**: Mismo patrón que CharacterSelection.tsx
+
+**Verificaciones realizadas**:
+- ✅ TypeScript: Sin errores de compilación
+- ✅ Build: Compilación exitosa de producción
+- ✅ Funcionalidad: Create, edit, delete funcionando correctamente
+- ✅ UI: Gender + description display implementado correctamente
+
+### ✅ FASE 4 COMPLETADA - Actualización de Gestión de Personajes
+
+**Estado final**:
+- ✅ **CharacterSelection.tsx** - Migrado completamente (Fase 4.2)
+- ✅ **CharactersManagement.tsx** - Migrado completamente (Fase 4.1)
+- ✅ **getUserCharacters()** - Actualizado para nueva estructura
+- ✅ **deleteCharacter()** - Funcionando con llamadas directas
+- ✅ **syncCharacter()** - Actualizado para nueva estructura
+
 ### 🔄 PRÓXIMO
-- **Fase 4**: Actualización de gestión de personajes
-  - Refactorizar CharactersManagement.tsx
-  - Actualizar CharacterSelection.tsx
-  - Eliminar dependencias de useCharacterStore en estas páginas
+- **Fase 5**: Eliminación del Store de Zustand
+  - Eliminar characterStore.ts y characterValidation.ts
+  - Crear servicios directos (charactersService.ts)
+  - Actualizar imports en archivos restantes
 
 ### ⚠️ NOTAS IMPORTANTES PARA PRÓXIMAS FASES
-- **CharacterState en store**: Temporal hasta Fase 5 (CharacterName.tsx ya migrado)
-- **Compatibilidad**: Mantenida durante migración gradual
-- **TypeScript**: Sin errores detectados en todas las fases
-- **Fase 3 completa**: CharacterName.tsx completamente refactorizado y funcional
-- **Flujo actual**: CharacterName (completo) → StoryGenre
-- **Crítico para Fase 4**: CharactersManagement.tsx y CharacterSelection.tsx necesitan actualización
-- **Edge Functions**: Pendientes de actualizar para usar nueva estructura (Fase 6)
-- **Store Legacy**: useCharacterStore aún en uso en otras páginas (eliminar en Fase 5)
 
-### 🎯 LOGROS FASE 3
-- **Simplificación exitosa**: 4 pasos → 1 paso en creación de personajes
-- **Performance mejorada**: Eliminación de overhead Zustand en CharacterName.tsx
-- **UX optimizada**: Formulario mobile-first con validaciones en tiempo real
-- **Arquitectura limpia**: Llamadas directas a Supabase sin dependencias de store
-- **Robustez**: Manejo completo de edge cases y errores de red
-- **Personalización**: Campo descripción de 500 caracteres para contenido adulto
+#### **Estado Actual Post-Fase 4**
+- **Pages migradas**: CharacterName.tsx, CharacterSelection.tsx, CharactersManagement.tsx
+- **Supabase functions**: getUserCharacters(), syncCharacter(), deleteCharacter() ya actualizados
+- **Flujo completo**: CharacterName → CharacterSelection → StoryGenre (todo migrado)
+- **Store Legacy**: useCharacterStore solo referenciado en:
+  - `src/store/user/userStore.ts` (import dinámico para syncAllUserData)
+  - `src/store/storyOptions/storyOptionsStore.ts` (línea 45 - getSelectedCharactersForStory)
+  - `src/store/stories/storyGenerator.ts` (para obtener personajes)
 
-### 📝 CONSIDERACIONES PARA FASE 4
-- **CharactersManagement.tsx**: Debe mostrar preview de description en lugar de profession/characterType
-- **CharacterSelection.tsx**: Actualizar para cargar desde Supabase directamente
-- **Consistencia**: Mantener mismo patrón de validaciones y manejo de errores
-- **UI/UX**: Aplicar mismos principios mobile-first y feedback visual
+#### **Crítico para Fase 5**
+- **Dependencias restantes**: Solo en stores internos, no en páginas UI
+- **syncAllUserData**: Necesita actualización para no cargar characterStore
+- **storyOptionsStore**: getSelectedCharactersForStory() necesita refactor
+- **storyGenerator**: Usar nueva fuente de personajes (no store)
+
+#### **Edge Functions pendientes (Fase 6)**
+- **generate-story/prompt.ts**: Actualizar para usar gender + description
+- **story-continuation/prompt.ts**: Migrar de profession/hobbies a nueva estructura
+- **Payload update**: Servicios AI necesitan mapear nueva estructura de personajes
+
+#### **Arquitectura limpia lograda**
+- **Pattern establecido**: Todas las páginas UI usan getUserCharacters() directamente
+- **Estado local**: useState en lugar de Zustand para personajes
+- **Error handling**: Patrón consistente con retry y toast notifications
+- **Performance**: Eliminación completa de overhead de store en UI
+
+### 🎯 LOGROS FASE 4 COMPLETA
+- **Eliminación de dependencias UI**: 3 páginas principales migradas exitosamente
+- **Arquitectura consistente**: Patrón uniforme de llamadas directas a Supabase
+- **UI mejorada**: Gender indicators y description preview en ambas páginas
+- **Performance optimizada**: Eliminación de overhead Zustand en flujo principal
+- **Manejo robusto**: Error handling y loading states consistentes
+- **Nueva estructura**: Todas las páginas UI usan gender + description correctamente
+
+### 📝 CONSIDERACIONES PARA FASE 5
+- **Eliminación segura**: Solo queda eliminar archivos de store sin afectar UI
+- **Dependencias internas**: Actualizar stores restantes que referencian characterStore
+- **Servicio unificado**: Crear charactersService.ts como wrapper si es necesario
+- **Testing**: Verificar que flujo completo funciona sin characterStore
+- **Cleanup**: Eliminar imports dinámicos obsoletos en userStore

@@ -129,11 +129,8 @@ export const syncCharacter = async (
             id: character.id,
             user_id: userId,
             name: character.name,
-            hobbies: character.hobbies,
+            gender: character.gender,
             description: character.description,
-            profession: character.profession,
-            character_type: character.characterType,
-            personality: character.personality,
             updated_at: new Date(),
         };
 
@@ -187,11 +184,10 @@ export const getUserCharacters = async (userId: string): Promise<{ success: bool
         const characters: StoryCharacter[] = data ? data.map((char) => ({
             id: char.id,
             name: char.name,
-            hobbies: char.hobbies || [],
+            gender: char.gender,
             description: char.description || '',
-            profession: char.profession || '',
-            characterType: char.character_type || '',
-            personality: char.personality || '',
+            created_at: char.created_at,
+            updated_at: char.updated_at,
         })) : [];
 
         return { success: true, characters: characters };
