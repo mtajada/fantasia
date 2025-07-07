@@ -13,20 +13,20 @@ export const APP_CONFIG = {
   /**
    * Nombre de la aplicación
    */
-  name: 'TaleMe',
+  name: 'Fantasia',
   
   /**
    * URL del sitio web
    */
-  websiteUrl: 'https://taleme.app',
+  websiteUrl: 'https://fantasia.app',
   
   /**
    * Enlaces de redes sociales
    */
   socialLinks: {
-    twitter: 'https://twitter.com/taleme_app',
-    instagram: 'https://instagram.com/taleme_app',
-    facebook: 'https://facebook.com/talemeapp'
+    twitter: 'https://twitter.com/fantasia_app',
+    instagram: 'https://instagram.com/fantasia_app',
+    facebook: 'https://facebook.com/fantasiaapp'
   },
 
   /**

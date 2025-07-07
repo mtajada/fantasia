@@ -24,10 +24,7 @@ export default function PaymentCancel() {
       <div
         className="min-h-screen flex flex-col items-center justify-center p-4"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="w-full max-w-md bg-white/90 rounded-3xl shadow-lg overflow-hidden">

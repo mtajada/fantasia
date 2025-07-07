@@ -1,6 +1,6 @@
-# TaleMe - Cuentos Personalizados
+# Fantasia - Personalized Adult Stories
 
-TaleMe es una aplicación para la creación de cuentos personalizados con narración por voz para niños, diseñada para fomentar la lectura y el aprendizaje.
+Fantasia is an application for creating personalized adult erotic stories with voice narration, designed to provide immersive entertainment for mature audiences.
 
 ## Versión Actual
 

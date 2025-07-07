@@ -155,10 +155,7 @@ const ProfileConfigPage: React.FC = () => {
             <div
                 className="min-h-screen flex flex-col items-center justify-start relative"
                 style={{
-                    backgroundImage: "url(/fondo_png.png)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
+                    backgroundColor: 'black',
                 }}
             >
                 <div className="container mx-auto px-4 py-8 max-w-2xl">

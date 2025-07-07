@@ -11,28 +11,25 @@ const PrivacyPolicy: React.FC = () => {
       <div 
         className="min-h-screen flex flex-col"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="container mx-auto py-8 px-4 flex-1 overflow-auto">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-[#222]">POLÍTICA DE PRIVACIDAD DE TaleMe!</h1>
+              <h1 className="text-3xl font-bold text-[#222]">POLÍTICA DE PRIVACIDAD DE Fantasia!</h1>
               <p className="text-sm text-[#555] mt-2">Última actualización: 23 de abril de 2025</p>
             </div>
 
             <div className="space-y-6 bg-white/80 p-8 rounded-2xl backdrop-blur-sm shadow-lg">
               <p className="font-medium">
-                Resumen de privacidad: En TaleMe! valoramos tu confianza y nos comprometemos a proteger tus datos personales. Recopilamos únicamente la información imprescindible para ofrecerte nuestro servicio de generación de cuentos infantiles con Inteligencia Artificial, la almacenamos bajo estrictas medidas de seguridad y te damos control absoluto sobre su uso. A continuación, te explicamos de forma clara y transparente cómo tratamos tus datos.
+                Resumen de privacidad: En Fantasia! valoramos tu confianza y nos comprometemos a proteger tus datos personales. Recopilamos únicamente la información imprescindible para ofrecerte nuestro servicio de generación de cuentos infantiles con Inteligencia Artificial, la almacenamos bajo estrictas medidas de seguridad y te damos control absoluto sobre su uso. A continuación, te explicamos de forma clara y transparente cómo tratamos tus datos.
               </p>
 
               <div>
                 <h2 className="text-xl font-bold text-[#BB79D1]">1. RESPONSABLE DEL TRATAMIENTO</h2>
                 <p className="mt-2">
-                  TaleMe! (en adelante, "TaleMe!"), con domicilio en Zaragoza, España, y correo electrónico de contacto hola@taleme.app, es la entidad responsable del tratamiento de tus datos personales cuando utilizas la plataforma TaleMe!.
+                  Fantasia! (en adelante, "Fantasia!"), con domicilio en Zaragoza, España, y correo electrónico de contacto hola@fantasia.app, es la entidad responsable del tratamiento de tus datos personales cuando utilizas la plataforma Fantasia!.
                 </p>
               </div>
 
@@ -67,7 +64,7 @@ const PrivacyPolicy: React.FC = () => {
                   Utilizamos tus datos para:
                 </p>
                 <p className="mt-2">
-                  Gestionar tu cuenta y acceso a TaleMe!.
+                  Gestionar tu cuenta y acceso a Fantasia!.
                 </p>
                 <p className="mt-2">
                   Generar, guardar y entregar por email los cuentos infantiles que solicites.
@@ -86,7 +83,7 @@ const PrivacyPolicy: React.FC = () => {
               <div>
                 <h2 className="text-xl font-bold text-[#BB79D1]">4. COOKIES Y TECNOLOGÍAS SIMILARES</h2>
                 <p className="mt-2">
-                  Para optimizar tu experiencia y analizar el uso de TaleMe!, empleamos cookies propias y de terceros. Puedes gestionar o desactivar las cookies desde la configuración de tu navegador; ten en cuenta que ello podría afectar la funcionalidad del servicio. Consulta nuestra Política de Cookies para más información.
+                  Para optimizar tu experiencia y analizar el uso de Fantasia!, empleamos cookies propias y de terceros. Puedes gestionar o desactivar las cookies desde la configuración de tu navegador; ten en cuenta que ello podría afectar la funcionalidad del servicio. Consulta nuestra Política de Cookies para más información.
                 </p>
               </div>
 
@@ -100,7 +97,7 @@ const PrivacyPolicy: React.FC = () => {
               <div>
                 <h2 className="text-xl font-bold text-[#BB79D1]">6. ENLACES A TERCEROS</h2>
                 <p className="mt-2">
-                  TaleMe! puede incluir enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad ni del contenido de estas webs externas, por lo que te aconsejamos leer sus propias políticas de privacidad.
+                  Fantasia! puede incluir enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad ni del contenido de estas webs externas, por lo que te aconsejamos leer sus propias políticas de privacidad.
                 </p>
               </div>
 
@@ -134,21 +131,21 @@ const PrivacyPolicy: React.FC = () => {
                   Acceder a tu perfil y modificar tus datos.
                 </p>
                 <p className="mt-2">
-                  Enviar un email a hola@taleme.app con asunto "Protección de Datos" e indicando claramente qué derecho deseas ejercer.
+                  Enviar un email a hola@fantasia.app con asunto "Protección de Datos" e indicando claramente qué derecho deseas ejercer.
                 </p>
               </div>
 
               <div>
                 <h2 className="text-xl font-bold text-[#BB79D1]">8. USO DEL SERVICIO POR MENORES</h2>
                 <p className="mt-2">
-                  TaleMe! está pensado para la creación de cuentos infantiles a iniciativa de un adulto responsable. Los menores de 14 años deberán contar con el consentimiento de su padre, madre o tutor legal para la recogida y tratamiento de sus datos.
+                  Fantasia! está pensado para la creación de cuentos infantiles a iniciativa de un adulto responsable. Los menores de 14 años deberán contar con el consentimiento de su padre, madre o tutor legal para la recogida y tratamiento de sus datos.
                 </p>
               </div>
 
               <div>
                 <h2 className="text-xl font-bold text-[#BB79D1]">9. CONSERVACIÓN DE LOS DATOS</h2>
                 <p className="mt-2">
-                  Conservaremos tus datos mientras mantengas una cuenta activa en TaleMe! y, una vez cancelada, durante el tiempo necesario para cumplir con obligaciones legales (p. ej., fiscales), salvo que solicites su supresión antes.
+                  Conservaremos tus datos mientras mantengas una cuenta activa en Fantasia! y, una vez cancelada, durante el tiempo necesario para cumplir con obligaciones legales (p. ej., fiscales), salvo que solicites su supresión antes.
                 </p>
               </div>
 
@@ -162,12 +159,12 @@ const PrivacyPolicy: React.FC = () => {
               <div>
                 <h2 className="text-xl font-bold text-[#BB79D1]">11. CONTACTO Y RECLAMACIONES</h2>
                 <p className="mt-2">
-                  Si tienes dudas, consultas o reclamaciones sobre el tratamiento de tus datos, puedes escribirnos a hola@taleme.app. También tienes derecho a presentar una reclamación ante la Agencia Española de Protección de Datos si consideras que tus derechos no se han atendido correctamente.
+                  Si tienes dudas, consultas o reclamaciones sobre el tratamiento de tus datos, puedes escribirnos a hola@fantasia.app. También tienes derecho a presentar una reclamación ante la Agencia Española de Protección de Datos si consideras que tus derechos no se han atendido correctamente.
                 </p>
               </div>
 
               <p className="italic">
-                Gracias por confiar en TaleMe! Tu privacidad y la de los más pequeños son nuestra máxima prioridad.
+                Gracias por confiar en Fantasia! Tu privacidad y la de los más pequeños son nuestra máxima prioridad.
               </p>
             </div>
             

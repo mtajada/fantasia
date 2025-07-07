@@ -54,26 +54,6 @@ CREATE TABLE public.story_chapters (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
--- Tabla de desafíos
-CREATE TABLE public.challenges (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  story_id UUID REFERENCES public.stories(id) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
-);
-
--- Tabla de preguntas de desafíos
-CREATE TABLE public.challenge_questions (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  challenge_id UUID REFERENCES public.challenges(id) NOT NULL,
-  question TEXT NOT NULL,
-  options TEXT[] NOT NULL,
-  correct_option_index INT NOT NULL,
-  explanation TEXT NOT NULL,
-  category TEXT NOT NULL,
-  target_language TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
-);
-
 -- Tabla de archivos de audio
 CREATE TABLE public.audio_files (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -100,8 +80,6 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.characters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.stories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.story_chapters ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.challenges ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.challenge_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audio_files ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_voices ENABLE ROW LEVEL SECURITY;
 
@@ -151,43 +129,6 @@ CREATE POLICY "Los usuarios pueden eliminar capítulos de sus historias" ON publ
     SELECT user_id FROM public.stories WHERE id = story_id
   ));
 
--- Políticas RLS para desafíos
-CREATE POLICY "Los usuarios pueden ver desafíos de sus historias" ON public.challenges
-  FOR SELECT USING (auth.uid() IN (
-    SELECT user_id FROM public.stories WHERE id = story_id
-  ));
-CREATE POLICY "Los usuarios pueden crear desafíos en sus historias" ON public.challenges
-  FOR INSERT WITH CHECK (auth.uid() IN (
-    SELECT user_id FROM public.stories WHERE id = story_id
-  ));
-CREATE POLICY "Los usuarios pueden actualizar desafíos de sus historias" ON public.challenges
-  FOR UPDATE USING (auth.uid() IN (
-    SELECT user_id FROM public.stories WHERE id = story_id
-  ));
-
--- Políticas RLS para preguntas de desafíos
-CREATE POLICY "Los usuarios pueden ver preguntas de desafíos de sus historias" ON public.challenge_questions
-  FOR SELECT USING (auth.uid() IN (
-    SELECT s.user_id 
-    FROM public.stories s 
-    JOIN public.challenges c ON s.id = c.story_id 
-    WHERE c.id = challenge_id
-  ));
-CREATE POLICY "Los usuarios pueden crear preguntas en desafíos de sus historias" ON public.challenge_questions
-  FOR INSERT WITH CHECK (auth.uid() IN (
-    SELECT s.user_id 
-    FROM public.stories s 
-    JOIN public.challenges c ON s.id = c.story_id 
-    WHERE c.id = challenge_id
-  ));
-CREATE POLICY "Los usuarios pueden actualizar preguntas de desafíos de sus historias" ON public.challenge_questions
-  FOR UPDATE USING (auth.uid() IN (
-    SELECT s.user_id 
-    FROM public.stories s 
-    JOIN public.challenges c ON s.id = c.story_id 
-    WHERE c.id = challenge_id
-  ));
-
 -- Políticas RLS para archivos de audio
 CREATE POLICY "Los usuarios pueden ver sus archivos de audio" ON public.audio_files
   FOR SELECT USING (auth.uid() = user_id);
@@ -210,12 +151,12 @@ CREATE POLICY "Los usuarios pueden eliminar sus preferencias de voz" ON public.u
 
 -- Creación de funciones y triggers para actualizar automáticamente 'updated_at'
 CREATE OR REPLACE FUNCTION update_modified_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $
 BEGIN
    NEW.updated_at = NOW();
    RETURN NEW;
 END;
-$$ LANGUAGE 'plpgsql';
+$ LANGUAGE 'plpgsql';
 
 -- Triggers para actualizar updated_at en cada tabla
 CREATE TRIGGER update_profiles_modtime

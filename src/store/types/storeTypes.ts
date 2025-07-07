@@ -1,5 +1,4 @@
 import {
-  Challenge,
   ProfileSettings,
   Story,
   StoryChapter,
@@ -44,7 +43,7 @@ export interface CharacterState {
   saveCurrentCharacter: () => Promise<{ success: boolean; error?: string }>;
   deleteCharacter: (characterId: string) => void;
   loadCharactersFromSupabase: () => Promise<void>;
-  
+
   // Multiple character selection functions
   toggleCharacterSelection: (characterId: string) => void;
   clearSelectedCharacters: () => void;
@@ -66,7 +65,7 @@ export interface StoryOptionsState {
   setMoral: (moral: string) => void;
   setGenre: (genre: string) => void;
   setAdditionalDetails: (details?: string | null) => void;
-  
+
   // Multiple character selection functions
   setSelectedCharacterIds: (characterIds: string[]) => void;
   getSelectedCharactersForStory: () => StoryCharacter[];
@@ -91,14 +90,6 @@ export interface ChaptersState {
   addChapter: (storyId: string, chapter: StoryChapter) => void;
   getLastChapterByStoryId: (storyId: string) => StoryChapter | undefined;
   loadChaptersFromSupabase: (storyId: string) => Promise<void>;
-}
-
-export interface ChallengesState {
-  challenges: Challenge[];
-
-  addChallenge: (challenge: Challenge) => void;
-  getChallengesByStoryId: (storyId: string) => Challenge[];
-  loadChallengesFromSupabase: (storyId: string) => Promise<void>;
 }
 
 export interface AudioState {

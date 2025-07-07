@@ -29,13 +29,10 @@ const Changelog: React.FC = () => {
 
   return (
     <PageTransition>
-      <div 
+      <div
         className="min-h-screen flex flex-col"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="container mx-auto py-8 px-4 flex-1 overflow-auto">
@@ -53,7 +50,7 @@ const Changelog: React.FC = () => {
               <div>
                 <h1 className="text-3xl font-bold text-[#222]">Registro de Cambios</h1>
                 <p className="text-[#555] mt-1">
-                  Todas las mejoras y cambios notables de TaleMe!
+                  Todas las mejoras y cambios notables de Fantasia!
                 </p>
               </div>
             </div>
@@ -90,123 +87,123 @@ const Changelog: React.FC = () => {
                 </Card>
               </div>
             ) : (
-            <div className="space-y-6">
-              {changelogData.map((entry, index) => (
-                <Card key={entry.version} className="bg-white/90 backdrop-blur-sm shadow-lg border-0">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Badge variant={getVersionBadgeVariant(entry.version)} className="text-sm">
-                          v{entry.version}
-                        </Badge>
-                        {index === 0 && (
-                          <Badge variant="default" className="bg-[#BB79D1] text-white">
-                            <Star className="h-3 w-3 mr-1" />
-                            Última versión
+              <div className="space-y-6">
+                {changelogData.map((entry, index) => (
+                  <Card key={entry.version} className="bg-white/90 backdrop-blur-sm shadow-lg border-0">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge variant={getVersionBadgeVariant(entry.version)} className="text-sm">
+                            v{entry.version}
                           </Badge>
+                          {index === 0 && (
+                            <Badge variant="default" className="bg-[#BB79D1] text-white">
+                              <Star className="h-3 w-3 mr-1" />
+                              Última versión
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-[#555]">
+                          <Calendar className="h-4 w-4" />
+                          <span className="text-sm">{formatDate(entry.date)}</span>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent>
+                      <Accordion type="multiple" className="w-full">
+                        {entry.features && entry.features.length > 0 && (
+                          <AccordionItem value={`features-${entry.version}`}>
+                            <AccordionTrigger className="text-left hover:no-underline">
+                              <div className="flex items-center gap-2">
+                                <Star className="h-4 w-4 text-[#F6A5B7]" />
+                                <span className="font-semibold">Nuevas Funcionalidades</span>
+                                <Badge variant="outline">{entry.features.length}</Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <ul className="space-y-2 mt-2">
+                                {entry.features.map((feature, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-[#555]">
+                                    <span className="w-2 h-2 bg-[#F6A5B7] rounded-full mt-2 flex-shrink-0"></span>
+                                    <span>{feature}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </AccordionItem>
                         )}
-                      </div>
-                      <div className="flex items-center gap-2 text-[#555]">
-                        <Calendar className="h-4 w-4" />
-                        <span className="text-sm">{formatDate(entry.date)}</span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <Accordion type="multiple" className="w-full">
-                      {entry.features && entry.features.length > 0 && (
-                        <AccordionItem value={`features-${entry.version}`}>
-                          <AccordionTrigger className="text-left hover:no-underline">
-                            <div className="flex items-center gap-2">
-                              <Star className="h-4 w-4 text-[#F6A5B7]" />
-                              <span className="font-semibold">Nuevas Funcionalidades</span>
-                              <Badge variant="outline">{entry.features.length}</Badge>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <ul className="space-y-2 mt-2">
-                              {entry.features.map((feature, i) => (
-                                <li key={i} className="flex items-start gap-2 text-[#555]">
-                                  <span className="w-2 h-2 bg-[#F6A5B7] rounded-full mt-2 flex-shrink-0"></span>
-                                  <span>{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
 
-                      {entry.improvements && entry.improvements.length > 0 && (
-                        <AccordionItem value={`improvements-${entry.version}`}>
-                          <AccordionTrigger className="text-left hover:no-underline">
-                            <div className="flex items-center gap-2">
-                              <Wrench className="h-4 w-4 text-[#7DC4E0]" />
-                              <span className="font-semibold">Mejoras</span>
-                              <Badge variant="outline">{entry.improvements.length}</Badge>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <ul className="space-y-2 mt-2">
-                              {entry.improvements.map((improvement, i) => (
-                                <li key={i} className="flex items-start gap-2 text-[#555]">
-                                  <span className="w-2 h-2 bg-[#7DC4E0] rounded-full mt-2 flex-shrink-0"></span>
-                                  <span>{improvement}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
+                        {entry.improvements && entry.improvements.length > 0 && (
+                          <AccordionItem value={`improvements-${entry.version}`}>
+                            <AccordionTrigger className="text-left hover:no-underline">
+                              <div className="flex items-center gap-2">
+                                <Wrench className="h-4 w-4 text-[#7DC4E0]" />
+                                <span className="font-semibold">Mejoras</span>
+                                <Badge variant="outline">{entry.improvements.length}</Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <ul className="space-y-2 mt-2">
+                                {entry.improvements.map((improvement, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-[#555]">
+                                    <span className="w-2 h-2 bg-[#7DC4E0] rounded-full mt-2 flex-shrink-0"></span>
+                                    <span>{improvement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
 
-                      {entry.technical && entry.technical.length > 0 && (
-                        <AccordionItem value={`technical-${entry.version}`}>
-                          <AccordionTrigger className="text-left hover:no-underline">
-                            <div className="flex items-center gap-2">
-                              <Wrench className="h-4 w-4 text-[#BB79D1]" />
-                              <span className="font-semibold">Cambios Técnicos</span>
-                              <Badge variant="outline">{entry.technical.length}</Badge>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <ul className="space-y-2 mt-2">
-                              {entry.technical.map((tech, i) => (
-                                <li key={i} className="flex items-start gap-2 text-[#555]">
-                                  <span className="w-2 h-2 bg-[#BB79D1] rounded-full mt-2 flex-shrink-0"></span>
-                                  <span className="font-mono text-sm">{tech}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
+                        {entry.technical && entry.technical.length > 0 && (
+                          <AccordionItem value={`technical-${entry.version}`}>
+                            <AccordionTrigger className="text-left hover:no-underline">
+                              <div className="flex items-center gap-2">
+                                <Wrench className="h-4 w-4 text-[#BB79D1]" />
+                                <span className="font-semibold">Cambios Técnicos</span>
+                                <Badge variant="outline">{entry.technical.length}</Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <ul className="space-y-2 mt-2">
+                                {entry.technical.map((tech, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-[#555]">
+                                    <span className="w-2 h-2 bg-[#BB79D1] rounded-full mt-2 flex-shrink-0"></span>
+                                    <span className="font-mono text-sm">{tech}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
 
-                      {entry.fixes && entry.fixes.length > 0 && (
-                        <AccordionItem value={`fixes-${entry.version}`}>
-                          <AccordionTrigger className="text-left hover:no-underline">
-                            <div className="flex items-center gap-2">
-                              <Bug className="h-4 w-4 text-[#f7c59f]" />
-                              <span className="font-semibold">Correcciones</span>
-                              <Badge variant="outline">{entry.fixes.length}</Badge>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <ul className="space-y-2 mt-2">
-                              {entry.fixes.map((fix, i) => (
-                                <li key={i} className="flex items-start gap-2 text-[#555]">
-                                  <span className="w-2 h-2 bg-[#f7c59f] rounded-full mt-2 flex-shrink-0"></span>
-                                  <span>{fix}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                        {entry.fixes && entry.fixes.length > 0 && (
+                          <AccordionItem value={`fixes-${entry.version}`}>
+                            <AccordionTrigger className="text-left hover:no-underline">
+                              <div className="flex items-center gap-2">
+                                <Bug className="h-4 w-4 text-[#f7c59f]" />
+                                <span className="font-semibold">Correcciones</span>
+                                <Badge variant="outline">{entry.fixes.length}</Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <ul className="space-y-2 mt-2">
+                                {entry.fixes.map((fix, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-[#555]">
+                                    <span className="w-2 h-2 bg-[#f7c59f] rounded-full mt-2 flex-shrink-0"></span>
+                                    <span>{fix}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
 
             {/* Footer info */}
@@ -215,18 +212,18 @@ const Changelog: React.FC = () => {
                 <CardContent className="pt-6">
                   <p className="text-[#555] text-sm">
                     Este registro sigue el formato de{' '}
-                    <a 
-                      href="https://keepachangelog.com/es-ES/1.0.0/" 
-                      target="_blank" 
+                    <a
+                      href="https://keepachangelog.com/es-ES/1.0.0/"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#BB79D1] hover:text-[#A5D6F6] underline"
                     >
                       Keep a Changelog
                     </a>
                     {' '}y adhiere a{' '}
-                    <a 
-                      href="https://semver.org/spec/v2.0.0.html" 
-                      target="_blank" 
+                    <a
+                      href="https://semver.org/spec/v2.0.0.html"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#BB79D1] hover:text-[#A5D6F6] underline"
                     >

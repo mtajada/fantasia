@@ -123,7 +123,7 @@ export class StoryPdfService {
   }
 
   /**
-   * Generates standard TaleMe format PDF (text only)
+   * Generates standard Fantasia format PDF (text only)
    * @param options PDF generation options
    * @returns Promise with generated PDF blob
    */
@@ -208,7 +208,7 @@ export class StoryPdfService {
   static downloadPdf(pdfBlob: Blob, title: string, isIllustrated: boolean = false): void {
     try {
       const safeName = title.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const prefix = isIllustrated ? 'taleme-cuento-ilustrado' : 'taleme-cuento';
+      const prefix = isIllustrated ? 'fantasia-cuento-ilustrado' : 'fantasia-cuento';
       const filename = `${prefix}-${safeName}.pdf`;
       
       PdfService.downloadPdf(pdfBlob, filename);
@@ -336,7 +336,7 @@ export class StoryPdfService {
         // Add cover image as full background - no overlays, image contains the title
         pdf.addImage(coverImageData, 'JPEG', 0, 0, pageWidth, pageHeight);
         
-        // Only add TaleMe logo in corner for branding
+        // Only add Fantasia logo in corner for branding
         await this.addLogoToPage(pdf, 15, 15, 25);
       } else {
         // Fallback to standard cover if image fails
@@ -482,7 +482,7 @@ export class StoryPdfService {
     // Add logo
     await this.addLogoToPage(pdf, (pageWidth - 50) / 2, pageHeight / 3 - 25, 50);
     
-    // Add TaleMe text
+    // Add Fantasia text
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor('#BB79D1');
     pdf.setFontSize(18);
@@ -522,7 +522,7 @@ export class StoryPdfService {
    }
 
   /**
-   * Adds TaleMe logo to specified position
+   * Adds Fantasia logo to specified position
    */
   private static async addLogoToPage(pdf: jsPDF, x: number, y: number, width: number): Promise<void> {
     try {

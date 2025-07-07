@@ -52,11 +52,11 @@ Project Structure:
 
 CLAUDE.md
 ```
-1 | # CLAUDE.md - TaleMe Project Guide
+1 | # CLAUDE.md - FantasIA Project Guide
 2 | 
 3 | ## Project Overview
 4 | 
-5 | **TaleMe** is a personalized children's storytelling application that generates custom stories with voice narration and educational challenges. The app creates tales adapted to each child's age, interests, and personality, featuring professional voice narration and interactive learning elements.
+5 | **FantasIA** is a personalized children's storytelling application that generates custom stories with voice narration and educational challenges. The app creates tales adapted to each child's age, interests, and personality, featuring professional voice narration and interactive learning elements.
 6 | 
 7 | **Current Version**: 1.1.4  
 8 | **Main Branch**: master  
@@ -97,7 +97,7 @@ CLAUDE.md
 43 | ## Project Structure
 44 | 
 45 | ```
-46 | TaleMe/
+46 | FantasIA/
 47 | ├── src/
 48 | │   ├── components/           # Reusable UI components
 49 | │   │   ├── ui/              # shadcn/ui components (~49 files)
@@ -535,9 +535,9 @@ index.html
 4 | <head>
 5 |   <meta charset="UTF-8" />
 6 |   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-7 |   <title>TaleMe!</title>
-8 |   <meta name="description" content="TaleMe! Una app de cuentos personalizados generados por IA para niños" />
-9 |   <meta name="author" content="Luis Martin, Ivano Garcia, Miguel Tajada" />
+7 |   <title>FantasIA!</title>
+8 |   <meta name="description" content="FantasIA! Una app de cuentos personalizados generados por IA para niños" />
+9 |   <meta name="author" content="" />
 10 |   
 11 |   <!-- Favicon configuración -->
 12 |   <link rel="icon" href="/favicon_v2.png" />
@@ -984,7 +984,7 @@ vite.config.ts
 
 docs/EDGE_FUNCTIONS.md
 ```
-1 | # Edge Functions de TaleMe!
+1 | # Edge Functions de FantasIA!
 2 | 
 3 | Este documento describe las Edge Functions implementadas en Supabase para
 4 | manejar la generación de contenido utilizando modelos de lenguaje.
@@ -1288,7 +1288,7 @@ docs/EDGE_FUNCTIONS.md
 
 docs/PAUTAS_DE_DISENO.md
 ```
-1 | # Pautas de Diseño UI/UX – TaleMe
+1 | # Pautas de Diseño UI/UX – FantasIA
 2 | 
 3 | ## ⚠️ DISCLAIMER IMPORTANTE: PRESERVACIÓN DE FUNCIONALIDAD
 4 | 
@@ -1305,7 +1305,7 @@ docs/PAUTAS_DE_DISENO.md
 15 | 
 16 | ## 1. Identidad Visual
 17 | - **Logotipo:** Utiliza siempre el logotipo oficial en sus variantes de color y fondo según el manual de marca.
-18 | - **Iconografía:** Usa los iconos oficiales de TaleMe, preferiblemente en formato SVG o PNG de alta calidad.
+18 | - **Iconografía:** Usa los iconos oficiales de FantasIA, preferiblemente en formato SVG o PNG de alta calidad.
 19 | 
 20 | ## 2. Paleta de Colores
 21 | Utiliza la paleta oficial para todos los elementos de la interfaz:
@@ -1541,7 +1541,7 @@ docs/PAUTAS_DE_DISENO.md
 251 | ---
 252 | 
 253 | **Referencia:**
-254 | Estas pautas se basan en el manual de marca oficial de TaleMe (ver imágenes adjuntas en docs/manual_marca.png o docs/manual_marca.pdf si están disponibles).
+254 | Estas pautas se basan en el manual de marca oficial de FantasIA (ver imágenes adjuntas en docs/manual_marca.png o docs/manual_marca.pdf si están disponibles).
 255 | 
 256 | ---
 257 | 
@@ -1881,14 +1881,14 @@ docs/exportar_pdf.md
 ```
 1 | # Guía: Exportación de Cuentos a PDF
 2 | 
-3 | TaleMe ahora permite exportar tus historias a archivos PDF con un formato personalizado y profesional.
+3 | FantasIA ahora permite exportar tus historias a archivos PDF con un formato personalizado y profesional.
 4 | 
 5 | ## Características del PDF generado
 6 | 
 7 | - **Portada personalizada** con el título del cuento y el nombre del autor
 8 | - **Diseño elegante** con fondo en tonalidad #fff6e0 (color pergamino suave)
 9 | - **Letra grande y en color** optimizada para lectura infantil en tono #ce9789
-10 | - **Logo de TaleMe** en la portada
+10 | - **Logo de FantasIA** en la portada
 11 | - **Encabezado en cada página** con logo en miniatura y título del cuento
 12 | - **Contraportada** con mensaje de cierre y año de generación
 13 | - **Numeración de páginas**
@@ -3786,12 +3786,12 @@ src/App.css
 14 | 
 15 | .logo:hover {
 16 |   filter: drop-shadow(0 0 2em #BB79D1aa);
-17 |   /* Morado TaleMe! */
+17 |   /* Morado FantasIA! */
 18 | }
 19 | 
 20 | .logo.react:hover {
 21 |   filter: drop-shadow(0 0 2em #7DC4E0aa);
-22 |   /* Azul TaleMe! */
+22 |   /* Azul FantasIA! */
 23 | }
 24 | 
 25 | @keyframes logo-spin {
@@ -3938,7 +3938,7 @@ src/index.css
 4 | 
 5 | @layer base {
 6 |   :root {
-7 |     /* TaleMe! colors as HSL values */
+7 |     /* FantasIA! colors as HSL values */
 8 |     --background: 35 100% 98%;
 9 |     /* #FFFBF5 - Fondo claro */
 10 |     --foreground: 0 0% 29%;
@@ -5428,12 +5428,12 @@ src/components/Footer.tsx
 6 |     <footer className="w-full bg-white/80 py-3 md:py-4 backdrop-blur-sm mt-auto">
 7 |       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row justify-between items-center">
 8 |         <div className="mb-2 md:mb-0">
-9 |           <img src="/logo_png.png" alt="TaleMe Logo" className="h-12 md:h-14" />
+9 |           <img src="/logo_png.png" alt="FantasIA Logo" className="h-12 md:h-14" />
 10 |         </div>
 11 |         
 12 |         <div className="text-[#555] text-xs text-center md:text-left mb-2 md:mb-0">
 13 |           <div>
-14 |             &copy; {new Date().getFullYear()} TaleMe!. Todos los derechos reservados.
+14 |             &copy; {new Date().getFullYear()} FantasIA!. Todos los derechos reservados.
 15 |           </div>
 16 |           <div className="text-[#777] text-xs mt-1 text-center">
 17 |             v{APP_CONFIG.version}
@@ -7299,19 +7299,19 @@ src/components/StoryPdfPreview.tsx
 348 |           <div className="mb-4">
 349 |             <h3 className="text-lg font-semibold mb-3 text-gray-800">Generar PDF:</h3>
 350 |             
-351 |             {/* Opción 1: Formato TaleMe */}
+351 |             {/* Opción 1: Formato FantasIA */}
 352 |             <div className="mb-3 p-4 border border-pink-200 rounded-lg bg-pink-50">
 353 |               <div className="flex items-center justify-between">
 354 |                 <div className="flex-1">
 355 |                   <div className="flex items-center mb-2">
 356 |                     <FileText className="h-5 w-5 text-pink-600 mr-2" />
-357 |                     <h4 className="font-semibold text-pink-800">Cuento Formato TaleMe!</h4>
+357 |                     <h4 className="font-semibold text-pink-800">Cuento Formato FantasIA!</h4>
 358 |                     <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
 359 |                       GRATIS
 360 |                     </span>
 361 |                   </div>
 362 |                   <p className="text-sm text-pink-700">
-363 |                     PDF con el formato tradicional de TaleMe (solo texto)
+363 |                     PDF con el formato tradicional de FantasIA (solo texto)
 364 |                   </p>
 365 |                 </div>
 366 |                 <Button
@@ -7816,20 +7816,20 @@ src/config/app.ts
 13 |   /**
 14 |    * Nombre de la aplicación
 15 |    */
-16 |   name: 'TaleMe',
+16 |   name: 'FantasIA',
 17 |   
 18 |   /**
 19 |    * URL del sitio web
 20 |    */
-21 |   websiteUrl: 'https://taleme.app',
+21 |   websiteUrl: 'https://FantasIA.app',
 22 |   
 23 |   /**
 24 |    * Enlaces de redes sociales
 25 |    */
 26 |   socialLinks: {
-27 |     twitter: 'https://twitter.com/taleme_app',
-28 |     instagram: 'https://instagram.com/taleme_app',
-29 |     facebook: 'https://facebook.com/talemeapp'
+27 |     twitter: 'https://twitter.com/FantasIA_app',
+28 |     instagram: 'https://instagram.com/FantasIA_app',
+29 |     facebook: 'https://facebook.com/FantasIAapp'
 30 |   },
 31 | 
 32 |   /**
@@ -9539,10 +9539,10 @@ src/pages/Contact.tsx
 30 |                   <Mail className="h-10 w-10 text-[#BB79D1] mb-2" />
 31 |                   <h2 className="text-xl font-bold text-[#555]">Correo electrónico</h2>
 32 |                   <a 
-33 |                     href="mailto:hola@taleme.app" 
+33 |                     href="mailto:hola@FantasIA.app" 
 34 |                     className="text-lg text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
 35 |                   >
-36 |                     hola@taleme.app
+36 |                     hola@FantasIA.app
 37 |                   </a>
 38 |                 </div>
 39 | 
@@ -9560,7 +9560,7 @@ src/pages/Contact.tsx
 51 |                       <span className="text-xl font-bold text-[#555] ml-2">por:</span>
 52 |                     </div>
 53 |                     <p className="text-lg text-center">
-54 |                       Luis Martín, Ivano Garcia y Miguel Tajada
+54 |                       
 55 |                     </p>
 56 |                   </div>
 57 |                 </div>
@@ -9744,7 +9744,7 @@ src/pages/ErrorPage.tsx
 37 |             </h1>
 38 | 
 39 |             <p className="text-[#333] mb-10 text-center">
-40 |               Nuestros asistentes de TaleMe! están teniendo problemas para crear tu historia. Por favor, inténtalo de nuevo.
+40 |               Nuestros asistentes de FantasIA! están teniendo problemas para crear tu historia. Por favor, inténtalo de nuevo.
 41 |             </p>
 42 | 
 43 |             <div className="w-full">
@@ -9957,7 +9957,7 @@ src/pages/Home.tsx
 81 | 
 82 |         {/* Logo y título */}
 83 |         <div className="flex flex-col items-center mt-10 mb-8 select-none">
-84 |           <img src="/logo_png.png" alt="TaleMe Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
+84 |           <img src="/logo_png.png" alt="FantasIA Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
 85 |         </div>
 86 | 
 87 |         {/* Botones principales */}
@@ -10179,7 +10179,7 @@ src/pages/Login.tsx
 162 |       >
 163 |         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
 164 |           <div className="flex justify-center mb-6">
-165 |             <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-full" />
+165 |             <img src="/logo_png.png" alt="FantasIA Logo" className="w-48 max-w-full" />
 166 |           </div>
 167 | 
 168 |           <Form {...form}>
@@ -10615,7 +10615,7 @@ src/pages/PlansPage.tsx
 117 |             >
 118 |                 {/* Logo y cabecera - Reducido espacio */}
 119 |                 <div className="flex flex-col items-center mt-4 mb-0 select-none">
-120 |                     <img src="/logo_png.png" alt="TaleMe Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
+120 |                     <img src="/logo_png.png" alt="FantasIA Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
 121 |                 </div>
 122 |                 <div className="container mx-auto px-4 py-0 max-w-4xl">
 123 |                     {/* Back button */}
@@ -10989,19 +10989,19 @@ src/pages/PrivacyPolicy.tsx
 20 |         <div className="container mx-auto py-8 px-4 flex-1 overflow-auto">
 21 |           <div className="max-w-4xl mx-auto">
 22 |             <div className="text-center mb-6">
-23 |               <h1 className="text-3xl font-bold text-[#222]">POLÍTICA DE PRIVACIDAD DE TaleMe!</h1>
+23 |               <h1 className="text-3xl font-bold text-[#222]">POLÍTICA DE PRIVACIDAD DE FantasIA!</h1>
 24 |               <p className="text-sm text-[#555] mt-2">Última actualización: 23 de abril de 2025</p>
 25 |             </div>
 26 | 
 27 |             <div className="space-y-6 bg-white/80 p-8 rounded-2xl backdrop-blur-sm shadow-lg">
 28 |               <p className="font-medium">
-29 |                 Resumen de privacidad: En TaleMe! valoramos tu confianza y nos comprometemos a proteger tus datos personales. Recopilamos únicamente la información imprescindible para ofrecerte nuestro servicio de generación de cuentos infantiles con Inteligencia Artificial, la almacenamos bajo estrictas medidas de seguridad y te damos control absoluto sobre su uso. A continuación, te explicamos de forma clara y transparente cómo tratamos tus datos.
+29 |                 Resumen de privacidad: En FantasIA! valoramos tu confianza y nos comprometemos a proteger tus datos personales. Recopilamos únicamente la información imprescindible para ofrecerte nuestro servicio de generación de cuentos infantiles con Inteligencia Artificial, la almacenamos bajo estrictas medidas de seguridad y te damos control absoluto sobre su uso. A continuación, te explicamos de forma clara y transparente cómo tratamos tus datos.
 30 |               </p>
 31 | 
 32 |               <div>
 33 |                 <h2 className="text-xl font-bold text-[#BB79D1]">1. RESPONSABLE DEL TRATAMIENTO</h2>
 34 |                 <p className="mt-2">
-35 |                   TaleMe! (en adelante, "TaleMe!"), con domicilio en Zaragoza, España, y correo electrónico de contacto hola@taleme.app, es la entidad responsable del tratamiento de tus datos personales cuando utilizas la plataforma TaleMe!.
+35 |                   FantasIA! (en adelante, "FantasIA!"), con domicilio en Zaragoza, España, y correo electrónico de contacto hola@FantasIA.app, es la entidad responsable del tratamiento de tus datos personales cuando utilizas la plataforma FantasIA!.
 36 |                 </p>
 37 |               </div>
 38 | 
@@ -11036,7 +11036,7 @@ src/pages/PrivacyPolicy.tsx
 67 |                   Utilizamos tus datos para:
 68 |                 </p>
 69 |                 <p className="mt-2">
-70 |                   Gestionar tu cuenta y acceso a TaleMe!.
+70 |                   Gestionar tu cuenta y acceso a FantasIA!.
 71 |                 </p>
 72 |                 <p className="mt-2">
 73 |                   Generar, guardar y entregar por email los cuentos infantiles que solicites.
@@ -11055,7 +11055,7 @@ src/pages/PrivacyPolicy.tsx
 86 |               <div>
 87 |                 <h2 className="text-xl font-bold text-[#BB79D1]">4. COOKIES Y TECNOLOGÍAS SIMILARES</h2>
 88 |                 <p className="mt-2">
-89 |                   Para optimizar tu experiencia y analizar el uso de TaleMe!, empleamos cookies propias y de terceros. Puedes gestionar o desactivar las cookies desde la configuración de tu navegador; ten en cuenta que ello podría afectar la funcionalidad del servicio. Consulta nuestra Política de Cookies para más información.
+89 |                   Para optimizar tu experiencia y analizar el uso de FantasIA!, empleamos cookies propias y de terceros. Puedes gestionar o desactivar las cookies desde la configuración de tu navegador; ten en cuenta que ello podría afectar la funcionalidad del servicio. Consulta nuestra Política de Cookies para más información.
 90 |                 </p>
 91 |               </div>
 92 | 
@@ -11069,7 +11069,7 @@ src/pages/PrivacyPolicy.tsx
 100 |               <div>
 101 |                 <h2 className="text-xl font-bold text-[#BB79D1]">6. ENLACES A TERCEROS</h2>
 102 |                 <p className="mt-2">
-103 |                   TaleMe! puede incluir enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad ni del contenido de estas webs externas, por lo que te aconsejamos leer sus propias políticas de privacidad.
+103 |                   FantasIA! puede incluir enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad ni del contenido de estas webs externas, por lo que te aconsejamos leer sus propias políticas de privacidad.
 104 |                 </p>
 105 |               </div>
 106 | 
@@ -11103,21 +11103,21 @@ src/pages/PrivacyPolicy.tsx
 134 |                   Acceder a tu perfil y modificar tus datos.
 135 |                 </p>
 136 |                 <p className="mt-2">
-137 |                   Enviar un email a hola@taleme.app con asunto "Protección de Datos" e indicando claramente qué derecho deseas ejercer.
+137 |                   Enviar un email a hola@FantasIA.app con asunto "Protección de Datos" e indicando claramente qué derecho deseas ejercer.
 138 |                 </p>
 139 |               </div>
 140 | 
 141 |               <div>
 142 |                 <h2 className="text-xl font-bold text-[#BB79D1]">8. USO DEL SERVICIO POR MENORES</h2>
 143 |                 <p className="mt-2">
-144 |                   TaleMe! está pensado para la creación de cuentos infantiles a iniciativa de un adulto responsable. Los menores de 14 años deberán contar con el consentimiento de su padre, madre o tutor legal para la recogida y tratamiento de sus datos.
+144 |                   FantasIA! está pensado para la creación de cuentos infantiles a iniciativa de un adulto responsable. Los menores de 14 años deberán contar con el consentimiento de su padre, madre o tutor legal para la recogida y tratamiento de sus datos.
 145 |                 </p>
 146 |               </div>
 147 | 
 148 |               <div>
 149 |                 <h2 className="text-xl font-bold text-[#BB79D1]">9. CONSERVACIÓN DE LOS DATOS</h2>
 150 |                 <p className="mt-2">
-151 |                   Conservaremos tus datos mientras mantengas una cuenta activa en TaleMe! y, una vez cancelada, durante el tiempo necesario para cumplir con obligaciones legales (p. ej., fiscales), salvo que solicites su supresión antes.
+151 |                   Conservaremos tus datos mientras mantengas una cuenta activa en FantasIA! y, una vez cancelada, durante el tiempo necesario para cumplir con obligaciones legales (p. ej., fiscales), salvo que solicites su supresión antes.
 152 |                 </p>
 153 |               </div>
 154 | 
@@ -11131,12 +11131,12 @@ src/pages/PrivacyPolicy.tsx
 162 |               <div>
 163 |                 <h2 className="text-xl font-bold text-[#BB79D1]">11. CONTACTO Y RECLAMACIONES</h2>
 164 |                 <p className="mt-2">
-165 |                   Si tienes dudas, consultas o reclamaciones sobre el tratamiento de tus datos, puedes escribirnos a hola@taleme.app. También tienes derecho a presentar una reclamación ante la Agencia Española de Protección de Datos si consideras que tus derechos no se han atendido correctamente.
+165 |                   Si tienes dudas, consultas o reclamaciones sobre el tratamiento de tus datos, puedes escribirnos a hola@FantasIA.app. También tienes derecho a presentar una reclamación ante la Agencia Española de Protección de Datos si consideras que tus derechos no se han atendido correctamente.
 166 |                 </p>
 167 |               </div>
 168 | 
 169 |               <p className="italic">
-170 |                 Gracias por confiar en TaleMe! Tu privacidad y la de los más pequeños son nuestra máxima prioridad.
+170 |                 Gracias por confiar en FantasIA! Tu privacidad y la de los más pequeños son nuestra máxima prioridad.
 171 |               </p>
 172 |             </div>
 173 |             
@@ -11869,7 +11869,7 @@ src/pages/SettingsPage.tsx
 156 |             >
 157 |                 {/* Logo centrado arriba */}
 158 |                 <div className="flex flex-col items-center mt-6 mb-2 select-none">
-159 |                     <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-xs mx-auto mb-2 drop-shadow-xl" />
+159 |                     <img src="/logo_png.png" alt="FantasIA Logo" className="w-48 max-w-xs mx-auto mb-2 drop-shadow-xl" />
 160 |                 </div>
 161 |                 <div className="container mx-auto px-4 py-2 max-w-2xl">
 162 |                     {/* Back button */}
@@ -12264,7 +12264,7 @@ src/pages/Signup.tsx
 130 |         
 131 |         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
 132 |           <div className="flex justify-center mb-6">
-133 |             <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-full" />
+133 |             <img src="/logo_png.png" alt="FantasIA Logo" className="w-48 max-w-full" />
 134 |           </div>
 135 |           
 136 |           <h1 className="text-3xl font-bold text-[#222] mb-6 text-center">
@@ -12427,7 +12427,7 @@ src/pages/SignupSuccess.tsx
 19 |       >
 20 |         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20 flex flex-col items-center">
 21 |           <div className="flex justify-center mb-6">
-22 |             <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-full" />
+22 |             <img src="/logo_png.png" alt="FantasIA Logo" className="w-48 max-w-full" />
 23 |           </div>
 24 |           
 25 |           <CheckCircle className="h-24 w-24 text-[#BB79D1] mb-4" />
@@ -14362,7 +14362,7 @@ src/pages/StoryViewer.tsx
 136 |   // --- Manejadores de Acciones ---
 137 |   const handleShare = async () => {
 138 |     const shareUrl = window.location.href; // URL actual incluyendo el capítulo
-139 |     const shareTitle = story?.title || "Mi Historia TaleMe!";
+139 |     const shareTitle = story?.title || "Mi Historia FantasIA!";
 140 |     const shareText = chapters.length > 0 ? chapters[currentChapterIndex]?.title : "Echa un vistazo a esta historia";
 141 | 
 142 |     if (navigator.share) {
@@ -14622,7 +14622,7 @@ src/pages/StoryViewer.tsx
 396 |         <StoryPdfPreview
 397 |           isOpen={showPdfPreview}
 398 |           onClose={() => setShowPdfPreview(false)}
-399 |           title={currentChapter?.title || story?.title || "Tu cuento TaleMe!"}
+399 |           title={currentChapter?.title || story?.title || "Tu cuento FantasIA!"}
 400 |           content={currentChapter?.content || ""}
 401 |           storyId={storyId!}
 402 |           chapterId={currentChapter?.id || "1"}
@@ -14670,26 +14670,26 @@ src/pages/TermsAndConditions.tsx
 20 |         <div className="container mx-auto py-8 px-4 flex-1 overflow-auto">
 21 |           <div className="max-w-4xl mx-auto">
 22 |             <div className="text-center mb-6">
-23 |               <h1 className="text-3xl font-bold text-[#222]">TÉRMINOS Y CONDICIONES DE USO – USUARIOS DE TALEME!</h1>
+23 |               <h1 className="text-3xl font-bold text-[#222]">TÉRMINOS Y CONDICIONES DE USO – USUARIOS DE FantasIA!</h1>
 24 |               <p className="text-sm text-[#555] mt-2">Última actualización: 23 de abril de 2025</p>
 25 |             </div>
 26 | 
 27 |             <div className="space-y-6 bg-white/80 p-8 rounded-2xl backdrop-blur-sm shadow-lg">
 28 |               <p>
-29 |                 Estos Términos y Condiciones regulan el acceso, la navegación y el uso de los servicios ofrecidos a través de la plataforma "TaleMe!" (en adelante, la "Plataforma"), titularidad de TaleMe!, con domicilio en Zaragoza, España, y correo electrónico de contacto hola@taleme.app.
+29 |                 Estos Términos y Condiciones regulan el acceso, la navegación y el uso de los servicios ofrecidos a través de la plataforma "FantasIA!" (en adelante, la "Plataforma"), titularidad de FantasIA!, con domicilio en Zaragoza, España, y correo electrónico de contacto hola@FantasIA.app.
 30 |               </p>
 31 | 
 32 |               <div>
 33 |                 <h2 className="text-xl font-bold text-[#BB79D1]">1. OBJETO</h2>
 34 |                 <p className="mt-2">
-35 |                   Estos Términos establecen los derechos y obligaciones de los Usuarios y de TaleMe! respecto al acceso y uso de la Plataforma, que permite la generación de cuentos infantiles mediante Inteligencia Artificial.
+35 |                   Estos Términos establecen los derechos y obligaciones de los Usuarios y de FantasIA! respecto al acceso y uso de la Plataforma, que permite la generación de cuentos infantiles mediante Inteligencia Artificial.
 36 |                 </p>
 37 |               </div>
 38 | 
 39 |               <div>
 40 |                 <h2 className="text-xl font-bold text-[#BB79D1]">2. DESCRIPCIÓN DEL SERVICIO</h2>
 41 |                 <p className="mt-2">
-42 |                   TaleMe! es una aplicación web diseñada para crear, editar y escuchar cuentos infantiles personalizados, aprovechando tecnologías de IA. El Usuario puede:
+42 |                   FantasIA! es una aplicación web diseñada para crear, editar y escuchar cuentos infantiles personalizados, aprovechando tecnologías de IA. El Usuario puede:
 43 |                 </p>
 44 |                 <p className="mt-2">
 45 |                   Generar relatos a partir de parámetros (edad, tema, estilo).
@@ -14705,7 +14705,7 @@ src/pages/TermsAndConditions.tsx
 55 |               <div>
 56 |                 <h2 className="text-xl font-bold text-[#BB79D1]">3. ACCESO Y REGISTRO</h2>
 57 |                 <p className="mt-2">
-58 |                   Cuenta de Usuario: Para utilizar TaleMe! es necesario registrarse facilitando un email válido y una contraseña.
+58 |                   Cuenta de Usuario: Para utilizar FantasIA! es necesario registrarse facilitando un email válido y una contraseña.
 59 |                 </p>
 60 |                 <p className="mt-2">
 61 |                   Veracidad de los Datos: El Usuario garantiza que la información proporcionada es veraz y actual. En caso de modificación, deberá actualizar sus datos en su perfil.
@@ -14718,7 +14718,7 @@ src/pages/TermsAndConditions.tsx
 68 |               <div>
 69 |                 <h2 className="text-xl font-bold text-[#BB79D1]">4. LICENCIA DE USO</h2>
 70 |                 <p className="mt-2">
-71 |                   TaleMe! otorga al Usuario una licencia limitada, revocable, no exclusiva e intransferible para uso personal y no comercial de la Plataforma.
+71 |                   FantasIA! otorga al Usuario una licencia limitada, revocable, no exclusiva e intransferible para uso personal y no comercial de la Plataforma.
 72 |                   Queda prohibido:
 73 |                 </p>
 74 |                 <p className="mt-2">
@@ -14738,7 +14738,7 @@ src/pages/TermsAndConditions.tsx
 88 |               <div>
 89 |                 <h2 className="text-xl font-bold text-[#BB79D1]">5. CUENTA, CONTRASEÑA Y SEGURIDAD</h2>
 90 |                 <p className="mt-2">
-91 |                   El Usuario es responsable de mantener la confidencialidad de su contraseña y de todas las actividades que se realicen bajo su cuenta. En caso de uso no autorizado, deberá notificarlo de inmediato a hola@taleme.app.
+91 |                   El Usuario es responsable de mantener la confidencialidad de su contraseña y de todas las actividades que se realicen bajo su cuenta. En caso de uso no autorizado, deberá notificarlo de inmediato a hola@FantasIA.app.
 92 |                 </p>
 93 |               </div>
 94 | 
@@ -14752,31 +14752,31 @@ src/pages/TermsAndConditions.tsx
 102 |               <div>
 103 |                 <h2 className="text-xl font-bold text-[#BB79D1]">7. REQUISITOS TÉCNICOS</h2>
 104 |                 <p className="mt-2">
-105 |                   Para acceder a TaleMe! se requiere:
+105 |                   Para acceder a FantasIA! se requiere:
 106 |                 </p>
 107 |                 <p className="mt-2">
 108 |                   Dispositivo con conexión a Internet.
 109 |                 </p>
 110 |                 <p className="mt-2">
 111 |                   Navegador web actualizado (Chrome, Firefox, Edge, Safari).
-112 |                   TaleMe! no garantiza el correcto funcionamiento en navegadores o dispositivos no compatibles.
+112 |                   FantasIA! no garantiza el correcto funcionamiento en navegadores o dispositivos no compatibles.
 113 |                 </p>
 114 |               </div>
 115 | 
 116 |               <div>
 117 |                 <h2 className="text-xl font-bold text-[#BB79D1]">8. PROPIEDAD INTELECTUAL</h2>
 118 |                 <p className="mt-2">
-119 |                   Relatos Generados: El Usuario conservará todos los derechos de propiedad intelectual sobre los cuentos que genere. TaleMe! no reivindica derechos sobre dichos contenidos.
+119 |                   Relatos Generados: El Usuario conservará todos los derechos de propiedad intelectual sobre los cuentos que genere. FantasIA! no reivindica derechos sobre dichos contenidos.
 120 |                 </p>
 121 |                 <p className="mt-2">
-122 |                   Plataforma y Contenidos: El software, diseño, logos, marcas y documentación de TaleMe! son propiedad exclusiva de TaleMe! y están protegidos por la normativa de propiedad intelectual. Queda prohibido su uso sin autorización.
+122 |                   Plataforma y Contenidos: El software, diseño, logos, marcas y documentación de FantasIA! son propiedad exclusiva de FantasIA! y están protegidos por la normativa de propiedad intelectual. Queda prohibido su uso sin autorización.
 123 |                 </p>
 124 |               </div>
 125 | 
 126 |               <div>
 127 |                 <h2 className="text-xl font-bold text-[#BB79D1]">9. EXENCIÓN DE GARANTÍAS Y LIMITACIÓN DE RESPONSABILIDAD</h2>
 128 |                 <p className="mt-2">
-129 |                   TaleMe! proporciona la Plataforma "tal cual" y "según disponibilidad".
+129 |                   FantasIA! proporciona la Plataforma "tal cual" y "según disponibilidad".
 130 |                 </p>
 131 |                 <p className="mt-2">
 132 |                   No garantiza la continuidad, puntualidad o ausencia de errores.
@@ -14789,14 +14789,14 @@ src/pages/TermsAndConditions.tsx
 139 |               <div>
 140 |                 <h2 className="text-xl font-bold text-[#BB79D1]">10. POLÍTICA DE PRIVACIDAD</h2>
 141 |                 <p className="mt-2">
-142 |                   El tratamiento de datos personales se realiza conforme a la Política de Privacidad disponible en nuestra web. El Usuario puede ejercer sus derechos de acceso, rectificación, supresión y oposición enviando un email a hola@taleme.app.
+142 |                   El tratamiento de datos personales se realiza conforme a la Política de Privacidad disponible en nuestra web. El Usuario puede ejercer sus derechos de acceso, rectificación, supresión y oposición enviando un email a hola@FantasIA.app.
 143 |                 </p>
 144 |               </div>
 145 | 
 146 |               <div>
 147 |                 <h2 className="text-xl font-bold text-[#BB79D1]">11. MODIFICACIONES DE LOS TÉRMINOS</h2>
 148 |                 <p className="mt-2">
-149 |                   TaleMe! se reserva el derecho de modificar estos Términos en cualquier momento. Los cambios se notificarán por correo electrónico o mediante aviso en la Plataforma. Si el Usuario no está de acuerdo, podrá cancelar su cuenta y dejar de usar el servicio.
+149 |                   FantasIA! se reserva el derecho de modificar estos Términos en cualquier momento. Los cambios se notificarán por correo electrónico o mediante aviso en la Plataforma. Si el Usuario no está de acuerdo, podrá cancelar su cuenta y dejar de usar el servicio.
 150 |                 </p>
 151 |               </div>
 152 | 
@@ -14808,7 +14808,7 @@ src/pages/TermsAndConditions.tsx
 158 |               </div>
 159 | 
 160 |               <p className="italic">
-161 |                 Gracias por elegir TaleMe! Estamos aquí para acompañarte en la creación de historias inolvidables.
+161 |                 Gracias por elegir FantasIA! Estamos aquí para acompañarte en la creación de historias inolvidables.
 162 |               </p>
 163 |             </div>
 164 |             
@@ -14900,7 +14900,7 @@ src/pages/Welcome.tsx
 65 |       >
 66 |         <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
 67 |           <div className="flex items-center">
-68 |             <img src="/logo_png.png" alt="TaleMe Logo" className="h-20 md:h-24" />
+68 |             <img src="/logo_png.png" alt="FantasIA Logo" className="h-20 md:h-24" />
 69 |           </div>
 70 |           <div className="flex gap-3">
 71 |             <button
@@ -14956,7 +14956,7 @@ src/pages/Welcome.tsx
 121 |             className="w-full mb-12"
 122 |           >
 123 |             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
-124 |               ¿Qué hace especial a <span className="text-[#BB79D1]">TaleMe</span>?
+124 |               ¿Qué hace especial a <span className="text-[#BB79D1]">FantasIA</span>?
 125 |             </h2>
 126 | 
 127 |             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -15337,7 +15337,7 @@ src/services/pdfService.ts
 268 |       // Configurar estilo infantil y amigable para el encabezado
 269 |       pdf.setFont('helvetica', 'bold'); // Cambiar a negrita para mejor legibilidad infantil
 270 |       pdf.setFontSize(12); // Ligeramente más grande
-271 |       pdf.setTextColor('#BB79D1'); // Color de marca TaleMe
+271 |       pdf.setTextColor('#BB79D1'); // Color de marca FantasIA
 272 |       
 273 |       // Truncar título si es muy largo
 274 |       let displayTitle = title;
@@ -15603,7 +15603,7 @@ src/services/storyPdfService.ts
 123 |   }
 124 | 
 125 |   /**
-126 |    * Generates standard TaleMe format PDF (text only)
+126 |    * Generates standard FantasIA format PDF (text only)
 127 |    * @param options PDF generation options
 128 |    * @returns Promise with generated PDF blob
 129 |    */
@@ -15688,7 +15688,7 @@ src/services/storyPdfService.ts
 208 |   static downloadPdf(pdfBlob: Blob, title: string, isIllustrated: boolean = false): void {
 209 |     try {
 210 |       const safeName = title.toLowerCase().replace(/[^a-z0-9]/g, '-');
-211 |       const prefix = isIllustrated ? 'taleme-cuento-ilustrado' : 'taleme-cuento';
+211 |       const prefix = isIllustrated ? 'FantasIA-cuento-ilustrado' : 'FantasIA-cuento';
 212 |       const filename = `${prefix}-${safeName}.pdf`;
 213 |       
 214 |       PdfService.downloadPdf(pdfBlob, filename);
@@ -15816,7 +15816,7 @@ src/services/storyPdfService.ts
 336 |         // Add cover image as full background - no overlays, image contains the title
 337 |         pdf.addImage(coverImageData, 'JPEG', 0, 0, pageWidth, pageHeight);
 338 |         
-339 |         // Only add TaleMe logo in corner for branding
+339 |         // Only add FantasIA logo in corner for branding
 340 |         await this.addLogoToPage(pdf, 15, 15, 25);
 341 |       } else {
 342 |         // Fallback to standard cover if image fails
@@ -15962,7 +15962,7 @@ src/services/storyPdfService.ts
 482 |     // Add logo
 483 |     await this.addLogoToPage(pdf, (pageWidth - 50) / 2, pageHeight / 3 - 25, 50);
 484 |     
-485 |     // Add TaleMe text
+485 |     // Add FantasIA text
 486 |     pdf.setFont('helvetica', 'bold');
 487 |     pdf.setTextColor('#BB79D1');
 488 |     pdf.setFontSize(18);
@@ -16002,7 +16002,7 @@ src/services/storyPdfService.ts
 522 |    }
 523 | 
 524 |   /**
-525 |    * Adds TaleMe logo to specified position
+525 |    * Adds FantasIA logo to specified position
 526 |    */
 527 |   private static async addLogoToPage(pdf: jsPDF, x: number, y: number, width: number): Promise<void> {
 528 |     try {

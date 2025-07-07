@@ -9,13 +9,10 @@ const Contact: React.FC = () => {
 
   return (
     <PageTransition>
-      <div 
+      <div
         className="min-h-screen flex flex-col"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="container mx-auto py-8 px-4 flex-1 overflow-auto">
@@ -29,11 +26,11 @@ const Contact: React.FC = () => {
                 <div className="flex flex-col items-center">
                   <Mail className="h-10 w-10 text-[#BB79D1] mb-2" />
                   <h2 className="text-xl font-bold text-[#555]">Correo electrónico</h2>
-                  <a 
-                    href="mailto:hola@taleme.app" 
+                  <a
+                    href="mailto:hello@fantasia.app"
                     className="text-lg text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
                   >
-                    hola@taleme.app
+                    hello@fantasia.app
                   </a>
                 </div>
 
@@ -51,16 +48,15 @@ const Contact: React.FC = () => {
                       <span className="text-xl font-bold text-[#555] ml-2">por:</span>
                     </div>
                     <p className="text-lg text-center">
-                      Luis Martín, Ivano Garcia y Miguel Tajada
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-center mt-6">
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 onClick={() => navigate(-1)}
                 className="min-w-32"
               >

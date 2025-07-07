@@ -1,7 +1,5 @@
 // Importa los tipos necesarios
 import {
-    Challenge,
-    ChallengeQuestion,
     ProfileSettings,
     Story,
     StoryChapter,
@@ -58,7 +56,7 @@ export const syncUserProfile = async (
         console.error("Fallo general en syncUserProfile:", error);
         // Asegurarse de devolver un objeto Error estándar
         const errorMessage = error instanceof Error ? error.message : String(error);
-        return { success: false, error: new Error(errorMessage) }; 
+        return { success: false, error: new Error(errorMessage) };
     }
 };
 
@@ -305,15 +303,17 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
                     moral: story.moral,
                     genre: story.genre,
                     duration: story.duration,
-                    character: {
-                        id: characterData?.id || 'deleted_character',
-                        name: characterData?.name || 'Personaje Eliminado',
-                        hobbies: characterData?.hobbies || [],
-                        description: characterData?.description || '',
-                        profession: characterData?.profession || '',
-                        characterType: characterData?.character_type || '',
-                        personality: characterData?.personality || '',
-                    } as StoryCharacter,
+                    characters: [
+                        {
+                            id: characterData?.id || 'deleted_character',
+                            name: characterData?.name || 'Personaje Eliminado',
+                            hobbies: characterData?.hobbies || [],
+                            description: characterData?.description || '',
+                            profession: characterData?.profession || '',
+                            characterType: characterData?.character_type || '',
+                            personality: characterData?.personality || '',
+                        }
+                    ],
                 },
                 createdAt: story.created_at,
                 additional_details: story.additional_details, // <-- Incluir aquí
@@ -403,91 +403,6 @@ export const getStoryChapters = async (storyId: string): Promise<{ success: bool
         return { success: true, chapters: chapters };
     } catch (error) {
         console.error("Fallo general en getStoryChapters:", error);
-        return { success: false, error };
-    }
-};
-
-// --- Funciones para Desafíos ---
-
-export const syncChallenge = async (challenge: Challenge): Promise<{ success: boolean; error?: any }> => {
-    try {
-        const { data, error: challengeError } = await supabase
-            .from("challenges")
-            .upsert({
-                id: challenge.id,
-                story_id: challenge.storyId,
-                created_at: challenge.createdAt,
-            })
-            .select("id")
-            .single();
-
-        if (challengeError) {
-            console.error("Error en upsert de desafío (RLS/FK?):", challengeError);
-            throw challengeError;
-        }
-        if (!data?.id) throw new Error("No se pudo obtener ID del desafío.");
-        const challengeId = data.id;
-
-        // Batch upsert preguntas (más eficiente si hay muchas)
-        const questionUpserts = challenge.questions.map(question => ({
-            id: question.id,
-            challenge_id: challengeId,
-            question: question.question,
-            options: question.options,
-            correct_option_index: question.correctOptionIndex,
-            explanation: question.explanation,
-            category: question.category,
-            target_language: question.targetLanguage,
-        }));
-
-        if (questionUpserts.length > 0) {
-            const { error: questionsError } = await supabase
-                .from("challenge_questions")
-                .upsert(questionUpserts);
-            if (questionsError) {
-                console.error(`Error en upsert masivo de preguntas (RLS/FK?):`, questionsError);
-                throw questionsError;
-            }
-        }
-
-        return { success: true };
-    } catch (error) {
-        console.error("Fallo general en syncChallenge:", error);
-        return { success: false, error };
-    }
-};
-
-
-export const getStoryChallenges = async (storyId: string): Promise<{ success: boolean; challenges?: Challenge[]; error?: any }> => {
-    try {
-        const { data: challengesData, error: challengesError } = await supabase
-            .from("challenges")
-            .select("*, challenge_questions(*)") // Join con preguntas
-            .eq("story_id", storyId);
-
-        if (challengesError) {
-            console.error("Error obteniendo desafíos (RLS?):", challengesError);
-            throw challengesError;
-        }
-
-        const challenges: Challenge[] = challengesData ? challengesData.map(challengeRecord => ({
-            id: challengeRecord.id,
-            storyId: challengeRecord.story_id,
-            createdAt: challengeRecord.created_at,
-            questions: (challengeRecord.challenge_questions || []).map((q: any) => ({ // Tipar 'q' si es posible
-                id: q.id,
-                question: q.question,
-                options: q.options,
-                correctOptionIndex: q.correct_option_index,
-                explanation: q.explanation,
-                category: q.category,
-                targetLanguage: q.target_language,
-            })),
-        })) : [];
-
-        return { success: true, challenges };
-    } catch (error) {
-        console.error("Fallo general en getStoryChallenges:", error);
         return { success: false, error };
     }
 };

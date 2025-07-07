@@ -604,10 +604,7 @@ export default function StoryAudioPage() {
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
-        backgroundImage: 'url("/fondo_png.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundColor: 'black',
       }}
     >
       {/* Overlay con el color de la voz seleccionada para mantener la identidad visual */}

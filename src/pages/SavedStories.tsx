@@ -73,10 +73,7 @@ export default function SavedStories() {
       <div
         className="min-h-screen flex flex-col items-center justify-center relative"
         style={{
-          backgroundImage: "url(/fondo_png.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: 'black',
         }}
       >
         <BackButton />

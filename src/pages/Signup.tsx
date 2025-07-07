@@ -17,7 +17,7 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -35,7 +35,7 @@ export default function Signup() {
       });
       return;
     }
-    
+
     if (data.password !== data.confirmPassword) {
       toast({
         title: "Error en el registro",
@@ -44,11 +44,11 @@ export default function Signup() {
       });
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const { user, error } = await signUp(data.email, data.password);
-      
+
       if (error) {
         toast({
           title: "Error en el registro",
@@ -57,7 +57,7 @@ export default function Signup() {
         });
         return;
       }
-      
+
       if (user) {
         toast({
           title: "Registro exitoso",
@@ -85,12 +85,12 @@ export default function Signup() {
       setIsLoading(false);
     }
   };
-  
+
   const handleGoogleSignup = async () => {
     try {
       setIsGoogleLoading(true);
       const { error } = await signInWithGoogle();
-      
+
       if (error) {
         toast({
           title: "Error al registrarse con Google",
@@ -109,37 +109,34 @@ export default function Signup() {
       setIsGoogleLoading(false);
     }
   };
-  
+
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
-  
+
   return (
     <PageTransition>
-      <div 
+      <div
         className="min-h-screen flex flex-col items-center justify-center p-6"
         style={{
-          backgroundImage: 'url(/fondo_png.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'black',
         }}
       >
         <div className="absolute top-4 left-4 z-10">
           <BackButton />
         </div>
-        
+
         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
           <div className="flex justify-center mb-6">
-            <img src="/logo_png.png" alt="TaleMe Logo" className="w-48 max-w-full" />
+            <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-full" />
           </div>
-          
+
           <h1 className="text-3xl font-bold text-[#222] mb-6 text-center">
             Crear Cuenta
           </h1>
-          
+
           <Form {...form}>
-            <form 
-              onSubmit={form.handleSubmit(handleSignup)} 
+            <form
+              onSubmit={form.handleSubmit(handleSignup)}
               className="space-y-5"
             >
               <FormField
@@ -163,7 +160,7 @@ export default function Signup() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -180,7 +177,7 @@ export default function Signup() {
                           required
                         />
                       </FormControl>
-                      <button 
+                      <button
                         type="button"
                         onClick={togglePasswordVisibility}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
@@ -192,7 +189,7 @@ export default function Signup() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="confirmPassword"
@@ -209,7 +206,7 @@ export default function Signup() {
                           required
                         />
                       </FormControl>
-                      <button 
+                      <button
                         type="button"
                         onClick={toggleConfirmPasswordVisibility}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
@@ -221,7 +218,7 @@ export default function Signup() {
                   </FormItem>
                 )}
               />
-              
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -229,13 +226,13 @@ export default function Signup() {
               >
                 {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
               </button>
-              
+
               <div className="relative flex items-center my-4">
                 <div className="flex-grow border-t border-[#BB79D1]/20"></div>
                 <span className="mx-4 flex-shrink text-[#555] text-sm">O regístrate con</span>
                 <div className="flex-grow border-t border-[#BB79D1]/20"></div>
               </div>
-              
+
               <button
                 type="button"
                 onClick={handleGoogleSignup}
@@ -250,7 +247,7 @@ export default function Signup() {
                 </svg>
                 {isGoogleLoading ? "Conectando..." : "Registrarse con Google"}
               </button>
-              
+
               <div className="text-center mt-5">
                 <span className="text-[#555] text-sm">¿Ya tienes una cuenta? </span>
                 <button

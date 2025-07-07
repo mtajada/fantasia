@@ -37,7 +37,7 @@ export default function StoryPdfPreview({
   const [generationProgress, setGenerationProgress] = useState<ImageGenerationProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activePreview, setActivePreview] = useState<'cover' | 'content' | 'backCover'>('cover');
-  
+
   // Reset states when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -48,14 +48,14 @@ export default function StoryPdfPreview({
       setGenerationProgress(null);
     }
   }, [isOpen]);
-  
+
   if (!isOpen) return null;
-  
+
   const handleGenerateStandard = async () => {
     try {
       setIsGenerating(true);
       setError(null);
-      
+
       // Generate standard PDF using service
       const pdfBlob = await StoryPdfService.generateStandardPdf({
         title,
@@ -64,10 +64,10 @@ export default function StoryPdfPreview({
         storyId,
         chapterId
       });
-      
+
       // Download PDF using service
       StoryPdfService.downloadPdf(pdfBlob, title, false);
-      
+
       if (onClose) onClose();
     } catch (err) {
       console.error('[StoryPdfPreview] Error generating standard PDF:', err);
@@ -81,13 +81,13 @@ export default function StoryPdfPreview({
     try {
       setIsValidatingImages(true);
       setError(null);
-      
+
       console.log('[StoryPdfPreview] Starting illustrated story generation...');
-      
+
       // Check if images exist
       const validationResult = await StoryPdfService.canGenerateIllustratedPdf(storyId, chapterId);
       setImageValidationResult(validationResult);
-      
+
       if (validationResult.canGenerate) {
         // Images exist, proceed directly with PDF generation
         console.log('[StoryPdfPreview] ✅ All required images exist. Proceeding with illustrated PDF generation...');
@@ -98,7 +98,7 @@ export default function StoryPdfPreview({
         setNeedsImageGeneration(true);
         setShowConfirmGeneration(true);
       }
-      
+
     } catch (err) {
       console.error('[StoryPdfPreview] Error checking images:', err);
       setError('Ocurrió un error al verificar las imágenes. Por favor intenta nuevamente.');
@@ -111,9 +111,9 @@ export default function StoryPdfPreview({
     try {
       setShowConfirmGeneration(false);
       setIsGeneratingIllustrated(true);
-      
+
       console.log('[StoryPdfPreview] User confirmed image generation. Starting complete illustrated PDF process...');
-      
+
       // Generate illustrated PDF with automatic image generation and progress tracking
       const pdfBlob = await StoryPdfService.generateCompleteIllustratedPdf({
         title,
@@ -125,12 +125,12 @@ export default function StoryPdfPreview({
           setGenerationProgress(progress);
         }
       });
-      
+
       // Download illustrated PDF
       StoryPdfService.downloadPdf(pdfBlob, title, true);
-      
+
       if (onClose) onClose();
-      
+
     } catch (err) {
       console.error('[StoryPdfPreview] Error generating complete illustrated PDF:', err);
       setError('Ocurrió un error al generar el cuento ilustrado. Por favor intenta nuevamente.');
@@ -143,17 +143,17 @@ export default function StoryPdfPreview({
   const generateIllustratedPdfDirectly = async () => {
     try {
       setIsGeneratingIllustrated(true);
-      
+
       // Validate required images exist in storage using service
       const imageValidation = await StoryPdfService.validateRequiredImages(storyId, chapterId);
-      
+
       if (!imageValidation.allValid) {
         setError(`Faltan imágenes necesarias: ${imageValidation.missingImages.join(', ')}. Por favor, genera las imágenes del cuento primero.`);
         return;
       }
-      
+
       console.log('[StoryPdfPreview] ✅ All required images validated. Proceeding with illustrated PDF generation...');
-      
+
       // Generate illustrated PDF with validated image URLs
       const pdfBlob = await StoryPdfService.generateIllustratedPdf({
         title,
@@ -167,12 +167,12 @@ export default function StoryPdfPreview({
           scene_2: imageValidation.imageUrls!.scene_2!
         }
       });
-      
+
       // Download illustrated PDF
       StoryPdfService.downloadPdf(pdfBlob, title, true);
-      
+
       if (onClose) onClose();
-      
+
     } catch (err) {
       console.error('[StoryPdfPreview] Error generating illustrated story:', err);
       setError('Ocurrió un error al generar el cuento ilustrado. Por favor intenta nuevamente.');
@@ -186,7 +186,7 @@ export default function StoryPdfPreview({
     setNeedsImageGeneration(false);
     setImageValidationResult(null);
   };
-  
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl">
@@ -194,44 +194,44 @@ export default function StoryPdfPreview({
         <div className="p-4 bg-[#BB79D1] text-white">
           <h2 className="text-xl font-bold">Generar versión imprimible</h2>
         </div>
-        
+
         {/* Cuerpo */}
         <div className="p-6">
           {/* Selector de vista previa */}
           <div className="flex justify-center space-x-3 mb-4">
-            <button 
-              className={`px-4 py-1 rounded-full transition-all ${activePreview === 'cover' 
-                ? 'bg-[#BB79D1] text-white' 
+            <button
+              className={`px-4 py-1 rounded-full transition-all ${activePreview === 'cover'
+                ? 'bg-[#BB79D1] text-white'
                 : 'bg-gray-100 hover:bg-gray-200'}`}
               onClick={() => setActivePreview('cover')}
             >
               Portada
             </button>
-            <button 
-              className={`px-4 py-1 rounded-full transition-all ${activePreview === 'content' 
-                ? 'bg-[#BB79D1] text-white' 
+            <button
+              className={`px-4 py-1 rounded-full transition-all ${activePreview === 'content'
+                ? 'bg-[#BB79D1] text-white'
                 : 'bg-gray-100 hover:bg-gray-200'}`}
               onClick={() => setActivePreview('content')}
             >
               Contenido
             </button>
-            <button 
-              className={`px-4 py-1 rounded-full transition-all ${activePreview === 'backCover' 
-                ? 'bg-[#BB79D1] text-white' 
+            <button
+              className={`px-4 py-1 rounded-full transition-all ${activePreview === 'backCover'
+                ? 'bg-[#BB79D1] text-white'
                 : 'bg-gray-100 hover:bg-gray-200'}`}
               onClick={() => setActivePreview('backCover')}
             >
               Contraportada
             </button>
           </div>
-          
+
           {/* Vista previa según la selección */}
           {activePreview === 'cover' && (
             <div className="mb-6 bg-[#fff6e0] p-4 rounded-lg border border-amber-200 h-80 flex flex-col justify-center">
               <div className="text-center">
-                <img 
-                  src="/logo_png.png" 
-                  alt={APP_CONFIG.name} 
+                <img
+                  src="/logo_png.png"
+                  alt={APP_CONFIG.name}
                   className="h-16 mx-auto mb-4"
                 />
                 <h3 className="text-xl font-bold text-[#BB79D1] mb-1">{title}</h3>
@@ -241,13 +241,13 @@ export default function StoryPdfPreview({
               </div>
             </div>
           )}
-          
+
           {activePreview === 'content' && (
             <div className="mb-6 bg-[#fff6e0] p-4 rounded-lg border border-amber-200">
               <p className="text-sm text-gray-600 mb-2">
                 Vista previa del contenido:
               </p>
-              
+
               <div className="max-h-64 overflow-y-auto text-base border border-amber-100 p-3 rounded bg-white">
                 {content.split("\n").slice(0, 5).map((paragraph, i) => (
                   <p key={i} className="mb-2 font-bold text-[#ce9789]">
@@ -262,13 +262,13 @@ export default function StoryPdfPreview({
               </div>
             </div>
           )}
-          
+
           {activePreview === 'backCover' && (
             <div className="mb-6 bg-[#fff6e0] p-4 rounded-lg border border-amber-200 h-80 flex flex-col justify-center">
               <div className="text-center">
-                <img 
-                  src="/logo_png.png" 
-                  alt={APP_CONFIG.name} 
+                <img
+                  src="/logo_png.png"
+                  alt={APP_CONFIG.name}
                   className="h-16 mx-auto mb-6"
                 />
                 <p className="text-[#BB79D1] font-bold mb-1 text-base">
@@ -279,7 +279,7 @@ export default function StoryPdfPreview({
               </div>
             </div>
           )}
-          
+
           {/* Progress Bar y Confirmation Dialog - COMENTADOS PARA DEMO */}
           {/* 
           {generationProgress && (
@@ -337,7 +337,7 @@ export default function StoryPdfPreview({
             </div>
           )}
           */}
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
               {error}
@@ -347,20 +347,20 @@ export default function StoryPdfPreview({
           {/* Opciones de generación */}
           <div className="mb-4">
             <h3 className="text-lg font-semibold mb-3 text-gray-800">Generar PDF:</h3>
-            
-            {/* Opción 1: Formato TaleMe */}
+
+            {/* Opción 1: Formato FantasIA */}
             <div className="mb-3 p-4 border border-pink-200 rounded-lg bg-pink-50">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center mb-2">
                     <FileText className="h-5 w-5 text-pink-600 mr-2" />
-                    <h4 className="font-semibold text-pink-800">Cuento Formato TaleMe!</h4>
+                    <h4 className="font-semibold text-pink-800">Cuento Formato Fantasia!</h4>
                     <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
                       GRATIS
                     </span>
                   </div>
                   <p className="text-sm text-pink-700">
-                    PDF con el formato tradicional de TaleMe (solo texto)
+                    PDF con el formato tradicional de Fantasia (solo texto)
                   </p>
                 </div>
                 <Button
@@ -419,7 +419,7 @@ export default function StoryPdfPreview({
             </div>
             */}
           </div>
-          
+
           <div className="flex justify-end">
             <Button
               variant="outline"

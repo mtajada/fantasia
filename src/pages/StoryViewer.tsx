@@ -1,23 +1,17 @@
 // src/pages/StoryViewer.tsx
 // VERSIÓN CORREGIDA: Maneja {content, title} y usa selectores de límites
 
-import React, { useState, useEffect, useCallback } from "react"; // Añadido useCallback
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Share, Printer, Volume2, Home, Award, BookOpen, ChevronLeft, ChevronRight, AlertCircle, FileText, FileDown } from "lucide-react";
+import { Share, Volume2, Home, BookOpen, ChevronLeft, ChevronRight, AlertCircle, FileDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStoriesStore } from "../store/stories/storiesStore";
 import { useChaptersStore } from "../store/stories/chapters/chaptersStore";
-import { useChallengesStore } from "../store/stories/challenges/challengesStore";
 import { useUserStore } from "../store/user/userStore"; // Importar para los selectores de límites
 import BackButton from "../components/BackButton";
-// import StoryButton from "../components/StoryButton"; // Parece no usarse aquí directamente
 import PageTransition from "../components/PageTransition";
-import ChallengeSelector from "../components/ChallengeSelector";
-import LanguageSelector from "../components/LanguageSelector";
-import ChallengeQuestion from "../components/ChallengeQuestion";
 import { toast } from "sonner"; // Asegurarse que toast está importado
-import { ChallengeCategory, ChallengeQuestion as ChallengeQuestionType, StoryChapter, Story } from "../types"; // Importar Story
-import { ChallengeService } from "../services/ai/ChallengeService"; // Asumiendo ruta
+import { StoryChapter, Story } from "../types"; // Importar Story
 import { parseTextToParagraphs } from '@/lib/utils';
 import { generateId } from "../store/core/utils";
 import StoryPdfPreview from "../components/StoryPdfPreview";
@@ -31,21 +25,13 @@ export default function StoryViewer() {
     isLoadingStories: state.isLoadingStories,
   }));
   const { getChaptersByStoryId } = useChaptersStore();
-  const { addChallenge } = useChallengesStore();
   // --- Obtener selectores de límites/permisos del userStore ---
-  const { profileSettings, canContinueStory, canGenerateVoice } = useUserStore();
+  const { canContinueStory, canGenerateVoice } = useUserStore();
 
   // Estado local
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [chapters, setChapters] = useState<StoryChapter[]>([]);
   const [story, setStory] = useState<Story | null>(null); // Para pasar al servicio de desafío/continuación
-  const [showChallengeSelector, setShowChallengeSelector] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<ChallengeCategory | null>(null);
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-  const [challengeQuestion, setChallengeQuestion] = useState<ChallengeQuestionType | null>(null);
-  const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
-  const [isGeneratingContinuation, setIsGeneratingContinuation] = useState(false); // Estado de carga para continuación
   const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   // --- Permisos derivados del store ---
@@ -54,9 +40,7 @@ export default function StoryViewer() {
   const isAllowedToGenerateVoice = canGenerateVoice();
 
   // --- Cálculo para saber si es el último capítulo ---
-  const totalChapters = chapters.length;
-  const currentChapterNumber = currentChapterIndex + 1;
-  const isLastChapter = totalChapters > 0 && currentChapterNumber === totalChapters;
+  const isLastChapter = chapters.length > 0 && currentChapterIndex === chapters.length - 1;
 
   // --- Efecto para cargar historia y capítulos ---
   useEffect(() => {
@@ -64,28 +48,20 @@ export default function StoryViewer() {
 
     // Esperar a que las historias terminen de cargarse
     if (isLoadingStories) {
-      console.log("[StoryViewer_DEBUG] Waiting for stories to load...");
-      return; // Salir del efecto si aún está cargando
-    }
-    console.log("[StoryViewer_DEBUG] Stories loaded. Attempting to fetch story:", storyId);
-
-    const fetchedStory = getStoryById(storyId);
-    console.log("[StoryViewer_DEBUG] Fetched story from store:", fetchedStory ? `"${fetchedStory.title}"` : 'NOT FOUND');
-
-    if (!fetchedStory) {
-      console.error(`[StoryViewer_DEBUG] Story with ID ${storyId} not found after loading! Navigating to /not-found.`);
-      navigate("/not-found", { replace: true }); // Usar replace para no ensuciar el historial
       return;
     }
-    setStory(fetchedStory); // Guardar la historia base
-    
-    // No navegar a /profile aquí, checkAuth debería haberlo hecho si es necesario
+
+    const fetchedStory = getStoryById(storyId);
+
+    if (!fetchedStory) {
+      navigate("/not-found", { replace: true });
+      return;
+    }
+    setStory(fetchedStory);
     
     const storyChapters = getChaptersByStoryId(storyId);
     let chaptersToSet: StoryChapter[];
     if (storyChapters.length === 0 && fetchedStory.content) {
-      console.log("[StoryViewer_DEBUG] No chapters found in store, creating initial chapter from story content.");
-      // Crear capítulo inicial si no existe en el store de capítulos
       chaptersToSet = [{
         id: generateId(),
         chapterNumber: 1,
@@ -93,50 +69,37 @@ export default function StoryViewer() {
         content: fetchedStory.content,
         createdAt: fetchedStory.createdAt
       }];
-      // Nota: No llamamos a addChapter aquí, solo lo mostramos. Se guarda si se continúa.
     } else {
-      console.log(`[StoryViewer_DEBUG] Found ${storyChapters.length} chapters in store. Sorting.`);
-      chaptersToSet = [...storyChapters].sort((a, b) => a.chapterNumber - b.chapterNumber); // Asegurar orden
+      chaptersToSet = [...storyChapters].sort((a, b) => a.chapterNumber - b.chapterNumber);
     }
     setChapters(chaptersToSet);
-    console.log(`[StoryViewer_DEBUG] Set chapters state with ${chaptersToSet.length} chapters.`);
 
-    // Establecer capítulo inicial basado en URL o el último si no hay parámetro
     const searchParams = new URLSearchParams(location.search);
     const chapterParam = searchParams.get('chapter');
-    let initialIndex = chaptersToSet.length > 0 ? chaptersToSet.length - 1 : 0; // Default al último capítulo o 0 si no hay
+    let initialIndex = chaptersToSet.length > 0 ? chaptersToSet.length - 1 : 0;
     if (chapterParam !== null) {
       const chapterIndex = parseInt(chapterParam, 10);
       if (!isNaN(chapterIndex) && chapterIndex >= 0 && chapterIndex < chaptersToSet.length) {
         initialIndex = chapterIndex;
       }
     }
-    console.log(`[StoryViewer_DEBUG] Setting current chapter index to: ${initialIndex}`);
     setCurrentChapterIndex(initialIndex);
 
-  }, [storyId, location.search, getStoryById, getChaptersByStoryId, navigate, isLoadingStories]); // <- Añadir isLoadingStories como dependencia
+  }, [storyId, location.search, getStoryById, getChaptersByStoryId, navigate, isLoadingStories]);
 
-  // --- Renderizado Condicional --- (Modificado)
   if (isLoadingStories) {
-    console.log("[StoryViewer Render_DEBUG] Rendering loading spinner because isLoadingStories is true.");
     return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Cargando historia...</div>;
   }
 
-  // Si la carga terminó pero la historia no se encontró (el useEffect ya habrá navegado a /not-found)
   if (!story) {
-    console.log("[StoryViewer Render_DEBUG] Rendering 'Historia no encontrada' because story state is null after loading finished.");
-    // Podríamos mostrar un mensaje aquí mientras ocurre la navegación del useEffect
     return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Historia no encontrada. Redirigiendo...</div>;
-    // O return null;
   }
 
-  // Si llegamos aquí, la historia está cargada. Renderizar contenido.
-  console.log(`[StoryViewer Render_DEBUG] Rendering main content for story: ${story.title}`);
 
   // --- Manejadores de Acciones ---
   const handleShare = async () => {
     const shareUrl = window.location.href; // URL actual incluyendo el capítulo
-    const shareTitle = story?.title || "Mi Historia TaleMe!";
+    const shareTitle = story?.title || "Mi Historia Fantasia!";
     const shareText = chapters.length > 0 ? chapters[currentChapterIndex]?.title : "Echa un vistazo a esta historia";
 
     if (navigator.share) {
@@ -183,39 +146,6 @@ export default function StoryViewer() {
     }
   };
 
-  // --- Manejadores de Desafío (sin cambios lógicos aquí) ---
-  const handleShowChallenge = () => setShowChallengeSelector(true);
-  const handleSelectCategory = (category: ChallengeCategory) => { /* ... */ setSelectedCategory(category); };
-  const handleSelectLanguage = (language: string) => setSelectedLanguage(language);
-  const handleContinueAfterLanguage = () => { /* ... */ setShowLanguageSelector(false); generateChallengeQuestion(); };
-  const handleContinueAfterCategory = () => { /* ... */ if (selectedCategory === 'language') setShowLanguageSelector(true); else generateChallengeQuestion(); setShowChallengeSelector(false); };
-  const handleBackToCategories = () => { /* ... */ setShowLanguageSelector(false); setShowChallengeSelector(true); };
-  const handleTryAgain = () => generateChallengeQuestion();
-  const handleNextQuestion = () => { /* ... */ setChallengeQuestion(null); setSelectedCategory(null); setSelectedLanguage(null); setShowChallengeSelector(false); };
-  const handleChangeChallenge = () => { /* ... */ setChallengeQuestion(null); setSelectedCategory(null); setSelectedLanguage(null); setShowChallengeSelector(true); };
-
-  const generateChallengeQuestion = async () => {
-    if (!selectedCategory || !story || !profileSettings) return;
-    setIsLoadingQuestion(true);
-    try {
-      if (selectedCategory === 'language' && !selectedLanguage) throw new Error('Idioma no seleccionado');
-      toast.loading('Generando pregunta...');
-      const challenge = await ChallengeService.createChallenge(story, selectedCategory, profileSettings, selectedCategory === 'language' ? selectedLanguage : undefined);
-      addChallenge(challenge);
-      setChallengeQuestion(challenge.questions[0]);
-      toast.dismiss();
-      toast.success('¡Pregunta lista!');
-    } catch (error: unknown) {
-      console.error('Error al generar pregunta:', error);
-      toast.dismiss();
-      toast.error('No se pudo generar la pregunta', { 
-        description: error instanceof Error ? error.message : 'Error desconocido'
-      });
-    } finally {
-      setIsLoadingQuestion(false);
-    }
-  };
-  // --- Fin Manejadores Desafío ---
 
   // --- Manejadores de Navegación de Capítulos ---
   const handlePreviousChapter = () => {
@@ -257,13 +187,7 @@ export default function StoryViewer() {
   return (
     <PageTransition>
       <div
-        className="min-h-screen relative pb-24 flex flex-col items-center justify-start"
-        style={{
-          backgroundImage: "url(/fondo_png.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
+        className="min-h-screen relative pb-24 flex flex-col items-center justify-start bg-black"
       >
         {/* Botón de Volver atrás */}
         <BackButton onClick={handleGoBack} />
@@ -297,29 +221,23 @@ export default function StoryViewer() {
             {currentChapter.title || story.title || "Historia sin título"}
           </motion.h1>
 
-          {/* Contenido Principal (Historia o Desafío) */}
-          {!showChallengeSelector && !showLanguageSelector && !challengeQuestion && (
+          {/* Contenido Principal (Historia) */}
+          {
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
               className="bg-white/80 rounded-2xl p-4 sm:p-8 mb-6 text-[#222] leading-relaxed text-base sm:text-lg shadow-lg max-w-full"
-              style={{ minHeight: '40vh', boxShadow: '0 2px 24px 0 rgba(187,121,209,0.10)' }}
+              style={{ minHeight: '40vh' }}
             >
               {parseTextToParagraphs(currentChapter.content).map((paragraph, index) => (
-                <p key={index} className="mb-4 last:mb-0 text-[1.08em]" style={{ wordBreak: 'break-word' }}>
+                <p key={index} className="mb-4 last:mb-0 text-[1.08em] break-words">
                   {paragraph}
                 </p>
               ))}
             </motion.div>
-          )}
-
-          {/* Selectores y Pregunta de Desafío (sin cambios) */}
-          {showChallengeSelector && <ChallengeSelector onSelectCategory={handleSelectCategory} onContinue={handleContinueAfterCategory} />}
-          {showLanguageSelector && <LanguageSelector currentLanguage={profileSettings?.language || 'es'} onSelectLanguage={handleSelectLanguage} onContinue={handleContinueAfterLanguage} onBack={handleBackToCategories} />}
-          {challengeQuestion && <ChallengeQuestion question={challengeQuestion} onNextQuestion={handleNextQuestion} onTryAgain={handleTryAgain} onChangeChallenge={handleChangeChallenge} />}
+          }
 
           {/* --- Barra de Acciones Inferior --- */}
-          {!showChallengeSelector && !showLanguageSelector && !challengeQuestion && (
-            <motion.div
+          <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
               className="mt-4 sm:mt-8"
             >
@@ -338,17 +256,8 @@ export default function StoryViewer() {
 
               {/* Botones de Acción Principales */}
               <div className="flex flex-col items-center space-y-4 sm:space-y-5">
-                {/* Primera fila: Acepta el Reto y Continuar Historia */}
+                {/* Primera fila: Continuar Historia */}
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full">
-                  <button
-                    onClick={handleShowChallenge}
-                    className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold text-white shadow-lg text-base sm:text-lg w-full sm:w-auto bg-[#7DC4E0] hover:bg-[#7DC4E0]/80 active:bg-[#A5D6F6] focus:bg-[#A5D6F6] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed`}
-                    disabled={isLoadingQuestion}
-                  >
-                    <Award size={22} className="mr-2" />
-                    {isLoadingQuestion ? "Generando..." : "Acepta el Reto"}
-                  </button>
-
                   <button
                     onClick={goToContinuationPage}
                     // Deshabilitado si NO se permite continuar (plan) O si NO es el último capítulo
@@ -389,14 +298,13 @@ export default function StoryViewer() {
                 </button>
               </div>
             </motion.div>
-          )}
         </div> {/* Fin container */}
 
         {/* Modal de generación de PDF */}
         <StoryPdfPreview
           isOpen={showPdfPreview}
           onClose={() => setShowPdfPreview(false)}
-          title={currentChapter?.title || story?.title || "Tu cuento TaleMe!"}
+          title={currentChapter?.title || story?.title || "Tu cuento Fantasia!"}
           content={currentChapter?.content || ""}
           storyId={storyId!}
           chapterId={currentChapter?.id || "1"}
@@ -406,15 +314,3 @@ export default function StoryViewer() {
   );
 }
 
-// Estilos CSS reutilizados (puedes ponerlos en tu index.css o similar)
-/*
-.action-icon-button {
-  @apply w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/25 transition-all;
-}
-.nav-button {
-  @apply text-white/80 hover:text-white text-sm inline-flex items-center gap-1 transition-colors;
-}
-.action-button {
-   @apply text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-medium flex items-center justify-center shadow-lg transition-all text-sm sm:text-base w-full sm:w-auto;
-}
-*/

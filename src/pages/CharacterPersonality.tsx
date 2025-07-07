@@ -104,10 +104,7 @@ export default function CharacterPersonality() {
       <div 
         className="min-h-screen flex flex-col items-center justify-center p-6"
         style={{
-          backgroundImage: "url(/fondo_png.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: 'black',
         }}
       >
         <BackButton onClick={handleBack} />

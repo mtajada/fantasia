@@ -162,6 +162,7 @@ Required environment variables:
 - `stories` - Generated stories with metadata
 - `story_chapters` - Individual story chapters
 - `audio_files` - Generated audio recordings
+- `challenges` - Educational challenges
 - `user_voices` - Voice preferences
 
 ### Security
@@ -245,6 +246,7 @@ For detailed SQL schema and RLS policies, consult:
 ### Edge Functions
 - `generate-story` - AI adult story generation with mature themes
 - `story-continuation` - Story continuation options for adult narratives
+- `challenge` - Interactive adult content challenges
 - `generate-audio` - Text-to-speech conversion with sensual voices
 - `upload-story-image` - Adult content image generation and storage
 - Stripe functions for payment processing
