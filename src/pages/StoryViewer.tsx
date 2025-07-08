@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Share, Volume2, Home, BookOpen, ChevronLeft, ChevronRight, AlertCircle, FileDown } from "lucide-react";
+import { Share, Volume2, Home, BookOpen, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStoriesStore } from "../store/stories/storiesStore";
 import { useChaptersStore } from "../store/stories/chapters/chaptersStore";
@@ -14,7 +14,6 @@ import { toast } from "sonner"; // Asegurarse que toast está importado
 import { StoryChapter, Story } from "../types"; // Importar Story
 import { parseTextToParagraphs } from '@/lib/utils';
 import { generateId } from "../store/core/utils";
-import StoryPdfPreview from "../components/StoryPdfPreview";
 
 export default function StoryViewer() {
   const { storyId } = useParams<{ storyId: string }>();
@@ -32,7 +31,6 @@ export default function StoryViewer() {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [chapters, setChapters] = useState<StoryChapter[]>([]);
   const [story, setStory] = useState<Story | null>(null); // Para pasar al servicio de desafío/continuación
-  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   // --- Permisos derivados del store ---
   // Estos se actualizan reactivamente si el estado del userStore cambia
@@ -130,10 +128,6 @@ export default function StoryViewer() {
     }
   };
 
-  const handlePrint = () => {
-    // Mostrar el modal de generación de PDF en lugar de la impresión del navegador
-    setShowPdfPreview(true);
-  };
 
   const toggleAudioPlayer = () => {
     // Usar el estado derivado isAllowedToGenerateVoice
@@ -202,14 +196,6 @@ export default function StoryViewer() {
             aria-label="Share"
           >
             <Share className="h-5 w-5" />
-          </button>
-          <button
-            onClick={handlePrint}
-            className="w-11 h-11 rounded-full bg-gray-800/80 backdrop-blur-md border border-gray-700 flex items-center justify-center text-violet-300 hover:bg-gray-700/80 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-violet-500/25"
-            aria-label="Generate PDF"
-            title="Generate PDF of the story"
-          >
-            <FileDown className="h-5 w-5" />
           </button>
         </div>
 
@@ -302,15 +288,6 @@ export default function StoryViewer() {
           </motion.div>
         </div> {/* Fin container */}
 
-        {/* Modal de generación de PDF */}
-        <StoryPdfPreview
-          isOpen={showPdfPreview}
-          onClose={() => setShowPdfPreview(false)}
-          title={currentChapter?.title || story?.title || "Your Fantasia Story!"}
-          content={currentChapter?.content || ""}
-          storyId={storyId!}
-          chapterId={currentChapter?.id || "1"}
-        />
       </div> {/* Fin fondo */}
     </PageTransition>
   );
