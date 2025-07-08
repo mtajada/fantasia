@@ -1,7 +1,7 @@
 import { StoryOptionsState } from '../types/storeTypes';
 import { StoryOptions, StoryDuration, StoryCharacter } from '../../types';
 import { createPersistentStore } from '../core/createStore';
-import { useCharacterStore } from '../character/characterStore';
+import { charactersService } from '../../services/charactersService';
 
 // Estado inicial
 const initialState: Pick<StoryOptionsState, 'currentStoryOptions' | 'additionalDetails' | 'selectedCharacterIds'> = {
@@ -40,13 +40,15 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
     // Multiple character selection functions
     setSelectedCharacterIds: (characterIds: string[]) => set({ selectedCharacterIds: characterIds }),
     
-    getSelectedCharactersForStory: () => {
+    getSelectedCharactersForStory: (allCharacters?: StoryCharacter[]) => {
       const state = useStoryOptionsStore.getState();
-      const characterStore = useCharacterStore.getState();
       
-      return state.selectedCharacterIds
-        .map(id => characterStore.savedCharacters.find(char => char.id === id))
-        .filter((char): char is StoryCharacter => char !== undefined);
+      if (!allCharacters) {
+        console.warn('getSelectedCharactersForStory: No characters provided, returning empty array');
+        return [];
+      }
+      
+      return charactersService.getSelectedCharactersByIds(state.selectedCharacterIds, allCharacters);
     },
     
     updateSelectedCharacters: (characters: StoryCharacter[]) => {

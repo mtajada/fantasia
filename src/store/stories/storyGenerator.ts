@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { Story, StoryOptions, StoryChapter } from "../../types"; 
 import { useStoriesStore } from "./storiesStore";
 import { useUserStore } from "../user/userStore";
-import { useCharacterStore } from "../character/characterStore";
+import { charactersService } from "../../services/charactersService";
 import { useStoryOptionsStore } from "../storyOptions/storyOptionsStore"; 
 import { generateId } from "../core/utils"; 
 import { GenerateStoryService, GenerateStoryParams } from "@/services/ai/GenerateStoryService";
@@ -15,8 +15,8 @@ import { useChaptersStore } from "./chapters/chaptersStore";
 export const generateStory = async (options: Partial<StoryOptions>): Promise<Story | null> => { 
   const storiesStore = useStoriesStore.getState();
   const chaptersStore = useChaptersStore.getState(); 
-  const characterStore = useCharacterStore.getState();
   const storyOptionsState = useStoryOptionsStore.getState(); 
+  const userStore = useUserStore.getState();
 
   console.log("🔍 DEBUG - Opciones generación historia:", JSON.stringify(options, null, 2));
   console.log("🔍 DEBUG - Detalles Adicionales:", storyOptionsState.additionalDetails);
@@ -25,9 +25,17 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
   try {
     const storyId = generateId(); 
-    const profileSettings = useUserStore.getState().profileSettings; 
-    const selectedCharacters = storyOptionsState.getSelectedCharactersForStory(); 
-    const additionalDetails = storyOptionsState.additionalDetails; 
+    const profileSettings = userStore.profileSettings;
+    const user = userStore.user;
+    const additionalDetails = storyOptionsState.additionalDetails;
+
+    if (!user) {
+      throw new Error("Usuario no autenticado");
+    }
+
+    // Obtener todos los personajes del usuario para poder filtrar los seleccionados
+    const allCharacters = await charactersService.getUserCharacters(user.id);
+    const selectedCharacters = storyOptionsState.getSelectedCharactersForStory(allCharacters); 
 
     // --- DEBUG: Log detallado de parámetros ANTES de construir payload --- 
     console.log("🔍 DEBUG PRE-PAYLOAD: Datos Perfil ->", JSON.stringify(profileSettings, null, 2));

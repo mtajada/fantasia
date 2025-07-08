@@ -11,33 +11,7 @@ import { useEffect, useState } from "react";
 import { useUserStore } from "../store/user/userStore";
 import { getUserCharacters } from "../services/supabase";
 import { StoryCharacter } from "../types";
-
-// Local utility functions
-const validateMultipleCharacterSelection = (selectedCharacters: StoryCharacter[]) => {
-  const errors: string[] = [];
-  
-  if (selectedCharacters.length === 0) {
-    errors.push('Debes seleccionar al menos un personaje');
-  }
-  
-  if (selectedCharacters.length > 4) {
-    errors.push('No puedes seleccionar más de 4 personajes');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-};
-
-const getCharacterSelectionMessage = (count: number): string => {
-  if (count === 0) return "Selecciona hasta 4 personajes para tu historia";
-  if (count === 1) return "¡Perfecto! Puedes añadir hasta 3 personajes más";
-  if (count === 2) return "¡Excelente! Puedes añadir hasta 2 personajes más";
-  if (count === 3) return "¡Genial! Puedes añadir 1 personaje más";
-  if (count === 4) return "¡Máximo alcanzado! Tienes 4 personajes seleccionados";
-  return "Has seleccionado demasiados personajes";
-};
+import { charactersService } from "../services/charactersService";
 
 export default function CharacterSelection() {
   const navigate = useNavigate();
@@ -126,7 +100,7 @@ export default function CharacterSelection() {
 
   const handleContinueWithSelection = () => {
     // Validar selección
-    const validation = validateMultipleCharacterSelection(selectedCharacters);
+    const validation = charactersService.validateMultipleCharacterSelection(selectedCharacters);
 
     if (!validation.isValid) {
       console.warn("Selección inválida:", validation.errors);
@@ -192,7 +166,7 @@ export default function CharacterSelection() {
           {/* Mensaje de selección */}
           <div className="text-center mb-4">
             <p className="text-[#555] bg-white/60 rounded-lg px-3 py-2 text-sm">
-              {getCharacterSelectionMessage(selectedCharacters.length)}
+              {charactersService.getCharacterSelectionMessage(selectedCharacters.length)}
             </p>
           </div>
 
