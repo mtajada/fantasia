@@ -111,17 +111,32 @@ const ProfileConfigPage: React.FC = () => {
             const wasSetupComplete = currentProfile?.has_completed_setup || false;
 
             // Guardar DIRECTAMENTE en Supabase
-            const { error: updateError } = await supabase
+            // Cambiar de .update() a .upsert() como indica la Fase 2 del plan
+            const { error: upsertError } = await supabase
                 .from('profiles')
-                .update({
+                .upsert({
+                    id: currentUser.id,
                     language: language,
                     preferences: preferences.trim() || null,
                     has_completed_setup: true
-                })
-                .eq('id', currentUser.id);
+                }, {
+                    onConflict: 'id'
+                });
 
-            if (updateError) {
-                throw updateError;
+            if (upsertError) {
+                throw upsertError;
+            }
+
+            // Después del upsert, verificar que se guardó correctamente
+            const { data: savedProfile, error: verifyError } = await supabase
+                .from('profiles')
+                .select('has_completed_setup')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (verifyError || !savedProfile?.has_completed_setup) {
+                console.error("Verification failed after upsert:", verifyError);
+                throw new Error('Profile was not saved correctly. Please try again.');
             }
 
             // Navegación condicional

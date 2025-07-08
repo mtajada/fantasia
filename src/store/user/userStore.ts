@@ -25,39 +25,29 @@ const initialState: Pick<UserState, "user" | "profileSettings" | "intendedRedire
 export const useUserStore = createPersistentStore<UserState>(
   initialState,
   (set, get) => ({
-    loginUser: async (user: User): Promise<void> => { // Revertido a Promise<void>
-      // Actualizar usuario en el store global
-      setCurrentAuthUser(user.id);
+    loginUser: async (user: User): Promise<void> => {
+       setCurrentAuthUser(user.id);
+       set({ user, intendedRedirectPath: null });
 
-      // Establecer el usuario en el store
-      set({ user, intendedRedirectPath: null }); // Reset path on new login attempt
+       try {
+           // Una sola consulta para cargar perfil
+           const { success, profile } = await getUserProfile(user.id);
+           
+           if (success && profile) {
+               set({ profileSettings: profile });
+               const redirectPath = profile.has_completed_setup ? '/home' : '/profile-config';
+               set({ intendedRedirectPath: redirectPath });
+           } else {
+               // Si no hay perfil, debe ir a configuración
+               set({ intendedRedirectPath: '/profile-config' });
+           }
 
-      let redirectPath = '/login'; // Default path
-
-      // Al iniciar sesión, cargar datos desde Supabase
-      try {
-        // 1. Cargar perfil
-        console.log(`Cargando perfil para usuario ${user.id} desde Supabase`);
-        const { success, profile } = await getUserProfile(user.id);
-        if (success && profile) {
-          console.log("Perfil cargado con éxito:", profile);
-          set({ profileSettings: profile });
-          // Determinar ruta de redirección basado en setup
-          redirectPath = profile.has_completed_setup ? '/home' : '/profile-config';
-        } else {
-          console.warn("No se encontró perfil para el usuario logueado o hubo un error, redirigiendo a setup:", user.id);
-          // Podría ser un usuario nuevo o un error. Dirigir a setup como fallback seguro.
-          redirectPath = '/profile-config';
-        }
-
-        // 2. Iniciar sincronización de otros datos (no bloqueante para la redirección)
-        syncAllUserData(user.id);
-
-      } catch (error) {
-        console.error("Error cargando datos de usuario desde Supabase:", error);
-        redirectPath = '/login'; // En caso de error, volver a login
-      }
-      set({ intendedRedirectPath: redirectPath }); // Establecer el path en el estado
+           // Cargar otros datos en segundo plano (no bloqueante)
+           syncAllUserData(user.id);
+       } catch (error) {
+           console.error("Error cargando datos de usuario:", error);
+           set({ intendedRedirectPath: '/profile-config' });
+       }
     },
 
     logoutUser: async () => {
@@ -216,40 +206,31 @@ export const useUserStore = createPersistentStore<UserState>(
     },
 
     checkAuth: async (): Promise<User | null> => {
-      let authenticatedUser: User | null = null;
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
+       try {
+           const { user, error } = await getCurrentUser();
 
-        const { user, error } = await getCurrentUser();
-
-        if (user && !error) {
-          set({ user });
-          authenticatedUser = user;
-          // Cargar perfil SI hay usuario
-          const { success, profile } = await getUserProfile(user.id);
-          if (success && profile) {
-            set({ profileSettings: profile });
-            // Sincronizar el resto en segundo plano
-            syncAllUserData(user.id);
-          } else {
-            // Aún autenticado, pero sin perfil o error al cargarlo.
-            // La redirección a profile-config se manejará en la página de destino o AuthGuard si es necesario
-            console.warn("checkAuth: Usuario autenticado pero perfil no encontrado o error al cargar:", user.id);
-            set({ profileSettings: null });
-          }
-
-        } else {
-          // No hay usuario o hubo error
-          if (error) console.error("Error en getCurrentUser:", error);
-          set({ user: null, profileSettings: null });
-          authenticatedUser = null;
-        }
-      } catch (e) {
-        console.error("Error crítico durante checkAuth:", e);
-        set({ user: null, profileSettings: null });
-        authenticatedUser = null;
-      }
-      return authenticatedUser;
+           if (user && !error) {
+               set({ user });
+               
+               // Solo cargar perfil si no está en cache
+               const currentProfile = get().profileSettings;
+               if (!currentProfile || currentProfile.id !== user.id) {
+                   const { success, profile } = await getUserProfile(user.id);
+                   if (success && profile) {
+                       set({ profileSettings: profile });
+                   }
+               }
+               
+               return user;
+           } else {
+               set({ user: null, profileSettings: null });
+               return null;
+           }
+       } catch (e) {
+           console.error("Error en checkAuth:", e);
+           set({ user: null, profileSettings: null });
+           return null;
+       }
     },
   }),
   "user",
