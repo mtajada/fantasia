@@ -6,7 +6,7 @@ import PageTransition from "../components/PageTransition";
 import { Checkbox } from "../components/ui/checkbox";
 import { Badge } from "../components/ui/badge";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserStore } from "../store/user/userStore";
 import { getUserCharacters } from "../services/supabase";
 import { StoryCharacter } from "../types";

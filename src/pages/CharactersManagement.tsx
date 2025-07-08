@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { User, Plus, Edit, Trash2, ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserStore } from "../store/user/userStore";
 import PageTransition from "../components/PageTransition";
 import StoryButton from "../components/StoryButton";
