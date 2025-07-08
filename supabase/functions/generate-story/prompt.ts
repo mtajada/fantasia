@@ -30,9 +30,8 @@ export function createSystemPrompt(language: string, preferences?: string | null
 // Definición de tipos para las opciones del prompt de usuario (actualizado para múltiples personajes)
 interface CharacterOptions {
     name: string;
-    profession?: string;
-    hobbies?: string[];
-    personality?: string;
+    gender: 'male' | 'female' | 'non-binary';
+    description: string;
 }
 
 interface UserPromptOptions {
@@ -66,9 +65,8 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
         request += `Main Characters (${characters.length}): `;
         characters.forEach((char, index) => {
             request += `${index + 1}. ${char.name}`;
-            if (char.profession) request += `, profession: ${char.profession}`;
-            if (char.hobbies?.length) request += `, interests: ${char.hobbies.join(', ')}`;
-            if (char.personality) request += `, personality: ${char.personality}`;
+            request += `, gender: ${char.gender}`;
+            request += `, description: ${char.description}`;
             if (index < characters.length - 1) request += '; ';
         });
         request += `.\n\n`;
@@ -76,16 +74,15 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
         // Add specific instructions for multiple characters
         request += `**Instructions for multiple characters:**\n`;
         request += `- Ensure ALL characters have significant participation in the story\n`;
-        request += `- Each character should contribute uniquely based on their profession, interests, and personality\n`;
+        request += `- Each character should contribute uniquely based on their gender and personal description\n`;
         request += `- Create natural and dynamic interactions between characters\n`;
         request += `- Develop romantic/erotic tension and relationships between characters as appropriate\n`;
         request += `- Keep the story focused and coherent despite multiple protagonists\n\n`;
     } else {
         const char = characters[0];
         request += `Main Character: ${char.name}`;
-        if (char.profession) request += `, profession: ${char.profession}`;
-        if (char.hobbies?.length) request += `, interests: ${char.hobbies.join(', ')}`;
-        if (char.personality) request += `, personality: ${char.personality}`;
+        request += `, gender: ${char.gender}`;
+        request += `, description: ${char.description}`;
         request += `.\n\n`;
     }
 

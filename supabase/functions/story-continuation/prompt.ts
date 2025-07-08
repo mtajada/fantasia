@@ -5,9 +5,8 @@
 // --- Tipos (asumidos/definidos según el uso en index.ts) ---
 export interface CharacterOptions {
     name: string;
-    profession?: string;
-    hobbies?: string[];
-    personality?: string;
+    gender: 'male' | 'female' | 'non-binary';
+    description: string;
 }
 
 export interface StoryOptions {
@@ -69,12 +68,12 @@ export function createContinuationOptionsPrompt(
         prompt += `\nMain Characters (${characters.length}): `;
         characters.forEach((char, index) => {
             prompt += `${index + 1}. ${char.name}`;
-            if (char.profession) prompt += ` (${char.profession})`;
+            prompt += ` (${char.gender}, ${char.description})`;
             if (index < characters.length - 1) prompt += ', ';
         });
         prompt += `.`;
     } else if (characters.length === 1) {
-        prompt += `\nMain Character: ${characters[0].name}.`;
+        prompt += `\nMain Character: ${characters[0].name} (${characters[0].gender}, ${characters[0].description}).`;
     }
     
     prompt += `\n\n**Story Beginning:**\n${story.content}\n`;
@@ -160,8 +159,8 @@ export function createContinuationPrompt(
         prompt += `\nMain Characters (${characters.length}): `;
         characters.forEach((char, index) => {
             prompt += `${index + 1}. ${char.name}`;
-            if (char.profession) prompt += `, Profession: ${char.profession}`;
-            if (char.personality) prompt += `, Personality: ${char.personality}`;
+            prompt += `, Gender: ${char.gender}`;
+            prompt += `, Description: ${char.description}`;
             if (index < characters.length - 1) prompt += '; ';
         });
         prompt += `.`;
@@ -170,8 +169,8 @@ export function createContinuationPrompt(
     } else if (characters.length === 1) {
         const char = characters[0];
         prompt += `\nMain Character: ${char.name}`;
-        if (char.profession) prompt += `, Profession: ${char.profession}`;
-        if (char.personality) prompt += `, Personality: ${char.personality}`;
+        prompt += `, Gender: ${char.gender}`;
+        prompt += `, Description: ${char.description}`;
         prompt += `.`;
     }
     
