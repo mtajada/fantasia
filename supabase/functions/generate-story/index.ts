@@ -58,30 +58,30 @@ serve(async (req: Request) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  // --- Configuración ---
-  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-  const GEMINI_COMPATIBLE_ENDPOINT = Deno.env.get("GEMINI_COMPATIBLE_ENDPOINT") || 'https://generativelanguage.googleapis.com/v1beta/openai/';
-  const TEXT_MODEL_GENERATE = Deno.env.get('TEXT_MODEL_GENERATE'); // Model name for Gemini via OpenAI endpoint
+  // --- Configuración para Grok ---
+  const GROK_API_KEY = Deno.env.get("GROK_API_KEY");
+  const GROK_API_BASE_URL = 'https://api.x.ai/v1';
+  const MODEL_NAME = 'grok-3-mini'; // Modelo explícito
 
-  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
-  if (!GEMINI_COMPATIBLE_ENDPOINT) throw new Error("GEMINI_COMPATIBLE_ENDPOINT environment variable not set and no fallback could be used");
-  if (!TEXT_MODEL_GENERATE) throw new Error("TEXT_MODEL_GENERATE environment variable not set for OpenAI client.");
+  if (!GROK_API_KEY) {
+    throw new Error("La variable de entorno GROK_API_KEY no está configurada.");
+  }
 
-  // --- Initialize OpenAI Client for Gemini ---
+  // --- Inicializar cliente OpenAI para Grok ---
   const openai = new OpenAI({
-    apiKey: GEMINI_API_KEY,
-    baseURL: GEMINI_COMPATIBLE_ENDPOINT.endsWith('/') ? GEMINI_COMPATIBLE_ENDPOINT : GEMINI_COMPATIBLE_ENDPOINT + '/',
+    apiKey: GROK_API_KEY,
+    baseURL: GROK_API_BASE_URL,
   });
-  console.log(`[${functionVersion}] OpenAI client configured for Gemini model '${TEXT_MODEL_GENERATE}' via baseURL: ${openai.baseURL}`);
+  console.log(`[${functionVersion}] Cliente OpenAI configurado para el modelo Grok '${MODEL_NAME}' vía baseURL: ${openai.baseURL}`);
 
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-  const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     console.error("Supabase URL or Service Role Key not set");
     throw new Error("Supabase URL or Service Role Key not set");
   }
-  const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   // 2. Verificar Método POST
   if (req.method !== 'POST') {
@@ -172,62 +172,62 @@ serve(async (req: Request) => {
 
       // More detailed validation with debugging
       console.log(`[${functionVersion}] Starting detailed validation...`);
-      
+
       if (!params) {
         console.error("[VALIDATION ERROR] params is null/undefined");
         throw new Error("Parámetros inválidos: datos no recibidos.");
       }
-      
+
       if (typeof params !== 'object') {
         console.error("[VALIDATION ERROR] params is not an object:", typeof params);
         throw new Error("Parámetros inválidos: formato incorrecto.");
       }
-      
+
       if (!params.options) {
         console.error("[VALIDATION ERROR] params.options is missing");
         throw new Error("Parámetros inválidos: falta 'options'.");
       }
-      
+
       if (typeof params.options !== 'object') {
         console.error("[VALIDATION ERROR] params.options is not an object:", typeof params.options);
         throw new Error("Parámetros inválidos: 'options' debe ser un objeto.");
       }
-      
+
       // Validate individual fields with more detailed error messages
       const errors = [];
-      
+
       // Language and preferences come from profile, not params
       if (!profile?.language || typeof profile.language !== 'string') {
         errors.push('User profile must have a valid language setting');
         console.error("[VALIDATION ERROR] profile.language:", profile?.language, typeof profile?.language);
       }
-      
+
       if (typeof params.options.duration !== 'string' || !params.options.duration) {
         errors.push('options.duration debe ser un string no vacío');
         console.error("[VALIDATION ERROR] duration:", params.options.duration, typeof params.options.duration);
       }
-      
+
       if (typeof params.options.genre !== 'string' || !params.options.genre) {
         errors.push('options.genre debe ser un string no vacío');
         console.error("[VALIDATION ERROR] genre:", params.options.genre, typeof params.options.genre);
       }
-      
+
       if (typeof params.options.moral !== 'string' || !params.options.moral) {
         errors.push('options.moral debe ser un string no vacío');
         console.error("[VALIDATION ERROR] moral:", params.options.moral, typeof params.options.moral);
       }
-      
+
       if (errors.length > 0) {
         console.error("[VALIDATION ERROR] Basic validation failed:", errors);
         throw new Error(`Parámetros básicos inválidos: ${errors.join(', ')}.`);
       }
-      
+
       console.log(`[${functionVersion}] Basic validation passed!`);
 
       // Validate character data - support both legacy (character) and new (characters) formats
       const hasMultipleCharacters = params.options.characters && Array.isArray(params.options.characters) && params.options.characters.length > 0;
       const hasSingleCharacter = params.options.character && typeof params.options.character === 'object' && params.options.character.name;
-      
+
       if (!hasMultipleCharacters && !hasSingleCharacter) {
         console.error("Validation failed. No valid character data found:", {
           hasCharacters: !!params.options.characters,
@@ -253,21 +253,21 @@ serve(async (req: Request) => {
       if (charactersArray.length > 4) {
         throw new Error("Máximo 4 personajes permitidos por historia.");
       }
-      
-      const invalidCharacters = charactersArray.filter(char => 
+
+      const invalidCharacters = charactersArray.filter(char =>
         !char || typeof char !== 'object' || !char.name || typeof char.name !== 'string'
       );
-      
+
       if (invalidCharacters.length > 0) {
         console.error("Validation failed. Invalid characters found:", invalidCharacters);
         throw new Error("Todos los personajes deben tener un nombre válido.");
       }
-      
+
       console.log(`[${functionVersion}] Characters validated: ${charactersArray.map(c => c.name).join(', ')}`);
-      
+
       // Store normalized characters array for use in prompts
       params.options.characters = charactersArray;
-    
+
     } catch (error) {
       console.error(`[${functionVersion}] Failed to parse/validate JSON body for user ${userId}. Error:`, error);
       const message = error instanceof Error ? error.message : "Error desconocido al procesar JSON.";
@@ -282,15 +282,15 @@ serve(async (req: Request) => {
     });
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-    console.log(`[${functionVersion}] Calling AI (${TEXT_MODEL_GENERATE}) for JSON output (User: ${userId}). Prompt length: ${combinedPrompt.length}`);
+    console.log(`[${functionVersion}] Calling AI (${MODEL_NAME}) for JSON output (User: ${userId}). Prompt length: ${combinedPrompt.length}`);
 
     const chatCompletion = await openai.chat.completions.create({
-      model: TEXT_MODEL_GENERATE,
+      model: MODEL_NAME, // Usando el modelo Grok explícito
       messages: [{ role: "user", content: combinedPrompt }],
       response_format: { type: "json_object" }, // Request JSON output
-      temperature: 0.8, // From original generationConfig
-      top_p: 0.95,      // From original generationConfig
-      max_tokens: 16000 // From original generationConfig, ensure adequate for Gemini via OpenAI
+      temperature: 0.8,
+      top_p: 0.95,
+      max_tokens: 8000 // Ajustado a un límite razonable para Sonnet
     });
 
     const aiResponseContent = chatCompletion.choices[0]?.message?.content;

@@ -13,26 +13,26 @@ import {
   type ContinuationContextType,
 } from './prompt.ts';
 
-// --- Configuración Global ---
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-const GEMINI_COMPATIBLE_ENDPOINT = Deno.env.get("GEMINI_COMPATIBLE_ENDPOINT") || 'https://generativelanguage.googleapis.com/v1beta/openai/';
-const TEXT_MODEL_GENERATE = Deno.env.get('TEXT_MODEL_GENERATE');
+// --- Configuración Global para Grok ---
+const GROK_API_KEY = Deno.env.get("GROK_API_KEY");
+const GROK_API_BASE_URL = 'https://api.x.ai/v1';
+const MODEL_NAME = 'grok-3-mini'; // Modelo explícito
 
-if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY environment variable not set");
-if (!GEMINI_COMPATIBLE_ENDPOINT) throw new Error("GEMINI_COMPATIBLE_ENDPOINT environment variable not set");
-if (!TEXT_MODEL_GENERATE) throw new Error("TEXT_MODEL_GENERATE environment variable not set for OpenAI client.");
+if (!GROK_API_KEY) {
+  throw new Error("La variable de entorno GROK_API_KEY no está configurada.");
+}
 
 const openai = new OpenAI({
-  apiKey: GEMINI_API_KEY,
-  baseURL: GEMINI_COMPATIBLE_ENDPOINT.endsWith('/') ? GEMINI_COMPATIBLE_ENDPOINT : GEMINI_COMPATIBLE_ENDPOINT + '/',
+  apiKey: GROK_API_KEY,
+  baseURL: GROK_API_BASE_URL,
 });
 const functionVersion = "v8.0 (Adult Content + Preferences)";
-console.log(`story-continuation ${functionVersion}: Using model ${TEXT_MODEL_GENERATE} via ${openai.baseURL}`);
+console.log(`story-continuation ${functionVersion}: Using model ${MODEL_NAME} via ${openai.baseURL}`);
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-const APP_SERVICE_ROLE_KEY = Deno.env.get('APP_SERVICE_ROLE_KEY');
-if (!SUPABASE_URL || !APP_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
-const supabaseAdmin = createClient(SUPABASE_URL, APP_SERVICE_ROLE_KEY);
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
+const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // --- Interfaces for AI JSON Responses ---
 interface AiContinuationOption {
@@ -82,11 +82,11 @@ async function generateContinuationOptions(
   let aiResponseContent: string | null = null;
   try {
     const chatCompletion = await openai.chat.completions.create({
-      model: TEXT_MODEL_GENERATE,
+      model: MODEL_NAME,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
-      temperature: 0.7, // Adjusted temperature for option generation (can be tuned)
-      max_tokens: 8192, // Sufficient for a few options
+      temperature: 0.7,
+      max_tokens: 8000, // Ajustado
     });
 
     aiResponseContent = chatCompletion.choices[0]?.message?.content;
@@ -291,12 +291,12 @@ serve(async (req: Request) => {
       console.log(`[${functionVersion}] Calling AI for continuation. Prompt start: ${continuationPrompt.substring(0, 200)}...`);
 
       const chatCompletion = await openai.chat.completions.create({
-        model: TEXT_MODEL_GENERATE,
+        model: MODEL_NAME,
         messages: [{ role: "user", content: continuationPrompt }],
         response_format: { type: "json_object" },
-        temperature: 0.8, // from v6.1
-        top_p: 0.95,      // from v6.1
-        max_tokens: 8192  // from v6.1
+        temperature: 0.8,
+        top_p: 0.95,
+        max_tokens: 8000 // Ajustado
       });
 
       const aiResponseContent = chatCompletion.choices[0]?.message?.content;
