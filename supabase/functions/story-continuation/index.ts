@@ -112,19 +112,83 @@ async function generateContinuationOptions(
 
   } catch (e: any) {
     console.error(`[${functionVersion}] Error procesando la respuesta de la IA para las opciones: ${e.message}. Raw response: ${aiResponseContent?.substring(0, 500)}`, e);
-    // Fallback
-    const defaultOptions = [
-      { summary: language.startsWith('en') ? "Continue the intimate encounter" : "Continuar el encuentro íntimo" },
-      { summary: language.startsWith('en') ? "Explore deeper desires" : "Explorar deseos más profundos" },
-      { summary: language.startsWith('en') ? "Try something new together" : "Probar algo nuevo juntos" }
-    ].map(opt => ({ summary: `${opt.summary} (${language.startsWith('en') ? 'default option' : 'opción por defecto'})` }));
+    // Fallback - Language-aware default options
+    const defaultOptionsMap: Record<string, string[]> = {
+      'es': [
+        "Continuar el encuentro íntimo",
+        "Explorar deseos más profundos", 
+        "Probar algo nuevo juntos"
+      ],
+      'en': [
+        "Continue the intimate encounter",
+        "Explore deeper desires",
+        "Try something new together"
+      ],
+      'fr': [
+        "Continuer la rencontre intime",
+        "Explorer des désirs plus profonds",
+        "Essayer quelque chose de nouveau ensemble"
+      ],
+      'de': [
+        "Die intime Begegnung fortsetzen",
+        "Tiefere Wünsche erforschen",
+        "Etwas Neues zusammen ausprobieren"
+      ],
+      'it': [
+        "Continuare l'incontro intimo",
+        "Esplorare desideri più profondi",
+        "Provare qualcosa di nuovo insieme"
+      ],
+      'pt': [
+        "Continuar o encontro íntimo",
+        "Explorar desejos mais profundos",
+        "Experimentar algo novo juntos"
+      ]
+    };
+
+    const defaultOptionText = language.startsWith('en') ? 'default option' : 'opción por defecto';
+    const defaultOptions = (defaultOptionsMap[language] || defaultOptionsMap['en'])
+      .map(opt => ({ summary: `${opt} (${defaultOptionText})` }));
     return { options: defaultOptions };
   }
 }
 
+// --- Helper Function: Language-aware default titles ---
+function getLanguageAwareDefaultChapterTitle(language: string): string {
+  const languageDefaults: Record<string, string> = {
+    'es': 'Un Nuevo Capítulo',
+    'en': 'A New Chapter',
+    'fr': 'Un Nouveau Chapitre',
+    'de': 'Ein Neues Kapitel',
+    'it': 'Un Nuovo Capitolo',
+    'pt': 'Um Novo Capítulo',
+    'ru': 'Новая глава',
+    'ja': '新しい章',
+    'ko': '새로운 장',
+    'zh': '新的章节'
+  };
+  return languageDefaults[language] || languageDefaults['en'];
+}
+
+function getLanguageAwareDefaultContent(language: string): string {
+  const languageDefaults: Record<string, string> = {
+    'es': 'La historia continúa misteriosamente...',
+    'en': 'The story continues mysteriously...',
+    'fr': 'L\'histoire continue mystérieusement...',
+    'de': 'Die Geschichte geht geheimnisvoll weiter...',
+    'it': 'La storia continua misteriosamente...',
+    'pt': 'A história continua misteriosamente...',
+    'ru': 'История продолжается таинственно...',
+    'ja': '物語は謎めいて続く...',
+    'ko': '이야기는 신비롭게 계속된다...',
+    'zh': '故事神秘地继续着...'
+  };
+  return languageDefaults[language] || languageDefaults['en'];
+}
+
 // cleanExtractedText: Se mantiene, ya que procesa strings provenientes de la IA (dentro del JSON).
-function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content'): string {
-  const defaultText = type === 'title' ? `A New Chapter` : 'The story continues mysteriously...';
+function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content', language: string = 'en'): string {
+  const defaultText = type === 'title' ? getLanguageAwareDefaultChapterTitle(language) : getLanguageAwareDefaultContent(language);
   if (text === null || text === undefined || typeof text !== 'string') { // Allow empty string from AI, will return default
     console.warn(`[${functionVersion}] cleanExtractedText (${type}): Input null, undefined, or not a string.`);
     return defaultText;
@@ -314,15 +378,15 @@ serve(async (req: Request) => {
         throw new Error("Fallo al generar continuación: Respuesta IA vacía (sin bloqueo explícito).");
       }
 
-      let finalTitle = 'Un Nuevo Capítulo'; // Default
+      let finalTitle = getLanguageAwareDefaultChapterTitle(language); // Language-aware default
       let finalContent = '';
       let parsedSuccessfully = false;
 
       try {
         const parsedResponse = JSON.parse(aiResponseContent);
         if (isValidContinuationResponse(parsedResponse)) {
-          finalTitle = cleanExtractedText(parsedResponse.title, 'title');
-          finalContent = cleanExtractedText(parsedResponse.content, 'content');
+          finalTitle = cleanExtractedText(parsedResponse.title, 'title', language);
+          finalContent = cleanExtractedText(parsedResponse.content, 'content', language);
           parsedSuccessfully = true;
           console.log(`[${functionVersion}] Parsed AI continuation JSON successfully.`);
         } else {
@@ -334,12 +398,24 @@ serve(async (req: Request) => {
 
       if (!parsedSuccessfully) {
         console.warn(`[${functionVersion}] Using fallback for continuation: Default title, full raw response as content (if available).`);
-        finalContent = cleanExtractedText(aiResponseContent, 'content'); // aiResponseContent might be the non-JSON string
+        finalContent = cleanExtractedText(aiResponseContent, 'content', language); // aiResponseContent might be the non-JSON string
       }
 
       if (!finalContent) { // If content is still empty after parsing/fallback and cleaning
         console.error(`[${functionVersion}] Critical error: Final continuation content is empty after all processing.`);
-        finalContent = language.startsWith('en') ? "The story couldn't continue this time. Try another option or a new direction." : "La historia no pudo continuar esta vez. Intenta con otra opción o una nueva dirección.";
+        const errorDefaults: Record<string, string> = {
+          'es': 'La historia no pudo continuar esta vez. Intenta con otra opción o una nueva dirección.',
+          'en': 'The story couldn\'t continue this time. Try another option or a new direction.',
+          'fr': 'L\'histoire n\'a pas pu continuer cette fois. Essayez une autre option ou une nouvelle direction.',
+          'de': 'Die Geschichte konnte diesmal nicht fortgesetzt werden. Versuchen Sie eine andere Option oder eine neue Richtung.',
+          'it': 'La storia non è riuscita a continuare questa volta. Prova un\'altra opzione o una nuova direzione.',
+          'pt': 'A história não pôde continuar desta vez. Tente outra opção ou uma nova direção.',
+          'ru': 'История не смогла продолжиться на этот раз. Попробуйте другой вариант или новое направление.',
+          'ja': '今回は物語を続けることができませんでした。別の選択肢や新しい方向を試してみてください。',
+          'ko': '이번에는 이야기를 계속할 수 없었습니다. 다른 옵션이나 새로운 방향을 시도해보세요.',
+          'zh': '这次无法继续故事。尝试其他选择或新的方向。'
+        };
+        finalContent = errorDefaults[language] || errorDefaults['en'];
         // Optionally throw, but providing a message might be better UX for continuations
       }
 

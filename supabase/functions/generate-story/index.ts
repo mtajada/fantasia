@@ -10,9 +10,42 @@ import OpenAI from "npm:openai@^4.33.0"; // Using OpenAI client
 // createUserPrompt_JsonFormat (antes createUserPrompt_SeparatorFormat) ahora genera un prompt que pide JSON.
 import { createSystemPrompt, createUserPrompt_JsonFormat } from './prompt.ts';
 
+// --- Helper Function: Language-aware default titles ---
+function getLanguageAwareDefaultTitle(language: string): string {
+  const languageDefaults: Record<string, string> = {
+    'es': 'Aventura Inolvidable',
+    'en': 'Unforgettable Adventure',
+    'fr': 'Aventure Inoubliable',
+    'de': 'Unvergessliches Abenteuer',
+    'it': 'Avventura Indimenticabile',
+    'pt': 'Aventura Inesquecível',
+    'ru': 'Незабываемое приключение',
+    'ja': '忘れられない冒険',
+    'ko': '잊을 수 없는 모험',
+    'zh': '难忘的冒险'
+  };
+  return languageDefaults[language] || languageDefaults['en'];
+}
+
+function getLanguageAwareDefaultContent(language: string): string {
+  const languageDefaults: Record<string, string> = {
+    'es': 'El cuento tiene un giro inesperado...',
+    'en': 'The story takes an unexpected turn...',
+    'fr': 'L\'histoire prend une tournure inattendue...',
+    'de': 'Die Geschichte nimmt eine unerwartete Wendung...',
+    'it': 'La storia prende una piega inaspettata...',
+    'pt': 'A história tem uma reviravolta inesperada...',
+    'ru': 'История принимает неожиданный поворот...',
+    'ja': '物語は予想外の展開を見せる...',
+    'ko': '이야기는 예상치 못한 전개를 보여준다...',
+    'zh': '故事出现了意想不到的转折...'
+  };
+  return languageDefaults[language] || languageDefaults['en'];
+}
+
 // --- Helper Function (remains largely the same, adapted for potentially cleaner inputs from JSON) ---
-function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content'): string {
-  const defaultText = type === 'title' ? `Aventura Inolvidable` : 'El cuento tiene un giro inesperado...';
+function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content', language: string = 'en'): string {
+  const defaultText = type === 'title' ? getLanguageAwareDefaultTitle(language) : getLanguageAwareDefaultContent(language);
   if (text === null || text === undefined || typeof text !== 'string') {
     console.warn(`[Helper v7.0] cleanExtractedText (${type}): Input empty/not string.`);
     return defaultText;
@@ -299,7 +332,8 @@ serve(async (req: Request) => {
     // Se confía en finish_reason o contenido vacío para problemas.
 
     // 7. Procesar Respuesta JSON de la IA
-    let finalTitle = 'Aventura Inolvidable'; // Default
+    const userLanguage = profile?.language || 'en';
+    let finalTitle = getLanguageAwareDefaultTitle(userLanguage); // Language-aware default
     let finalContent = ''; // Default
     let parsedSuccessfully = false;
 
@@ -307,8 +341,8 @@ serve(async (req: Request) => {
       try {
         const storyResult: StoryGenerationResult = JSON.parse(aiResponseContent);
         if (isValidStoryResult(storyResult)) {
-          finalTitle = cleanExtractedText(storyResult.title, 'title');
-          finalContent = cleanExtractedText(storyResult.content, 'content');
+          finalTitle = cleanExtractedText(storyResult.title, 'title', userLanguage);
+          finalContent = cleanExtractedText(storyResult.content, 'content', userLanguage);
           parsedSuccessfully = true;
           console.log(`[${functionVersion}] Parsed AI JSON successfully. Title: "${finalTitle}"`);
         } else {
@@ -323,8 +357,8 @@ serve(async (req: Request) => {
 
     if (!parsedSuccessfully) {
       console.warn(`[${functionVersion}] Using fallback: Default title, and attempting to use raw AI response (if any) as content (after cleaning).`);
-      finalContent = cleanExtractedText(aiResponseContent, 'content'); // aiResponseContent could be null here
-      // finalTitle remains the default 'Aventura Inolvidable'
+      finalContent = cleanExtractedText(aiResponseContent, 'content', userLanguage); // aiResponseContent could be null here
+      // finalTitle remains the language-aware default
     }
 
     if (!finalContent) {
