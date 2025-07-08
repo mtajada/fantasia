@@ -32,32 +32,35 @@ export const validateCharacter = (character: StoryCharacter): CharacterValidatio
 
   // Validate required fields
   if (!character.name || character.name.trim().length === 0) {
-    errors.push("El nombre del personaje es obligatorio");
+    errors.push("Name is required");
     isValid = false;
   } else {
     // Validate name length
     if (character.name.length < CHARACTER_LIMITS.MIN_NAME_LENGTH) {
-      errors.push(`El nombre debe tener al menos ${CHARACTER_LIMITS.MIN_NAME_LENGTH} caracteres`);
+      errors.push(`Name must be at least ${CHARACTER_LIMITS.MIN_NAME_LENGTH} characters`);
       isValid = false;
     }
     if (character.name.length > CHARACTER_LIMITS.MAX_NAME_LENGTH) {
-      errors.push(`El nombre no puede tener más de ${CHARACTER_LIMITS.MAX_NAME_LENGTH} caracteres`);
+      errors.push(`Name cannot exceed ${CHARACTER_LIMITS.MAX_NAME_LENGTH} characters`);
       isValid = false;
     }
   }
 
   // Validate gender (required in new structure)
   if (!character.gender) {
-    errors.push("El género es obligatorio");
+    errors.push("Gender is required");
     isValid = false;
   }
 
   // Validate description (required in new structure)
   if (!character.description || character.description.trim().length === 0) {
-    errors.push("La descripción es obligatoria");
+    errors.push("Description is required");
     isValid = false;
   } else if (character.description.length < 10) {
-    warnings.push("Una descripción más detallada hará que el personaje sea más interesante");
+    errors.push("Description must be at least 10 characters");
+    isValid = false;
+  } else if (character.description.length < 20) {
+    warnings.push("A more detailed description will make your character more captivating and stories more intimate");
   }
 
   return {
@@ -80,13 +83,13 @@ export const validateCharacterSelection = (
 
   // Check maximum limit
   if (currentSelection.length >= CHARACTER_LIMITS.MAX_CHARACTERS) {
-    errors.push(`Máximo ${CHARACTER_LIMITS.MAX_CHARACTERS} personajes permitidos`);
+    errors.push(`Maximum ${CHARACTER_LIMITS.MAX_CHARACTERS} characters allowed`);
     isValid = false;
   }
 
   // Check if character is already selected
   if (currentSelection.some(char => char.id === characterToSelect.id)) {
-    errors.push("Este personaje ya está seleccionado");
+    errors.push("This character is already selected");
     isValid = false;
   }
 
@@ -99,7 +102,7 @@ export const validateCharacterSelection = (
 
   // Warning for stories with many characters
   if (currentSelection.length >= 2) {
-    warnings.push("Para cuentos cortitos, recomendamos menos personajes para que cada uno brille más");
+    warnings.push("For intimate stories, fewer characters allow each one to shine more in your fantasy");
   }
 
   return {
@@ -123,19 +126,19 @@ export const validateMultipleCharacterSelection = (
 
   // Check limits
   if (characters.length < CHARACTER_LIMITS.MIN_CHARACTERS) {
-    errors.push(`Debes seleccionar al menos ${CHARACTER_LIMITS.MIN_CHARACTERS} personaje`);
+    errors.push(`You must select at least ${CHARACTER_LIMITS.MIN_CHARACTERS} character`);
     isValid = false;
   }
 
   if (characters.length > CHARACTER_LIMITS.MAX_CHARACTERS) {
-    errors.push(`Máximo ${CHARACTER_LIMITS.MAX_CHARACTERS} personajes permitidos`);
+    errors.push(`Maximum ${CHARACTER_LIMITS.MAX_CHARACTERS} characters allowed`);
     isValid = false;
   }
 
   // Check for duplicates
   const uniqueIds = new Set(characters.map(char => char.id));
   if (uniqueIds.size !== characters.length) {
-    errors.push("No se pueden seleccionar personajes duplicados");
+    errors.push("Duplicate characters are not allowed");
     isValid = false;
   }
 
@@ -143,16 +146,16 @@ export const validateMultipleCharacterSelection = (
   for (const character of characters) {
     const charValidation = validateCharacter(character);
     if (!charValidation.isValid) {
-      errors.push(`Personaje "${character.name}": ${charValidation.errors.join(", ")}`);
+      errors.push(`Character "${character.name}": ${charValidation.errors.join(", ")}`);
       isValid = false;
     }
   }
 
   // Warnings based on character count
   if (characters.length >= 3) {
-    warnings.push("✨ Con 3 o más personajes tu historia será muy rica, pero puede ser un poco más larga");
+    warnings.push("✨ With 3+ characters, your story will be rich and passionate, but may be longer");
   } else if (characters.length === 2) {
-    warnings.push("✨ ¡Perfecto! Dos personajes crean historias dinámicas y entretenidas");
+    warnings.push("✨ Perfect! Two characters create dynamic and intimate encounters");
   }
 
   return {
@@ -171,7 +174,7 @@ export const validateStoryGeneration = (characters: StoryCharacter[]): Character
   if (characters.length === 0) {
     return {
       isValid: false,
-      errors: ["Debes seleccionar al menos un personaje para generar la historia"],
+      errors: ["You must select at least one character to generate your story"],
       warnings: []
     };
   }
@@ -192,17 +195,17 @@ export const validateStoryGeneration = (characters: StoryCharacter[]): Character
 export const getCharacterSelectionMessage = (count: number): string => {
   switch (count) {
     case 0:
-      return "✨ ¡Selecciona hasta 4 personajes para tu historia!";
+      return "✨ Select up to 4 characters for your erotic story!";
     case 1:
-      return "✨ ¡Genial! Puedes añadir hasta 3 personajes más si quieres";
+      return "✨ Great start! You can add up to 3 more characters for steamy encounters";
     case 2:
-      return "✨ ¡Perfecto! Esta combinación creará una historia muy dinámica";
+      return "✨ Perfect! This combination will create dynamic and passionate moments";
     case 3:
-      return "✨ ¡Increíble! Tu historia será muy rica con estos 3 personajes";
+      return "✨ Amazing! Your story will be incredibly rich with these 3 characters";
     case 4:
-      return "✨ ¡Máximo alcanzado! Estos 4 personajes crearán una historia épica";
+      return "✨ Maximum reached! These 4 characters will create an epic erotic adventure";
     default:
-      return "✨ Para cuentos cortitos, recomendamos menos personajes para que cada uno brille más";
+      return "✨ For intimate stories, fewer characters allow each one to shine in your fantasy";
   }
 };
 

@@ -1,10 +1,5 @@
 import { useUserStore } from "../store/user/userStore";
-// REMOVED: No necesitas importar characterStore, storiesStore, audioStore aquí
-// import { useCharacterStore } from "../store/character/characterStore";
-// import { useStoriesStore } from "../store/stories/storiesStore";
-// import { useAudioStore } from "../store/stories/audio/audioStore";
-// import { getCurrentUser } from "../supabaseAuth"; // Ya no se usa aquí directamente
-import { supabase } from "../supabaseClient"; // Importa el cliente supabase si no lo tienes ya
+import { supabase } from "../supabaseClient";
 
 /**
  * Servicio para INICIAR la sincronización de datos del usuario con Supabase

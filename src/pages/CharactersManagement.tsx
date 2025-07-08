@@ -25,13 +25,13 @@ export default function CharactersManagement() {
   // Load characters directly from Supabase
   useEffect(() => {
     const loadCharacters = async () => {
-      console.log("[DEBUG] CharactersManagement montado - cargando personajes directamente desde Supabase");
+      console.log("[DEBUG] CharactersManagement mounted - loading characters directly from Supabase");
       setIsLoading(true);
       setError(null);
 
       if (!user) {
-        console.error("[DEBUG] No hay usuario autenticado para cargar personajes");
-        setError("No hay usuario autenticado");
+        console.error("[DEBUG] No authenticated user to load characters");
+        setError("No authenticated user");
         setIsLoading(false);
         return;
       }
@@ -41,14 +41,14 @@ export default function CharactersManagement() {
         
         if (success && loadedCharacters) {
           setCharacters(loadedCharacters);
-          console.log(`[DEBUG] Cargados ${loadedCharacters.length} personajes para usuario ${user.id}`);
+          console.log(`[DEBUG] Loaded ${loadedCharacters.length} characters for user ${user.id}`);
         } else {
-          console.error("[DEBUG] Error cargando personajes:", loadError);
-          setError("Error cargando personajes");
+          console.error("[DEBUG] Error loading characters:", loadError);
+          setError("Error loading characters");
         }
       } catch (err) {
-        console.error("[DEBUG] Error inesperado cargando personajes:", err);
-        setError("Error inesperado cargando personajes");
+        console.error("[DEBUG] Unexpected error loading characters:", err);
+        setError("Unexpected error loading characters");
       } finally {
         setIsLoading(false);
       }
@@ -82,14 +82,14 @@ export default function CharactersManagement() {
           setCharacters(prev => prev.filter(char => char.id !== characterToDelete.id));
           
           toast({
-            title: "Personaje eliminado",
-            description: `El personaje ${characterToDelete.name} ha sido eliminado`,
+            title: "Character deleted",
+            description: `Character ${characterToDelete.name} has been removed from your collection`,
           });
         } else {
           console.error("[DEBUG] Error eliminando personaje:", deleteError);
           toast({
             title: "Error",
-            description: "No se pudo eliminar el personaje. Inténtalo de nuevo.",
+            description: "Could not delete character. Please try again.",
             variant: "destructive",
           });
         }
@@ -97,7 +97,7 @@ export default function CharactersManagement() {
         console.error("[DEBUG] Error inesperado eliminando personaje:", err);
         toast({
           title: "Error",
-          description: "Error inesperado eliminando personaje",
+          description: "Unexpected error deleting character",
           variant: "destructive",
         });
       } finally {
@@ -139,7 +139,7 @@ export default function CharactersManagement() {
         
         <div className="w-full max-w-2xl mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-[#BB79D1] text-center mb-6 font-heading drop-shadow-lg">
-            Mis Personajes
+            My Characters
           </h1>
           
           <div className="mb-8">
@@ -148,7 +148,7 @@ export default function CharactersManagement() {
               className="w-full bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-200 text-lg"
             >
               <Plus size={24} className="text-white" />
-              Crear Nuevo Personaje
+              Create New Character
             </button>
           </div>
           
@@ -163,7 +163,7 @@ export default function CharactersManagement() {
                 onClick={() => window.location.reload()} 
                 className="mt-2 text-[#BB79D1] underline"
               >
-                Reintentar
+                Retry
               </button>
             </div>
           ) : (
@@ -171,9 +171,9 @@ export default function CharactersManagement() {
               {characters.length === 0 ? (
                 <div className="bg-white/80 rounded-xl p-8 text-center text-[#222] shadow-md">
                   <User size={48} className="mx-auto mb-4 text-[#BB79D1] opacity-70" />
-                  <h3 className="text-xl font-semibold mb-2 text-[#222]">No tienes personajes</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-[#222]">No characters yet</h3>
                   <p className="text-[#555] mb-6">
-                    Crea tu primer personaje para utilizarlo en tus historias
+                    Create your first character to star in your intimate stories
                   </p>
                   <StoryButton 
                     onClick={handleCreateNewCharacter}
@@ -181,7 +181,7 @@ export default function CharactersManagement() {
                     icon={<Plus size={16} />}
                     className="bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition-all duration-200"
                   >
-                    Crear Personaje
+                    Create Character
                   </StoryButton>
                 </div>
               ) : (
@@ -200,11 +200,11 @@ export default function CharactersManagement() {
                         <div className="flex-grow mr-4">
                           <h3 className="text-[#222] font-semibold text-lg">{character.name}</h3>
                           <p className="text-[#555] text-sm line-clamp-2">
-                            {character.description || 'Sin descripción'}
+                            {character.description || 'No description yet - add details to make them irresistible'}
                           </p>
                           <p className="text-[#7DC4E0] text-xs mt-1">
-                            {character.gender === 'male' ? '♂ Masculino' : 
-                             character.gender === 'female' ? '♀ Femenino' : '⚧ No binario'}
+                            {character.gender === 'male' ? '♂ Male' : 
+                             character.gender === 'female' ? '♀ Female' : '⚧ Non-binary'}
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -232,7 +232,7 @@ export default function CharactersManagement() {
           )}
         </div>
 
-        {/* Modal de confirmación de eliminación */}
+        {/* Delete confirmation modal */}
         {showDeleteConfirm && characterToDelete && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
             <motion.div 
@@ -240,23 +240,23 @@ export default function CharactersManagement() {
               animate={{ scale: 1, opacity: 1 }}
               className="bg-white/90 rounded-xl p-6 max-w-md w-full shadow-lg"
             >
-              <h3 className="text-xl font-semibold text-[#BB79D1] mb-2">Eliminar personaje</h3>
+              <h3 className="text-xl font-semibold text-[#BB79D1] mb-2">Delete character</h3>
               <p className="text-[#222] mb-6">
-                ¿Estás seguro de que quieres eliminar a <span className="font-medium text-[#BB79D1]">{characterToDelete.name}</span>? 
-                Esta acción no se puede deshacer.
+                Are you sure you want to delete <span className="font-medium text-[#BB79D1]">{characterToDelete.name}</span>? 
+                This action cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={cancelDelete}
                   className="flex-1 py-2 px-4 bg-white/80 rounded-xl text-[#222] font-medium hover:bg-white/90 transition-colors border border-[#BB79D1]/30 shadow-sm"
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
                   className="flex-1 py-2 px-4 bg-[#F6A5B7] rounded-xl text-white font-medium hover:bg-[#F6A5B7]/80 transition-colors shadow-sm"
                 >
-                  Eliminar
+                  Delete
                 </button>
               </div>
             </motion.div>

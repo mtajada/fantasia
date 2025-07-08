@@ -87,17 +87,17 @@ export default function CharacterName() {
     const newErrors: {[key: string]: string} = {};
     
     if (!character.name.trim()) {
-      newErrors.name = 'El nombre es obligatorio';
+      newErrors.name = 'Name is required';
     } else if (character.name.length < 2) {
-      newErrors.name = 'El nombre debe tener al menos 2 caracteres';
+      newErrors.name = 'Name must be at least 2 characters';
     } else if (checkNameExists(character.name)) {
-      newErrors.name = `Ya tienes un personaje llamado "${character.name}"`;
+      newErrors.name = `You already have a character named "${character.name}"`;
     }
     
     if (!character.description.trim()) {
-      newErrors.description = 'La descripción es obligatoria';
+      newErrors.description = 'Description is required';
     } else if (character.description.length < 10) {
-      newErrors.description = 'La descripción debe tener al menos 10 caracteres';
+      newErrors.description = 'Description must be at least 10 characters';
     }
     
     setErrors(newErrors);
@@ -122,16 +122,16 @@ export default function CharacterName() {
     try {
       // Verificar conexión de red
       if (!navigator.onLine) {
-        toast.error('Sin conexión a internet', {
-          description: 'Verifica tu conexión e intenta nuevamente'
+        toast.error('No internet connection', {
+          description: 'Check your connection and try again'
         });
         return;
       }
 
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
-        toast.error('Sesión expirada', {
-          description: 'Inicia sesión nuevamente'
+        toast.error('Session expired', {
+          description: 'Please log in again'
         });
         navigate('/login');
         return;
@@ -147,16 +147,16 @@ export default function CharacterName() {
           .single();
         
         if (!existingChar) {
-          toast.error('Personaje no encontrado', {
-            description: 'El personaje puede haber sido eliminado'
+          toast.error('Character not found', {
+            description: 'The character may have been deleted'
           });
           navigate('/characters-management');
           return;
         }
         
         if (existingChar.user_id !== user.id) {
-          toast.error('Sin permisos', {
-            description: 'No puedes editar este personaje'
+          toast.error('No permissions', {
+            description: 'You cannot edit this character'
           });
           navigate('/characters-management');
           return;
@@ -256,7 +256,7 @@ export default function CharacterName() {
     // Validación en tiempo real para el nombre
     if (field === 'name' && value.trim()) {
       if (checkNameExists(value)) {
-        setErrors(prev => ({ ...prev, name: `Ya tienes un personaje llamado "${value}"` }));
+        setErrors(prev => ({ ...prev, name: `You already have a character named "${value}"` }));
       }
     }
     
@@ -323,19 +323,19 @@ export default function CharacterName() {
           </motion.div>
           
           <h1 className="text-3xl font-bold text-[#BB79D1] mb-6 text-center font-heading drop-shadow-lg">
-            {editingCharacter ? 'Editar Personaje' : 'Crear Personaje'}
+            {editingCharacter ? 'Edit Character' : 'Create Character'}
           </h1>
           
           <p className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-8 font-medium shadow-sm">
-            {editingCharacter ? 'Modifica los datos de tu personaje' : 'Crea tu personaje personalizado para historias únicas'}
+            {editingCharacter ? 'Modify your character\'s intimate details' : 'Create your custom character for unique erotic stories'}
           </p>
           
           <form onSubmit={handleSubmit} className="w-full space-y-6">
-            {/* Campo Nombre */}
+            {/* Name field */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#BB79D1] flex items-center gap-2">
                 <User size={16} />
-                Nombre del personaje
+                Character name
               </label>
               <div className={`relative transition-all duration-300 ease-in-out ${isFocused ? 'scale-105' : 'scale-100'}`}>
                 <Input 
@@ -362,11 +362,11 @@ export default function CharacterName() {
               </div>
             </div>
 
-            {/* Selector de Género */}
+            {/* Gender selector */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#BB79D1] flex items-center gap-2">
                 <Users size={16} />
-                Género del personaje
+                Character gender
               </label>
               <Select
                 value={character.gender}
@@ -374,36 +374,36 @@ export default function CharacterName() {
                 disabled={loading}
               >
                 <SelectTrigger className={`h-14 text-lg font-medium rounded-xl shadow-md bg-white/90 border-[#BB79D1]/30 focus:border-[#BB79D1] focus:ring-2 focus:ring-[#BB79D1]/20 ${loading ? 'opacity-50' : ''}`}>
-                  <SelectValue placeholder="Selecciona el género" />
+                  <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="male" className="text-lg py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-blue-600">♂</span>
-                      Masculino
+                      Male
                     </div>
                   </SelectItem>
                   <SelectItem value="female" className="text-lg py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-pink-600">♀</span>
-                      Femenino
+                      Female
                     </div>
                   </SelectItem>
                   <SelectItem value="non-binary" className="text-lg py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-purple-600">⚧</span>
-                      No binario
+                      Non-binary
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Campo Descripción */}
+            {/* Description field */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#BB79D1] flex items-center gap-2">
                 <Edit3 size={16} />
-                Descripción del personaje
+                Character description
               </label>
               <div className="relative">
                 <Textarea
@@ -413,7 +413,7 @@ export default function CharacterName() {
                       handleFieldChange('description', e.target.value);
                     }
                   }}
-                  placeholder="Describe tu personaje: personalidad, apariencia, gustos, profesión, hobbies, preferencias, fantasias..."
+                  placeholder="Describe your character: personality, appearance, desires, profession, hobbies, preferences, fantasies..."
                   className={`min-h-[120px] text-base font-medium rounded-xl shadow-md transition-all resize-none ${
                     errors.description 
                       ? 'border-[#F6A5B7] text-[#F6A5B7] bg-[#F6A5B7]/10' 
@@ -434,11 +434,11 @@ export default function CharacterName() {
                 )}
               </div>
               <p className="text-xs text-[#7DC4E0] bg-white/60 rounded-lg px-3 py-2">
-                ✨ Cuanto más detallada sea la descripción, más personalizadas serán tus historias
+                ✨ The more detailed the description, the more personalized and intimate your stories will be
               </p>
             </div>
             
-            {/* Botones */}
+            {/* Buttons */}
             <div className={`flex gap-4 w-full ${isMobile ? 'flex-col' : 'flex-row'}`}>
               <button
                 type="button"
@@ -446,7 +446,7 @@ export default function CharacterName() {
                 className={`${isMobile ? 'w-full' : 'w-[48%]'} text-lg py-4 shadow-md hover:shadow-lg transition-all rounded-2xl font-medium bg-white/70 hover:bg-white/90 text-[#BB79D1] border border-[#BB79D1]/30 disabled:opacity-50`}
                 disabled={loading}
               >
-                Atrás
+                Back
               </button>
               
               <button
@@ -457,11 +457,11 @@ export default function CharacterName() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Guardando...
+                    Saving...
                   </>
                 ) : (
                   <>
-                    {editingCharacter ? 'Actualizar' : 'Crear'} Personaje
+                    {editingCharacter ? 'Update' : 'Create'} Character
                   </>
                 )}
               </button>
