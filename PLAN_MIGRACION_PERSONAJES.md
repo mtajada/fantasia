@@ -454,12 +454,12 @@ const validateCharacter = (character: StoryCharacter) => {
 ### Semana 2: Migración de Base
 - [x] **Actualizar tipos TypeScript** - ✅ COMPLETADO (Fase 1)
 - [x] **Eliminar páginas obsoletas** - ✅ COMPLETADO (Fase 2)
-- [ ] Crear servicios directos
+- [x] **Crear servicios directos** - ✅ COMPLETADO (Fase 5 - charactersService.ts)
 
 ### Semana 3: Refactorización Principal
 - [x] **Transformar página de creación** - ✅ COMPLETADO (Fase 3)
-- [ ] Actualizar gestión de personajes
-- [ ] Eliminar dependencias de Zustand
+- [x] **Actualizar gestión de personajes** - ✅ COMPLETADO (Fase 4)
+- [x] **Eliminar dependencias de Zustand** - ✅ COMPLETADO (Fase 5)
 
 ### Semana 4: Edge Functions y Testing
 - [ ] Actualizar edge functions
@@ -510,10 +510,10 @@ El enfoque en una descripción libre permitirá mayor personalización y flexibi
 
 ---
 
-**Versión**: 1.0  
+**Versión**: 1.1  
 **Fecha**: Enero 2025  
 **Autor**: Equipo de Desarrollo Fantasia  
-**Estado**: FASE 3 COMPLETADA - Refactorización Principal Exitosa
+**Estado**: FASE 5 COMPLETADA - MIGRACIÓN ZUSTAND FINALIZADA
 
 ---
 
@@ -652,28 +652,44 @@ if (success) {
 - ✅ **deleteCharacter()** - Funcionando con llamadas directas
 - ✅ **syncCharacter()** - Actualizado para nueva estructura
 
+### ✅ FASE 5 COMPLETADA - Eliminación del Store de Zustand
+
+**Estado final**:
+- ✅ **characterStore.ts y characterValidation.ts** - ELIMINADOS completamente (~600 líneas)
+- ✅ **charactersService.ts** - CREADO con API completa y validaciones
+- ✅ **userStore.ts** - Import dinámico eliminado de syncAllUserData
+- ✅ **storyOptionsStore.ts** - Migrado a charactersService.getSelectedCharactersByIds()
+- ✅ **storyGenerator.ts** - Migrado a charactersService.getUserCharacters()
+- ✅ **store/index.ts** - Export de characterStore eliminado
+- ✅ **CharacterSelection.tsx** - Funciones de validación migradas al servicio
+- ✅ **store/types/storeTypes.ts** - CharacterState interface eliminada
+
+**Verificaciones exitosas**:
+- ✅ TypeScript: Compilación sin errores (`npx tsc --noEmit`)
+- ✅ Build: Producción exitosa (`npm run build`)
+- ✅ Referencias: Ninguna referencia residual al character store
+- ✅ Bundle: Reducción de ~600 líneas de código
+
 ### 🔄 PRÓXIMO
-- **Fase 5**: Eliminación del Store de Zustand
-  - Eliminar characterStore.ts y characterValidation.ts
-  - Crear servicios directos (charactersService.ts)
-  - Actualizar imports en archivos restantes
+- **Fase 6**: Actualización de Edge Functions
+  - generate-story/prompt.ts - Migrar de profession/hobbies a gender/description
+  - story-continuation/prompt.ts - Actualizar estructura de personajes
+  - Servicios AI - Mapear nueva estructura en payloads
 
 ### ⚠️ NOTAS IMPORTANTES PARA PRÓXIMAS FASES
 
-#### **Estado Actual Post-Fase 4**
+#### **Estado Actual Post-Fase 5 - ARQUITECTURA LIMPIA LOGRADA**
+- **Character Store**: ✅ ELIMINADO COMPLETAMENTE - Sin referencias residuales
 - **Pages migradas**: CharacterName.tsx, CharacterSelection.tsx, CharactersManagement.tsx
-- **Supabase functions**: getUserCharacters(), syncCharacter(), deleteCharacter() ya actualizados
-- **Flujo completo**: CharacterName → CharacterSelection → StoryGenre (todo migrado)
-- **Store Legacy**: useCharacterStore solo referenciado en:
-  - `src/store/user/userStore.ts` (import dinámico para syncAllUserData)
-  - `src/store/storyOptions/storyOptionsStore.ts` (línea 45 - getSelectedCharactersForStory)
-  - `src/store/stories/storyGenerator.ts` (para obtener personajes)
+- **Servicios migrados**: userStore.ts, storyOptionsStore.ts, storyGenerator.ts
+- **Supabase functions**: getUserCharacters(), syncCharacter(), deleteCharacter() funcionando
+- **Flujo completo**: CharacterName → CharacterSelection → StoryGenre (sin Zustand dependencies)
 
-#### **Crítico para Fase 5**
-- **Dependencias restantes**: Solo en stores internos, no en páginas UI
-- **syncAllUserData**: Necesita actualización para no cargar characterStore
-- **storyOptionsStore**: getSelectedCharactersForStory() necesita refactor
-- **storyGenerator**: Usar nueva fuente de personajes (no store)
+#### **Nuevo charactersService.ts disponible**
+- **API unificada**: getUserCharacters(), createCharacter(), updateCharacter(), deleteCharacter()
+- **Validaciones preservadas**: validateCharacter(), validateMultipleCharacterSelection(), validateStoryGeneration()
+- **Utilidades**: getCharacterSelectionMessage(), isCharacterSelected(), canSelectMoreCharacters()
+- **Constantes**: CHARACTER_LIMITS exportadas para usar en UI
 
 #### **Edge Functions pendientes (Fase 6)**
 - **generate-story/prompt.ts**: Actualizar para usar gender + description
@@ -686,17 +702,24 @@ if (success) {
 - **Error handling**: Patrón consistente con retry y toast notifications
 - **Performance**: Eliminación completa de overhead de store en UI
 
-### 🎯 LOGROS FASE 4 COMPLETA
-- **Eliminación de dependencias UI**: 3 páginas principales migradas exitosamente
-- **Arquitectura consistente**: Patrón uniforme de llamadas directas a Supabase
-- **UI mejorada**: Gender indicators y description preview en ambas páginas
-- **Performance optimizada**: Eliminación de overhead Zustand en flujo principal
-- **Manejo robusto**: Error handling y loading states consistentes
-- **Nueva estructura**: Todas las páginas UI usan gender + description correctamente
+### 🎯 LOGROS FASE 5 COMPLETA - MIGRACIÓN ZUSTAND FINALIZADA
+- **Eliminación total**: Character Store de Zustand eliminado completamente (~600 líneas)
+- **Servicio unificado**: charactersService.ts con API completa y validaciones preservadas
+- **Arquitectura limpia**: Sin dependencias de Zustand para personajes en toda la aplicación
+- **Performance optimizada**: Eliminación total de overhead de store y persistencia local
+- **Compatibilidad preservada**: Todas las funcionalidades y validaciones mantenidas
+- **Build exitoso**: Compilación y producción funcionando correctamente
 
-### 📝 CONSIDERACIONES PARA FASE 5
-- **Eliminación segura**: Solo queda eliminar archivos de store sin afectar UI
-- **Dependencias internas**: Actualizar stores restantes que referencian characterStore
-- **Servicio unificado**: Crear charactersService.ts como wrapper si es necesario
-- **Testing**: Verificar que flujo completo funciona sin characterStore
-- **Cleanup**: Eliminar imports dinámicos obsoletos en userStore
+### 🎉 HITO ARQUITECTÓNICO COMPLETADO
+**La migración del sistema de personajes está 100% completada**:
+- ✅ **Fase 1**: Tipos TypeScript simplificados (7 → 5 campos)
+- ✅ **Fase 2**: Páginas obsoletas eliminadas (~650 líneas)
+- ✅ **Fase 3**: CharacterName.tsx migrado a formulario único
+- ✅ **Fase 4**: CharacterSelection/Management migrados a Supabase directo
+- ✅ **Fase 5**: Character Store eliminado completamente
+
+### 📝 CONSIDERACIONES PARA FASE 6
+- **Edge Functions**: Actualizar prompts para usar gender + description
+- **Payload mapping**: Servicios AI necesitan mapear nueva estructura
+- **Backward compatibility**: Mantener funcionamiento con historias existentes
+- **Testing**: Verificar generación de historias con nueva estructura de personajes

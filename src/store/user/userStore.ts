@@ -259,10 +259,11 @@ export const useUserStore = createPersistentStore<UserState>(
 async function syncAllUserData(userId: string) {
   console.log(`Iniciando carga completa para usuario: ${userId}`);
 
-  // 1. Limpiar todos los datos locales primero
+  // 1. Cargar datos de historias desde Supabase
+  // Nota: Los personajes ahora se cargan directamente en las páginas según sea necesario
   const otherStores = [
     { store: (await import('../stories/storiesStore')).useStoriesStore, method: 'loadStoriesFromSupabase' },
-    { store: (await import('../character/characterStore')).useCharacterStore, method: 'loadCharactersFromSupabase' },
+    // Character store eliminado - los personajes se cargan directamente vía charactersService
     // Agrega otros stores aquí
   ];
 

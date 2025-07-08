@@ -31,27 +31,7 @@ export interface UserState {
   canContinueStory: (storyId: string) => boolean;
 }
 
-export interface CharacterState {
-  savedCharacters: StoryCharacter[];
-  selectedCharacters: StoryCharacter[];
-  maxCharacters: number;
-  currentCharacter: StoryCharacter;
-
-  updateCharacter: (updates: Partial<StoryCharacter>) => void;
-  resetCharacter: () => void;
-  setCurrentCharacter: (character: StoryCharacter) => void;
-  saveCurrentCharacter: () => Promise<{ success: boolean; error?: string }>;
-  deleteCharacter: (characterId: string) => void;
-  loadCharactersFromSupabase: () => Promise<void>;
-
-  // Multiple character selection functions
-  toggleCharacterSelection: (characterId: string) => void;
-  clearSelectedCharacters: () => void;
-  getSelectedCharacters: () => StoryCharacter[];
-  isCharacterSelected: (characterId: string) => boolean;
-  canSelectMoreCharacters: () => boolean;
-  setSelectedCharacters: (characters: StoryCharacter[]) => void;
-}
+// CharacterState interface removed - character functionality moved to charactersService
 
 export interface StoryOptionsState {
   currentStoryOptions: Partial<StoryOptions>;

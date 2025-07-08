@@ -1,6 +1,6 @@
 // Exportación de los stores individuales
 export * from './user/userStore';
-export * from './character/characterStore';
+// Character store eliminado - usar charactersService en su lugar
 export * from './storyOptions/storyOptionsStore';
 export * from './stories/storiesStore';
 export * from './stories/chapters/chaptersStore';
