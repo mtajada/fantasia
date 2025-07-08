@@ -2,11 +2,30 @@
 // v8.0 (Adult Content + Preferences): Contiene las funciones para generar los prompts de contenido adulto.
 // createUserPrompt_JsonFormat ahora instruye a la IA para devolver JSON con contenido erótico.
 
+// Language mapping function to convert language codes to explicit language names
+function getLanguageName(languageCode: string): string {
+    const languageMap: Record<string, string> = {
+        'es': 'Spanish',
+        'en': 'English',
+        'fr': 'French',
+        'de': 'German',
+        'it': 'Italian',
+        'pt': 'Portuguese',
+        'ru': 'Russian',
+        'ja': 'Japanese',
+        'ko': 'Korean',
+        'zh': 'Chinese'
+    };
+    
+    return languageMap[languageCode] || 'English';
+}
+
 // createSystemPrompt: El contenido textual de la guía para la IA ahora enfocado en contenido adulto.
 export function createSystemPrompt(language: string, preferences?: string | null): string {
     console.log(`[Adult Content v8.0] createSystemPrompt: lang=${language}, preferences=${preferences ? 'provided' : 'none'}`);
 
-    let base = `You are an expert writer creating personalized erotic stories for adults. Write always in ${language}, with sophisticated and sensual language appropriate for mature audiences (18+).`;
+    const languageName = getLanguageName(language);
+    let base = `You are an expert writer creating personalized erotic stories for adults. Write always in ${languageName}, with sophisticated and sensual language appropriate for mature audiences (18+).`;
     
     if (preferences && preferences.trim()) {
         base += ` The user has specified these preferences and interests: "${preferences.trim()}". Incorporate these elements thoughtfully and naturally into the story to create a personalized experience.`;
@@ -119,13 +138,14 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
     request += `4. **Adult Content Guidelines:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Build tension and desire naturally through the narrative.\n`;
     request += `5. **Character Development:** Create believable, complex characters with desires and motivations. Show their emotional journey alongside the physical story.\n`;
     
-    request += `6. **Title:** Generate an extraordinary title (memorable, evocative, intriguing). The title should follow "Sentence case" style. The title must be written in the same language selected for the story: ${language}.\n`;
+    const languageName = getLanguageName(language);
+    request += `6. **Title:** Generate an extraordinary title (memorable, evocative, intriguing). The title should follow "Sentence case" style. The title must be written in the same language selected for the story: ${languageName}.\n`;
 
     // JSON format instructions (unchanged)
     request += `\n**Response format instructions (VERY IMPORTANT!):**\n`;
     request += `* You must respond with a SINGLE JSON object.\n`;
     request += `* The JSON object must have exactly two keys: "title" and "content".\n`;
-    request += `* The "title" key value should be a string containing ONLY the generated title (ideally 4-7 words), following the title guidelines above (${language} language, "Sentence case").\n`;
+    request += `* The "title" key value should be a string containing ONLY the generated title (ideally 4-7 words), following the title guidelines above (${languageName} language, "Sentence case").\n`;
     request += `* The "content" key value should be a string with ALL the story content, starting directly with the first sentence of the story.\n`;
     request += `* Example of expected JSON format: {"title": "An extraordinary title here", "content": "Once upon a time in a distant place..."}\n`;
     request += `* Do NOT include ANYTHING before the '{' character that starts the JSON object.\n`;

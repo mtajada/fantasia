@@ -58,7 +58,7 @@ export default function StoryViewer() {
       return;
     }
     setStory(fetchedStory);
-    
+
     const storyChapters = getChaptersByStoryId(storyId);
     let chaptersToSet: StoryChapter[];
     if (storyChapters.length === 0 && fetchedStory.content) {
@@ -88,11 +88,11 @@ export default function StoryViewer() {
   }, [storyId, location.search, getStoryById, getChaptersByStoryId, navigate, isLoadingStories]);
 
   if (isLoadingStories) {
-    return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Cargando historia...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-white" style={{backgroundColor: 'black'}}>Loading story...</div>;
   }
 
   if (!story) {
-    return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Historia no encontrada. Redirigiendo...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-white" style={{backgroundColor: 'black'}}>Story not found. Redirecting...</div>;
   }
 
 
@@ -109,22 +109,22 @@ export default function StoryViewer() {
           text: shareText,
           url: shareUrl,
         });
-        toast.success("¡Historia compartida!");
+        toast.success("Story shared!");
       } catch (error) {
         console.error("Error al compartir:", error);
-        toast.error("No se pudo compartir", { description: "El navegador canceló la acción o hubo un error." });
+        toast.error("Could not share", { description: "The browser canceled the action or there was an error." });
       }
     } else {
       // Fallback: Copiar al portapapeles
       try {
         await navigator.clipboard.writeText(shareUrl);
-        toast.info("Enlace copiado al portapapeles", {
-          description: "Puedes pegarlo para compartir la historia."
+        toast.info("Link copied to clipboard", {
+          description: "You can paste it to share the story."
         });
       } catch (err) {
         console.error('Error al copiar al portapapeles:', err);
-        toast.error("No se pudo copiar el enlace", {
-          description: "Tu navegador no soporta esta función o hubo un error."
+        toast.error("Could not copy link", {
+          description: "Your browser doesn't support this feature or there was an error."
         });
       }
     }
@@ -140,8 +140,8 @@ export default function StoryViewer() {
     if (isAllowedToGenerateVoice) {
       navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
     } else {
-      toast.error("Límite de voz alcanzado", {
-        description: "No tienes generaciones de voz gratuitas o créditos disponibles."
+      toast.error("Voice limit reached", {
+        description: "You don't have free voice generations or credits available."
       });
     }
   };
@@ -168,8 +168,8 @@ export default function StoryViewer() {
       // Navega a la PÁGINA de continuación, no genera aquí
       navigate(`/story/${storyId}/continue?refresh=${Date.now()}`);
     } else {
-      toast.error("Límite de continuación alcanzado", {
-        description: "Solo puedes añadir una continuación gratuita por historia."
+      toast.error("Continuation limit reached", {
+        description: "You can only add one free continuation per story."
       });
     }
   };
@@ -181,55 +181,58 @@ export default function StoryViewer() {
 
   if (!currentChapter) {
     // Manejar caso donde el índice es inválido (aunque useEffect debería prevenirlo)
-    return <div className="gradient-bg min-h-screen flex items-center justify-center text-white">Error: Capítulo no encontrado.</div>;
+    return <div className="min-h-screen flex items-center justify-center text-white" style={{backgroundColor: 'black'}}>Error: Chapter not found.</div>;
   }
 
   return (
     <PageTransition>
       <div
-        className="min-h-screen relative pb-24 flex flex-col items-center justify-start bg-black"
+        className="min-h-screen relative pb-24 flex flex-col items-center justify-start"
+        style={{
+          backgroundColor: 'black',
+        }}
       >
         {/* Botón de Volver atrás */}
         <BackButton onClick={handleGoBack} />
 
-        <div className="absolute top-6 right-6 flex space-x-2 z-10">
+        <div className="absolute top-6 right-6 flex space-x-3 z-10">
           <button
             onClick={handleShare}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#BB79D1] hover:bg-white/40 hover:scale-105 active:scale-95 transition-all shadow-md"
-            aria-label="Compartir"
+            className="w-11 h-11 rounded-full bg-gray-800/80 backdrop-blur-md border border-gray-700 flex items-center justify-center text-violet-300 hover:bg-gray-700/80 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-violet-500/25"
+            aria-label="Share"
           >
             <Share className="h-5 w-5" />
           </button>
           <button
             onClick={handlePrint}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-[#BB79D1] hover:bg-white/40 hover:scale-105 active:scale-95 transition-all shadow-md"
-            aria-label="Generar PDF"
-            title="Generar PDF del cuento"
+            className="w-11 h-11 rounded-full bg-gray-800/80 backdrop-blur-md border border-gray-700 flex items-center justify-center text-violet-300 hover:bg-gray-700/80 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-violet-500/25"
+            aria-label="Generate PDF"
+            title="Generate PDF of the story"
           >
             <FileDown className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="w-full max-w-2xl mx-auto pt-20 px-2 sm:px-6 flex-1 flex flex-col">
+        <div className="w-full max-w-3xl mx-auto pt-20 px-4 sm:px-6 flex-1 flex flex-col">
           {/* Título del Capítulo/Historia */}
           <motion.h1
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-2xl sm:text-3xl font-bold text-center mb-4 text-[#BB79D1] drop-shadow-lg px-2"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 px-2"
             title={currentChapter.title || story.title}
           >
-            {chapters.length > 1 ? `Cap. ${currentChapterIndex + 1}: ` : ''}
-            {currentChapter.title || story.title || "Historia sin título"}
+            {chapters.length > 1 ? `Chapter ${currentChapterIndex + 1}: ` : ''}
+            {currentChapter.title || story.title || "Untitled Story"}
           </motion.h1>
 
           {/* Contenido Principal (Historia) */}
           {
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white/80 rounded-2xl p-4 sm:p-8 mb-6 text-[#222] leading-relaxed text-base sm:text-lg shadow-lg max-w-full"
+              className="bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 sm:p-8 mb-8 text-gray-100 leading-relaxed text-base sm:text-lg shadow-2xl max-w-full ring-1 ring-gray-700/50"
               style={{ minHeight: '40vh' }}
             >
               {parseTextToParagraphs(currentChapter.content).map((paragraph, index) => (
-                <p key={index} className="mb-4 last:mb-0 text-[1.08em] break-words">
+                <p key={index} className="mb-4 last:mb-0 text-[1.08em] break-words text-gray-200">
                   {paragraph}
                 </p>
               ))}
@@ -238,73 +241,72 @@ export default function StoryViewer() {
 
           {/* --- Barra de Acciones Inferior --- */}
           <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-4 sm:mt-8"
-            >
-              {/* Navegación entre Capítulos */}
-              <div className="flex justify-between items-center mb-4 px-1 sm:px-2">
-                <button onClick={handlePreviousChapter} disabled={currentChapterIndex === 0} className="text-[#BB79D1] bg-white/70 hover:bg-[#F6A5B7]/20 rounded-xl px-3 py-2 text-sm font-semibold shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
-                  <ChevronLeft size={18} /> Anterior
-                </button>
-                <span className="text-[#222] text-base sm:text-lg font-bold select-none drop-shadow-sm bg-white/70 px-3 py-1 rounded-xl shadow-sm">
-                  Capítulo {currentChapterIndex + 1} / {chapters.length}
-                </span>
-                <button onClick={handleNextChapter} disabled={currentChapterIndex === chapters.length - 1} className="text-[#BB79D1] bg-white/70 hover:bg-[#F6A5B7]/20 rounded-xl px-3 py-2 text-sm font-semibold shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
-                  Siguiente <ChevronRight size={18} />
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-6 sm:mt-10"
+          >
+            {/* Navegación entre Capítulos */}
+            <div className="flex justify-between items-center mb-6 px-2 sm:px-4">
+              <button onClick={handlePreviousChapter} disabled={currentChapterIndex === 0} className="text-violet-300 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-700 rounded-xl px-3 py-2 text-sm font-semibold shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
+                <ChevronLeft size={18} /> Previous
+              </button>
+              <span className="text-gray-300 text-base sm:text-lg font-bold select-none drop-shadow-sm bg-gray-800/80 border border-gray-700 px-3 py-1 rounded-xl shadow-sm">
+                Chapter {currentChapterIndex + 1} / {chapters.length}
+              </span>
+              <button onClick={handleNextChapter} disabled={currentChapterIndex === chapters.length - 1} className="text-violet-300 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-700 rounded-xl px-3 py-2 text-sm font-semibold shadow disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
+                Next <ChevronRight size={18} />
+              </button>
+            </div>
+
+            {/* Botones de Acción Principales */}
+            <div className="flex flex-col items-center space-y-5 sm:space-y-6">
+              {/* Primera fila: Continuar Historia */}
+              <div className="flex flex-col sm:flex-row gap-5 sm:gap-8 justify-center items-center w-full">
+                <button
+                  onClick={goToContinuationPage}
+                  disabled={!isAllowedToContinue || !isLastChapter}
+                  className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue && isLastChapter ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-violet-500/25' : 'bg-gray-700 cursor-not-allowed text-gray-400 border border-gray-600'}`}
+                  // Título dinámico según la razón de la deshabilitación
+                  title={
+                    !isAllowedToContinue
+                      ? "Free continuation limit reached"
+                      : !isLastChapter
+                        ? "You can only continue from the last chapter"
+                        : "Continue the story"
+                  }
+                >
+                  <BookOpen size={22} className="mr-2" />
+                  Continue Story
                 </button>
               </div>
 
-              {/* Botones de Acción Principales */}
-              <div className="flex flex-col items-center space-y-4 sm:space-y-5">
-                {/* Primera fila: Continuar Historia */}
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full">
-                  <button
-                    onClick={goToContinuationPage}
-                    // Deshabilitado si NO se permite continuar (plan) O si NO es el último capítulo
-                    disabled={!isAllowedToContinue || !isLastChapter}
-                    className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue && isLastChapter ? 'bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
-                    // Título dinámico según la razón de la deshabilitación
-                    title={
-                      !isAllowedToContinue
-                        ? "Límite de continuación gratuita alcanzado"
-                        : !isLastChapter
-                        ? "Solo puedes continuar desde el último capítulo"
-                        : "Continuar la historia"
-                    }
-                  >
-                    <BookOpen size={22} className="mr-2" />
-                    Continuar Historia
-                  </button>
-                </div>
+              {/* Segunda fila: Narrar */}
+              <button
+                onClick={toggleAudioPlayer}
+                disabled={!isAllowedToGenerateVoice}
+                className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white shadow-pink-500/25' : 'bg-gray-700 cursor-not-allowed text-gray-400 border border-gray-600'}`}
+                title={!isAllowedToGenerateVoice ? "Voice limit or credits exhausted" : "Listen to narration"}
+              >
+                <Volume2 size={22} className="mr-2" />
+                Narrate
+                {!isAllowedToGenerateVoice && <AlertCircle className="ml-1 h-4 w-4" />}
+              </button>
 
-                {/* Segunda fila: Narrar */}
-                <button
-                  onClick={toggleAudioPlayer}
-                  disabled={!isAllowedToGenerateVoice}
-                  className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-[#f7c59f] hover:bg-[#ffd7ba] text-white active:bg-[#ffd7ba] focus:bg-[#ffd7ba]' : 'bg-gray-300 cursor-not-allowed text-gray-500'}`}
-                  title={!isAllowedToGenerateVoice ? "Límite de voz o créditos agotados" : "Escuchar narración"}
-                >
-                  <Volume2 size={22} className="mr-2" />
-                  Narrar
-                  {!isAllowedToGenerateVoice && <AlertCircle className="ml-1 h-4 w-4" />}
-                </button>
-
-                {/* Tercera fila: Volver al Inicio */}
-                <button
-                  onClick={() => navigate("/home")}
-                  className="flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-semibold bg-white/60 hover:bg-white/80 text-[#BB79D1] transition-all shadow w-full sm:w-48 text-base"
-                >
-                  <Home size={18} className="mr-2" /> Volver al Inicio
-                </button>
-              </div>
-            </motion.div>
+              {/* Tercera fila: Volver al Inicio */}
+              <button
+                onClick={() => navigate("/home")}
+                className="flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-semibold bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 border border-gray-700 transition-all shadow w-full sm:w-48 text-base"
+              >
+                <Home size={18} className="mr-2" /> Back to Home
+              </button>
+            </div>
+          </motion.div>
         </div> {/* Fin container */}
 
         {/* Modal de generación de PDF */}
         <StoryPdfPreview
           isOpen={showPdfPreview}
           onClose={() => setShowPdfPreview(false)}
-          title={currentChapter?.title || story?.title || "Tu cuento Fantasia!"}
+          title={currentChapter?.title || story?.title || "Your Fantasia Story!"}
           content={currentChapter?.content || ""}
           storyId={storyId!}
           chapterId={currentChapter?.id || "1"}
