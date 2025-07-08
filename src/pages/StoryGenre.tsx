@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useStoryOptionsStore } from "../store/storyOptions/storyOptionsStore";
@@ -7,6 +7,7 @@ import StoryButton from "../components/StoryButton";
 import PageTransition from "../components/PageTransition";
 import { Input } from "../components/ui/input";
 import { cn } from "../lib/utils";
+import { StoryCharacter } from "../types";
 
 const suggestedGenres = [
   { id: "erotic-romance", name: "Erotic Romance", icon: "💘" },
@@ -21,8 +22,26 @@ export default function StoryGenre() {
   const navigate = useNavigate();
   const { currentStoryOptions, setGenre } = useStoryOptionsStore();
   const [customGenre, setCustomGenre] = useState("");
+  const [selectedCharacters, setSelectedCharacters] = useState<StoryCharacter[]>([]);
 
   const selectedGenre = currentStoryOptions.genre || "";
+
+  // Verify characters from sessionStorage
+  useEffect(() => {
+    const selectedCharactersData = sessionStorage.getItem('selectedCharacters');
+    if (selectedCharactersData) {
+      try {
+        const characters = JSON.parse(selectedCharactersData);
+        setSelectedCharacters(characters);
+        console.log("🔍 StoryGenre - Characters loaded from sessionStorage:", characters.length);
+      } catch (error) {
+        console.error("Error parsing selectedCharacters in StoryGenre:", error);
+      }
+    } else {
+      console.warn("StoryGenre - No characters found in sessionStorage, redirecting to character selection");
+      navigate("/character-selection");
+    }
+  }, [navigate]);
 
   const handleSelectGenre = (genre: string) => {
     setGenre(genre);
@@ -71,10 +90,25 @@ export default function StoryGenre() {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg text-gray-300 text-center mb-10 max-w-xl"
+            className="text-lg text-gray-300 text-center mb-6 max-w-xl"
           >
             Pick a genre or type your own. This will set the mood and style for your narrative. Let's get spicy! 🔥
           </motion.p>
+
+          {/* Show selected characters */}
+          {selectedCharacters.length > 0 && (
+            <motion.div
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              className="bg-white/10 rounded-lg p-3 mb-6 text-center"
+            >
+              <p className="text-sm text-gray-300 mb-1">Selected characters:</p>
+              <p className="text-violet-300 font-medium">
+                {selectedCharacters.map(char => char.name).join(', ')} ({selectedCharacters.length})
+              </p>
+            </motion.div>
+          )}
 
           <motion.div
             variants={container}
