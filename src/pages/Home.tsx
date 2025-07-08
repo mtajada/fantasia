@@ -2,35 +2,71 @@ import React, { useEffect } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { Settings, User, Star, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useUserStore } from "../store/user/userStore";
+import { supabase } from '@/supabaseClient';
 import { useStoriesStore } from "../store/stories/storiesStore";
 import PageTransition from "../components/PageTransition";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { hasCompletedProfile, canCreateStory, isPremium, getRemainingMonthlyStories } = useUserStore();
-  const { generatedStories } = useStoriesStore();
+  const { generatedStories } = useStoriesStore(); // Mantener para las historias
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [profile, setProfile] = React.useState<{ has_completed_setup: boolean; subscription_status: string | null; } | null>(null);
+
+  // TODO: Estos valores deberían venir del perfil
+  const canCreateStory = () => true; 
+  const getRemainingMonthlyStories = () => 10;
 
   useEffect(() => {
-    const needsProfileSetup = !hasCompletedProfile();
-    if (needsProfileSetup) {
-      navigate("/profile-config", { replace: true });
-    }
-  }, [hasCompletedProfile, navigate]);
+    const checkProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/login", { replace: true });
+        return;
+      }
 
-  if (!hasCompletedProfile()) {
-    return null;
+      const { data: userProfile, error } = await supabase
+        .from('profiles')
+        .select('has_completed_setup, subscription_status')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !userProfile) {
+        console.error('Error fetching profile, redirecting to config:', error);
+        navigate("/profile-config", { replace: true });
+        return;
+      }
+
+      if (!userProfile.has_completed_setup) {
+        navigate("/profile-config", { replace: true });
+        return;
+      }
+
+      setProfile(userProfile);
+      setIsLoading(false);
+    };
+
+    checkProfile();
+  }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="gradient-bg min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-white rounded-full border-t-transparent"></div>
+      </div>
+    );
   }
 
+
   const handleNewStory = () => {
+    // TODO: La lógica de canCreateStory debe ser implementada con el perfil cargado
     if (canCreateStory()) {
       navigate("/duration");
     } else {
       toast({
         title: "Límite de historias alcanzado",
-        description: isPremium()
+        description: profile?.subscription_status === 'active'
           ? "Has alcanzado el límite de historias para tu plan premium. Contacta con soporte para más información."
           : `Has alcanzado el límite mensual de historias gratuitas. Actualiza a premium para crear más historias.`,
         variant: "destructive",
@@ -38,7 +74,7 @@ export default function Home() {
     }
   };
 
-  const premiumUser = isPremium();
+  const premiumUser = profile?.subscription_status === 'active';
   const subscriptionText = premiumUser ? 'Premium' : 'Free';
 
   return (
