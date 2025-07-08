@@ -60,50 +60,64 @@ export const syncUserProfile = async (
     }
 };
 
-export const getUserProfile = async (userId: string): Promise<{ success: boolean, profile?: ProfileSettings, error?: any }> => {
-    try {
-        console.log(`Solicitando perfil para usuario: ${userId}`);
-        const { data, error } = await supabase
-            .from("profiles")
-            .select("*") // Selecciona todas las columnas
-            .eq("id", userId)
-            .single();
+export const getUserProfile = async (userId: string, retries = 2): Promise<{ success: boolean, profile?: ProfileSettings, error?: any }> => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            console.log(`Requesting profile for user: ${userId} (attempt ${attempt + 1}/${retries + 1})`);
 
-        if (error && error.code === 'PGRST116') {
-            console.log(`No se encontró perfil para usuario ${userId}`);
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", userId)
+                .single();
+
+            if (error && error.code === 'PGRST116') {
+                console.log(`Profile not found for user ${userId}. This is a definitive result, no retry.`);
+                return { success: false }; // No profile is not a transient error
+            } else if (error) {
+                console.warn(`Attempt ${attempt + 1} to fetch profile for ${userId} failed:`, error.message);
+                if (attempt === retries) {
+                    console.error(`Final attempt to fetch profile for ${userId} failed after multiple retries.`, error);
+                    throw error; // Throw final error to be caught by the outer block
+                }
+                // Wait with exponential backoff before retrying
+                await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+                continue; // Next attempt
+            }
+
+            if (data) {
+                console.log(`Successfully fetched profile data for user ${userId}.`);
+                const profile: ProfileSettings = {
+                    language: data.language,
+                    preferences: data.preferences,
+                    stripe_customer_id: data.stripe_customer_id,
+                    subscription_status: data.subscription_status,
+                    subscription_id: data.subscription_id,
+                    plan_id: data.plan_id,
+                    current_period_end: data.current_period_end,
+                    voice_credits: data.voice_credits,
+                    monthly_stories_generated: data.monthly_stories_generated,
+                    monthly_voice_generations_used: data.monthly_voice_generations_used,
+                    has_completed_setup: data.has_completed_setup,
+                };
+                return { success: true, profile: profile };
+            }
+
+            // This case should ideally not be reached if a profile is always created on sign-up
+            console.warn(`Unexpectedly found no profile data for user ${userId} without an error.`);
             return { success: false };
-        } else if (error) {
-            console.error(`Error al obtener perfil para ${userId} (posible RLS):`, error);
-            throw error;
+
+        } catch (error) {
+            if (attempt === retries) {
+                console.error(`A critical error occurred while fetching profile for ${userId}. All retries failed.`, error);
+                return { success: false, error };
+            }
+            // Wait before the next attempt in case of a thrown error
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         }
-
-        console.log(`Datos de perfil recibidos para ${userId}:`, data);
-
-        if (data) {
-            // Mapea todos los campos recuperados
-            const profile: ProfileSettings = {
-                language: data.language,
-                preferences: data.preferences,
-                stripe_customer_id: data.stripe_customer_id,
-                subscription_status: data.subscription_status,
-                subscription_id: data.subscription_id,
-                plan_id: data.plan_id,
-                current_period_end: data.current_period_end,
-                voice_credits: data.voice_credits,
-                monthly_stories_generated: data.monthly_stories_generated,
-                monthly_voice_generations_used: data.monthly_voice_generations_used,
-                has_completed_setup: data.has_completed_setup,
-            };
-            return { success: true, profile: profile };
-        }
-
-        console.log(`No se encontró perfil (inesperado) para usuario ${userId}`);
-        return { success: false };
-
-    } catch (error) {
-        console.error(`Fallo general en getUserProfile para ${userId}:`, error);
-        return { success: false, error };
     }
+    // This is returned if all retries fail
+    return { success: false, error: new Error('All attempts to fetch the profile have failed.') };
 };
 
 // --- Funciones de Personajes ---
@@ -302,6 +316,7 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
                         {
                             id: characterData?.id || 'deleted_character',
                             name: characterData?.name || 'Personaje Eliminado',
+                            gender: characterData?.gender || 'non-binary',
                             hobbies: characterData?.hobbies || [],
                             description: characterData?.description || '',
                             profession: characterData?.profession || '',
