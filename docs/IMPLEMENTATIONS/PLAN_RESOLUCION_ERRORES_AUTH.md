@@ -231,9 +231,9 @@ Se han identificado dos errores críticos en el flujo de autenticación post-log
 **Objetivo**: Mejor experiencia cuando hay problemas de red/base de datos
 
 #### Checklist:
-- [ ] Agregar mejores mensajes de error
-- [ ] Implementar retry logic básico
-- [ ] Mejorar UX de estados de carga
+- [x] Agregar mejores mensajes de error
+- [x] Implementar retry logic básico
+- [x] Mejorar UX de estados de carga
 
 #### Tareas específicas:
 
@@ -242,7 +242,7 @@ Se han identificado dos errores críticos en el flujo de autenticación post-log
    export const getUserProfile = async (userId: string, retries = 2): Promise<{ success: boolean, profile?: ProfileSettings, error?: any }> => {
        for (let attempt = 0; attempt <= retries; attempt++) {
            try {
-               console.log(`Solicitando perfil para usuario: ${userId} (intento ${attempt + 1})`);
+               console.log(`Requesting profile for user: ${userId} (attempt ${attempt + 1}/${retries + 1})`);
                
                const { data, error } = await supabase
                    .from("profiles")
@@ -251,10 +251,14 @@ Se han identificado dos errores críticos en el flujo de autenticación post-log
                    .single();
 
                if (error && error.code === 'PGRST116') {
-                   console.log(`No se encontró perfil para usuario ${userId}`);
+                   console.log(`Profile not found for user ${userId}. This is a definitive result, no retry.`);
                    return { success: false };
                } else if (error) {
-                   if (attempt === retries) throw error;
+                   console.warn(`Attempt ${attempt + 1} to fetch profile for ${userId} failed:`, error.message);
+                   if (attempt === retries) {
+                       console.error(`Final attempt to fetch profile for ${userId} failed after multiple retries.`, error);
+                       throw error;
+                   }
                    await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
                    continue;
                }
@@ -270,7 +274,7 @@ Se han identificado dos errores críticos en el flujo de autenticación post-log
                }
            } catch (error) {
                if (attempt === retries) {
-                   console.error(`Error final obteniendo perfil para ${userId}:`, error);
+                   console.error(`A critical error occurred while fetching profile for ${userId}. All retries failed.`, error);
                    return { success: false, error };
                }
            }
