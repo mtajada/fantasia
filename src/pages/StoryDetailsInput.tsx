@@ -16,12 +16,12 @@ const StoryDetailsInput: React.FC = () => {
   );
   const navigate = useNavigate();
 
-  // --- Estado para Presets --- 
+  // --- State for Presets ---
   const [presets, setPresets] = useState<PresetSuggestion[]>([]);
   const [allPresets, setAllPresets] = useState<PresetSuggestion[]>([]);
   const [isLoadingPresets, setIsLoadingPresets] = useState<boolean>(true);
 
-  // --- Función para obtener todos los presets --- 
+  // --- Function to fetch all presets ---
   const fetchAndStoreAllPresets = useCallback(async () => {
     setIsLoadingPresets(true);
     try {
@@ -42,53 +42,53 @@ const StoryDetailsInput: React.FC = () => {
     }
   }, []);
 
-  // --- Función para seleccionar 3 presets aleatorios --- 
+  // --- Function to select 3 random presets ---
   const selectRandomPresets = useCallback(() => {
     if (allPresets.length < 3) {
       setPresets(allPresets);
       return;
     }
 
-    // Algoritmo simple de aleatorización: barajar y tomar 3
+    // Simple shuffle and take 3
     const shuffled = [...allPresets].sort(() => 0.5 - Math.random());
     setPresets(shuffled.slice(0, 3));
   }, [allPresets]);
 
-  // --- Efecto para cargar todos los presets al montar --- 
+  // --- Effect to load all presets on mount ---
   useEffect(() => {
     fetchAndStoreAllPresets();
   }, [fetchAndStoreAllPresets]);
 
-  // --- Efecto para seleccionar los primeros presets aleatorios --- 
+  // --- Effect to select initial random presets ---
   useEffect(() => {
     if (allPresets.length > 0) {
       selectRandomPresets();
     }
   }, [allPresets, selectRandomPresets]);
 
-  // --- Manejador para generar historia --- 
+  // --- Handler to generate the story ---
   const handleGenerate = () => {
-    // Pasar detalles solo si el textarea tiene contenido
+    // Pass details only if the textarea has content
     if (detailsText.trim()) {
       setAdditionalDetails(detailsText.trim());
     } else {
-      setAdditionalDetails(undefined); // Tratar como omitido si está vacío
+      setAdditionalDetails(undefined); // Treat as skipped if empty
     }
-    navigate('/generating'); // Navegar a la pantalla de generación
+    navigate('/generating'); // Navigate to the generation screen
   };
 
-  // --- Manejador para aplicar un preset al textarea --- 
+  // --- Handler to apply a preset to the textarea ---
   const handlePresetClick = (text: string) => {
     setDetailsText(text);
   };
 
-  // Animaciones para los elementos de la página
+  // Page element animations
   const fadeIn = {
     hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
   };
 
-  // Animación para los presets
+  // Preset animation
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -114,28 +114,27 @@ const StoryDetailsInput: React.FC = () => {
       >
         <BackButton />
         
-        <div className="w-full max-w-2xl mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
-          {/* Título y subtítulo animados */}
-          <motion.h1 
-            className="text-3xl font-bold text-[#BB79D1] mb-3 text-center font-heading drop-shadow-lg"
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
+        <div className="w-full max-w-3xl mx-auto flex flex-col items-center p-4">
+          {/* Animated title and subtitle */}
+          <motion.h1
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500"
           >
-            ¿Algún <span className="text-[#F6A5B7]">detalle extra</span>?
+            Any <span className="text-pink-400">juicy details</span>? 🤫
           </motion.h1>
-          
-          <motion.p 
-            className="mb-4 text-center text-[#222] bg-white/80 rounded-xl px-4 py-2 font-medium shadow-sm max-w-lg mx-auto"
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.1 }}
+
+          <motion.p
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-lg text-gray-300 text-center mb-10 max-w-xl"
           >
-            Añade instrucciones o ideas para personalizar tu historia.
+            Spice up your story with some extra instructions or wild ideas! 🌶️
           </motion.p>
 
-          {/* Badge "Paso opcional" */}
+          {/* "Optional Step" Badge */}
           <motion.div
             className="flex justify-center mb-2"
             variants={fadeIn}
@@ -143,15 +142,13 @@ const StoryDetailsInput: React.FC = () => {
             animate="visible"
             transition={{ delay: 0.15 }}
           >
-            <span className="inline-flex items-center px-4 py-1 rounded-2xl text-sm font-semibold bg-white/70 border-2 border-[#A5D6F6]/40 text-[#7DC4E0] shadow-sm" style={{letterSpacing:'0.01em'}}>
-              <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Paso opcional
+            <span className="inline-flex items-center px-4 py-1 rounded-full text-sm font-semibold bg-gray-800/80 border border-gray-700 text-violet-300 shadow-sm">
+              <Sparkles className="w-4 h-4 mr-1.5 text-violet-400" />
+              Optional, but fun! ✨
             </span>
           </motion.div>
           
-          {/* Sección de Presets */}
+          {/* Presets Section */}
           <motion.div
             className="mb-4 w-full"
             variants={fadeIn}
@@ -159,19 +156,15 @@ const StoryDetailsInput: React.FC = () => {
             animate="visible"
             transition={{ delay: 0.2 }}
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center text-[#222]">
-                <Sparkles size={16} className="mr-1 text-[#F9DA60]" />
-                <span className="text-sm font-medium">Ideas para inspirarte:</span>
-              </div>
-              
+            <div className="flex items-center justify-between mb-3 w-full">
+              <p className="text-center text-gray-400">Need some inspo? 😉</p>
               <button
                 onClick={selectRandomPresets}
                 disabled={isLoadingPresets || allPresets.length < 3}
-                className="text-[#7DC4E0] hover:text-[#BB79D1] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center bg-white/70 px-2 py-1 rounded-full shadow-sm"
+                className="text-violet-400 hover:text-violet-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center bg-gray-800/80 px-3 py-1 rounded-full shadow-sm border border-gray-700"
               >
-                <RefreshCw size={14} className="mr-1" />
-                Nuevas ideas
+                <RefreshCw size={14} className="mr-1.5" />
+                New Ideas
               </button>
             </div>
 
@@ -179,14 +172,14 @@ const StoryDetailsInput: React.FC = () => {
               variants={container}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4"
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-8"
             >
               {isLoadingPresets ? (
-                <div className="col-span-full flex justify-center py-3 bg-white/70 rounded-xl">
+                <div className="col-span-full flex justify-center items-center p-4 h-24 rounded-lg bg-gray-800/50 border-2 border-gray-700">
                   <div className="animate-pulse flex space-x-2">
-                    <div className="h-2 w-2 bg-[#BB79D1]/60 rounded-full"></div>
-                    <div className="h-2 w-2 bg-[#BB79D1]/60 rounded-full"></div>
-                    <div className="h-2 w-2 bg-[#BB79D1]/60 rounded-full"></div>
+                    <div className="h-2.5 w-2.5 bg-violet-400/60 rounded-full"></div>
+                    <div className="h-2.5 w-2.5 bg-violet-400/60 rounded-full animation-delay-200"></div>
+                    <div className="h-2.5 w-2.5 bg-violet-400/60 rounded-full animation-delay-400"></div>
                   </div>
                 </div>
               ) : presets.length > 0 ? (
@@ -194,21 +187,21 @@ const StoryDetailsInput: React.FC = () => {
                   <motion.div key={preset.id} variants={item}>
                     <button
                       onClick={() => handlePresetClick(preset.text_prompt)}
-                      className="w-full text-left p-3 rounded-xl bg-white/70 border-2 border-[#F6A5B7]/30 text-[#222] text-sm hover:bg-[#F6A5B7]/10 transition-all shadow-sm hover:shadow-md"
+                      className="w-full text-center p-3 h-24 rounded-lg bg-gray-800/50 border-2 border-gray-700 text-gray-300 text-sm hover:border-violet-500 hover:bg-gray-700/70 transition-all shadow-sm hover:shadow-lg"
                     >
                       {preset.text_prompt}
                     </button>
                   </motion.div>
                 ))
               ) : (
-                <div className="col-span-full text-center text-[#555] text-sm italic py-3 bg-white/70 rounded-xl">
-                  No hay sugerencias disponibles.
+                <div className="col-span-full text-center text-gray-400 text-sm italic p-4 h-24 rounded-lg bg-gray-800/50 border-2 border-gray-700">
+                  No suggestions available right now. Get creative! 💡
                 </div>
               )}
             </motion.div>
           </motion.div>
           
-          {/* Contenedor del textarea con animación */} 
+          {/* Animated Textarea Container */} 
           <motion.div
             className="mb-6 w-full"
             variants={fadeIn}
@@ -220,26 +213,20 @@ const StoryDetailsInput: React.FC = () => {
               id="storyDetailsTextarea"
               value={detailsText}
               onChange={(e) => setDetailsText(e.target.value)}
-              placeholder="Escribe tus ideas o selecciona una de las sugerencias de arriba..."
-              className="w-full p-4 border-2 border-[#BB79D1]/40 rounded-xl text-[#222] bg-white/70 shadow-lg focus:ring-[#BB79D1] focus:border-[#BB79D1] h-32 resize-none placeholder-[#555]/70"
+              placeholder="Drop your brilliant ideas here, or pick a suggestion from above... ✨"
+              className="w-full p-4 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all h-32 resize-none"
             />
           </motion.div>
           
-          {/* Botón único de Generar Historia */} 
-          <motion.div 
-            className="flex justify-center w-full mt-2 mb-2"
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.3 }}
-          >
+          {/* Generate Story Button */} 
+          <div className="w-full max-w-xs mt-6">
             <StoryButton
               onClick={handleGenerate}
-              className="w-full max-w-xs py-4 rounded-2xl text-white text-lg font-semibold shadow-lg bg-[#BB79D1] hover:bg-[#BB79D1]/90 border-2 border-[#BB79D1]/50 transition-all duration-200"
+              className="w-full"
             >
-              Generar Historia
+              Let's make magic! 🪄
             </StoryButton>
-          </motion.div>
+          </div>
         </div>
       </div>
     </PageTransition>
@@ -247,3 +234,4 @@ const StoryDetailsInput: React.FC = () => {
 };
 
 export default StoryDetailsInput;
+
