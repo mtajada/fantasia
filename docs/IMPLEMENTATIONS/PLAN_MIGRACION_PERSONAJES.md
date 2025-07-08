@@ -2,7 +2,8 @@
 
 ## Resumen Ejecutivo
 
-Este documento detalla la migración completa del sistema de personajes de **Fantasia** desde la estructura compleja actual hacia el nuevo esquema simplificado definido en la base de datos. La migración eliminará la dependencia de Zustand Store y implementará llamadas directas a Supabase, simplificando el flujo de creación de personajes y alineándose con la transformación hacia una plataforma de contenido adulto.
+Este documento detalla la migración completa del sistema de personajes de **Fantasia** desde la estructura compleja actua
+l hacia el nuevo esquema simplificado definido en la base de datos. La migración eliminará la dependencia de Zustand Store y implementará llamadas directas a Supabase, simplificando el flujo de creación de personajes y alineándose con la transformación hacia una plataforma de contenido adulto.
 
 ## Contexto de la Migración
 
