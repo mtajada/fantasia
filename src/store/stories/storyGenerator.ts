@@ -37,30 +37,29 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     const allCharacters = await charactersService.getUserCharacters(user.id);
     const selectedCharacters = storyOptionsState.getSelectedCharactersForStory(allCharacters);
 
-    // --- DEBUG: Log detallado de parámetros ANTES de construir payload --- 
-    console.log("🔍 DEBUG PRE-PAYLOAD: Datos Perfil ->", JSON.stringify(profileSettings, null, 2));
-    console.log("🔍 DEBUG PRE-PAYLOAD: Personajes Seleccionados ->", JSON.stringify(selectedCharacters, null, 2));
-    console.log("🔍 DEBUG PRE-PAYLOAD: Opciones Recibidas (función) ->", JSON.stringify(options, null, 2));
-    console.log("🔍 DEBUG PRE-PAYLOAD: Duración (store) ->", storyOptionsState.currentStoryOptions.duration);
-    console.log("🔍 DEBUG PRE-PAYLOAD: Detalles Adicionales ->", additionalDetails);
-    // --- FIN DEBUG ---
+    // --- DEBUG: Detailed parameter logging BEFORE building payload --- 
+    console.log("🔍 DEBUG PRE-PAYLOAD: Profile Data ->", JSON.stringify(profileSettings, null, 2));
+    console.log("🔍 DEBUG PRE-PAYLOAD: Selected Characters ->", JSON.stringify(selectedCharacters, null, 2));
+    console.log("🔍 DEBUG PRE-PAYLOAD: Options Received (function) ->", JSON.stringify(options, null, 2));
+    console.log("🔍 DEBUG PRE-PAYLOAD: Format (store) ->", storyOptionsState.currentStoryOptions.format);
+    console.log("🔍 DEBUG PRE-PAYLOAD: Additional Details ->", additionalDetails);
+    // --- END DEBUG ---
 
-    if (!profileSettings) throw new Error("Perfil de usuario no cargado.");
-    if (!selectedCharacters || selectedCharacters.length === 0) throw new Error("No hay personajes seleccionados.");
+    if (!profileSettings) throw new Error("User profile not loaded.");
+    if (!selectedCharacters || selectedCharacters.length === 0) throw new Error("No characters selected.");
 
-    // --- Llamada ÚNICA al servicio que invoca la EF 'generate-story' ---
+    // --- SINGLE call to service that invokes 'generate-story' EF ---
     const payload: GenerateStoryParams = {
       options: {
         characters: selectedCharacters,
         genre: options.genre,
-        moral: options.moral,
-        duration: storyOptionsState.currentStoryOptions.duration,
+        format: storyOptionsState.currentStoryOptions.format,
       },
       language: profileSettings.language,
       additionalDetails: additionalDetails || undefined,
     };
 
-    console.log("Enviando solicitud a la Edge Function generate-story con params:", payload);
+    console.log("Sending request to generate-story Edge Function with params:", payload);
 
     const storyResponse = await GenerateStoryService.generateStoryWithAI(payload);
     // storyResponse ahora es { content: string, title: string }
@@ -75,10 +74,9 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       title: storyResponse.title,
       content: storyResponse.content,
       options: {
-        moral: options.moral || "Ser amable",
         characters: selectedCharacters,
-        genre: options.genre || "aventura",
-        duration: options.duration || "medium",
+        genre: options.genre || "adventure",
+        format: storyOptionsState.currentStoryOptions.format || "episodic",
         language: payload.language,
       },
       additional_details: additionalDetails,
@@ -86,14 +84,14 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       // audioUrl se añadirá después si se genera
     };
 
-    console.log("🔍 DEBUG - Historia Creada:", JSON.stringify(story.options, null, 2));
+    console.log("🔍 DEBUG - Story Created:", JSON.stringify(story.options, null, 2));
     console.log(`[storyGenerator_DEBUG] Title being saved to store: "${story.title}"`);
 
-    // 1. Guardar la historia principal (como antes)
-    // Guardar la historia generada en el store
+    // 1. Save the main story (as before)
+    // Save the generated story in the store
     await storiesStore.addGeneratedStory(story);
 
-    // 2. Crear y guardar el Capítulo 1
+    // 2. Create and save Chapter 1
     const firstChapter: StoryChapter = {
       id: generateId(),
       chapterNumber: 1,
@@ -101,21 +99,21 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       content: story.content,
       generationMethod: 'free',
       createdAt: new Date().toISOString(),
-      // customInput no aplica aquí
+      // customInput doesn't apply here
     };
     await chaptersStore.addChapter(story.id, firstChapter);
 
-    // Limpiar las opciones de la historia temporalmente almacenadas
+    // Clear temporarily stored story options
     storyOptionsState.resetStoryOptions();
 
     return story;
 
   } catch (error: any) {
-    console.error("Error al generar historia en storyGenerator:", error);
-    toast.error("Error al generar la historia", {
-      description: error?.message || "Inténtalo de nuevo.",
+    console.error("Error generating story in storyGenerator:", error);
+    toast.error("Error generating story", {
+      description: error?.message || "Please try again.",
     });
-    // Considera si también deberías llamar a resetStoryOptions aquí
+    // Consider if you should also call resetStoryOptions here
     storyOptionsState.resetStoryOptions();
     return null;
   } finally {

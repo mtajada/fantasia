@@ -243,7 +243,7 @@ serve(async (req: Request) => {
 
     const language = profile?.language || story?.options?.language || 'en';
     const preferences = profile?.preferences || null;
-    const storyDuration = body.storyDuration || story?.options?.duration || 'medium';
+    const storyFormat = body.storyFormat || story?.options?.format || 'episodic';
 
     // Límites (largely same logic as v6.1)
     if (isContinuationAction) {
@@ -285,7 +285,7 @@ serve(async (req: Request) => {
         continuationContext,
         language,
         preferences,
-        storyDuration
+        storyFormat
       );
 
       console.log(`[${functionVersion}] Calling AI for continuation. Prompt start: ${continuationPrompt.substring(0, 200)}...`);

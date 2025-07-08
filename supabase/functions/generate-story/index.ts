@@ -157,15 +157,14 @@ serve(async (req: Request) => {
     let params: any;
     try {
       params = await req.json();
-      console.log(`[${functionVersion}] Params Recibidos:`, JSON.stringify(params, null, 2));
-      console.log(`[${functionVersion}] Validando estructura básica...`);
+      console.log(`[${functionVersion}] Params Received:`, JSON.stringify(params, null, 2));
+      console.log(`[${functionVersion}] Validating basic structure...`);
       console.log(`[${functionVersion}] profile.language:`, profile?.language, typeof profile?.language);
       console.log(`[${functionVersion}] profile.preferences:`, profile?.preferences ? 'provided' : 'none');
       console.log(`[${functionVersion}] params.options:`, params.options);
       if (params.options) {
-        console.log(`[${functionVersion}] params.options.duration:`, params.options.duration, typeof params.options.duration);
+        console.log(`[${functionVersion}] params.options.format:`, params.options.format, typeof params.options.format);
         console.log(`[${functionVersion}] params.options.genre:`, params.options.genre, typeof params.options.genre);
-        console.log(`[${functionVersion}] params.options.moral:`, params.options.moral, typeof params.options.moral);
         console.log(`[${functionVersion}] params.options.characters:`, params.options.characters);
         console.log(`[${functionVersion}] params.options.character:`, params.options.character);
       }
@@ -202,24 +201,19 @@ serve(async (req: Request) => {
         console.error("[VALIDATION ERROR] profile.language:", profile?.language, typeof profile?.language);
       }
 
-      if (typeof params.options.duration !== 'string' || !params.options.duration) {
-        errors.push('options.duration debe ser un string no vacío');
-        console.error("[VALIDATION ERROR] duration:", params.options.duration, typeof params.options.duration);
+      if (typeof params.options.format !== 'string' || !params.options.format) {
+        errors.push('options.format must be a non-empty string');
+        console.error("[VALIDATION ERROR] format:", params.options.format, typeof params.options.format);
       }
 
       if (typeof params.options.genre !== 'string' || !params.options.genre) {
-        errors.push('options.genre debe ser un string no vacío');
+        errors.push('options.genre must be a non-empty string');
         console.error("[VALIDATION ERROR] genre:", params.options.genre, typeof params.options.genre);
-      }
-
-      if (typeof params.options.moral !== 'string' || !params.options.moral) {
-        errors.push('options.moral debe ser un string no vacío');
-        console.error("[VALIDATION ERROR] moral:", params.options.moral, typeof params.options.moral);
       }
 
       if (errors.length > 0) {
         console.error("[VALIDATION ERROR] Basic validation failed:", errors);
-        throw new Error(`Parámetros básicos inválidos: ${errors.join(', ')}.`);
+        throw new Error(`Invalid basic parameters: ${errors.join(', ')}.`);
       }
 
       console.log(`[${functionVersion}] Basic validation passed!`);

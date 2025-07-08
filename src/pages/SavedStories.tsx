@@ -171,7 +171,7 @@ export default function SavedStories() {
                         )}
                         <div className="px-2 py-1 text-xs rounded-full bg-[#F9DA60]/20 text-[#222] border border-[#F9DA60]/40 flex items-center gap-1">
                           <Clock size={11} className="text-[#F9DA60]" />
-                          {story.options.duration}
+                          {story.options.format === 'single' ? 'Complete' : 'Chapters'}
                         </div>
                       </div>
                     </div>

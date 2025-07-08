@@ -20,12 +20,12 @@ export class GenerateStoryService {
    */
   public static async generateStoryWithAI(params: GenerateStoryParams): Promise<GenerateStoryResponse> {
     try {
-      console.log('Enviando solicitud a la Edge Function generate-story con params:', params); // Loguear parámetros
+      console.log('Sending request to generate-story Edge Function with params:', params); // Log parameters
 
-      // Asegúrate de pasar el token de autenticación si la función lo requiere (lo requiere)
+      // Make sure to pass the authentication token if the function requires it (it does)
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData.session) {
-        throw new Error(sessionError?.message || 'Usuario no autenticado.');
+        throw new Error(sessionError?.message || 'User not authenticated.');
       }
       const token = sessionData.session.access_token;
 
@@ -51,35 +51,35 @@ export class GenerateStoryService {
       console.log(`>>> Payload being sent to generate-story: ${charactersInfo}`);
       console.log(">>> Full payload:", JSON.stringify(params, null, 2));
 
-      const { data, error } = await supabase.functions.invoke<GenerateStoryResponse>('generate-story', { // Especificar tipo de respuesta <T>
-        body: params, // El cuerpo ya contiene las opciones, idioma, etc. y additionalDetails
+      const { data, error } = await supabase.functions.invoke<GenerateStoryResponse>('generate-story', { // Specify response type <T>
+        body: params, // Body already contains options, language, etc. and additionalDetails
         headers: {
-          'Authorization': `Bearer ${token}` // Pasar el token
+          'Authorization': `Bearer ${token}` // Pass the token
         }
       });
 
       if (error) {
-        console.error('Error en Edge Function generate-story:', error);
-        // Puedes intentar obtener más detalles del error si es un HttpError
+        console.error('Error in generate-story Edge Function:', error);
+        // You can try to get more error details if it's an HttpError
         let message = error.message;
-        if ((error as any).context) { // Supabase FunctionsHttpError tiene 'context'
+        if ((error as any).context) { // Supabase FunctionsHttpError has 'context'
           message = `${message} - ${JSON.stringify((error as any).context)}`;
         }
         throw new Error(message);
       }
 
-      // Validar que la respuesta tiene el formato esperado { content: string, title: string }
+      // Validate that the response has the expected format { content: string, title: string }
       if (!data || typeof data.content !== 'string' || typeof data.title !== 'string') {
-        console.error('Respuesta inesperada de generate-story:', data);
-        throw new Error('La respuesta de generate-story no contiene contenido y título válidos.');
+        console.error('Unexpected response from generate-story:', data);
+        throw new Error('The generate-story response does not contain valid content and title.');
       }
 
-      console.log('Respuesta de generate-story recibida (título):', data.title);
-      return data; // Devolver el objeto { content, title } completo
+      console.log('Response from generate-story received (title):', data.title);
+      return data; // Return the complete { content, title } object
 
     } catch (error) {
-      console.error('Error en GenerateStoryService.generateStoryWithAI:', error);
-      // Relanzar para que el llamador (storyGenerator) pueda manejarlo
+      console.error('Error in GenerateStoryService.generateStoryWithAI:', error);
+      // Re-throw so the caller (storyGenerator) can handle it
       throw error;
     }
   }

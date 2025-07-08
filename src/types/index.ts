@@ -39,7 +39,6 @@ export type StoryCharacter = {
 
 
 export type StoryOptions = {
-  moral: string;
   characters: StoryCharacter[];  // Unified: array de personajes (1-4)
   genre: string;
   format: StoryFormat;  // ← CAMBIO: era 'duration'

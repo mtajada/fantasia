@@ -12,8 +12,7 @@ export interface CharacterOptions {
 export interface StoryOptions {
     characters: CharacterOptions[];   // Unified: array de personajes (1-4)
     genre: string;
-    moral: string;
-    duration?: string; // 'short', 'medium', 'long'
+    format?: string; // 'single', 'episodic'
     language?: string;
 }
 
@@ -124,20 +123,24 @@ export function createContinuationPrompt(
     context: ContinuationContextType,
     language: string = 'en',
     preferences: string | null = null,
-    storyDuration: string = 'medium'
+    storyFormat: string = 'episodic'
 ): string {
     const functionVersion = "v8.0 (Adult Content + Preferences)";
     console.log(`[Prompt Helper ${functionVersion}] createContinuationPrompt for story ID: ${story.id}, action: ${action}, lang: ${language}`);
 
     let prompt = `You are an expert writer continuing erotic stories for adults.
   Write always in ${language}, with sophisticated and sensual language appropriate for mature audiences (18+).
-  The original story has a genre of '${story.options.genre}' and a main theme of '${story.options.moral}'.`;
+  The original story has a genre of '${story.options.genre}'.`;
 
-    // Chapter length guidance
-    prompt += `\n\n**Chapter length guide:**`;
-    if (storyDuration === 'short') prompt += `\n* Short chapter: ~800 tokens (approx. 600-700 words).`;
-    else if (storyDuration === 'long') prompt += `\n* Long chapter: ~2150 tokens (approx. 1600-1800 words).`;
-    else prompt += `\n* Medium chapter: ~1350 tokens (approx. 1000-1200 words).`;
+    // Chapter length guidance based on story format
+    prompt += `\n\n**Chapter length guide based on story format:**`;
+    if (storyFormat === 'single') {
+        prompt += `\n* Complete Story: ~2150 tokens (approx. 1600-1800 words).`;
+        prompt += `\n* This should conclude the story with a satisfying ending.`;
+    } else {
+        prompt += `\n* Episodic Chapter: ~1350 tokens (approx. 1000-1200 words).`;
+        prompt += `\n* This should continue the story with room for future chapters.`;
+    }
     prompt += `\nThese figures are approximate and serve as reference for the expected length.`;
 
     if (preferences && preferences.trim()) {
@@ -196,10 +199,12 @@ export function createContinuationPrompt(
     }
 
     prompt += `\n\nGuides for the New Chapter:`;
-    prompt += `\n1. **Chapter Length:** Aim for '${storyDuration}' length.`;
-    if (storyDuration === 'short') prompt += ` (approximately 600-700 words).`;
-    else if (storyDuration === 'long') prompt += ` (approximately 1600-1800 words).`;
-    else prompt += ` (approximately 1000-1200 words).`;
+    prompt += `\n1. **Chapter Content:** Aim for '${storyFormat}' format.`;
+    if (storyFormat === 'single') {
+        prompt += ` (approximately 1600-1800 words) - Complete the story with a satisfying conclusion.`;
+    } else {
+        prompt += ` (approximately 1000-1200 words) - Continue the story with room for future development.`;
+    }
 
     prompt += `\n2. **Chapter Structure:** Should have clear narrative flow, connecting with the previous chapter and advancing the overall plot. Can introduce new erotic elements or deepen existing relationships.`;
     prompt += `\n3. **Tone and Style:** Maintain the tone and style of the original story. Use sophisticated, sensual language that creates atmosphere and emotional connection. Build tension and desire naturally.`;

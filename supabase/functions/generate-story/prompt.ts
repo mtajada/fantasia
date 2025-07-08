@@ -37,8 +37,7 @@ interface CharacterOptions {
 interface UserPromptOptions {
     characters: CharacterOptions[];   // Unified: array de personajes (1-4)
     genre: string;
-    moral: string;
-    duration?: string;
+    format?: string;
     language?: string;
 }
 
@@ -51,7 +50,7 @@ interface CreateUserPromptParams {
 // Modificada para instruir a la IA a devolver un objeto JSON con contenido adulto.
 export function createUserPrompt_JsonFormat({ options, additionalDetails }: CreateUserPromptParams): string {
     console.log(`[Adult Content v8.0] createUserPrompt_JsonFormat:`, options, `details=`, additionalDetails);
-    const storyDuration = options.duration || 'medium';
+    const storyFormat = options.format || 'episodic';
     const language = options.language || 'en';
 
     // Unified character system - always use characters array (1-4 characters)
@@ -59,7 +58,7 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
     const isMultipleCharacters = characters.length > 1;
 
     // Create base request with character handling
-    let request = `Create an erotic story for adults. Genre: ${options.genre}. Theme/Message: ${options.moral}. `;
+    let request = `Create an erotic story for adults. Genre: ${options.genre}. `;
     
     if (isMultipleCharacters) {
         request += `Main Characters (${characters.length}): `;
@@ -88,18 +87,34 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
 
     // Content and structure instructions for adult content
     request += `**Content, Length and Structure Instructions:**\n`;
-    request += `1. **Target Duration:** '${storyDuration}'.\n`;
+    request += `1. **Story Format:** '${storyFormat}'.\n`;
     
-    if (storyDuration === 'short') request += `    * Guide (Short): ~800 tokens (~600-700 words).\n`;
-    else if (storyDuration === 'long') request += `    * Guide (Long): ~2150 tokens (~1600-1800 words).\n`;
-    else request += `    * Guide (Medium): ~1350 tokens (~1000-1200 words).\n`;
+    if (storyFormat === 'single') {
+        request += `    * Complete Story: ~2150 tokens (~1600-1800 words).\n`;
+        request += `    * This should be a complete story with clear beginning, development, climax, and satisfying conclusion.\n`;
+        request += `    * Include full character development and resolve all plot elements.\n`;
+    } else {
+        request += `    * Episodic Chapter: ~1350 tokens (~1000-1200 words).\n`;
+        request += `    * This should be the first chapter of an ongoing story with an open ending.\n`;
+        request += `    * Leave room for future chapters and continuation of the adventure.\n`;
+        request += `    * Focus on establishing characters, setting, and initial erotic tension.\n`;
+    }
 
     // Additional user details (if any)
     if (additionalDetails && typeof additionalDetails === 'string' && additionalDetails.trim()) {
         request += `\n**Additional user instructions:**\n${additionalDetails.trim()}\n`;
     }
 
-    request += `2. **Complete Structure:** Clear beginning, development, and satisfying conclusion.\n`;
+    request += `2. **Structure Guidelines:**\n`;
+    if (storyFormat === 'single') {
+        request += `    * Clear beginning, development, climax, and satisfying conclusion\n`;
+        request += `    * Complete character arcs and resolution of conflicts\n`;
+        request += `    * Full exploration of the erotic theme and relationship dynamics\n`;
+    } else {
+        request += `    * Engaging opening that establishes setting and characters\n`;
+        request += `    * Build initial attraction and erotic tension\n`;
+        request += `    * End with anticipation and desire for continuation\n`;
+    }
     request += `3. **Tone and Style:** Use sophisticated, sensual language that builds atmosphere and emotional connection. Create vivid scenes that engage the reader's imagination.\n`;
     request += `4. **Adult Content Guidelines:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Build tension and desire naturally through the narrative.\n`;
     request += `5. **Character Development:** Create believable, complex characters with desires and motivations. Show their emotional journey alongside the physical story.\n`;

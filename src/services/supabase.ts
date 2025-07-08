@@ -265,9 +265,8 @@ export const syncStory = async (userId: string, story: Story): Promise<{ success
             title: story.title,
             content: story.content,
             audio_url: story.audioUrl,
-            moral: story.options.moral,
             genre: story.options.genre,
-            duration: story.options.duration,
+            story_format: story.options.format,
             character_id: story.options.characters[0]?.id, // Primary character (first selected)
             additional_details: story.additional_details,
             updated_at: new Date(),
@@ -309,9 +308,8 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
                 content: story.content,
                 audioUrl: story.audio_url,
                 options: {
-                    moral: story.moral,
                     genre: story.genre,
-                    duration: story.duration,
+                    format: story.story_format,
                     characters: [
                         {
                             id: characterData?.id || 'deleted_character',

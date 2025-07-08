@@ -62,7 +62,7 @@ export default function Home() {
   const handleNewStory = () => {
     // TODO: La lógica de canCreateStory debe ser implementada con el perfil cargado
     if (canCreateStory()) {
-      navigate("/duration");
+      navigate("/character-selection");
     } else {
       toast({
         title: "Límite de historias alcanzado",
