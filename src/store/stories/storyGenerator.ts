@@ -1,21 +1,21 @@
 // src/store/stories/storyGenerator.ts
 import { toast } from "sonner";
-import { Story, StoryOptions, StoryChapter } from "../../types"; 
+import { Story, StoryOptions, StoryChapter } from "../../types";
 import { useStoriesStore } from "./storiesStore";
 import { useUserStore } from "../user/userStore";
 import { charactersService } from "../../services/charactersService";
-import { useStoryOptionsStore } from "../storyOptions/storyOptionsStore"; 
-import { generateId } from "../core/utils"; 
+import { useStoryOptionsStore } from "../storyOptions/storyOptionsStore";
+import { generateId } from "../core/utils";
 import { GenerateStoryService, GenerateStoryParams } from "@/services/ai/GenerateStoryService";
-import { useChaptersStore } from "./chapters/chaptersStore"; 
+import { useChaptersStore } from "./chapters/chaptersStore";
 
 /**
  * Genera una historia completa (Capítulo 1 + Título) a partir de las opciones
  */
-export const generateStory = async (options: Partial<StoryOptions>): Promise<Story | null> => { 
+export const generateStory = async (options: Partial<StoryOptions>): Promise<Story | null> => {
   const storiesStore = useStoriesStore.getState();
-  const chaptersStore = useChaptersStore.getState(); 
-  const storyOptionsState = useStoryOptionsStore.getState(); 
+  const chaptersStore = useChaptersStore.getState();
+  const storyOptionsState = useStoryOptionsStore.getState();
   const userStore = useUserStore.getState();
 
   console.log("🔍 DEBUG - Opciones generación historia:", JSON.stringify(options, null, 2));
@@ -24,7 +24,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
   storiesStore.setIsGeneratingStory(true);
 
   try {
-    const storyId = generateId(); 
+    const storyId = generateId();
     const profileSettings = userStore.profileSettings;
     const user = userStore.user;
     const additionalDetails = storyOptionsState.additionalDetails;
@@ -35,7 +35,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
     // Obtener todos los personajes del usuario para poder filtrar los seleccionados
     const allCharacters = await charactersService.getUserCharacters(user.id);
-    const selectedCharacters = storyOptionsState.getSelectedCharactersForStory(allCharacters); 
+    const selectedCharacters = storyOptionsState.getSelectedCharactersForStory(allCharacters);
 
     // --- DEBUG: Log detallado de parámetros ANTES de construir payload --- 
     console.log("🔍 DEBUG PRE-PAYLOAD: Datos Perfil ->", JSON.stringify(profileSettings, null, 2));
@@ -52,12 +52,12 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     const payload: GenerateStoryParams = {
       options: {
         characters: selectedCharacters,
-        genre: options.genre, 
-        moral: options.moral, 
-        duration: storyOptionsState.currentStoryOptions.duration, 
+        genre: options.genre,
+        moral: options.moral,
+        duration: storyOptionsState.currentStoryOptions.duration,
       },
-      language: profileSettings.language, 
-      additionalDetails: additionalDetails || undefined, 
+      language: profileSettings.language,
+      additionalDetails: additionalDetails || undefined,
     };
 
     console.log("Enviando solicitud a la Edge Function generate-story con params:", payload);
@@ -68,20 +68,20 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
     // Los personajes seleccionados ya están guardados, no necesitamos save individual
     // Solo guardamos currentCharacter si se usó para creación de personaje nuevo
-    
+
     // Crear el objeto historia con título y contenido de la respuesta
     const story: Story = {
       id: storyId,
-      title: storyResponse.title, 
-      content: storyResponse.content, 
-      options: { 
-        moral: options.moral || "Ser amable", 
+      title: storyResponse.title,
+      content: storyResponse.content,
+      options: {
+        moral: options.moral || "Ser amable",
         characters: selectedCharacters,
         genre: options.genre || "aventura",
         duration: options.duration || "medium",
         language: payload.language,
       },
-      additional_details: additionalDetails, 
+      additional_details: additionalDetails,
       createdAt: new Date().toISOString(),
       // audioUrl se añadirá después si se genera
     };
@@ -91,24 +91,24 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
     // 1. Guardar la historia principal (como antes)
     // Guardar la historia generada en el store
-    await storiesStore.addGeneratedStory(story); 
+    await storiesStore.addGeneratedStory(story);
 
     // 2. Crear y guardar el Capítulo 1
     const firstChapter: StoryChapter = {
       id: generateId(),
       chapterNumber: 1,
-      title: story.title, 
-      content: story.content, 
-      generationMethod: 'free', 
+      title: story.title,
+      content: story.content,
+      generationMethod: 'free',
       createdAt: new Date().toISOString(),
       // customInput no aplica aquí
     };
-    await chaptersStore.addChapter(story.id, firstChapter); 
+    await chaptersStore.addChapter(story.id, firstChapter);
 
     // Limpiar las opciones de la historia temporalmente almacenadas
-    storyOptionsState.resetStoryOptions(); 
+    storyOptionsState.resetStoryOptions();
 
-    return story; 
+    return story;
 
   } catch (error: any) {
     console.error("Error al generar historia en storyGenerator:", error);
@@ -116,8 +116,8 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       description: error?.message || "Inténtalo de nuevo.",
     });
     // Considera si también deberías llamar a resetStoryOptions aquí
-    storyOptionsState.resetStoryOptions(); 
-    return null; 
+    storyOptionsState.resetStoryOptions();
+    return null;
   } finally {
     storiesStore.setIsGeneratingStory(false);
   }

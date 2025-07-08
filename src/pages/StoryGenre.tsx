@@ -9,12 +9,12 @@ import { Input } from "../components/ui/input";
 import { cn } from "../lib/utils";
 
 const suggestedGenres = [
-  { id: "erotic-romance", name: "Romance Erótico", icon: "💘" },
+  { id: "erotic-romance", name: "Erotic Romance", icon: "💘" },
   { id: "bdsm", name: "BDSM", icon: "⛓️" },
-  { id: "paranormal-erotica", name: "Erótica Paranormal", icon: "👻" },
+  { id: "paranormal-erotica", name: "Paranormal Erotica", icon: "👻" },
   { id: "lgbtq+", name: "LGBTQ+", icon: "🏳️‍🌈" },
-  { id: "sci-fi-erotica", name: "Sci-Fi Erótica", icon: "👽" },
-  { id: "taboo-forbidden", name: "Tabú / Prohibido", icon: "🤫" },
+  { id: "sci-fi-erotica", name: "Sci-Fi Erotica", icon: "👽" },
+  { id: "taboo-forbidden", name: "Taboo / Forbidden", icon: "🤫" },
 ];
 
 export default function StoryGenre() {
@@ -62,9 +62,9 @@ export default function StoryGenre() {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500"
           >
-            Elige el Tono de tu Historia
+            Choose your story's vibe
           </motion.h1>
 
           <motion.p
@@ -73,7 +73,7 @@ export default function StoryGenre() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg text-gray-300 text-center mb-10 max-w-xl"
           >
-            Selecciona un género sugerido o escribe el tuyo. Esto definirá el ambiente y el estilo de tu narración.
+            Pick a genre or type your own. This will set the mood and style for your narrative. Let's get spicy! 🔥
           </motion.p>
 
           <motion.div
@@ -106,10 +106,10 @@ export default function StoryGenre() {
             transition={{ delay: 0.5 }}
             className="w-full max-w-md mb-10"
           >
-            <p className="text-center text-gray-400 mb-3">O introduce tu propio género:</p>
+            <p className="text-center text-gray-400 mb-3">Or, walk on the wild side and create your own:</p>
             <Input
               type="text"
-              placeholder="Ej: Comedia Oscura, Thriller Psicológico..."
+              placeholder="e.g., Dark Comedy, Psychological Thriller..."
               value={customGenre}
               onChange={handleCustomGenreChange}
               className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg text-center text-white placeholder:text-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
@@ -122,7 +122,7 @@ export default function StoryGenre() {
               disabled={!selectedGenre}
               className="w-full"
             >
-              Continuar
+              Continue
             </StoryButton>
           </div>
         </div>
