@@ -1,5 +1,5 @@
 import { StoryOptionsState } from '../types/storeTypes';
-import { StoryOptions, StoryDuration, StoryCharacter } from '../../types';
+import { StoryOptions, StoryFormat, StoryCharacter } from '../../types';
 import { createPersistentStore } from '../core/createStore';
 import { charactersService } from '../../services/charactersService';
 
@@ -23,8 +23,8 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
       selectedCharacterIds: []
     }),
     
-    setDuration: (duration) => set((state) => ({
-      currentStoryOptions: { ...state.currentStoryOptions, duration }
+    setFormat: (format) => set((state) => ({
+      currentStoryOptions: { ...state.currentStoryOptions, format }
     })),
     
     setMoral: (moral) => set((state) => ({
