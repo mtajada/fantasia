@@ -237,6 +237,7 @@ CREATE POLICY "Authenticated users can read active presets."
 
 COMMIT;
 
+
 -- =============================================================================
 -- ||                 FINAL SQL FUNCTIONS FOR FANTASIA                        ||
 -- =============================================================================
@@ -258,8 +259,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, language)
-  VALUES (new.id, 'en');
+  INSERT INTO public.profiles (id, language, has_completed_setup)
+  VALUES (new.id, 'en', false);
   RETURN new;
 END;
 $$;
@@ -314,6 +315,37 @@ BEGIN
    RETURN NEW;
 END;
 $$;
+
+-- =============================================================================
+-- ||                             TRIGGERS                                  ||
+-- =============================================================================
+
+-- Crear trigger para auto-generar perfiles en el registro de nuevos usuarios
+CREATE TRIGGER trigger_create_profile_on_signup
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Triggers para actualizar timestamps automáticamente en 'updated_at'
+CREATE TRIGGER trigger_profiles_updated_at
+    BEFORE UPDATE ON public.profiles
+    FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
+
+CREATE TRIGGER trigger_characters_updated_at
+    BEFORE UPDATE ON public.characters
+    FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
+
+CREATE TRIGGER trigger_stories_updated_at
+    BEFORE UPDATE ON public.stories
+    FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
+
+CREATE TRIGGER trigger_story_chapters_updated_at
+    BEFORE UPDATE ON public.story_chapters
+    FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
+
+CREATE TRIGGER trigger_user_voices_updated_at
+    BEFORE UPDATE ON public.user_voices
+    FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
+
 
 -- =============================================================================
 -- ||                                END OF SCRIPT                              ||
