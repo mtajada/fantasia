@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import AuthGuard from "./components/AuthGuard";
@@ -18,7 +19,7 @@ import CharacterSelection from "./pages/CharacterSelection";
 import CharacterName from "./pages/CharacterName";
 import DurationSelection from "./pages/DurationSelection";
 import StoryGenre from "./pages/StoryGenre";
-import StoryMoral from "./pages/StoryMoral";
+
 import GeneratingStory from "./pages/GeneratingStory";
 import StoryViewer from "./pages/StoryViewer";
 import StoryAudioPage from "./pages/StoryAudioPage";
@@ -77,7 +78,7 @@ const App = () => {
                 <Route path="/character-selection" element={<AuthGuard><CharacterSelection /></AuthGuard>} />
                 <Route path="/character-name" element={<AuthGuard><CharacterName /></AuthGuard>} />
                 <Route path="/story-genre" element={<AuthGuard><StoryGenre /></AuthGuard>} />
-                <Route path="/story-moral" element={<AuthGuard><StoryMoral /></AuthGuard>} />
+
                 <Route path="/story-details-input" element={<AuthGuard><StoryDetailsInput /></AuthGuard>} />
                 <Route path="/generating" element={<AuthGuard><GeneratingStory /></AuthGuard>} />
                 <Route path="/story/:storyId" element={<AuthGuard><StoryViewer /></AuthGuard>} />
