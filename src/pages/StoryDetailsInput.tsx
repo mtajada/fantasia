@@ -6,14 +6,13 @@ import PageTransition from '../components/PageTransition';
 import BackButton from '../components/BackButton';
 import StoryButton from '../components/StoryButton';
 import { supabase } from '../supabaseClient';
-import type { PresetSuggestion } from '../types';
+import type { PresetSuggestion, StoryFormat } from '../types';
 import { RefreshCw, Sparkles } from 'lucide-react';
 
 const StoryDetailsInput: React.FC = () => {
   const [detailsText, setDetailsText] = useState('');
-  const setAdditionalDetails = useStoryOptionsStore(
-    (state) => state.setAdditionalDetails
-  );
+  const [format, setFormatState] = useState<StoryFormat>('episodic'); // Default to episodic
+  const { setAdditionalDetails, setFormat } = useStoryOptionsStore();
   const navigate = useNavigate();
 
   // --- State for Presets ---
@@ -74,6 +73,10 @@ const StoryDetailsInput: React.FC = () => {
     } else {
       setAdditionalDetails(undefined); // Treat as skipped if empty
     }
+    
+    // Set the selected format in the store
+    setFormat(format);
+    
     navigate('/generating'); // Navigate to the generation screen
   };
 
@@ -201,13 +204,49 @@ const StoryDetailsInput: React.FC = () => {
             </motion.div>
           </motion.div>
           
+          {/* Format Selector */}
+          <motion.div
+            className="mb-6 w-full"
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: 0.3 }}
+          >
+            <p className="text-gray-400 text-center mb-3">Choose your story format 📚</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                onClick={() => setFormatState('episodic')}
+                className={`p-4 rounded-lg border-2 transition-all ${
+                  format === 'episodic' 
+                    ? 'border-violet-500 bg-violet-500/20 ring-2 ring-violet-500/50' 
+                    : 'border-gray-700 bg-gray-800/50 hover:border-violet-400 hover:bg-violet-400/10'
+                }`}
+              >
+                <span className="block font-semibold text-violet-300 mb-1">By Chapters</span>
+                <span className="text-sm text-gray-400">Story with open ending for continuation</span>
+              </button>
+              
+              <button
+                onClick={() => setFormatState('single')}
+                className={`p-4 rounded-lg border-2 transition-all ${
+                  format === 'single' 
+                    ? 'border-pink-500 bg-pink-500/20 ring-2 ring-pink-500/50' 
+                    : 'border-gray-700 bg-gray-800/50 hover:border-pink-400 hover:bg-pink-400/10'
+                }`}
+              >
+                <span className="block font-semibold text-pink-300 mb-1">Complete Story</span>
+                <span className="text-sm text-gray-400">Full story with beginning, middle, and end</span>
+              </button>
+            </div>
+          </motion.div>
+          
           {/* Animated Textarea Container */} 
           <motion.div
             className="mb-6 w-full"
             variants={fadeIn}
             initial="hidden"
             animate="visible"
-            transition={{ delay: 0.25 }}
+            transition={{ delay: 0.35 }}
           >
             <textarea
               id="storyDetailsTextarea"

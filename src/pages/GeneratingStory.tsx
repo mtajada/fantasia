@@ -40,7 +40,7 @@ export default function GeneratingStory() {
             transition={{ duration: 0.5 }}
             className="mb-10"
           >
-            <IconLoadingAnimation message="Creando tu historia..." />
+            <IconLoadingAnimation message="Creating your story..." />
           </motion.div>
           
           <motion.div
@@ -49,12 +49,12 @@ export default function GeneratingStory() {
             transition={{ delay: 1, duration: 1 }}
             className="bg-white/70 text-[#222] p-4 rounded-xl max-w-sm text-center shadow-md"
           >
-            <p className="font-medium">Estamos personalizando una historia mágica especialmente para ti...</p>
+            <p className="font-medium">We're personalizing a magical story especially for you...</p>
             
             <div className="mt-4 grid grid-cols-3 gap-2">
               {currentStoryOptions.characters && currentStoryOptions.characters.length > 0 && (
                 <div className="bg-[#7DC4E0]/20 p-2 rounded-lg border border-[#7DC4E0]/30">
-                  <p className="text-xs font-semibold text-[#7DC4E0]">Personajes ({currentStoryOptions.characters.length})</p>
+                  <p className="text-xs font-semibold text-[#7DC4E0]">Characters ({currentStoryOptions.characters.length})</p>
                   <p className="text-sm truncate">
                     {currentStoryOptions.characters.map(char => char.name).join(', ')}
                   </p>
@@ -63,15 +63,17 @@ export default function GeneratingStory() {
               
               {currentStoryOptions.genre && (
                 <div className="bg-[#BB79D1]/20 p-2 rounded-lg border border-[#BB79D1]/30">
-                  <p className="text-xs font-semibold text-[#BB79D1]">Género</p>
+                  <p className="text-xs font-semibold text-[#BB79D1]">Genre</p>
                   <p className="text-sm truncate">{currentStoryOptions.genre}</p>
                 </div>
               )}
               
-              {currentStoryOptions.duration && (
+              {currentStoryOptions.format && (
                 <div className="bg-[#F9DA60]/20 p-2 rounded-lg border border-[#F9DA60]/30">
-                  <p className="text-xs font-semibold text-[#F9DA60]">Duración</p>
-                  <p className="text-sm truncate">{currentStoryOptions.duration}</p>
+                  <p className="text-xs font-semibold text-[#F9DA60]">Format</p>
+                  <p className="text-sm truncate">
+                    {currentStoryOptions.format === 'single' ? 'Complete Story' : 'By Chapters'}
+                  </p>
                 </div>
               )}
             </div>
@@ -85,7 +87,7 @@ export default function GeneratingStory() {
             className="mt-6 bg-white/70 text-[#222] p-4 rounded-xl max-w-sm text-center shadow-md"
           >
             <p className="font-medium">
-              ¡Tu cuento está casi listo! Para que la magia continúe, por favor, no abandones esta página mientras se crea. ✨
+              Your story is almost ready! To keep the magic going, please don't leave this page while it's being created. ✨
             </p>
           </motion.div>
         </div>

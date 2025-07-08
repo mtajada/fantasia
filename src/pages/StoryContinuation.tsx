@@ -258,10 +258,12 @@ export default function StoryContinuation() {
                   </div>
                 )}
 
-                {story?.options?.duration && (
+                {story?.options?.format && (
                   <div className="bg-[#F9DA60]/20 p-2 rounded-lg border border-[#F9DA60]/30">
-                    <p className="text-xs font-semibold text-[#F9DA60]">Duración</p>
-                    <p className="text-sm truncate">{story.options.duration}</p>
+                    <p className="text-xs font-semibold text-[#F9DA60]">Format</p>
+                    <p className="text-sm truncate">
+                      {story.options.format === 'single' ? 'Complete Story' : 'By Chapters'}
+                    </p>
                   </div>
                 )}
               </div>

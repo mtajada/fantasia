@@ -27,10 +27,6 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
       currentStoryOptions: { ...state.currentStoryOptions, format }
     })),
     
-    setMoral: (moral) => set((state) => ({
-      currentStoryOptions: { ...state.currentStoryOptions, moral }
-    })),
-    
     setGenre: (genre) => set((state) => ({
       currentStoryOptions: { ...state.currentStoryOptions, genre }
     })),
