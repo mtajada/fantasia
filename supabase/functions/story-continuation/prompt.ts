@@ -2,6 +2,24 @@
 // v8.0 (Adult Content + Preferences): Prompts para la continuación de historias adultas.
 // Ahora incluye el contenido COMPLETO de los capítulos anteriores en el contexto.
 
+// Language mapping function to convert language codes to explicit language names
+function getLanguageName(languageCode: string): string {
+    const languageMap: Record<string, string> = {
+        'es': 'Spanish',
+        'en': 'English',
+        'fr': 'French',
+        'de': 'German',
+        'it': 'Italian',
+        'pt': 'Portuguese',
+        'ru': 'Russian',
+        'ja': 'Japanese',
+        'ko': 'Korean',
+        'zh': 'Chinese'
+    };
+    
+    return languageMap[languageCode] || 'English';
+}
+
 // --- Tipos (asumidos/definidos según el uso en index.ts) ---
 export interface CharacterOptions {
     name: string;
@@ -50,8 +68,9 @@ export function createContinuationOptionsPrompt(
     const functionVersion = "v8.0 (Adult Content + Preferences)";
     console.log(`[Prompt Helper ${functionVersion}] createContinuationOptionsPrompt for story ID: ${story.id}, lang: ${language}`);
 
+    const languageName = getLanguageName(language);
     let prompt = `You are a creative assistant expert in generating interesting and coherent continuations for erotic stories for adults.
-  Primary Story Language: ${language}. Target Audience: Adults (18+).`;
+  Primary Story Language: ${languageName}. Target Audience: Adults (18+).`;
 
     if (preferences && preferences.trim()) {
         prompt += `\nConsider the user's preferences when suggesting continuations: "${preferences.trim()}". Incorporate these elements naturally and appropriately.`;
@@ -88,7 +107,7 @@ export function createContinuationOptionsPrompt(
     prompt += `\n\nBased on the current state of the story (considering ALL the context provided above), generate 3 concise and attractive options to continue the erotic story. Each option should be a brief summary (10-20 words) of a possible next step in the adult adventure.`;
     prompt += `\nThe options should be varied, offering different paths or approaches for continuation that maintain the erotic/romantic tension.`;
     prompt += `\nEnsure the options explore clearly distinct themes or actions (for example: one option about exploring a new location, another about the introduction of a new character or element, and another about deepening intimacy or trying something new).`;
-    prompt += `\nThey must be written in ${language}.`;
+    prompt += `\nThey must be written in ${languageName}.`;
 
     // JSON format instructions (unchanged)
     prompt += `\n\n**Response format instructions (VERY IMPORTANT!):**`;
@@ -96,7 +115,7 @@ export function createContinuationOptionsPrompt(
     prompt += `\n* The JSON object must have a single key called "options".`;
     prompt += `\n* The value of the "options" key must be an array (list) of exactly 3 objects.`;
     prompt += `\n* Each object within the "options" array must have a single key called "summary".`;
-    prompt += `\n* The value of the "summary" key should be a text string with the continuation option summary (10-20 words in ${language}).`;
+    prompt += `\n* The value of the "summary" key should be a text string with the continuation option summary (10-20 words in ${languageName}).`;
     prompt += `\n* Example of expected JSON format:`;
     prompt += `\n{`;
     prompt += `\n  "options": [`;
@@ -128,8 +147,9 @@ export function createContinuationPrompt(
     const functionVersion = "v8.0 (Adult Content + Preferences)";
     console.log(`[Prompt Helper ${functionVersion}] createContinuationPrompt for story ID: ${story.id}, action: ${action}, lang: ${language}`);
 
+    const languageName = getLanguageName(language);
     let prompt = `You are an expert writer continuing erotic stories for adults.
-  Write always in ${language}, with sophisticated and sensual language appropriate for mature audiences (18+).
+  Write always in ${languageName}, with sophisticated and sensual language appropriate for mature audiences (18+).
   The original story has a genre of '${story.options.genre}'.`;
 
     // Chapter length guidance based on story format
@@ -209,7 +229,7 @@ export function createContinuationPrompt(
     prompt += `\n2. **Chapter Structure:** Should have clear narrative flow, connecting with the previous chapter and advancing the overall plot. Can introduce new erotic elements or deepen existing relationships.`;
     prompt += `\n3. **Tone and Style:** Maintain the tone and style of the original story. Use sophisticated, sensual language that creates atmosphere and emotional connection. Build tension and desire naturally.`;
     prompt += `\n4. **Coherence:** Ensure characters behave consistently and that new events fit logically in the story while maintaining the erotic tension.`;
-    prompt += `\n5. **Chapter Title:** Generate a brief, attractive and relevant title for the content of this new chapter. Must be in ${language} and in "Sentence case".`;
+    prompt += `\n5. **Chapter Title:** Generate a brief, attractive and relevant title for the content of this new chapter. Must be in ${languageName} and in "Sentence case".`;
     prompt += `\n6. **Adult Content:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Create engaging, erotic content that celebrates adult sexuality healthily.`;
 
     // JSON format instructions (unchanged)
