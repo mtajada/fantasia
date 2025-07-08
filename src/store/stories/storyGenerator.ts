@@ -8,6 +8,7 @@ import { useStoryOptionsStore } from "../storyOptions/storyOptionsStore";
 import { generateId } from "../core/utils";
 import { GenerateStoryService, GenerateStoryParams } from "@/services/ai/GenerateStoryService";
 import { useChaptersStore } from "./chapters/chaptersStore";
+import { StoryCharacter } from "../../types";
 
 /**
  * Genera una historia completa (Capítulo 1 + Título) a partir de las opciones
@@ -33,9 +34,20 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       throw new Error("Usuario no autenticado");
     }
 
-    // Obtener todos los personajes del usuario para poder filtrar los seleccionados
-    const allCharacters = await charactersService.getUserCharacters(user.id);
-    const selectedCharacters = storyOptionsState.getSelectedCharactersForStory(allCharacters);
+    // Obtener personajes seleccionados desde sessionStorage en lugar del store
+    const selectedCharactersData = sessionStorage.getItem('selectedCharacters');
+    let selectedCharacters: StoryCharacter[] = [];
+    
+    if (selectedCharactersData) {
+      try {
+        selectedCharacters = JSON.parse(selectedCharactersData);
+        console.log("🔍 DEBUG - Characters loaded from sessionStorage:", selectedCharacters.length);
+      } catch (error) {
+        console.error("Error parsing selectedCharacters from sessionStorage:", error);
+      }
+    } else {
+      console.warn("No selectedCharacters found in sessionStorage");
+    }
 
     // --- DEBUG: Detailed parameter logging BEFORE building payload --- 
     console.log("🔍 DEBUG PRE-PAYLOAD: Profile Data ->", JSON.stringify(profileSettings, null, 2));
@@ -103,8 +115,10 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     };
     await chaptersStore.addChapter(story.id, firstChapter);
 
-    // Clear temporarily stored story options
+    // Clear temporarily stored story options and sessionStorage
     storyOptionsState.resetStoryOptions();
+    sessionStorage.removeItem('selectedCharacters');
+    console.log("🔍 DEBUG - Cleared sessionStorage after successful story generation");
 
     return story;
 
