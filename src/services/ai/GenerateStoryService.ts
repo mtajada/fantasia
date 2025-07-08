@@ -29,8 +29,25 @@ export class GenerateStoryService {
       }
       const token = sessionData.session.access_token;
 
+      // Validate character structure to ensure compatibility with new schema
+      if (params.options.characters && params.options.characters.length > 0) {
+        const validGenders = ['male', 'female', 'non-binary'];
+        for (const character of params.options.characters) {
+          if (!character.name || typeof character.name !== 'string' || character.name.trim().length === 0) {
+            throw new Error(`Invalid character: missing or empty name field`);
+          }
+          if (!character.gender || !validGenders.includes(character.gender)) {
+            throw new Error(`Invalid character "${character.name}": gender must be one of ${validGenders.join(', ')}`);
+          }
+          if (!character.description || typeof character.description !== 'string' || character.description.trim().length === 0) {
+            throw new Error(`Invalid character "${character.name}": missing or empty description field`);
+          }
+        }
+        console.log('✅ Character structure validation passed');
+      }
+
       // DEBUG: Log the exact payload being sent including character info
-      const charactersInfo = `Characters (${params.options.characters?.length || 0}): ${params.options.characters?.map(c => c.name).join(', ') || 'None'}`;
+      const charactersInfo = `Characters (${params.options.characters?.length || 0}): ${params.options.characters?.map(c => `${c.name} (${c.gender})`).join(', ') || 'None'}`;
       console.log(`>>> Payload being sent to generate-story: ${charactersInfo}`);
       console.log(">>> Full payload:", JSON.stringify(params, null, 2));
 

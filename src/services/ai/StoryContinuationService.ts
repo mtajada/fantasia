@@ -35,6 +35,13 @@ export class StoryContinuationService {
       ...payload // Incluir el resto de los datos (story, chapters, etc.)
     };
 
+    // Log character information for debugging (consistent with GenerateStoryService)
+    if (bodyPayload.story && bodyPayload.story.options && bodyPayload.story.options.characters) {
+      const characters = bodyPayload.story.options.characters;
+      const charactersInfo = `Characters (${characters.length}): ${characters.map(c => `${c.name} (${c.gender})`).join(', ')}`;
+      console.log(`[StoryContinuationService] ${charactersInfo}`);
+    }
+
     try {
       const jsonBodyString = JSON.stringify(bodyPayload, null, 2); // Pretty print
       console.log(`[StoryContinuationService_DEBUG] Body payload AFTER stringify (length: ${jsonBodyString?.length}):\n---\n${jsonBodyString}\n---`);
