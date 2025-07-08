@@ -3,7 +3,7 @@ import {
   Story,
   StoryChapter,
   StoryCharacter,
-  StoryDuration,
+  StoryFormat,
   StoryOptions,
   StoryWithChapters,
   User,
@@ -41,7 +41,7 @@ export interface StoryOptionsState {
 
   updateStoryOptions: (options: Partial<StoryOptions>) => void;
   resetStoryOptions: () => void;
-  setDuration: (duration: StoryDuration) => void;
+  setFormat: (format: StoryFormat) => void;  // era setDuration
   setMoral: (moral: string) => void;
   setGenre: (genre: string) => void;
   setAdditionalDetails: (details?: string | null) => void;

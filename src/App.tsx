@@ -17,7 +17,7 @@ import SignupSuccess from "./pages/SignupSuccess";
 import Home from "./pages/Home";
 import CharacterSelection from "./pages/CharacterSelection";
 import CharacterName from "./pages/CharacterName";
-import DurationSelection from "./pages/DurationSelection";
+
 import StoryGenre from "./pages/StoryGenre";
 
 import GeneratingStory from "./pages/GeneratingStory";
@@ -73,7 +73,7 @@ const App = () => {
 
                 {/* Protected routes */}
                 <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
-                <Route path="/duration" element={<AuthGuard><DurationSelection /></AuthGuard>} />
+
                 <Route path="/characters-management" element={<AuthGuard><CharactersManagement /></AuthGuard>} />
                 <Route path="/character-selection" element={<AuthGuard><CharacterSelection /></AuthGuard>} />
                 <Route path="/character-name" element={<AuthGuard><CharacterName /></AuthGuard>} />

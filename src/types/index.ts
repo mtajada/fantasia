@@ -26,7 +26,7 @@ export type ProfileSettings = {
   has_completed_setup: boolean; // Mostrar como check visual, icono en color de la paleta
 };
 
-export type StoryDuration = 'short' | 'medium' | 'long';
+export type StoryFormat = 'single' | 'episodic';
 
 export type StoryCharacter = {
   id: string;
@@ -42,7 +42,7 @@ export type StoryOptions = {
   moral: string;
   characters: StoryCharacter[];  // Unified: array de personajes (1-4)
   genre: string;
-  duration: StoryDuration;
+  format: StoryFormat;  // ← CAMBIO: era 'duration'
   language?: string;
   userProvidedContext?: string;
 }
