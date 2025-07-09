@@ -44,8 +44,8 @@ export default function Login() {
         loginUser(user);
 
         toast({
-          title: "Login Successful",
-          description: "Welcome back, gorgeous! ✨",
+          title: "Welcome back, gorgeous! ✨",
+          description: "Ready for your next adventure?",
         });
 
         try {
@@ -66,14 +66,14 @@ export default function Login() {
         }
       } else {
         toast({
-          title: "Login Error",
-          description: "Invalid credentials",
+          title: "Hmm, that's not right",
+          description: "Check your credentials and try again",
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Unexpected Error",
+        title: "Something went wrong",
         description: "An unexpected error occurred",
         variant: "destructive"
       });
@@ -90,14 +90,14 @@ export default function Login() {
 
       if (error) {
         toast({
-          title: "Google Login Error",
+          title: "Google sign-in error",
           description: error.message,
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Unexpected Error",
+        title: "Something went wrong",
         description: "An unexpected error occurred while signing in with Google",
         variant: "destructive"
       });
@@ -124,7 +124,7 @@ export default function Login() {
 
       if (error) {
         toast({
-          title: "Reset Request Error",
+          title: "Reset request error",
           description: error.message,
           variant: "destructive"
         });
@@ -132,12 +132,12 @@ export default function Login() {
       }
 
       toast({
-        title: "Request sent",
-        description: "Check your email to reset your password",
+        title: "Check your email ✨",
+        description: "We've sent you instructions to reset your password",
       });
     } catch (err) {
       toast({
-        title: "Unexpected Error",
+        title: "Something went wrong",
         description: "An unexpected error occurred",
         variant: "destructive"
       });
@@ -173,11 +173,11 @@ export default function Login() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-500" size={20} />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
                       <FormControl>
                         <Input
                           placeholder="Email address"
-                          className="pl-10 py-6 rounded-xl bg-gray-900/90 border-gray-700 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 text-gray-100 placeholder-gray-400"
+                          className="pl-10 py-6 rounded-xl bg-gray-900/90 border-gray-700 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20 text-gray-100 placeholder-gray-400"
                           type="email"
                           {...field}
                           required
@@ -194,11 +194,11 @@ export default function Login() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-500" size={20} />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
                       <FormControl>
                         <Input
                           placeholder="Password"
-                          className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-700 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 text-gray-100 placeholder-gray-400"
+                          className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-700 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20 text-gray-100 placeholder-gray-400"
                           type={showPassword ? "text" : "password"}
                           {...field}
                           required
@@ -207,7 +207,7 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={togglePasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-violet-500 hover:text-violet-400 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-pink-500 hover:text-pink-400 transition-colors"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -222,7 +222,7 @@ export default function Login() {
                     type="checkbox"
                     checked={rememberSession}
                     onChange={() => setRememberSession(!rememberSession)}
-                    className="rounded text-pink-500 focus:ring-pink-500 border-gray-700"
+                    className="rounded text-pink-500 focus:ring-pink-500 border-gray-700 bg-gray-900/90"
                   />
                   <span className="text-sm text-gray-300">Remember me</span>
                 </label>
@@ -230,7 +230,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-violet-500 hover:text-violet-400 hover:underline transition-colors"
+                  className="text-sm text-pink-500 hover:text-pink-400 hover:underline transition-colors"
                 >
                   Forgot your password?
                 </button>
@@ -239,7 +239,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 disabled:opacity-60 disabled:cursor-not-allowed transform hover:scale-105 shadow-violet-500/25"
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </button>
@@ -254,7 +254,7 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isGoogleLoading}
-                className="w-full flex items-center justify-center gap-2 bg-gray-800/80 text-gray-200 rounded-xl py-3 hover:bg-gray-700/80 transition-colors duration-300 border border-gray-700 shadow-md"
+                className="w-full flex items-center justify-center gap-2 bg-gray-800/80 text-gray-200 rounded-xl py-3 hover:bg-gray-700/80 transition-all duration-300 border border-gray-700 shadow-md transform hover:scale-105 hover:shadow-lg"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
                   <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
@@ -270,7 +270,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => navigate("/signup")}
-                  className="text-violet-500 font-semibold text-sm hover:underline"
+                  className="text-pink-500 font-semibold text-sm hover:underline hover:text-pink-400 transition-colors"
                 >
                   Join us
                 </button>
