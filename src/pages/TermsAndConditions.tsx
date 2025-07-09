@@ -8,164 +8,166 @@ const TermsAndConditions: React.FC = () => {
 
   return (
     <PageTransition>
-      <div 
+      <div
         className="min-h-screen flex flex-col"
         style={{
           backgroundColor: 'black',
         }}
       >
-        <div className="container mx-auto py-8 px-4 flex-1 overflow-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-[#222]">TÉRMINOS Y CONDICIONES DE USO – USUARIOS DE FANTASIA!</h1>
-              <p className="text-sm text-[#555] mt-2">Última actualización: 23 de abril de 2025</p>
+        <div className="w-full max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex-1 overflow-auto">
+          <div className="w-full">
+            <div className="text-center mb-8 sm:mb-12">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 mb-4 leading-tight">
+                TERMS AND CONDITIONS OF USE – FANTASIA USERS
+              </h1>
+              <p className="text-sm sm:text-base text-gray-400 mt-2">Last updated: April 23, 2025</p>
             </div>
 
-            <div className="space-y-6 bg-white/80 p-8 rounded-2xl backdrop-blur-sm shadow-lg">
-              <p>
-                Estos Términos y Condiciones regulan el acceso, la navegación y el uso de los servicios ofrecidos a través de la plataforma "Fantasia!" (en adelante, la "Plataforma"), titularidad de Fantasia!, con domicilio en Zaragoza, España, y correo electrónico de contacto hola@fantasia.app.
+            <div className="space-y-8 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-2xl ring-1 ring-gray-700/50">
+              <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
+                These Terms and Conditions govern access, navigation, and use of services offered through the "Fantasia" platform (hereinafter, the "Platform"), owned by Fantasia, with headquarters in Zaragoza, Spain, and contact email hola@fantasia.app.
               </p>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">1. OBJETO</h2>
-                <p className="mt-2">
-                  Estos Términos establecen los derechos y obligaciones de los Usuarios y de Fantasia! respecto al acceso y uso de la Plataforma, que permite la generación de cuentos infantiles mediante Inteligencia Artificial.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">1. PURPOSE</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  These Terms establish the rights and obligations of Users and Fantasia regarding access and use of the Platform, which enables the generation of personalized adult stories through Artificial Intelligence.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">2. DESCRIPCIÓN DEL SERVICIO</h2>
-                <p className="mt-2">
-                  Fantasia! es una aplicación web diseñada para crear, editar y escuchar cuentos infantiles personalizados, aprovechando tecnologías de IA. El Usuario puede:
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">2. SERVICE DESCRIPTION</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Fantasia is a web application designed to create, edit, and listen to personalized adult stories, leveraging AI technologies. Users can:
                 </p>
-                <p className="mt-2">
-                  Generar relatos a partir de parámetros (edad, tema, estilo).
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Generate stories based on parameters (preferences, theme, style).
                 </p>
-                <p className="mt-2">
-                  Guardar y gestionar su biblioteca de historias.
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Save and manage their library of stories.
                 </p>
-                <p className="mt-2">
-                  Recibir notificaciones por correo electrónico con enlaces a sus creaciones.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">3. ACCESO Y REGISTRO</h2>
-                <p className="mt-2">
-                  Cuenta de Usuario: Para utilizar Fantasia! es necesario registrarse facilitando un email válido y una contraseña.
-                </p>
-                <p className="mt-2">
-                  Veracidad de los Datos: El Usuario garantiza que la información proporcionada es veraz y actual. En caso de modificación, deberá actualizar sus datos en su perfil.
-                </p>
-                <p className="mt-2">
-                  Edad Mínima: Solo pueden registrarse mayores de 14 años. Los menores deberán contar con el consentimiento de su padre, madre o tutor legal.
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Receive email notifications with links to their creations.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">4. LICENCIA DE USO</h2>
-                <p className="mt-2">
-                  Fantasia! otorga al Usuario una licencia limitada, revocable, no exclusiva e intransferible para uso personal y no comercial de la Plataforma.
-                  Queda prohibido:
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">3. ACCESS AND REGISTRATION</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  User Account: To use Fantasia, registration is required by providing a valid email and password.
                 </p>
-                <p className="mt-2">
-                  Copiar, distribuir o modificar el software de la Plataforma.
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Data Accuracy: Users guarantee that the information provided is truthful and current. In case of changes, they must update their profile data.
                 </p>
-                <p className="mt-2">
-                  Descompilar, realizar ingeniería inversa o extraer código.
-                </p>
-                <p className="mt-2">
-                  Compartir credenciales de acceso con terceros.
-                </p>
-                <p className="mt-2">
-                  Hacer un uso comercial de los servicios sin autorización expresa por escrito.
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Minimum Age: Only users 18 years and older may register. This platform contains adult content and is strictly for mature audiences.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">5. CUENTA, CONTRASEÑA Y SEGURIDAD</h2>
-                <p className="mt-2">
-                  El Usuario es responsable de mantener la confidencialidad de su contraseña y de todas las actividades que se realicen bajo su cuenta. En caso de uso no autorizado, deberá notificarlo de inmediato a hola@fantasia.app.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">4. LICENSE OF USE</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Fantasia grants Users a limited, revocable, non-exclusive, and non-transferable license for personal and non-commercial use of the Platform.
+                  The following is prohibited:
+                </p>
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Copying, distributing, or modifying the Platform software.
+                </p>
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Decompiling, reverse engineering, or extracting code.
+                </p>
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Sharing access credentials with third parties.
+                </p>
+                <p className="mt-3 text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Commercial use of services without express written authorization.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">6. NOTIFICACIONES</h2>
-                <p className="mt-2">
-                  Todas las comunicaciones e información relevante (novedades, enlaces de descarga, cambios en estos Términos) se enviarán al correo electrónico registrado. El Usuario debe mantenerlo actualizado.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">5. ACCOUNT, PASSWORD AND SECURITY</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Users are responsible for maintaining the confidentiality of their password and all activities performed under their account. In case of unauthorized use, they must immediately notify hola@fantasia.app.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">7. REQUISITOS TÉCNICOS</h2>
-                <p className="mt-2">
-                  Para acceder a Fantasia! se requiere:
-                </p>
-                <p className="mt-2">
-                  Dispositivo con conexión a Internet.
-                </p>
-                <p className="mt-2">
-                  Navegador web actualizado (Chrome, Firefox, Edge, Safari).
-                  Fantasia! no garantiza el correcto funcionamiento en navegadores o dispositivos no compatibles.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">6. NOTIFICATIONS</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  All communications and relevant information (updates, download links, changes to these Terms) will be sent to the registered email address. Users must keep it updated.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">8. PROPIEDAD INTELECTUAL</h2>
-                <p className="mt-2">
-                  Relatos Generados: El Usuario conservará todos los derechos de propiedad intelectual sobre los cuentos que genere. Fantasia! no reivindica derechos sobre dichos contenidos.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">7. TECHNICAL REQUIREMENTS</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  To access Fantasia, the following is required:
                 </p>
-                <p className="mt-2">
-                  Plataforma y Contenidos: El software, diseño, logos, marcas y documentación de Fantasia! son propiedad exclusiva de Fantasia! y están protegidos por la normativa de propiedad intelectual. Queda prohibido su uso sin autorización.
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Device with Internet connection.
                 </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">9. EXENCIÓN DE GARANTÍAS Y LIMITACIÓN DE RESPONSABILIDAD</h2>
-                <p className="mt-2">
-                  Fantasia! proporciona la Plataforma "tal cual" y "según disponibilidad".
-                </p>
-                <p className="mt-2">
-                  No garantiza la continuidad, puntualidad o ausencia de errores.
-                </p>
-                <p className="mt-2">
-                  No será responsable de daños directos o indirectos derivados del uso o imposibilidad de uso de la Plataforma, ni de la pérdida de datos.
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Updated web browser (Chrome, Firefox, Edge, Safari).
+                  Fantasia does not guarantee proper functioning on incompatible browsers or devices.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">10. POLÍTICA DE PRIVACIDAD</h2>
-                <p className="mt-2">
-                  El tratamiento de datos personales se realiza conforme a la Política de Privacidad disponible en nuestra web. El Usuario puede ejercer sus derechos de acceso, rectificación, supresión y oposición enviando un email a hola@fantasia.app.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">8. INTELLECTUAL PROPERTY</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Generated Stories: Users retain all intellectual property rights over the stories they generate. Fantasia does not claim rights over such content.
+                </p>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Platform and Contents: The software, design, logos, trademarks, and documentation of Fantasia are the exclusive property of Fantasia and are protected by intellectual property regulations. Use without authorization is prohibited.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">11. MODIFICACIONES DE LOS TÉRMINOS</h2>
-                <p className="mt-2">
-                  Fantasia! se reserva el derecho de modificar estos Términos en cualquier momento. Los cambios se notificarán por correo electrónico o mediante aviso en la Plataforma. Si el Usuario no está de acuerdo, podrá cancelar su cuenta y dejar de usar el servicio.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">9. WARRANTY EXEMPTION AND LIMITATION OF LIABILITY</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Fantasia provides the Platform "as is" and "as available".
+                </p>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  It does not guarantee continuity, punctuality, or absence of errors.
+                </p>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  It will not be responsible for direct or indirect damages arising from the use or inability to use the Platform, nor for data loss.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#BB79D1]">12. LEY APLICABLE Y JURISDICCIÓN</h2>
-                <p className="mt-2">
-                  Estos Términos se rigen por la legislación española. Para cualquier controversia, las partes se someten a la jurisdicción de los Juzgados y Tribunales de Zaragoza (España), con renuncia a cualquier otro fuero.
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">10. PRIVACY POLICY</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Personal data processing is conducted in accordance with the Privacy Policy available on our website. Users can exercise their rights of access, rectification, deletion, and opposition by sending an email to hola@fantasia.app.
                 </p>
               </div>
 
-              <p className="italic">
-                Gracias por elegir Fantasia! Estamos aquí para acompañarte en la creación de historias inolvidables.
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">11. MODIFICATIONS TO THE TERMS</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  Fantasia reserves the right to modify these Terms at any time. Changes will be notified by email or through notice on the Platform. If Users disagree, they may cancel their account and stop using the service.
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">12. APPLICABLE LAW AND JURISDICTION</h2>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+                  These Terms are governed by Spanish legislation. For any dispute, the parties submit to the jurisdiction of the Courts and Tribunals of Zaragoza (Spain), waiving any other jurisdiction.
+                </p>
+              </div>
+
+              <p className="italic text-gray-400 text-center mt-8 text-lg">
+                Thank you for choosing Fantasia! We're here to accompany you in creating unforgettable stories. ✨
               </p>
             </div>
-            
-            <div className="flex justify-center mt-6">
-              <Button 
-                variant="default" 
+
+            <div className="flex justify-center mt-8">
+              <Button
+                variant="default"
                 onClick={() => navigate(-1)}
-                className="min-w-32"
+                className="min-w-32 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-semibold shadow-lg shadow-violet-500/25 transition-all px-8 py-3"
               >
-                Volver
+                Back
               </Button>
             </div>
           </div>
