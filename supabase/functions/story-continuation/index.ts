@@ -66,6 +66,7 @@ async function generateContinuationOptions(
   chapters: Chapter[],
   language: string = 'en',
   preferences: string | null = null,
+  spicynessLevel: number = 2,
 ): Promise<AiContinuationOptionsResponse> {
   console.log(`[${functionVersion}] generateContinuationOptions for story ${story?.id}`);
 
@@ -76,7 +77,7 @@ async function generateContinuationOptions(
     throw new Error("Datos de capítulos inválidos para generar opciones.");
   }
 
-  const prompt = createContinuationOptionsPrompt(story, chapters, language, preferences);
+  const prompt = createContinuationOptionsPrompt(story, chapters, language, preferences, spicynessLevel);
   console.log(`[${functionVersion}] Prompt para generación de opciones (lang: ${language}):\n---\n${prompt.substring(0, 300)}...\n---`);
 
   let aiResponseContent: string | null = null;
@@ -308,6 +309,7 @@ serve(async (req: Request) => {
     const language = profile?.language || story?.options?.language || 'en';
     const preferences = profile?.preferences || null;
     const storyFormat = body.storyFormat || story?.options?.format || 'episodic';
+    const spicynessLevel = story?.options?.spiciness_level || 2; // Extract from story options, default to 2
 
     // Límites (largely same logic as v6.1)
     if (isContinuationAction) {
@@ -335,7 +337,7 @@ serve(async (req: Request) => {
     console.log(`[${functionVersion}] Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`);
 
     if (action === 'generateOptions') {
-      const optionsResponse = await generateContinuationOptions(story as Story, chapters as Chapter[], language, preferences);
+      const optionsResponse = await generateContinuationOptions(story as Story, chapters as Chapter[], language, preferences, spicynessLevel);
       responsePayload = optionsResponse; // This is already { options: [...] }
     } else if (isContinuationAction) {
       const continuationContext: ContinuationContextType = {};
@@ -349,7 +351,8 @@ serve(async (req: Request) => {
         continuationContext,
         language,
         preferences,
-        storyFormat
+        storyFormat,
+        spicynessLevel
       );
 
       console.log(`[${functionVersion}] Calling AI for continuation. Prompt start: ${continuationPrompt.substring(0, 200)}...`);

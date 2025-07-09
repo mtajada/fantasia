@@ -244,6 +244,16 @@ serve(async (req: Request) => {
         console.error("[VALIDATION ERROR] genre:", params.options.genre, typeof params.options.genre);
       }
 
+      // Validate spiciness level (optional, default to 2 if not provided)
+      if (params.options.spiciness_level !== undefined) {
+        if (typeof params.options.spiciness_level !== 'number' || 
+            params.options.spiciness_level < 1 || 
+            params.options.spiciness_level > 3) {
+          errors.push('options.spiciness_level must be a number between 1 and 3');
+          console.error("[VALIDATION ERROR] spiciness_level:", params.options.spiciness_level, typeof params.options.spiciness_level);
+        }
+      }
+
       if (errors.length > 0) {
         console.error("[VALIDATION ERROR] Basic validation failed:", errors);
         throw new Error(`Invalid basic parameters: ${errors.join(', ')}.`);
@@ -302,7 +312,8 @@ serve(async (req: Request) => {
     }
 
     // 6. Generación IA con OpenAI Client y Esperando JSON
-    const systemPrompt = createSystemPrompt(profile?.language || 'en', profile?.preferences || null);
+    const spicynessLevel = params.options.spiciness_level || 2; // Default to moderate if not provided
+    const systemPrompt = createSystemPrompt(profile?.language || 'en', profile?.preferences || null, spicynessLevel);
     const userPrompt = createUserPrompt_JsonFormat({ // Esta función ahora genera un prompt pidiendo JSON
       options: params.options,
       additionalDetails: params.additionalDetails

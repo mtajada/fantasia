@@ -97,11 +97,13 @@ CREATE TABLE public.stories (
     cover_image_url text NULL, -- For future use with image generation.
     character_id uuid NULL,
     additional_details text NULL, -- For the final optional customization prompt.
+    spiciness_level integer NOT NULL DEFAULT 2, -- Adult content intensity level (1=Sensual, 2=Passionate, 3=Intense)
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT stories_pkey PRIMARY KEY (id),
     CONSTRAINT stories_character_id_fkey FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE SET NULL,
-    CONSTRAINT stories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+    CONSTRAINT stories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE,
+    CONSTRAINT stories_spiciness_level_check CHECK (spiciness_level >= 1 AND spiciness_level <= 3)
 );
 COMMENT ON COLUMN public.stories.story_format IS 'Indicates if the story is a single one-off or episodic with chapters.';
 COMMENT ON COLUMN public.stories.genre IS 'Story genre. Can be a preset (e.g., Erotic Romance) or a custom user value.';

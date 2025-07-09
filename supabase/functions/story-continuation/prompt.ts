@@ -64,13 +64,23 @@ export function createContinuationOptionsPrompt(
     chapters: Chapter[],
     language: string = 'en',
     preferences: string | null = null,
+    spicynessLevel: number = 2,
 ): string {
     const functionVersion = "v8.0 (Adult Content + Preferences)";
-    console.log(`[Prompt Helper ${functionVersion}] createContinuationOptionsPrompt for story ID: ${story.id}, lang: ${language}`);
+    console.log(`[Prompt Helper ${functionVersion}] createContinuationOptionsPrompt for story ID: ${story.id}, lang: ${language}, spiciness: ${spicynessLevel}`);
 
     const languageName = getLanguageName(language);
     let prompt = `You are a creative assistant expert in generating interesting and coherent continuations for erotic stories for adults.
   Primary Story Language: ${languageName}. Target Audience: Adults (18+).`;
+
+    // Add spiciness level specific guidelines
+    if (spicynessLevel === 1) {
+        prompt += ` CONTENT INTENSITY: SENSUAL (Level 1) - Generate continuation options that maintain suggestive and implicit content. Focus on elegant, emotional connections, subtle tension, and anticipation rather than explicit descriptions.`;
+    } else if (spicynessLevel === 2) {
+        prompt += ` CONTENT INTENSITY: PASSIONATE (Level 2) - Generate continuation options that include explicit but balanced sexual content. Options should suggest clear intimate scenarios while maintaining elegance and emotional connection.`;
+    } else if (spicynessLevel === 3) {
+        prompt += ` CONTENT INTENSITY: INTENSE (Level 3) - Generate continuation options that embrace very explicit and graphic sexual content. Options should suggest detailed, direct, and provocative scenarios while maintaining consent and positivity.`;
+    }
 
     if (preferences && preferences.trim()) {
         prompt += `\nConsider the user's preferences when suggesting continuations: "${preferences.trim()}". Incorporate these elements naturally and appropriately.`;
@@ -142,15 +152,25 @@ export function createContinuationPrompt(
     context: ContinuationContextType,
     language: string = 'en',
     preferences: string | null = null,
-    storyFormat: string = 'episodic'
+    storyFormat: string = 'episodic',
+    spicynessLevel: number = 2
 ): string {
     const functionVersion = "v8.0 (Adult Content + Preferences)";
-    console.log(`[Prompt Helper ${functionVersion}] createContinuationPrompt for story ID: ${story.id}, action: ${action}, lang: ${language}`);
+    console.log(`[Prompt Helper ${functionVersion}] createContinuationPrompt for story ID: ${story.id}, action: ${action}, lang: ${language}, spiciness: ${spicynessLevel}`);
 
     const languageName = getLanguageName(language);
     let prompt = `You are an expert writer continuing erotic stories for adults.
   Write always in ${languageName}, with sophisticated and sensual language appropriate for mature audiences (18+).
   The original story has a genre of '${story.options.genre}'.`;
+
+    // Add spiciness level specific guidelines
+    if (spicynessLevel === 1) {
+        prompt += ` CONTENT INTENSITY: SENSUAL (Level 1) - Continue with suggestive and implicit content. Use elegant, metaphorical language that builds tension through emotional connection, subtle touches, and anticipation. Focus on romance and desire rather than explicit descriptions.`;
+    } else if (spicynessLevel === 2) {
+        prompt += ` CONTENT INTENSITY: PASSIONATE (Level 2) - Continue with explicit but balanced sexual content. Include clear descriptions of intimate acts without excessive graphic detail. Use sensual and direct but elegant language, focusing on emotions and physical sensations.`;
+    } else if (spicynessLevel === 3) {
+        prompt += ` CONTENT INTENSITY: INTENSE (Level 3) - Continue with very explicit and graphic sexual content. Include detailed descriptions of sexual acts, positions, and physical sensations. Use direct and provocative language with high sexual intensity while maintaining consent and positivity.`;
+    }
 
     // Chapter length guidance based on story format
     prompt += `\n\n**Chapter length guide based on story format:**`;

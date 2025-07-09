@@ -44,6 +44,7 @@ export type StoryOptions = {
   format: StoryFormat;  // ← CAMBIO: era 'duration'
   language?: string;
   userProvidedContext?: string;
+  spiciness_level?: number;  // Adult content intensity level (1=Sensual, 2=Passionate, 3=Intense)
 }
 
 export type Story = {

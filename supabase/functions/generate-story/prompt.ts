@@ -21,11 +21,20 @@ function getLanguageName(languageCode: string): string {
 }
 
 // createSystemPrompt: El contenido textual de la guía para la IA ahora enfocado en contenido adulto.
-export function createSystemPrompt(language: string, preferences?: string | null): string {
-    console.log(`[Adult Content v8.0] createSystemPrompt: lang=${language}, preferences=${preferences ? 'provided' : 'none'}`);
+export function createSystemPrompt(language: string, preferences?: string | null, spicynessLevel: number = 2): string {
+    console.log(`[Adult Content v8.0] createSystemPrompt: lang=${language}, preferences=${preferences ? 'provided' : 'none'}, spiciness=${spicynessLevel}`);
 
     const languageName = getLanguageName(language);
     let base = `You are an expert writer creating personalized erotic stories for adults. Write always in ${languageName}, with sophisticated and sensual language appropriate for mature audiences (18+).`;
+    
+    // Add spiciness level specific guidelines
+    if (spicynessLevel === 1) {
+        base += ` CONTENT INTENSITY: SENSUAL (Level 1) - Create suggestive and implicit content. Use elegant, metaphorical language that builds tension through glances, intimate conversations, and subtle touches. Scenes should end just before explicit acts or suggest them discretely. Focus on emotional connection and anticipation rather than graphic descriptions.`;
+    } else if (spicynessLevel === 2) {
+        base += ` CONTENT INTENSITY: PASSIONATE (Level 2) - Create explicit but balanced sexual content. Include clear descriptions of sexual acts without excessive graphic detail. Use sensual and direct but elegant language, focusing on emotions and physical sensations. Keep sexual scenes brief and avoid overly graphic descriptions while maintaining explicitness.`;
+    } else if (spicynessLevel === 3) {
+        base += ` CONTENT INTENSITY: INTENSE (Level 3) - Create very explicit and graphic sexual content. Include detailed descriptions of sexual acts, positions, and physical sensations. Use direct and provocative language without euphemisms. Maintain high sexual intensity with detailed, visual descriptions while emphasizing consent and positivity.`;
+    }
     
     if (preferences && preferences.trim()) {
         base += ` The user has specified these preferences and interests: "${preferences.trim()}". Incorporate these elements thoughtfully and naturally into the story to create a personalized experience.`;

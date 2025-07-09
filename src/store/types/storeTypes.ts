@@ -44,6 +44,7 @@ export interface StoryOptionsState {
   setFormat: (format: StoryFormat) => void;  // era setDuration
   setGenre: (genre: string) => void;
   setAdditionalDetails: (details?: string | null) => void;
+  setSpicynessLevel: (level: number) => void;  // Adult content intensity level
 
   // Multiple character selection functions
   setSelectedCharacterIds: (characterIds: string[]) => void;
