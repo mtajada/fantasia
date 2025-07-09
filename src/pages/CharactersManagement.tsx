@@ -7,6 +7,7 @@ import StoryButton from "../components/StoryButton";
 import { motion } from "framer-motion";
 import BackButton from "../components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { StoryCharacter } from "../types";
 import { getUserCharacters, deleteCharacter } from "../services/supabase";
 
@@ -21,16 +22,17 @@ export default function CharactersManagement() {
   const [characterToDelete, setCharacterToDelete] = useState<StoryCharacter | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Load characters directly from Supabase
   useEffect(() => {
     const loadCharacters = async () => {
-      console.log("[DEBUG] CharactersManagement mounted - loading characters directly from Supabase");
+      console.log("CharactersManagement mounted - loading characters directly from Supabase");
       setIsLoading(true);
       setError(null);
 
       if (!user) {
-        console.error("[DEBUG] No authenticated user to load characters");
+        console.error("No authenticated user to load characters");
         setError("No authenticated user");
         setIsLoading(false);
         return;
@@ -41,13 +43,13 @@ export default function CharactersManagement() {
         
         if (success && loadedCharacters) {
           setCharacters(loadedCharacters);
-          console.log(`[DEBUG] Loaded ${loadedCharacters.length} characters for user ${user.id}`);
+          console.log(`Loaded ${loadedCharacters.length} characters for user ${user.id}`);
         } else {
-          console.error("[DEBUG] Error loading characters:", loadError);
+          console.error("Error loading characters:", loadError);
           setError("Error loading characters");
         }
       } catch (err) {
-        console.error("[DEBUG] Unexpected error loading characters:", err);
+        console.error("Unexpected error loading characters:", err);
         setError("Unexpected error loading characters");
       } finally {
         setIsLoading(false);
@@ -63,7 +65,7 @@ export default function CharactersManagement() {
   };
 
   const handleEditCharacter = (characterId: string) => {
-    // Navegar directamente con el ID del personaje para editar
+    // Navigate directly with character ID for editing
     navigate(`/character-name?from=management&edit=${characterId}`);
   };
 
@@ -86,7 +88,7 @@ export default function CharactersManagement() {
             description: `Character ${characterToDelete.name} has been removed from your collection`,
           });
         } else {
-          console.error("[DEBUG] Error eliminando personaje:", deleteError);
+          console.error("Error deleting character:", deleteError);
           toast({
             title: "Error",
             description: "Could not delete character. Please try again.",
@@ -94,7 +96,7 @@ export default function CharactersManagement() {
           });
         }
       } catch (err) {
-        console.error("[DEBUG] Error inesperado eliminando personaje:", err);
+        console.error("Unexpected error deleting character:", err);
         toast({
           title: "Error",
           description: "Unexpected error deleting character",
@@ -131,37 +133,35 @@ export default function CharactersManagement() {
     <PageTransition>
       <div
         className="min-h-screen flex flex-col items-center justify-center relative overflow-auto"
-        style={{
-          backgroundColor: 'black',
-        }}
+        style={{ backgroundColor: 'black' }}
       >
         <BackButton onClick={() => navigate("/home")} />
         
-        <div className="w-full max-w-2xl mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-[#BB79D1] text-center mb-6 font-heading drop-shadow-lg">
-            My Characters
+        <div className={`w-full max-w-2xl mx-auto ${isMobile ? 'px-4 py-6' : 'px-4 py-8'}`}>
+          <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl'} font-bold text-center mb-6 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500`}>
+            Your Intimate Cast ✨
           </h1>
           
-          <div className="mb-8">
+          <div className={`${isMobile ? 'mb-6' : 'mb-8'}`}>
             <button 
               onClick={handleCreateNewCharacter}
-              className="w-full bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-200 text-lg"
+              className={`w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-semibold ${isMobile ? 'py-4 px-4 text-base' : 'py-4 px-6 text-lg'} rounded-2xl shadow-lg shadow-violet-500/25 flex items-center justify-center gap-3 transition-all duration-300 hover:transform hover:scale-105`}
             >
-              <Plus size={24} className="text-white" />
-              Create New Character
+              <Plus size={isMobile ? 20 : 24} className="text-white" />
+              Create New Character 🪄
             </button>
           </div>
           
           {isLoading ? (
-            <div className="flex justify-center my-8 bg-white/70 rounded-xl p-6 shadow-md">
-              <div className="animate-spin h-10 w-10 border-4 border-[#BB79D1] rounded-full border-t-transparent"></div>
+            <div className="flex justify-center my-8 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 shadow-2xl ring-1 ring-gray-700/50">
+              <div className="animate-spin h-10 w-10 border-4 border-violet-500 rounded-full border-t-transparent"></div>
             </div>
           ) : error ? (
-            <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
-              <div className="text-red-500 font-medium">{error}</div>
+            <div className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 shadow-2xl ring-1 ring-gray-700/50 mb-8">
+              <div className="text-red-400 font-medium">{error}</div>
               <button 
                 onClick={() => window.location.reload()} 
-                className="mt-2 text-[#BB79D1] underline"
+                className="mt-2 text-violet-400 underline hover:text-violet-300 transition-colors"
               >
                 Retry
               </button>
@@ -169,19 +169,19 @@ export default function CharactersManagement() {
           ) : (
             <>
               {characters.length === 0 ? (
-                <div className="bg-white/80 rounded-xl p-8 text-center text-[#222] shadow-md">
-                  <User size={48} className="mx-auto mb-4 text-[#BB79D1] opacity-70" />
-                  <h3 className="text-xl font-semibold mb-2 text-[#222]">No characters yet</h3>
-                  <p className="text-[#555] mb-6">
-                    Create your first character to star in your intimate stories
+                <div className="bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-8 text-center shadow-2xl ring-1 ring-gray-700/50">
+                  <User size={48} className="mx-auto mb-4 text-violet-400 opacity-70" />
+                  <h3 className="text-xl font-semibold mb-2 text-gray-200">No characters yet</h3>
+                  <p className="text-gray-400 mb-6">
+                    Create your first character to star in your intimate stories 🎭
                   </p>
                   <StoryButton 
                     onClick={handleCreateNewCharacter}
                     variant="secondary"
                     icon={<Plus size={16} />}
-                    className="bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition-all duration-200"
+                    className="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg shadow-violet-500/25 transition-all duration-300 hover:transform hover:scale-105"
                   >
-                    Create Character
+                    Create Character ✨
                   </StoryButton>
                 </div>
               ) : (
@@ -193,34 +193,34 @@ export default function CharactersManagement() {
                 >
                   {characters.map((character) => (
                     <motion.div key={character.id} variants={item}>
-                      <div className="bg-white/80 rounded-xl p-4 flex items-center shadow-md">
-                        <div className="w-12 h-12 rounded-full bg-[#7DC4E0]/20 border-2 border-[#7DC4E0]/40 flex items-center justify-center mr-4 flex-shrink-0">
-                          <User size={24} className="text-[#7DC4E0]" />
+                      <div className={`bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl ${isMobile ? 'p-4' : 'p-6'} flex items-center shadow-2xl ring-1 ring-gray-700/50 hover:bg-gray-800/90 hover:border-gray-700 transition-all duration-300`}>
+                        <div className={`${isMobile ? 'w-12 h-12' : 'w-14 h-14'} rounded-full bg-gradient-to-br from-violet-500/20 to-pink-500/20 border-2 border-violet-500/40 flex items-center justify-center ${isMobile ? 'mr-3' : 'mr-4'} flex-shrink-0`}>
+                          <User size={isMobile ? 22 : 26} className="text-violet-400" />
                         </div>
-                        <div className="flex-grow mr-4">
-                          <h3 className="text-[#222] font-semibold text-lg">{character.name}</h3>
-                          <p className="text-[#555] text-sm line-clamp-2">
-                            {character.description || 'No description yet - add details to make them irresistible'}
+                        <div className={`flex-grow ${isMobile ? 'mr-3' : 'mr-4'}`}>
+                          <h3 className={`text-gray-200 font-semibold ${isMobile ? 'text-base' : 'text-lg'}`}>{character.name}</h3>
+                          <p className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'} line-clamp-2`}>
+                            {character.description || 'No description yet - add details to make them irresistible 🤫'}
                           </p>
-                          <p className="text-[#7DC4E0] text-xs mt-1">
+                          <p className={`text-violet-400 ${isMobile ? 'text-xs' : 'text-xs'} mt-1 font-medium`}>
                             {character.gender === 'male' ? '♂ Male' : 
                              character.gender === 'female' ? '♀ Female' : '⚧ Non-binary'}
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className={`flex gap-2 ${isMobile ? 'gap-3' : 'gap-2'}`}>
                           <button 
                             onClick={() => handleEditCharacter(character.id)}
-                            className="w-10 h-10 rounded-full bg-white/70 hover:bg-[#BB79D1]/20 flex items-center justify-center text-[#BB79D1] border border-[#BB79D1]/30 transition-colors shadow-sm"
-                            aria-label="Editar"
+                            className={`${isMobile ? 'w-12 h-12' : 'w-11 h-11'} rounded-full bg-gray-800/80 hover:bg-violet-500/20 flex items-center justify-center text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-500/50 transition-all duration-300 shadow-sm backdrop-blur-sm`}
+                            aria-label="Edit"
                           >
-                            <Edit size={16} />
+                            <Edit size={isMobile ? 18 : 16} />
                           </button>
                           <button 
                             onClick={() => handleDeleteClick(character)}
-                            className="w-10 h-10 rounded-full bg-white/70 hover:bg-[#F6A5B7]/20 flex items-center justify-center text-[#F6A5B7] hover:text-[#F6A5B7] border border-[#F6A5B7]/30 transition-colors shadow-sm"
-                            aria-label="Eliminar"
+                            className={`${isMobile ? 'w-12 h-12' : 'w-11 h-11'} rounded-full bg-gray-800/80 hover:bg-pink-500/20 flex items-center justify-center text-pink-400 hover:text-pink-300 border border-pink-500/30 hover:border-pink-500/50 transition-all duration-300 shadow-sm backdrop-blur-sm`}
+                            aria-label="Delete"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={isMobile ? 18 : 16} />
                           </button>
                         </div>
                       </div>
@@ -234,27 +234,27 @@ export default function CharactersManagement() {
 
         {/* Delete confirmation modal */}
         {showDeleteConfirm && characterToDelete && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className={`fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 ${isMobile ? 'px-4' : 'px-4'}`}>
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white/90 rounded-xl p-6 max-w-md w-full shadow-lg"
+              className={`bg-gray-900/95 backdrop-blur-md border border-gray-800 rounded-2xl ${isMobile ? 'p-6' : 'p-8'} max-w-md w-full shadow-2xl ring-1 ring-gray-700/50`}
             >
-              <h3 className="text-xl font-semibold text-[#BB79D1] mb-2">Delete character</h3>
-              <p className="text-[#222] mb-6">
-                Are you sure you want to delete <span className="font-medium text-[#BB79D1]">{characterToDelete.name}</span>? 
+              <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400 mb-3`}>Delete Character 🗑️</h3>
+              <p className={`text-gray-300 mb-6 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                Are you sure you want to remove <span className="font-medium text-violet-400">{characterToDelete.name}</span> from your intimate cast? 
                 This action cannot be undone.
               </p>
-              <div className="flex gap-3">
+              <div className={`flex ${isMobile ? 'gap-3' : 'gap-4'}`}>
                 <button
                   onClick={cancelDelete}
-                  className="flex-1 py-2 px-4 bg-white/80 rounded-xl text-[#222] font-medium hover:bg-white/90 transition-colors border border-[#BB79D1]/30 shadow-sm"
+                  className={`flex-1 ${isMobile ? 'py-3 px-4' : 'py-3 px-6'} bg-gray-800/80 hover:bg-gray-700/80 rounded-2xl text-gray-300 font-medium transition-all duration-300 border border-gray-700 shadow-sm backdrop-blur-sm`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 py-2 px-4 bg-[#F6A5B7] rounded-xl text-white font-medium hover:bg-[#F6A5B7]/80 transition-colors shadow-sm"
+                  className={`flex-1 ${isMobile ? 'py-3 px-4' : 'py-3 px-6'} bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 rounded-2xl text-white font-medium transition-all duration-300 shadow-lg shadow-pink-500/25`}
                 >
                   Delete
                 </button>
