@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useUserStore } from '@/store/user/userStore'; // Adjust path if needed
-import { supabase } from '@/supabaseClient'; // Adjust path if needed
-import { useToast } from '@/hooks/use-toast'; // Adjust path if needed
-import PageTransition from '@/components/PageTransition'; // Adjust path if needed
+import { Link, useLocation } from 'react-router-dom';
+import { supabase } from '@/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
+import PageTransition from '@/components/PageTransition';
 import BackButton from '@/components/BackButton';
-import { motion } from 'framer-motion';
+import { getUserProfile } from '@/services/supabase';
+import { getCurrentUser } from '@/supabaseAuth';
+import { ProfileSettings } from '@/types';
 import {
     Star,
     BookOpen,
@@ -23,23 +24,51 @@ import {
 } from 'lucide-react';
 
 const PlansPage: React.FC = () => {
-    const navigate = useNavigate();
     const location = useLocation();
     const { toast } = useToast();
-    const { profileSettings, isPremium } = useUserStore(
-        (state) => ({
-            profileSettings: state.profileSettings,
-            isPremium: state.isPremium,
-        })
-    );
+    const [profileSettings, setProfileSettings] = useState<ProfileSettings | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
+    
+    // Premium check function
+    const isPremium = () => {
+        const status = profileSettings?.subscription_status;
+        return status === 'active' || status === 'trialing';
+    };
 
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
     const [isPortalLoading, setIsPortalLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'comparison' | 'details'>(isPremium() ? 'details' : 'comparison');
-    const [activePlan, setActivePlan] = useState<'free' | 'premium'>(isPremium() ? 'premium' : 'free');
+    const [activeTab, setActiveTab] = useState<'comparison' | 'details'>('comparison');
+    const [activePlan, setActivePlan] = useState<'free' | 'premium'>('free');
 
-    // Handle tab query parameter
+    // Load user data and handle tab query parameter
     useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                setIsLoading(true);
+                const { user: currentUser } = await getCurrentUser();
+                
+                if (currentUser) {
+                    setUser(currentUser);
+                    const { success, profile } = await getUserProfile(currentUser.id);
+                    
+                    if (success && profile) {
+                        setProfileSettings(profile);
+                        const premium = profile.subscription_status === 'active' || profile.subscription_status === 'trialing';
+                        setActiveTab(premium ? 'details' : 'comparison');
+                        setActivePlan(premium ? 'premium' : 'free');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        loadUserData();
+        
+        // Handle tab query parameter
         const queryParams = new URLSearchParams(location.search);
         const tabParam = queryParams.get('tab');
         if (tabParam === 'premium') {
@@ -61,18 +90,18 @@ const PlansPage: React.FC = () => {
             if (data?.url) {
                 window.location.href = data.url;
             } else {
-                throw new Error('No se recibió URL de checkout.');
+                throw new Error('No checkout URL received.');
             }
         } catch (error: Error | unknown) {
             console.error(`Error creating ${item} checkout session:`, error);
-            toast({ title: 'Error', description: `No se pudo iniciar el pago: ${error instanceof Error ? error.message : 'Error desconocido'}`, variant: 'destructive' });
+            toast({ title: 'Error', description: `Could not start payment: ${error instanceof Error ? error.message : 'Unknown error'}`, variant: 'destructive' });
             setIsCheckoutLoading(false);
         } // No finally needed as page redirects on success
     };
 
     const handleManageSubscription = async () => {
         if (!profileSettings?.stripe_customer_id) {
-            toast({ title: 'Error', description: 'No se encontró información de cliente para gestionar la suscripción.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'No customer information found to manage subscription.', variant: 'destructive' });
             return;
         }
 
@@ -85,23 +114,33 @@ const PlansPage: React.FC = () => {
             if (data?.url) {
                 window.location.href = data.url;
             } else {
-                throw new Error('No se recibió URL del portal de cliente.');
+                throw new Error('No customer portal URL received.');
             }
         } catch (error: Error | unknown) {
             console.error("Error creating customer portal session:", error);
-            toast({ title: 'Error', description: `No se pudo redirigir a la gestión de suscripción: ${error instanceof Error ? error.message : 'Error desconocido'}`, variant: 'destructive' });
+            toast({ title: 'Error', description: `Could not redirect to subscription management: ${error instanceof Error ? error.message : 'Unknown error'}`, variant: 'destructive' });
             setIsPortalLoading(false);
         } // No finally block needed for isLoading as page redirects on success
     };
 
     const premiumUser = isPremium();
+    
+    if (isLoading) {
+        return (
+            <PageTransition>
+                <div className="relative min-h-screen flex flex-col items-center justify-center p-0" style={{ backgroundColor: 'black' }}>
+                    <div className="text-white text-lg sm:text-xl px-4">Loading...</div>
+                </div>
+            </PageTransition>
+        );
+    }
 
     // Define features for comparison table (updated per requirements)
     const features = [
-        { name: 'Historias Generadas', free: '10 / mes', premium: 'Ilimitadas', icon: BookOpen, limited: true },
-        { name: 'Continuaciones por Historia', free: '1', premium: 'Ilimitadas', icon: TrendingUp, limited: true },
-        { name: 'Narración con Voz (IA)', free: 'Si (2 / mes)', premium: 'Sí (20/mes incl.)', icon: Mic, limited: true },
-        { name: 'Retos Creativos', free: 'Ilimitados', premium: 'Ilimitados', icon: CheckCircle, limited: false },
+        { name: 'Stories Generated', free: '10 / month', premium: 'Unlimited', icon: BookOpen, limited: true },
+        { name: 'Story Continuations', free: '1', premium: 'Unlimited', icon: TrendingUp, limited: true },
+        { name: 'Voice Narration (AI)', free: 'Yes (2 / month)', premium: 'Yes (20/month incl.)', icon: Mic, limited: true },
+        { name: 'Creative Challenges', free: 'Unlimited', premium: 'Unlimited', icon: CheckCircle, limited: false },
     ];
 
     return (
@@ -112,159 +151,134 @@ const PlansPage: React.FC = () => {
                     backgroundColor: 'black',
                 }}
             >
-                {/* Logo y cabecera - Reducido espacio */}
+                {/* Logo and header - Reduced space */}
                 <div className="flex flex-col items-center mt-4 mb-0 select-none">
                     <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
                 </div>
-                <div className="container mx-auto px-4 py-0 max-w-4xl">
+                <div className="container mx-auto px-2 sm:px-4 py-0 max-w-4xl">
                     {/* Back button */}
-                    <BackButton className="absolute top-8 left-4 md:left-8" />
+                    <BackButton className="absolute top-6 left-4 md:top-8 md:left-8" />
                     {/* Premium User View */}
                     {premiumUser && (
                         <div className="pt-0 flex flex-col min-h-[80vh] justify-between">
                             <div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="text-center mb-6"
-                                >
-                                    <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-[#F9DA60] mb-2">
-                                        <Star className="h-8 w-8 text-[#BB79D1]" />
+                                <div className="text-center mb-6 transition-all duration-300">
+                                    <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 mb-2">
+                                        <Star className="h-8 w-8 text-white" />
                                     </div>
-                                    <h1 className="text-3xl md:text-4xl font-bold mb-2 font-heading text-[#BB79D1]">Plan Premium Activo</h1>
-                                    <p className="text-[#7DC4E0] text-lg">Disfruta de todas las funciones sin límites</p>
-                                </motion.div>
-                                <div className="grid md:grid-cols-2 gap-6 mt-8">
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Premium Unleashed ✨</h1>
+                                    <p className="text-gray-300 text-base sm:text-lg px-4 sm:px-0">Enjoy all features without limits</p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 px-4 sm:px-0">
                                     {/* Card: Buy Voice Credits */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.1 }}
-                                        className="bg-white/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-[#A5D6F6]/30"
-                                    >
+                                    <div className="bg-gray-900/90 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-gray-800 transition-all duration-300">
                                         <div className="p-6">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/40 flex items-center justify-center">
-                                                    <Mic className="h-5 w-5 text-[#7DC4E0]" />
+                                                <div className="w-10 h-10 rounded-full bg-violet-500/40 flex items-center justify-center">
+                                                    <Mic className="h-5 w-5 text-violet-400" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-xl font-heading text-[#BB79D1]">Créditos de Voz</h3>
-                                                    <p className="text-[#7DC4E0] text-sm">Amplía tus narraciones</p>
+                                                    <h3 className="font-bold text-lg sm:text-xl font-heading text-gray-50">Voice Credits 🎤</h3>
+                                                    <p className="text-gray-300 text-sm">Enhance your stories</p>
                                                 </div>
                                             </div>
                                             <div className="mb-6">
                                                 <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-[#BB79D1]">Disponibles:</span>
-                                                    <span className="font-mono font-bold text-lg text-[#7DC4E0]">{profileSettings?.voice_credits || 0}</span>
+                                                    <span className="text-gray-300">Available:</span>
+                                                    <span className="font-mono font-bold text-lg text-violet-400">{profileSettings?.voice_credits || 0}</span>
                                                 </div>
-                                                <div className="h-2 bg-[#E6B7D9]/40 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-gradient-to-r from-[#7DC4E0] to-[#BB79D1]"
+                                                <div className="h-2 bg-gray-700/40 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-gradient-to-r from-violet-500 to-purple-600"
                                                         style={{ width: `${Math.min(100, ((profileSettings?.voice_credits || 0) / 20) * 100)}%` }}></div>
                                                 </div>
                                             </div>
                                             <button
                                                 onClick={() => handleCheckout('credits')}
                                                 disabled={isCheckoutLoading}
-                                                className="w-full py-3 px-4 bg-[#A5D6F6]/70 border border-[#A5D6F6]/60 hover:bg-[#A5D6F6] text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                className="w-full py-4 px-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm"
                                             >
                                                 {isCheckoutLoading ? (
                                                     <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                 ) : (
                                                     <>
                                                         <CreditCard className="h-4 w-4" />
-                                                        <span>Comprar Créditos</span>
+                                                        <span>Buy More Credits</span>
                                                     </>
                                                 )}
                                             </button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                     {/* Card: Manage Subscription */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.2 }}
-                                        className="bg-white/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-[#F9DA60]/30"
-                                    >
+                                    <div className="bg-gray-900/90 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-gray-800 transition-all duration-300">
                                         <div className="p-6">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-10 h-10 rounded-full bg-[#F9DA60]/40 flex items-center justify-center">
-                                                    <Star className="h-5 w-5 text-[#F9DA60]" />
+                                                <div className="w-10 h-10 rounded-full bg-pink-500/40 flex items-center justify-center">
+                                                    <Star className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-xl font-heading text-[#BB79D1]">Suscripción Premium</h3>
-                                                    <p className="text-[#7DC4E0] text-sm">Administra tu plan</p>
+                                                    <h3 className="font-bold text-lg sm:text-xl font-heading text-gray-50">Premium Subscription 💎</h3>
+                                                    <p className="text-gray-300 text-sm">Manage your plan</p>
                                                 </div>
                                             </div>
                                             <div className="space-y-4 mb-6">
-                                                <div className="bg-white/70 rounded-lg p-3 flex justify-between items-center border border-[#F9DA60]/30">
-                                                    <span className="text-[#222] font-medium">Estado:</span>
-                                                    <span className="font-bold text-[#F9DA60] bg-[#F9DA60]/20 px-3 py-1 rounded-full border border-[#F9DA60]/30">Activo</span>
+                                                <div className="bg-gray-800/70 rounded-lg p-3 flex justify-between items-center border border-pink-500/30">
+                                                    <span className="text-gray-300 font-medium">Status:</span>
+                                                    <span className="font-bold text-pink-400 bg-pink-500/20 px-3 py-1 rounded-full border border-pink-500/30">Active</span>
                                                 </div>
-                                                <div className="bg-[#F6A5B7]/10 rounded-lg p-3 flex justify-between items-center">
-                                                    <span className="text-[#BB79D1]">Beneficios:</span>
-                                                    <span className="font-medium text-[#BB79D1]">Todos los incluidos</span>
+                                                <div className="bg-violet-500/10 rounded-lg p-3 flex justify-between items-center">
+                                                    <span className="text-gray-300">Benefits:</span>
+                                                    <span className="font-medium text-violet-400">All included</span>
                                                 </div>
                                             </div>
                                             <button
                                                 onClick={handleManageSubscription}
                                                 disabled={isPortalLoading}
-                                                className="flex items-center justify-between w-full py-3 px-4 bg-[#F9DA60]/60 border border-[#F9DA60]/40 hover:bg-[#F9DA60]/80 text-[#BB79D1] rounded-2xl font-medium transition-all shadow-md hover:shadow-lg"
+                                                className="flex items-center justify-between w-full py-4 px-4 bg-gradient-to-r from-pink-500/60 to-violet-500/60 hover:from-pink-500/80 hover:to-violet-500/80 text-white rounded-2xl font-medium transition-all min-h-[44px] text-base sm:text-sm"
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <Settings className="h-4 w-4" />
-                                                    <span>Gestionar Suscripción</span>
+                                                    <span>Manage Subscription</span>
                                                 </div>
                                                 {isPortalLoading ? (
-                                                    <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
+                                                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                 ) : (
                                                     <ChevronRight className="h-4 w-4" />
                                                 )}
                                             </button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 </div>
                                 {/* Bottom Premium Features Reminder */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 0.3 }}
-                                    className="mt-8 bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-[#F9DA60]/40 shadow-lg"
-                                >
-                                    <h3 className="font-bold text-xl mb-4 flex items-center gap-2 font-heading text-[#BB79D1]">
-                                        <Sparkles className="h-6 w-6 text-[#F9DA60]" />
-                                        <span>Beneficios Premium Activos</span>
+                                <div className="mt-8 bg-gray-900/80 backdrop-blur-md rounded-3xl p-5 border border-gray-800 shadow-lg transition-all duration-300">
+                                    <h3 className="font-bold text-xl mb-4 flex items-center gap-2 font-heading text-gray-50">
+                                        <Sparkles className="h-6 w-6 text-pink-400" />
+                                        <span>Active Premium Benefits</span>
                                     </h3>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {features.map((feature, i) => (
-                                            <li key={i} className="flex items-center gap-3 bg-white/70 p-3 rounded-xl border border-[#BB79D1]/10 shadow-sm">
+                                            <li key={i} className="flex items-center gap-3 bg-gray-800/70 p-3 rounded-xl border border-gray-700/50 shadow-sm">
                                                 <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0" />
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <feature.icon className="h-4 w-4 text-[#7DC4E0]" />
-                                                        <span className="font-bold text-[#222]">{feature.name}</span>
+                                                        <feature.icon className="h-4 w-4 text-violet-400" />
+                                                        <span className="font-bold text-gray-50">{feature.name}</span>
                                                     </div>
-                                                    <span className="text-sm font-medium text-[#BB79D1]">{feature.premium}</span>
+                                                    <span className="text-sm font-medium text-violet-400">{feature.premium}</span>
                                                 </div>
                                             </li>
                                         ))}
                                     </ul>
-                                </motion.div>
-                                {/* Botón para ir a la app */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.5, delay: 0.4 }}
-                                    className="mt-8 mb-14 text-center"
-                                >
+                                </div>
+                                {/* Go to app button */}
+                                <div className="mt-8 mb-14 text-center transition-all duration-300">
                                     <Link
                                         to="/home"
-                                        className="inline-block py-3 px-6 bg-[#BB79D1] hover:bg-[#A37AC2] text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transform transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] mx-auto"
+                                        className="inline-block py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all duration-200 mx-auto min-h-[44px] text-base sm:text-sm"
                                     >
                                         <BookOpen className="h-5 w-5" />
-                                        <span>Ir a la aplicación</span>
+                                        <span>Go to App</span>
                                     </Link>
-                                </motion.div>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -273,115 +287,100 @@ const PlansPage: React.FC = () => {
                         <div className="pt-0 flex flex-col min-h-[80vh] justify-between">
                             <div>
                                 {/* Header */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="text-center mb-4"
-                                >
-                                    <h1 className="text-3xl md:text-4xl font-bold mb-1 font-heading text-[#BB79D1]">Desbloquea tu Creatividad</h1>
-                                    <p className="text-[#7DC4E0] text-lg mx-auto max-w-xl">
-                                        Compara los planes y elige la mejor experiencia para tus historias
+                                <div className="text-center mb-4 transition-all duration-300">
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent px-4 sm:px-0">Unlock Your Desires 🔥</h1>
+                                    <p className="text-gray-300 text-base sm:text-lg mx-auto max-w-xl px-4 sm:px-0">
+                                        Compare plans and choose the best experience for your stories
                                     </p>
-                                </motion.div>
+                                </div>
                                 {/* Plan Toggle */}
-                                <div className="flex justify-center mb-4">
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.1 }}
-                                        className="bg-white/40 backdrop-blur-md rounded-full p-1 inline-flex"
-                                    >
+                                <div className="flex justify-center mb-4 px-4 sm:px-0">
+                                    <div className="bg-gray-900/80 backdrop-blur-md rounded-full p-1 inline-flex border border-gray-800 transition-all duration-300 w-full sm:w-auto">
                                         <button
                                             onClick={() => setActivePlan('free')}
-                                            className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 ${activePlan === 'free'
-                                                ? 'bg-[#F6A5B7]/60 text-white font-medium'
-                                                : 'text-[#BB79D1] hover:text-white'
+                                            className={`py-3 px-4 sm:px-5 md:px-8 rounded-full transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-initial min-h-[44px] ${activePlan === 'free'
+                                                ? 'bg-gradient-to-r from-pink-500 to-violet-500 text-white font-medium'
+                                                : 'text-gray-300 hover:text-white'
                                                 }`}
                                         >
                                             <span>Free</span>
                                         </button>
                                         <button
                                             onClick={() => setActivePlan('premium')}
-                                            className={`py-2 px-5 md:px-8 rounded-full transition-colors flex items-center gap-2 relative ${activePlan === 'premium'
-                                                ? 'bg-gradient-to-r from-[#F9DA60] to-[#F9DA60]/80 text-white font-medium'
-                                                : 'text-[#BB79D1] hover:text-white'
+                                            className={`py-3 px-4 sm:px-5 md:px-8 rounded-full transition-colors flex items-center justify-center gap-2 relative flex-1 sm:flex-initial min-h-[44px] ${activePlan === 'premium'
+                                                ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white font-medium'
+                                                : 'text-gray-300 hover:text-white'
                                                 }`}
                                         >
                                             <Star className="h-4 w-4" />
                                             <span>Premium</span>
-                                            <span className="absolute -top-2 -right-2 bg-[#F6A5B7] text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">Próximamente</span>
+                                            <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">Coming Soon</span>
                                         </button>
-                                    </motion.div>
+                                    </div>
                                 </div>
                                 {/* Features by Plan */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 0.2 }}
-                                    className="max-w-2xl mx-auto"
-                                >
+                                <div className="max-w-2xl mx-auto transition-all duration-300 px-4 sm:px-0">
                                     {/* Active Plan Card */}
-                                    <div className="bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-[#BB79D1]/20 mb-6">
-                                        {/* Plan Header - Mejorada legibilidad */}
+                                    <div className="bg-gray-900/90 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-gray-800 mb-6">
+                                        {/* Plan Header - Improved readability */}
                                         <div className={`p-6 ${activePlan === 'premium'
-                                            ? 'bg-[#F9DA60]/20 border-b border-[#F9DA60]/40'
-                                            : 'bg-[#F6A5B7]/20 border-b border-[#BB79D1]/20'
+                                            ? 'bg-violet-500/20 border-b border-violet-500/40'
+                                            : 'bg-pink-500/20 border-b border-pink-500/40'
                                             }`}>
                                             <div className="flex justify-between items-center">
-                                                <h2 className="text-2xl font-bold flex items-center gap-2 font-heading text-[#BB79D1]">
-                                                    {activePlan === 'premium' && <Star className="h-5 w-5 text-[#F9DA60]" />}
+                                                <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 font-heading text-gray-50">
+                                                    {activePlan === 'premium' && <Star className="h-5 w-5 text-pink-400" />}
                                                     Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
                                                 </h2>
                                                 {activePlan === 'premium' && (
-                                                    <span className="bg-[#F6A5B7] text-white px-3 py-1 rounded-full text-sm font-bold">
-                                                        Próximamente
+                                                    <span className="bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                                        Coming Soon
                                                     </span>
                                                 )}
                                             </div>
                                             {activePlan === 'premium' ? (
                                                 <>
-                                                    <p className="text-[#BB79D1] mt-1 font-medium">Creatividad sin límites para tus historias</p>
-                                                    <div className="flex items-center mt-3 bg-white/70 p-3 rounded-xl justify-between border border-[#F9DA60]">
+                                                    <p className="text-gray-300 mt-1 font-medium">Limitless creativity for your stories</p>
+                                                    <div className="flex items-center mt-3 bg-gray-800/70 p-3 rounded-xl justify-between border border-violet-500">
                                                         <div className="flex items-center gap-2">
-                                                            <Euro className="h-5 w-5 text-[#F9DA60]" />
-                                                            <span className="text-[#222] font-medium">Precio:</span>
+                                                            <Euro className="h-5 w-5 text-violet-400" />
+                                                            <span className="text-gray-300 font-medium">Price:</span>
                                                         </div>
-                                                        <div className="font-bold text-xl text-[#BB79D1] flex items-center gap-1">
+                                                        <div className="font-bold text-xl text-violet-400 flex items-center gap-1">
                                                             <span>10€</span>
-                                                            <span className="text-sm font-normal text-[#222] opacity-80">/mes</span>
+                                                            <span className="text-sm font-normal text-gray-300 opacity-80">/month</span>
                                                         </div>
                                                     </div>
                                                 </>
                                             ) : (
-                                                <p className="text-[#7DC4E0] mt-1">Perfecto para comenzar a explorar</p>
+                                                <p className="text-gray-300 mt-1">Perfect to start exploring</p>
                                             )}
                                         </div>
 
-                                        {/* Premium "Hazte Premium" button - Only shown on premium tab */}
+                                        {/* Premium "Get Premium" button - Only shown on premium tab */}
                                         {activePlan === 'premium' && (
                                             <div className="p-6 pt-4 pb-0">
                                                 <button
                                                     disabled={true}
-                                                    className="w-full py-3 px-6 bg-gradient-to-r from-[#F9DA60]/60 to-[#F9DA60]/40 text-[#BB79D1] rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg cursor-not-allowed relative overflow-hidden"
+                                                    className="w-full py-4 px-6 bg-gradient-to-r from-violet-500/60 to-purple-600/40 text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg cursor-not-allowed relative overflow-hidden min-h-[44px] text-base sm:text-sm"
                                                 >
                                                     <Star className="h-5 w-5" />
-                                                    <span>Hazte Premium Ahora</span>
+                                                    <span>Get Premium Now 🌟</span>
                                                 </button>
-                                                <p className="text-center text-sm text-[#BB79D1] mt-3 font-medium">Estamos trabajando para ofrecerte esta opción muy pronto</p>
+                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">We're working to offer you this option very soon</p>
                                             </div>
                                         )}
 
                                         {/* Features List - Consistent style for both tabs */}
                                         <div className="p-6">
-                                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2 font-heading text-[#BB79D1]">
-                                                <Sparkles className="h-5 w-5 text-[#F9DA60]" />
-                                                <span>{activePlan === 'premium' ? 'Beneficios Premium' : 'Características del plan'}</span>
+                                            <h3 className="font-bold text-base sm:text-lg mb-4 flex items-center gap-2 font-heading text-gray-50">
+                                                <Sparkles className="h-5 w-5 text-pink-400" />
+                                                <span>{activePlan === 'premium' ? 'Premium Benefits' : 'Plan Features'}</span>
                                             </h3>
 
                                             <ul className="space-y-3">
                                                 {features.map((feature, index) => (
-                                                    <li key={index} className="bg-white/60 p-3 rounded-lg border border-[#BB79D1]/10 shadow-sm">
+                                                    <li key={index} className="bg-gray-800/60 p-3 rounded-lg border border-gray-700/50 shadow-sm">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex-shrink-0">
                                                                 {activePlan === 'premium' ? (
@@ -395,7 +394,7 @@ const PlansPage: React.FC = () => {
                                                                         <XCircle className="h-5 w-5 text-red-400" />
                                                                     ) : (
                                                                         feature.limited ? (
-                                                                            <AlertTriangle className="h-5 w-5 text-[#F9DA60]" />
+                                                                            <AlertTriangle className="h-5 w-5 text-pink-400" />
                                                                         ) : (
                                                                             <CheckCircle className="h-5 w-5 text-green-500" />
                                                                         )
@@ -404,13 +403,13 @@ const PlansPage: React.FC = () => {
                                                             </div>
                                                             <div>
                                                                 <div className="flex items-center gap-2">
-                                                                    <feature.icon className="h-4 w-4 text-[#7DC4E0]" />
-                                                                    <span className="font-bold text-[#222]">{feature.name}</span>
+                                                                    <feature.icon className="h-4 w-4 text-violet-400" />
+                                                                    <span className="font-bold text-gray-50">{feature.name}</span>
                                                                 </div>
-                                                                <div className="text-sm font-medium text-[#444]">
+                                                                <div className="text-sm font-medium text-gray-300">
                                                                     {activePlan === 'premium' ? feature.premium : feature.free}
                                                                     {activePlan === 'free' && feature.limited && (
-                                                                        <span className="text-xs text-[#BB79D1] ml-1 font-bold">(limitado)</span>
+                                                                        <span className="text-xs text-violet-400 ml-1 font-bold">(limited)</span>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -420,36 +419,36 @@ const PlansPage: React.FC = () => {
                                             </ul>
                                         </div>
                                     </div>
-                                </motion.div>
+                                </div>
                             </div>
-                            {/* Botones de navegación entre planes - Con espacio abajo */}
-                            <div className="flex flex-col md:flex-row justify-center gap-4 mb-10">
+                            {/* Plan navigation buttons - With space below */}
+                            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-10 px-4 sm:px-0">
                                 {activePlan === 'free' && (
                                     <button
                                         onClick={() => setActivePlan('premium')}
-                                        className="py-3 px-8 bg-gradient-to-r from-[#F6A5B7] to-[#BB79D1] text-white rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:bg-[#BB79D1]/90"
+                                        className="py-4 px-6 sm:px-8 bg-gradient-to-r from-pink-500 to-violet-500 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 transition-all duration-200 hover:from-pink-600 hover:to-violet-600 min-h-[44px] text-base sm:text-sm"
                                     >
                                         <Star className="h-5 w-5" />
-                                        <span>Ver plan Premium</span>
+                                        <span>View Premium Plan</span>
                                         <ChevronRight className="h-4 w-4" />
                                     </button>
                                 )}
                                 {activePlan === 'premium' && (
                                     <button
                                         onClick={() => setActivePlan('free')}
-                                        className="py-3 px-8 bg-[#A5D6F6]/70 text-[#BB79D1] rounded-2xl font-bold shadow-lg flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:bg-[#BB79D1]/20"
+                                        className="py-4 px-6 sm:px-8 bg-gray-800/70 text-gray-300 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 transition-all duration-200 hover:bg-gray-700/70 min-h-[44px] text-base sm:text-sm"
                                     >
                                         <ChevronLeft className="h-4 w-4" />
-                                        <span>Ver plan Free</span>
+                                        <span>View Free Plan</span>
                                     </button>
                                 )}
-                                {/* Botón para continuar gratis */}
+                                {/* Continue with free plan button */}
                                 {activePlan === 'free' && (
                                     <Link
                                         to="/home"
-                                        className="py-3 px-8 bg-transparent border border-[#BB79D1]/50 hover:bg-[#BB79D1]/10 text-[#BB79D1] rounded-2xl font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                                        className="py-4 px-6 sm:px-8 bg-transparent border border-gray-600/50 hover:bg-gray-800/20 text-gray-300 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 min-h-[44px] text-base sm:text-sm"
                                     >
-                                        Continuar con el plan gratuito
+                                        Continue with free plan
                                     </Link>
                                 )}
                             </div>
