@@ -27,32 +27,34 @@ export default function PaymentCancel() {
           backgroundColor: 'black',
         }}
       >
-        <div className="w-full max-w-md bg-white/90 rounded-3xl shadow-lg overflow-hidden">
+        <div className="w-full max-w-md bg-gray-900/95 backdrop-blur-md border border-gray-800 rounded-3xl shadow-2xl ring-1 ring-gray-700/50 overflow-hidden">
           <div className="p-8 flex flex-col items-center">
-            <div className="p-3 bg-[#F6A5B7]/20 rounded-full mb-6">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-pink-500/20 to-violet-500/20 border-2 border-pink-500/40 flex items-center justify-center mb-6">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#F6A5B7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M12 8V12" stroke="#F6A5B7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M12 16H12.01" stroke="#F6A5B7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 8V12" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 16H12.01" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
 
-            <h1 className="text-2xl font-bold text-[#222] mb-4 text-center">Pago Cancelado</h1>
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 mb-4 text-center">
+              Payment Cancelled 💔
+            </h1>
 
-            <p className="text-[#333] text-center mb-4">
-              Has cancelado el proceso de pago. No se ha realizado ningún cargo a tu cuenta.
+            <p className="text-gray-300 text-center mb-4">
+              No worries, darling. Your payment was cancelled and no charges were made to your account.
             </p>
 
-            <p className="text-[#333] mb-8 text-center">
-              Serás redirigido a tu perfil en <span className="font-bold text-[#F6A5B7]">{timeLeft}</span> segundos.
+            <p className="text-gray-300 mb-8 text-center">
+              Redirecting you back to your profile in <span className="font-bold text-pink-400">{timeLeft}</span> seconds.
             </p>
 
             <button
               onClick={() => navigate("/profile")}
-              className="w-full flex items-center justify-center gap-2 bg-[#BB79D1] hover:bg-[#BB79D1]/90 text-white rounded-full py-4 font-semibold text-lg"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl py-4 font-semibold text-lg shadow-lg shadow-violet-500/25 transition-all duration-300 hover:transform hover:scale-105"
             >
               <ArrowLeft size={20} />
-              Volver a mi Perfil
+              Back to Profile ✨
             </button>
           </div>
         </div>
