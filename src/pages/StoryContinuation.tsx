@@ -43,7 +43,7 @@ export default function StoryContinuation() {
 
     const fetchedStory = getStoryById(storyId);
     if (!fetchedStory) {
-      toast.error("Historia no encontrada");
+      toast.error("Story not found");
       navigate("/saved-stories");
       return;
     }
@@ -56,7 +56,7 @@ export default function StoryContinuation() {
       const initialChapter: StoryChapterType = {
         id: generateId("chapter"),
         chapterNumber: 1,
-        title: fetchedStory.title || "Capítulo 1",
+        title: fetchedStory.title || "Chapter 1",
         content: fetchedStory.content,
         createdAt: fetchedStory.createdAt,
       };
@@ -69,7 +69,7 @@ export default function StoryContinuation() {
     const allowed = canContinueStory(storyId);
     setIsAllowedToContinue(allowed);
     if (!allowed) {
-      toast.info("Has alcanzado el límite de continuación gratuita para esta historia.");
+      toast.info("You've reached the free continuation limit for this story.");
     }
 
   }, [storyId, getStoryById, getChaptersByStoryId, navigate, canContinueStory]);
@@ -94,16 +94,16 @@ export default function StoryContinuation() {
       if (response?.options?.length === 3) {
         setContinuationOptions(response.options);
       } else {
-        console.warn("generateOptions: No se recibieron 3 opciones válidas. Usando defaults.");
+        console.warn("generateOptions: Didn't receive 3 valid options. Using defaults.");
         throw new Error("Fallback");
       }
     } catch (error) {
       console.error("Error generating continuation options:", error);
-      toast.error("No se pudieron generar las opciones. Intenta de nuevo.");
+      toast.error("Could not generate options. Try again.");
       setContinuationOptions([
-        { summary: "Explorar el misterioso jardín." },
-        { summary: "Seguir al pájaro parlanchín." },
-        { summary: "Preguntar al viejo árbol sabio." }
+        { summary: "Explore the mysterious sanctuary." },
+        { summary: "Follow the intriguing whisper." },
+        { summary: "Discover the hidden desire." }
       ]);
     } finally {
       setIsLoadingOptions(false);
@@ -123,12 +123,12 @@ export default function StoryContinuation() {
     customInput?: string
   ) => {
     if (!story || !storyId || !isAllowedToContinue) {
-      toast.error("No puedes continuar esta historia (límite alcanzado).");
+      toast.error("You can't continue this story (limit reached).");
       return;
     }
 
     setIsLoading(true);
-    toast.loading("Generando continuación...");
+    toast.loading("Creating your continuation...");
 
     try {
       const nextChapterNumber = chapters.length + 1;
@@ -137,7 +137,7 @@ export default function StoryContinuation() {
       const newChapter: StoryChapterType = {
         id: generateId("chapter"),
         chapterNumber: nextChapterNumber,
-        title: title || `Capítulo ${nextChapterNumber}`,
+        title: title || `Chapter ${nextChapterNumber}`,
         content: content,
         createdAt: new Date().toISOString(),
         generationMethod: generationMethod,
@@ -150,17 +150,17 @@ export default function StoryContinuation() {
       setChapters(updatedChapters);
 
       toast.dismiss();
-      toast.success("¡Continuación generada con éxito!");
+      toast.success("Continuation created successfully! ✨");
 
       setShouldGenerateOptions(true);
 
       navigate(`/story/${storyId}?chapter=${newChapter.chapterNumber - 1}`);
 
     } catch (error: any) {
-      console.error("Error al generar continuación:", error);
+      console.error("Error generating continuation:", error);
       toast.dismiss();
-      toast.error("Error al generar la continuación", {
-        description: error?.message || "Inténtalo de nuevo.",
+      toast.error("Error generating continuation", {
+        description: error?.message || "Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -184,7 +184,7 @@ export default function StoryContinuation() {
     if (!story) return; // Añadir guarda
     const selectedOptionSummary = continuationOptions[index]?.summary;
     if (!selectedOptionSummary) {
-      toast.error("Opción seleccionada no válida.");
+      toast.error("Selected option is not valid.");
       return;
     }
     // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
@@ -242,18 +242,18 @@ export default function StoryContinuation() {
           }}
         />
 
-        <div className="w-full max-w-2xl mx-auto px-4 py-8">
+        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8">
           {chapters.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white/70 rounded-xl p-4 mb-4 text-[#222] shadow-md"
+              className="bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 mb-4 text-gray-200 shadow-xl ring-1 ring-gray-700/50"
             >
               <div className="flex items-center">
-                <BookOpen size={20} className="mr-2 text-[#BB79D1]" />
-                <h2 className="text-lg font-medium truncate" title={chapters[chapters.length - 1].title || `Capítulo ${chapters.length}`}>
-                  Continuando: {chapters[chapters.length - 1].title || `Capítulo ${chapters.length}`}
+                <BookOpen size={20} className="mr-2 text-violet-400" />
+                <h2 className="text-lg font-medium truncate" title={chapters[chapters.length - 1].title || `Chapter ${chapters.length}`}>
+                  Continuing: {chapters[chapters.length - 1].title || `Chapter ${chapters.length}`}
                 </h2>
               </div>
             </motion.div>
@@ -263,18 +263,18 @@ export default function StoryContinuation() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="text-3xl font-bold text-[#BB79D1] text-center mb-4 font-heading drop-shadow-lg"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent drop-shadow-lg"
           >
-            ¿Cómo quieres que continúe?
+            How would you like it to continue? ✨
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-6 font-medium shadow-sm"
+            className="text-base sm:text-lg text-gray-200 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl px-4 py-3 text-center mb-6 font-medium shadow-xl ring-1 ring-gray-700/50"
           >
-            Elige una opción para continuar tu historia
+            Choose your path to continue the story 🤫
           </motion.p>
 
           <motion.div
@@ -305,10 +305,10 @@ export default function StoryContinuation() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.4 }}
-              className="text-center bg-white/70 rounded-xl p-4 mt-6 shadow-md border-2 border-[#F6A5B7]/30"
+              className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 mt-6 shadow-xl ring-1 ring-gray-700/50"
             >
-              <p className="text-[#F6A5B7] font-semibold">
-                Has alcanzado el límite de continuación gratuita para esta historia. ¡Considera hacerte Premium para continuaciones ilimitadas!
+              <p className="text-pink-400 font-semibold">
+                You've reached the free continuation limit for this story. Consider upgrading to Premium for unlimited continuations! 💎
               </p>
             </motion.div>
           )}

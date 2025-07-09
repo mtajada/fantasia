@@ -21,22 +21,29 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
   console.log("🔍 DEBUG - Opciones generación historia:", JSON.stringify(options, null, 2));
   console.log("🔍 DEBUG - Detalles Adicionales:", storyOptionsState.additionalDetails);
+  console.log("🔍 DEBUG - Spiciness level from options:", options.spiciness_level);
 
   storiesStore.setIsGeneratingStory(true);
 
+  // Declare variables outside try block to make them accessible in catch block
+  let selectedCharacters: StoryCharacter[] = [];
+  let selectedCharactersData: string | null = null;
+  let profileSettings: typeof userStore.profileSettings;
+  let user: typeof userStore.user;
+  let additionalDetails: typeof storyOptionsState.additionalDetails;
+
   try {
     const storyId = generateId();
-    const profileSettings = userStore.profileSettings;
-    const user = userStore.user;
-    const additionalDetails = storyOptionsState.additionalDetails;
+    profileSettings = userStore.profileSettings;
+    user = userStore.user;
+    additionalDetails = storyOptionsState.additionalDetails;
 
     if (!user) {
       throw new Error("Usuario no autenticado");
     }
 
     // Obtener personajes seleccionados desde sessionStorage en lugar del store
-    const selectedCharactersData = sessionStorage.getItem('selectedCharacters');
-    let selectedCharacters: StoryCharacter[] = [];
+    selectedCharactersData = sessionStorage.getItem('selectedCharacters');
     
     if (selectedCharactersData) {
       try {
@@ -48,6 +55,18 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     } else {
       console.warn("No selectedCharacters found in sessionStorage");
     }
+    
+    // Fallback: Try to get characters from storyOptions as backup
+    if (!selectedCharacters || selectedCharacters.length === 0) {
+      console.log("🔍 DEBUG - Attempting fallback to storyOptions.characters");
+      if (options.characters && options.characters.length > 0) {
+        selectedCharacters = options.characters;
+        console.log("🔍 DEBUG - Using characters from options:", selectedCharacters.length);
+      } else if (storyOptionsState.currentStoryOptions.characters && storyOptionsState.currentStoryOptions.characters.length > 0) {
+        selectedCharacters = storyOptionsState.currentStoryOptions.characters;
+        console.log("🔍 DEBUG - Using characters from storyOptionsState:", selectedCharacters.length);
+      }
+    }
 
     // --- DEBUG: Detailed parameter logging BEFORE building payload --- 
     console.log("🔍 DEBUG PRE-PAYLOAD: Profile Data ->", JSON.stringify(profileSettings, null, 2));
@@ -58,7 +77,13 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     // --- END DEBUG ---
 
     if (!profileSettings) throw new Error("User profile not loaded.");
-    if (!selectedCharacters || selectedCharacters.length === 0) throw new Error("No characters selected.");
+    if (!selectedCharacters || selectedCharacters.length === 0) {
+      console.error("🔍 DEBUG - No characters available from any source:");
+      console.error("  - sessionStorage:", selectedCharactersData);
+      console.error("  - options.characters:", options.characters);
+      console.error("  - storyOptionsState.currentStoryOptions.characters:", storyOptionsState.currentStoryOptions.characters);
+      throw new Error("No characters selected. Please select at least one character before generating a story.");
+    }
 
     // --- SINGLE call to service that invokes 'generate-story' EF ---
     const payload: GenerateStoryParams = {
@@ -66,12 +91,14 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
         characters: selectedCharacters,
         genre: options.genre,
         format: storyOptionsState.currentStoryOptions.format,
+        spiciness_level: options.spiciness_level, // Add spiciness_level to payload
       },
       language: profileSettings.language,
       additionalDetails: additionalDetails || undefined,
     };
 
     console.log("Sending request to generate-story Edge Function with params:", payload);
+    console.log("🔍 DEBUG - Spiciness level in final payload:", payload.options.spiciness_level);
 
     const storyResponse = await GenerateStoryService.generateStoryWithAI(payload);
     // storyResponse ahora es { content: string, title: string }
@@ -90,6 +117,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
         genre: options.genre || "adventure",
         format: storyOptionsState.currentStoryOptions.format || "episodic",
         language: payload.language,
+        spiciness_level: options.spiciness_level || 2, // Include spiciness_level in story options
       },
       additional_details: additionalDetails,
       createdAt: new Date().toISOString(),
@@ -122,13 +150,31 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
 
     return story;
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error generating story in storyGenerator:", error);
-    toast.error("Error generating story", {
-      description: error?.message || "Please try again.",
+    console.error("🔍 DEBUG - Error context:", {
+      selectedCharactersCount: selectedCharacters?.length || 0,
+      hasProfileSettings: !!profileSettings,
+      hasUser: !!user,
+      storyOptionsFormat: storyOptionsState.currentStoryOptions.format,
+      additionalDetails: additionalDetails || null,
     });
-    // Consider if you should also call resetStoryOptions here
+    
+    toast.error("Error generating story", {
+      description: error instanceof Error ? error.message : "Please try again.",
+    });
+    
+    // Reset story options on error
     storyOptionsState.resetStoryOptions();
+    
+    // Clear sessionStorage on error to prevent future issues
+    try {
+      sessionStorage.removeItem('selectedCharacters');
+      console.log("🔍 DEBUG - Cleared sessionStorage after error");
+    } catch (storageError) {
+      console.warn("Could not clear sessionStorage:", storageError);
+    }
+    
     return null;
   } finally {
     storiesStore.setIsGeneratingStory(false);
