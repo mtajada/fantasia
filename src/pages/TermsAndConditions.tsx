@@ -25,7 +25,7 @@ const TermsAndConditions: React.FC = () => {
 
             <div className="space-y-8 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-2xl ring-1 ring-gray-700/50">
               <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
-                These Terms and Conditions govern access, navigation, and use of services offered through the "Fantasia" platform (hereinafter, the "Platform"), owned by Fantasia, with headquarters in Zaragoza, Spain, and contact email hola@fantasia.app.
+                These Terms and Conditions govern access, navigation, and use of services offered through the "Fantasia" platform (hereinafter, the "Platform"), owned by Fantasia, with headquarters in San Francisco, CA, and contact email hola@fantasia.app.
               </p>
 
               <div>
@@ -152,7 +152,7 @@ const TermsAndConditions: React.FC = () => {
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-violet-400 mb-4">12. APPLICABLE LAW AND JURISDICTION</h2>
                 <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-                  These Terms are governed by Spanish legislation. For any dispute, the parties submit to the jurisdiction of the Courts and Tribunals of Zaragoza (Spain), waiving any other jurisdiction.
+                  These Terms are governed by California state law. For any dispute, the parties submit to the jurisdiction of the Courts of San Francisco, California, waiving any other jurisdiction.
                 </p>
               </div>
 
