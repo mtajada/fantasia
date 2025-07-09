@@ -8,6 +8,7 @@ import {
 
 // --- Importa la instancia ÚNICA del cliente Supabase ---
 import { supabase } from "../supabaseClient"; // Ajusta esta ruta si es necesario
+import { generateId } from "../store/core/utils";
 
 // --- Listener de Auth (Opcional, solo para logging) ---
 // Ya no inicializamos el cliente aquí, solo usamos el importado.
@@ -364,10 +365,13 @@ export const getChapterCountForStory = async (storyId: string): Promise<{ count:
 export const syncChapter = async (chapter: StoryChapter, storyId: string): Promise<{ success: boolean; error?: any }> => {
     console.log("🚀 ~ syncChapter ~ chapter:", chapter)
     try {
+        // Generate ID if chapter doesn't have one
+        const chapterId = chapter.id || generateId("chapter");
+        
         const { error } = await supabase
             .from("story_chapters")
             .upsert({
-                id: chapter.id,
+                id: chapterId,
                 story_id: storyId,
                 chapter_number: chapter.chapterNumber,
                 title: chapter.title,

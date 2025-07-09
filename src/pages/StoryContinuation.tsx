@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { Story, StoryChapter as StoryChapterType } from "../types";
 import { StoryContinuationService } from "../services/ai/StoryContinuationService";
 import { generateId } from "../store/core/utils";
-import IconLoadingAnimation from "../components/IconLoadingAnimation";
+import StoryLoadingPage from "../components/StoryLoadingPage";
 
 export default function StoryContinuation() {
   const { storyId } = useParams<{ storyId: string }>();
@@ -54,6 +54,7 @@ export default function StoryContinuation() {
 
     if (existingChapters.length === 0 && fetchedStory.content) {
       const initialChapter: StoryChapterType = {
+        id: generateId("chapter"),
         chapterNumber: 1,
         title: fetchedStory.title || "Capítulo 1",
         content: fetchedStory.content,
@@ -134,6 +135,7 @@ export default function StoryContinuation() {
       const { content, title } = await generationPromise;
 
       const newChapter: StoryChapterType = {
+        id: generateId("chapter"),
         chapterNumber: nextChapterNumber,
         title: title || `Capítulo ${nextChapterNumber}`,
         content: content,
@@ -213,64 +215,12 @@ export default function StoryContinuation() {
 
   if (isLoading) {
     return (
-      <PageTransition>
-        <div
-          className="min-h-screen flex flex-col items-center justify-center p-6"
-          style={{
-            backgroundImage: "url(/fondo_png.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div className="w-full max-w-md flex flex-col items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mb-10"
-            >
-              <IconLoadingAnimation message="Generando continuación..." />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="bg-white/70 text-[#222] p-4 rounded-xl max-w-sm text-center shadow-md"
-            >
-              <p className="font-medium">Estamos personalizando una continuación mágica para tu historia...</p>
-
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {story?.options?.characters && story.options.characters.length > 0 && (
-                  <div className="bg-[#7DC4E0]/20 p-2 rounded-lg border border-[#7DC4E0]/30">
-                    <p className="text-xs font-semibold text-[#7DC4E0]">Personajes ({story.options.characters.length})</p>
-                    <p className="text-sm truncate">
-                      {story.options.characters.map(char => char.name).join(', ')}
-                    </p>
-                  </div>
-                )}
-
-                {story?.options?.genre && (
-                  <div className="bg-[#BB79D1]/20 p-2 rounded-lg border border-[#BB79D1]/30">
-                    <p className="text-xs font-semibold text-[#BB79D1]">Género</p>
-                    <p className="text-sm truncate">{story.options.genre}</p>
-                  </div>
-                )}
-
-                {story?.options?.format && (
-                  <div className="bg-[#F9DA60]/20 p-2 rounded-lg border border-[#F9DA60]/30">
-                    <p className="text-xs font-semibold text-[#F9DA60]">Format</p>
-                    <p className="text-sm truncate">
-                      {story.options.format === 'single' ? 'Complete Story' : 'By Chapters'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </PageTransition>
+      <StoryLoadingPage
+        type="continuation"
+        characters={story?.options?.characters}
+        genre={story?.options?.genre}
+        format={story?.options?.format}
+      />
     );
   }
 
