@@ -31,8 +31,8 @@ export default function Signup() {
   const handleSignup = async (data: { email: string; password: string; confirmPassword: string; ageVerification: boolean }) => {
     if (!data.email || !data.password || !data.confirmPassword) {
       toast({
-        title: "Error en el registro",
-        description: "Por favor, completa todos los campos",
+        title: "Registration error",
+        description: "Please complete all fields",
         variant: "destructive"
       });
       return;
@@ -49,8 +49,8 @@ export default function Signup() {
 
     if (data.password !== data.confirmPassword) {
       toast({
-        title: "Error en el registro",
-        description: "Las contraseñas no coinciden",
+        title: "Registration error",
+        description: "Passwords don't match",
         variant: "destructive"
       });
       return;
@@ -62,7 +62,7 @@ export default function Signup() {
 
       if (error) {
         toast({
-          title: "Error en el registro",
+          title: "Registration error",
           description: error.message,
           variant: "destructive"
         });
@@ -71,8 +71,8 @@ export default function Signup() {
 
       if (user) {
         toast({
-          title: "Registro exitoso",
-          description: "¡Tu cuenta ha sido creada!",
+          title: "Registration successful",
+          description: "Your account has been created!",
         });
         // Redirigir a la página de login después de un registro exitoso
         setTimeout(() => {
@@ -80,15 +80,15 @@ export default function Signup() {
         }, 2000);
       } else {
         toast({
-          title: "Error en el registro",
-          description: "No se pudo crear la cuenta",
+          title: "Registration error",
+          description: "Could not create account",
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Error inesperado",
-        description: "Ha ocurrido un error inesperado",
+        title: "Unexpected error",
+        description: "An unexpected error occurred",
         variant: "destructive"
       });
       console.error(err);
@@ -104,15 +104,15 @@ export default function Signup() {
 
       if (error) {
         toast({
-          title: "Error al registrarse con Google",
+          title: "Error signing up with Google",
           description: error.message,
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Error inesperado",
-        description: "Ha ocurrido un error al registrarse con Google",
+        title: "Unexpected error",
+        description: "An error occurred signing up with Google",
         variant: "destructive"
       });
       console.error(err);
@@ -136,13 +136,13 @@ export default function Signup() {
           <BackButton />
         </div>
 
-        <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
+        <div className="w-full max-w-md bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-8 shadow-2xl ring-1 ring-gray-700/50">
           <div className="flex justify-center mb-6">
             <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-full" />
           </div>
 
-          <h1 className="text-3xl font-bold text-[#222] mb-6 text-center">
-            Crear Cuenta
+          <h1 className="text-3xl sm:text-4xl font-bold text-center mb-6 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+            Create Account
           </h1>
 
           <Form {...form}>
@@ -156,11 +156,11 @@ export default function Signup() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1]" size={20} />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Correo electrónico"
-                          className="pl-10 py-6 rounded-xl bg-white/80 border-[#BB79D1]/30 focus:border-[#BB79D1] focus:ring-1 focus:ring-[#BB79D1] text-[#333]"
+                          placeholder="Email address"
+                          className="pl-10 py-6 rounded-xl bg-gray-900/90 border-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 text-white placeholder:text-gray-400"
                           type="email"
                           {...field}
                           required
@@ -178,11 +178,11 @@ export default function Signup() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1]" size={20} />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Contraseña"
-                          className="pl-10 pr-10 py-6 rounded-xl bg-white/80 border-[#BB79D1]/30 focus:border-[#BB79D1] focus:ring-1 focus:ring-[#BB79D1] text-[#333]"
+                          placeholder="Password"
+                          className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 text-white placeholder:text-gray-400"
                           type={showPassword ? "text" : "password"}
                           {...field}
                           required
@@ -191,7 +191,7 @@ export default function Signup() {
                       <button
                         type="button"
                         onClick={togglePasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-violet-400 hover:text-violet-300 transition-colors"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -207,11 +207,11 @@ export default function Signup() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1]" size={20} />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Confirmar contraseña"
-                          className="pl-10 pr-10 py-6 rounded-xl bg-white/80 border-[#BB79D1]/30 focus:border-[#BB79D1] focus:ring-1 focus:ring-[#BB79D1] text-[#333]"
+                          placeholder="Confirm password"
+                          className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 text-white placeholder:text-gray-400"
                           type={showConfirmPassword ? "text" : "password"}
                           {...field}
                           required
@@ -220,7 +220,7 @@ export default function Signup() {
                       <button
                         type="button"
                         onClick={toggleConfirmPasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BB79D1] hover:text-[#A5D6F6] transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-violet-400 hover:text-violet-300 transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -240,18 +240,18 @@ export default function Signup() {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="mt-1 h-5 w-5 border-[#BB79D1] data-[state=checked]:bg-[#BB79D1] data-[state=checked]:border-[#BB79D1] focus:ring-[#BB79D1] focus:ring-offset-2"
+                          className="mt-1 h-5 w-5 border-violet-500 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 focus:ring-violet-500 focus:ring-offset-2"
                         />
                       </FormControl>
                       <div className="flex-1">
                         <label
                           htmlFor="ageVerification"
-                          className="text-sm font-medium text-[#333] leading-relaxed cursor-pointer select-none"
+                          className="text-sm font-medium text-gray-200 leading-relaxed cursor-pointer select-none"
                           onClick={() => field.onChange(!field.value)}
                         >
                           I confirm that I am 18 years of age or older
                         </label>
-                        <p className="text-xs text-[#666] mt-1 leading-relaxed">
+                        <p className="text-xs text-gray-400 mt-1 leading-relaxed">
                           By clicking this button, you confirm that you are at least 18 years old and consent to access AI-generated content that may be inappropriate for minors
                         </p>
                       </div>
@@ -264,22 +264,22 @@ export default function Signup() {
               <button
                 type="submit"
                 disabled={isLoading || !form.watch('ageVerification')}
-                className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 active:bg-[#F6A5B7]/90 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-60 disabled:cursor-not-allowed shadow-violet-500/25"
               >
-                {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+                {isLoading ? "Creating account..." : "Create Account"}
               </button>
 
               <div className="relative flex items-center my-4">
-                <div className="flex-grow border-t border-[#BB79D1]/20"></div>
-                <span className="mx-4 flex-shrink text-[#555] text-sm">O regístrate con</span>
-                <div className="flex-grow border-t border-[#BB79D1]/20"></div>
+                <div className="flex-grow border-t border-gray-700"></div>
+                <span className="mx-4 flex-shrink text-gray-300 text-sm">Or sign up with</span>
+                <div className="flex-grow border-t border-gray-700"></div>
               </div>
 
               <button
                 type="button"
                 onClick={handleGoogleSignup}
                 disabled={isGoogleLoading}
-                className="w-full flex items-center justify-center gap-2 bg-white text-[#333] rounded-xl py-3 hover:bg-gray-100 transition-colors duration-300 border border-[#BB79D1]/20 shadow-md"
+                className="w-full flex items-center justify-center gap-2 bg-gray-800/80 text-gray-300 rounded-xl py-3 hover:bg-gray-700/80 transition-colors duration-300 border border-gray-700 shadow-md backdrop-blur-8"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
                   <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
@@ -287,17 +287,17 @@ export default function Signup() {
                   <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                   <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
-                {isGoogleLoading ? "Conectando..." : "Registrarse con Google"}
+                {isGoogleLoading ? "Connecting..." : "Sign up with Google"}
               </button>
 
               <div className="text-center mt-5">
-                <span className="text-[#555] text-sm">¿Ya tienes una cuenta? </span>
+                <span className="text-gray-300 text-sm">Already have an account? </span>
                 <button
                   type="button"
                   onClick={() => navigate("/login")}
-                  className="text-[#BB79D1] font-semibold text-sm hover:underline"
+                  className="text-violet-400 font-semibold text-sm hover:underline"
                 >
-                  Iniciar Sesión
+                  Sign In
                 </button>
               </div>
             </form>

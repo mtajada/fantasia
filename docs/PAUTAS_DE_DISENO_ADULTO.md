@@ -139,17 +139,19 @@ The new design emphasizes:
 
 #### Language Requirements
 - **English Only:** All user-facing text must be in English
+- **Spanish Translation Mandatory:** Any Spanish text found in the codebase MUST be translated to English immediately
 - **No Spanish:** The platform has migrated from Spanish to English
 - **Console Logs:** All console.log statements must also be in English
 - **Error Messages:** All error messages and notifications in English
 - **Comments:** Code comments should be in English
 
-#### Adult-Oriented Language
+#### Adult-Oriented Language & Tone
 - **Sophisticated:** Use mature, refined language
 - **Sensual:** Incorporate tasteful sensual undertones
-- **Playful:** Strategic use of adult-appropriate emojis
-- **Confident:** Direct, confident messaging
+- **Spicy & Playful:** Text should always have a spicy and playful tone, reflecting the adult erotic storytelling nature of the platform
+- **Confident:** Direct, confident messaging with adult appeal
 - **Inclusive:** Respectful of diverse adult preferences
+- **Juicy Details:** Language should invite intimacy and personal connection
 
 #### Emoji Usage
 ```

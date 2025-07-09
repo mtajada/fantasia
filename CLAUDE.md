@@ -220,6 +220,13 @@ Legacy files (may be outdated):
 
 ## Development Guidelines
 
+### Design Work Guidelines
+**IMPORTANT**: When working as a designer or making UI/UX changes, always reference the adult design guidelines at `/docs/PAUTAS_DE_DISENO_ADULTO.md`. This document contains:
+- Adult-oriented color palette and visual system
+- Typography guidelines for mature content
+- Component patterns for erotic platform
+- **CRITICAL**: Functional preservation disclaimer - only modify visual aspects, never alter functionality
+
 ### Transformation Rules
 1. **Think First**: Read codebase for relevant files, write plan to tasks/todo.md
 2. **Check Before Working**: Always verify plan with user before implementation
@@ -289,26 +296,29 @@ Legacy files (may be outdated):
 
 ## Transformation Roadmap
 
-### Phase 1: Content Migration (Current)
-- **Story Generation**: Update prompts for adult content
-- **Character System**: ✅ Completed - Simplified to name, gender, and description
-- **Content Warnings**: Implement age verification and content warnings
-- **Language**: Begin Spanish to English migration
+### ✅ Phase 1: Content Migration (COMPLETED)
+- ✅ **Story Generation**: Adult content prompts fully implemented
+- ✅ **Character System**: Completely migrated to simplified structure (name, gender, description)
+- ✅ **Adult Profile System**: Preferences-based personalization implemented
+- ✅ **Authentication Flow**: Login/signup optimized for adult platform
+- ✅ **Content Warnings**: Age verification and content warnings integrated
+- ✅ **Language**: Core UI migrated to English with adult-appropriate messaging
 
-### Phase 2: Architecture Migration
-- **State Management**: Replace Zustand with direct Supabase queries
-- **Real-time Features**: Implement Supabase real-time subscriptions
-- **Database Optimization**: Optimize for adult content storage and retrieval
+### 🔄 Phase 2: Architecture Migration (IN PROGRESS)
+- ✅ **Character Store Migration**: Zustand character store eliminated, direct Supabase queries implemented
+- ❌ **State Management**: **PRIORITY** - Replace remaining Zustand stores with direct Supabase queries
+- ❌ **Real-time Features**: Implement Supabase real-time subscriptions
+- ❌ **Database Optimization**: Optimize for adult content storage and retrieval
 
-### Phase 3: Enhanced Features
+### Phase 3: Enhanced Features (PLANNED)
 - **Advanced Personalization**: AI-driven content customization
 - **Community Features**: User-generated content and sharing
 - **Enhanced Privacy**: Advanced privacy controls for adult platform
 
-### Current Technical Debt
-- **Spanish Language Content**: Systematic translation needed
-- **Zustand Dependencies**: Local storage elimination required
-- **Component Localization**: Adult content UI adaptations needed
+### Current Technical Debt (PRIORITY ORDER)
+- **🔥 HIGHEST PRIORITY**: Complete Zustand to Supabase migration for user/story stores
+- **Spanish Language Content**: Systematic translation of remaining legacy content
+- **Component Localization**: Final adult content UI adaptations
 - **Image Generation**: Re-enable functionality when ready for production
 
 ## Implementation Guidelines
@@ -325,11 +335,40 @@ Legacy files (may be outdated):
 - **Testing**: Manual testing for each change
 - **Documentation**: Update docs as changes are implemented
 
+## Implementation Status
+
+### Completed Major Implementations
+The following major implementations have been completed and are documented in detail:
+
+#### ✅ Adult Profile System - `/docs/IMPLEMENTATIONS/IMPLEMENTACION_PERFIL_ADULTO.md`
+- **Status**: COMPLETED - All phases implemented
+- **Achievement**: Complete migration from children's profile system to adult preferences-based system
+- **Impact**: Eliminates legacy `childAge`/`specialNeed` fields, introduces `preferences` field for adult content personalization
+- **Architecture**: Direct Supabase queries, no Zustand dependency
+
+#### ✅ Character System Migration - `/docs/IMPLEMENTATIONS/PLAN_MIGRACION_PERSONAJES.md`
+- **Status**: COMPLETED - 100% migrated (Phases 1-8 complete)
+- **Achievement**: Simplified character system from 7 fields to 3 fields (name, gender, description)
+- **Impact**: Eliminates complex multi-page character creation, introduces single-page form optimized for adult content
+- **Architecture**: Full Zustand elimination, direct Supabase integration
+
+#### ✅ Authentication Error Resolution - `/docs/IMPLEMENTATIONS/PLAN_RESOLUCION_ERRORES_AUTH.md`
+- **Status**: COMPLETED - All authentication issues resolved
+- **Achievement**: Eliminated 406 errors, fixed profile creation loops, optimized user flow
+- **Impact**: Seamless login → profile config → plans → home navigation
+- **Architecture**: Robust error handling, automatic profile creation triggers
+
+### Next Priority: Zustand Store Migration
+The **highest priority** remaining task is completing the migration from Zustand stores to direct Supabase queries for:
+- User store (partially migrated)
+- Story store (pending migration)
+- Real-time subscriptions implementation
+
 ---
 
 **Last Updated**: January 2025  
-**Version**: 1.1.4  
-**Transformation Status**: Phase 1 - Content Migration  
+**Version**: 1.2.0  
+**Transformation Status**: Phase 2 - Architecture Migration (In Progress)  
 **Maintainer**: Development Team
 
-For detailed implementation guides, see the `/docs` directory and `/tasks/todo.md`.
+For detailed implementation guides, see the `/docs` directory, `/docs/IMPLEMENTATIONS/` directory, and `/tasks/todo.md`.
