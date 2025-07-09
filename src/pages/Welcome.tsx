@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, Sparkles, Headphones, Brain, LogIn, UserPlus, Star, Gift, Zap } from "lucide-react";
+import { BookOpen, Sparkles, Headphones, Heart, Shield, Zap, Star, Crown, Wand2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageTransition from "../components/PageTransition";
@@ -42,8 +42,8 @@ export default function Welcome() {
           backgroundColor: 'black',
         }}
       >
-        <div className="w-16 h-16 rounded-full bg-white/30 flex items-center justify-center p-3 backdrop-blur-sm">
-          <div className="animate-spin h-full w-full border-4 border-[#F6A5B7] rounded-full border-t-transparent"></div>
+        <div className="w-16 h-16 rounded-full bg-gray-900/50 flex items-center justify-center p-3 backdrop-blur-sm border border-gray-800">
+          <div className="animate-spin h-full w-full border-4 border-pink-500 rounded-full border-t-transparent"></div>
         </div>
       </div>
     );
@@ -64,15 +64,15 @@ export default function Welcome() {
           <div className="flex gap-3">
             <button
               onClick={() => navigate("/login")}
-              className="py-2 px-4 rounded-xl text-[#333] font-medium bg-white/80 hover:bg-white transition-all duration-200 shadow-md"
+              className="py-2 px-4 rounded-xl text-gray-200 font-medium bg-gray-800/80 hover:bg-gray-700/80 transition-all duration-200 shadow-md border border-gray-700"
             >
-              Iniciar Sesión
+              Sign In
             </button>
             <button
               onClick={() => navigate("/signup")}
-              className="py-2 px-4 rounded-xl text-white font-medium bg-[#F6A5B7] hover:bg-[#F6A5B7]/90 transition-all duration-200 shadow-md"
+              className="py-2 px-4 rounded-xl text-white font-medium bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 transition-all duration-200 shadow-md"
             >
-              Registrarse
+              Get Started
             </button>
           </div>
         </header>
@@ -85,11 +85,11 @@ export default function Welcome() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center mb-10 md:mb-12"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-[#222]">
-              Historias mágicas <span className="text-[#BB79D1]">personalizadas</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+              Intimate Stories <span className="text-pink-400">Tailored for You</span> ✨
             </h1>
-            <p className="text-lg md:text-xl text-[#333] max-w-2xl mx-auto mb-8">
-              Crea cuentos únicos adaptados a los gustos y personalidad de cada niño, con narración de voz y retos educativos.
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+              Personalized erotic tales crafted to your desires, featuring sensual voice narration and interactive adult experiences.
             </p>
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -99,10 +99,10 @@ export default function Welcome() {
             >
               <button
                 onClick={() => navigate("/signup")}
-                className="py-3 px-8 rounded-2xl text-white text-lg font-semibold bg-[#F6A5B7] hover:bg-[#F6A5B7]/90 transition-all duration-200 shadow-lg flex items-center justify-center gap-2"
+                className="py-3 px-8 rounded-2xl text-white text-lg font-semibold bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 transition-all duration-200 shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2"
               >
-                <BookOpen size={20} />
-                <span>CREAR MI PRIMERA HISTORIA</span>
+                <Wand2 size={20} />
+                <span>CREATE YOUR FIRST FANTASY</span>
               </button>
             </motion.div>
           </motion.div>
@@ -114,28 +114,28 @@ export default function Welcome() {
             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
             className="w-full mb-12"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
-              ¿Qué hace especial a <span className="text-[#BB79D1]">Fantasia</span>?
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+              What Makes <span className="text-pink-400">Fantasia</span> Special? 🌶️
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               <FeatureCard
-                icon={<Sparkles className="w-6 h-6" />}
-                title="Historias Personalizadas"
-                description="Cuentos adaptados a los gustos, edad y personalidad de cada niño."
-                color="#F6A5B7"
+                icon={<Heart className="w-6 h-6" />}
+                title="Personalized Adult Stories"
+                description="Erotic tales crafted to your unique desires, fantasies, and preferences."
+                color="#ec4899"
               />
               <FeatureCard
                 icon={<Headphones className="w-6 h-6" />}
-                title="Narración de Voz"
-                description="Narraciones profesionales que dan vida a cada historia."
-                color="#7DC4E0"
+                title="Sensual Voice Narration"
+                description="Professional adult voice work that brings your intimate stories to life."
+                color="#8b5cf6"
               />
               <FeatureCard
-                icon={<Brain className="w-6 h-6" />}
-                title="Retos Educativos"
-                description="Mejora la lectura, matemáticas e idiomas con juegos divertidos."
-                color="#BB79D1"
+                icon={<Shield className="w-6 h-6" />}
+                title="Privacy & Discretion"
+                description="Secure, private platform designed for sophisticated adult entertainment."
+                color="#a855f7"
               />
             </div>
           </motion.div>
@@ -145,42 +145,42 @@ export default function Welcome() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-            className="w-full mb-12 bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20"
+            className="w-full mb-12 bg-gray-900/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-gray-800 ring-1 ring-gray-700/50"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-[#222]">
-              Beneficios para toda la familia
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+              Premium Adult Experience 💎
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <BenefitItem
-                icon={<Star className="text-[#F9DA60]" size={24} />}
-                title="Fomenta la imaginación"
-                description="Historias que estimulan la creatividad y el pensamiento."
+                icon={<Star className="text-yellow-400" size={24} />}
+                title="Explore Your Fantasies"
+                description="Safe space to discover and explore your deepest desires."
               />
               <BenefitItem
-                icon={<BookOpen className="text-[#F6A5B7]" size={24} />}
-                title="Mejora la lectura"
-                description="Desarrolla habilidades de comprensión y vocabulario."
+                icon={<BookOpen className="text-pink-400" size={24} />}
+                title="Sophisticated Stories"
+                description="High-quality erotic literature tailored to mature audiences."
               />
               <BenefitItem
-                icon={<Gift className="text-[#BB79D1]" size={24} />}
-                title="Momentos especiales"
-                description="Crea recuerdos únicos con historias personalizadas."
+                icon={<Crown className="text-violet-400" size={24} />}
+                title="Premium Quality"
+                description="Professional-grade adult content with exceptional attention to detail."
               />
               <BenefitItem
-                icon={<Zap className="text-[#7DC4E0]" size={24} />}
-                title="Aprendizaje divertido"
-                description="Retos educativos integrados en cada historia."
+                icon={<Zap className="text-pink-500" size={24} />}
+                title="Unlimited Stories"
+                description="Generate endless personalized erotic tales whenever you desire."
               />
               <BenefitItem
-                icon={<Brain className="text-[#F6A5B7]" size={24} />}
-                title="Desarrollo cognitivo"
-                description="Estimula el pensamiento crítico y la resolución de problemas."
+                icon={<Heart className="text-red-400" size={24} />}
+                title="Intimate Connection"
+                description="Stories that resonate with your personal tastes and preferences."
               />
               <BenefitItem
-                icon={<Sparkles className="text-[#F9DA60]" size={24} />}
-                title="Personalización total"
-                description="Adapta cada historia a los intereses del niño."
+                icon={<Sparkles className="text-violet-500" size={24} />}
+                title="Complete Customization"
+                description="Every story adapts to your unique adult interests and kinks."
               />
             </div>
           </motion.div>
@@ -192,19 +192,19 @@ export default function Welcome() {
 
 function FeatureCard({ icon, title, description, color }: FeatureCardProps) {
   return (
-    <div className="bg-white/70 rounded-2xl p-6 shadow-lg border border-[#BB79D1]/20 h-full transition-all duration-300 hover:shadow-xl hover:transform hover:scale-105">
+    <div className="bg-gray-900/90 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-gray-800 ring-1 ring-gray-700/50 h-full transition-all duration-300 hover:shadow-xl hover:transform hover:scale-105 hover:ring-2 hover:ring-violet-500/20">
       <div className="flex items-center mb-4">
         <div
           className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
-          style={{ backgroundColor: `${color}30` }}
+          style={{ backgroundColor: `${color}20` }}
         >
-          <div className="text-[#333]" style={{ color }}>
+          <div className="text-gray-100" style={{ color }}>
             {icon}
           </div>
         </div>
-        <h3 className="text-xl font-semibold text-[#333]">{title}</h3>
+        <h3 className="text-xl font-semibold text-gray-100">{title}</h3>
       </div>
-      <p className="text-[#555]">{description}</p>
+      <p className="text-gray-300">{description}</p>
     </div>
   );
 }
@@ -216,8 +216,8 @@ function BenefitItem({ icon, title, description }: { icon: React.ReactNode; titl
         {icon}
       </div>
       <div>
-        <h4 className="text-lg font-semibold text-[#333] mb-1">{title}</h4>
-        <p className="text-[#555]">{description}</p>
+        <h4 className="text-lg font-semibold text-gray-100 mb-1">{title}</h4>
+        <p className="text-gray-300">{description}</p>
       </div>
     </div>
   );
