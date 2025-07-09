@@ -9,7 +9,7 @@ export const STORY_VOICES = [
       speed: 0.50,
       icon: "📚",
       preview: "📚 El Sabio: “Hola, soy El Sabio, con mi voz grave y serena te acompañaré en este viaje de conocimiento.”",
-      instructions: "El Sabio: Velocidad 0.50; pausa 250 ms antes y después de frases clave; entonación descendente al final de oraciones; Lee este texto con acento castellano muy marcado propias de un hablante nativo de España; añadir susurro de hojas al 10 % de volumen; realzar 100–300 Hz y atenuar >6 kHz; inhalaciones sutiles antes de pasajes largos."
+      instructions: "El Sabio: Velocidad 0.50; pausa 250 ms antes y después de frases clave; entonación descendente al final de oraciones; Lee este texto con acento americano neutral; añadir susurro de hojas al 10 % de volumen; realzar 100–300 Hz y atenuar >6 kHz; inhalaciones sutiles antes de pasajes largos."
     },
   
     {
@@ -22,7 +22,7 @@ export const STORY_VOICES = [
       speed: 1.00,
       icon: "👸",
       preview: "👸 La Hada: “Soy La Hada, mi voz suave y dulce te envolverá en cada emoción y enseñanza.”",
-      instructions: "La Hada: Velocidad 1.00; pausas de 150 ms tras frases emotivas; subir tono en picos emocionales y alargar vocales ‘a’ y ‘o’; Lee este texto con acento castellano muy marcado propias de un hablante nativo de España; campanillas al 8 % de volumen; realzar 3–6 kHz; respiraciones antes de frases conmovedoras."
+      instructions: "La Hada: Velocidad 1.00; pausas de 150 ms tras frases emotivas; subir tono en picos emocionales y alargar vocales 'a' y 'o'; Lee este texto con acento americano neutral; campanillas al 8 % de volumen; realzar 3–6 kHz; respiraciones antes de frases conmovedoras."
     },
   
     {
@@ -35,11 +35,11 @@ export const STORY_VOICES = [
       speed: 1.20,
       icon: "🎭",
       preview: "🎭 El Animado: “¡Ey, qué tal! Soy El Animado, con mi tono alegre y caricaturesco haré de esta historia una fiesta.”",
-      instructions: "El Animado: Velocidad 1.20; pausas de 100 ms entre frases; cambios rápidos de entonación en exclamaciones y preguntas; Lee este texto con acento castellano muy marcado propias de un hablante nativo de España; risas y aplausos al 12 % de volumen; realzar 1–2 kHz; inhalaciones cortas antes de exclamaciones."
+      instructions: "El Animado: Velocidad 1.20; pausas de 100 ms entre frases; cambios rápidos de entonación en exclamaciones y preguntas; Lee este texto con acento americano neutral; risas y aplausos al 12 % de volumen; realzar 1–2 kHz; inhalaciones cortas antes de exclamaciones."
     }
   ];
   
-export const SYSTEM_PROMPT = "Eres un narrador profesional de cuentos infantiles en castellano de España, con pronunciación clara de la z como /θ/ y la s como /s/. Adapta tu ritmo y entonación al personaje";
+export const SYSTEM_PROMPT = "You are a professional narrator of adult stories in American English, with clear pronunciation and neutral American accent. Adapt your rhythm and intonation to the character";
 
 export const CUSTOM_VOICE_MAPPING = {
   "el-sabio": "ash",

@@ -87,20 +87,20 @@ export function parseChangelog(markdownContent: string): ChangelogEntry[] {
   for (const line of lines) {
     const trimmedLine = line.trim();
     
-    // Saltar líneas vacías o que no son relevantes
+    // Skip empty lines or irrelevant ones
     if (!trimmedLine || trimmedLine.startsWith('#') && !trimmedLine.startsWith('##')) {
       continue;
     }
     
-    // Detectar nueva versión (formato: ## [1.1.3] - 2024-12-19)
+    // Detect new version (format: ## [1.1.3] - 2024-12-19)
     const versionMatch = trimmedLine.match(/^##\s*\[([^\]]+)\]\s*-\s*(.+)$/);
     if (versionMatch) {
-      // Guardar entry anterior si existe
+      // Save previous entry if it exists
       if (currentEntry && currentEntry.version && currentEntry.date) {
         entries.push(currentEntry as ChangelogEntry);
       }
       
-      // Crear nueva entry
+      // Create new entry
       currentEntry = {
         version: versionMatch[1],
         date: versionMatch[2].trim(),
@@ -109,40 +109,40 @@ export function parseChangelog(markdownContent: string): ChangelogEntry[] {
       continue;
     }
     
-    // Detectar secciones (### Mejoras, ### Cambios Técnicos, etc.)
+    // Detect sections (### Improvements, ### Technical Changes, etc.)
     const sectionMatch = trimmedLine.match(/^###\s*(.+)$/);
     if (sectionMatch && currentEntry) {
       const sectionTitle = sectionMatch[1].toLowerCase();
       
-      if (sectionTitle.includes('mejoras') || sectionTitle.includes('improvements')) {
+      if (sectionTitle.includes('improvements') || sectionTitle.includes('mejoras')) {
         currentSection = 'improvements';
         currentEntry.improvements = [];
-      } else if (sectionTitle.includes('técnicos') || sectionTitle.includes('cambios técnicos') || sectionTitle.includes('technical')) {
+      } else if (sectionTitle.includes('technical') || sectionTitle.includes('técnicos') || sectionTitle.includes('cambios técnicos')) {
         currentSection = 'technical';
         currentEntry.technical = [];
-      } else if (sectionTitle.includes('correcciones') || sectionTitle.includes('fix') || sectionTitle.includes('bugs')) {
+      } else if (sectionTitle.includes('fix') || sectionTitle.includes('bugs') || sectionTitle.includes('correcciones')) {
         currentSection = 'fixes';
         currentEntry.fixes = [];
-      } else if (sectionTitle.includes('añadido') || sectionTitle.includes('funcionalidades') || sectionTitle.includes('features') || sectionTitle.includes('nuevo')) {
+      } else if (sectionTitle.includes('added') || sectionTitle.includes('features') || sectionTitle.includes('añadido') || sectionTitle.includes('funcionalidades') || sectionTitle.includes('nuevo')) {
         currentSection = 'features';
         currentEntry.features = [];
       }
       continue;
     }
     
-    // Detectar items de lista (- **item**: descripción o - item)
+    // Detect list items (- **item**: description or - item)
     const listItemMatch = trimmedLine.match(/^-\s*(.+)$/);
     if (listItemMatch && currentEntry && currentSection) {
       let itemText = listItemMatch[1];
       
-      // Limpiar markdown (quitar ** y otros formatos)
+      // Clean markdown (remove ** and other formats)
       itemText = itemText
         .replace(/\*\*(.*?)\*\*/g, '$1') // bold
         .replace(/`(.*?)`/g, '$1') // code
         .replace(/\[(.*?)\]\(.*?\)/g, '$1') // links
         .trim();
       
-      // Solo agregar si no está vacío después de limpiar
+      // Only add if not empty after cleaning
       if (itemText) {
         const targetArray = currentEntry[currentSection];
         if (Array.isArray(targetArray)) {
@@ -152,7 +152,7 @@ export function parseChangelog(markdownContent: string): ChangelogEntry[] {
     }
   }
   
-  // Agregar la última entry si existe
+  // Add the last entry if it exists
   if (currentEntry && currentEntry.version && currentEntry.date) {
     entries.push(currentEntry as ChangelogEntry);
   }
