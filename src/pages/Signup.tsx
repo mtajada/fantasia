@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import StoryButton from "../components/StoryButton";
 import PageTransition from "../components/PageTransition";
@@ -22,15 +23,25 @@ export default function Signup() {
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      ageVerification: false
     }
   });
 
-  const handleSignup = async (data: { email: string; password: string; confirmPassword: string }) => {
+  const handleSignup = async (data: { email: string; password: string; confirmPassword: string; ageVerification: boolean }) => {
     if (!data.email || !data.password || !data.confirmPassword) {
       toast({
         title: "Error en el registro",
         description: "Por favor, completa todos los campos",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!data.ageVerification) {
+      toast({
+        title: "Age verification required",
+        description: "You must confirm that you are 18 years of age or older to register",
         variant: "destructive"
       });
       return;
@@ -219,9 +230,40 @@ export default function Signup() {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="ageVerification"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-start space-x-3 py-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="mt-1 h-5 w-5 border-[#BB79D1] data-[state=checked]:bg-[#BB79D1] data-[state=checked]:border-[#BB79D1] focus:ring-[#BB79D1] focus:ring-offset-2"
+                        />
+                      </FormControl>
+                      <div className="flex-1">
+                        <label 
+                          htmlFor="ageVerification" 
+                          className="text-sm font-medium text-[#333] leading-relaxed cursor-pointer select-none"
+                          onClick={() => field.onChange(!field.value)}
+                        >
+                          I confirm that I am 18 years of age or older
+                        </label>
+                        <p className="text-xs text-[#666] mt-1 leading-relaxed">
+                          By clicking this button, you confirm that you are at least 18 years old and consent to access AI-generated content that may be inappropriate for minors
+                        </p>
+                      </div>
+                    </div>
+                    <FormMessage className="text-red-500" />
+                  </FormItem>
+                )}
+              />
+
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !form.watch('ageVerification')}
                 className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-[#F6A5B7] hover:bg-[#F6A5B7]/80 active:bg-[#F6A5B7]/90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Creando cuenta..." : "Crear Cuenta"}

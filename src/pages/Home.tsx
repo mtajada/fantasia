@@ -145,6 +145,18 @@ export default function Home() {
             </button>
           )}
         </div>
+
+        {/* AI Content Disclaimer */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-8 mx-4 max-w-sm bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-4 shadow-lg ring-1 ring-gray-700/50"
+        >
+          <p className="text-sm text-center bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent font-medium leading-relaxed">
+            AI-powered fantasies tailored just for you 🪄 - 100% generated content, 100% your pleasure
+          </p>
+        </motion.div>
       </div>
     </PageTransition>
   );
