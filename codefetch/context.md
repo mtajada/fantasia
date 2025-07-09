@@ -7584,7 +7584,7 @@ src/components/Footer.tsx
 6 |     <footer className="w-full bg-white/80 py-3 md:py-4 backdrop-blur-sm mt-auto">
 7 |       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row justify-between items-center">
 8 |         <div className="mb-2 md:mb-0">
-9 |           <img src="/logo_png.png" alt="Fantasia Logo" className="h-12 md:h-14" />
+9 |           <img src="/logo_fantasia.png" alt="Fantasia Logo" className="h-12 md:h-14" />
 10 |         </div>
 11 | 
 12 |         <div className="text-[#555] text-xs text-center md:text-left mb-2 md:mb-0">
@@ -7705,7 +7705,7 @@ src/components/IconLoadingAnimation.tsx
 93 |           animate="rotate"
 94 |         >
 95 |           <img 
-96 |             src="/icono_png.png" 
+96 |             src="/logo_fantasia.png" 
 97 |             alt="Cuenta Cuentos" 
 98 |             className="w-full h-full object-contain drop-shadow-lg" 
 99 |           />
@@ -9247,7 +9247,7 @@ src/components/StoryPdfPreview.tsx
 230 |             <div className="mb-6 bg-[#fff6e0] p-4 rounded-lg border border-amber-200 h-80 flex flex-col justify-center">
 231 |               <div className="text-center">
 232 |                 <img
-233 |                   src="/logo_png.png"
+233 |                   src="/logo_fantasia.png"
 234 |                   alt={APP_CONFIG.name}
 235 |                   className="h-16 mx-auto mb-4"
 236 |                 />
@@ -9284,7 +9284,7 @@ src/components/StoryPdfPreview.tsx
 267 |             <div className="mb-6 bg-[#fff6e0] p-4 rounded-lg border border-amber-200 h-80 flex flex-col justify-center">
 268 |               <div className="text-center">
 269 |                 <img
-270 |                   src="/logo_png.png"
+270 |                   src="/logo_fantasia.png"
 271 |                   alt={APP_CONFIG.name}
 272 |                   className="h-16 mx-auto mb-6"
 273 |                 />
@@ -10810,7 +10810,7 @@ src/services/pdfService.ts
 96 |     // Agregar el logo
 97 |     try {
 98 |       const logo = new Image();
-99 |       logo.src = '/logo_png.png';
+99 |       logo.src = '/logo_fantasia.png';
 100 | 
 101 |       // Esperar a que el logo se cargue
 102 |       await new Promise<void>((resolve) => {
@@ -10946,7 +10946,7 @@ src/services/pdfService.ts
 232 |     // Añadir logo en miniatura
 233 |     try {
 234 |       const logo = new Image();
-235 |       logo.src = '/logo_png.png';
+235 |       logo.src = '/logo_fantasia.png';
 236 | 
 237 |       // Esperar a que el logo se cargue
 238 |       await new Promise<void>((resolve) => {
@@ -11046,7 +11046,7 @@ src/services/pdfService.ts
 332 |     // Agregar el logo
 333 |     try {
 334 |       const logo = new Image();
-335 |       logo.src = '/logo_png.png';
+335 |       logo.src = '/logo_fantasia.png';
 336 | 
 337 |       // Esperar a que el logo se cargue
 338 |       await new Promise<void>((resolve) => {
@@ -11652,7 +11652,7 @@ src/services/storyPdfService.ts
 527 |   private static async addLogoToPage(pdf: jsPDF, x: number, y: number, width: number): Promise<void> {
 528 |     try {
 529 |       const logo = new Image();
-530 |       logo.src = '/logo_png.png';
+530 |       logo.src = '/logo_fantasia.png';
 531 |       
 532 |       await new Promise<void>((resolve) => {
 533 |         logo.onload = () => {
@@ -14406,7 +14406,7 @@ src/pages/Home.tsx
 92 |             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl shadow-md text-xs font-semibold transition-all duration-200 bg-white/70 hover:bg-white/90 text-pink-500`}
 93 |             aria-label="Ver planes y suscripción"
 94 |           >
-95 |             <img src="/icono_png.png" alt="icono free/premium" className="h-5 w-5" />
+95 |             <img src="/logo_fantasia.png" alt="icono free/premium" className="h-5 w-5" />
 96 |             <span>{subscriptionText}</span>
 97 |             <ChevronRight className="h-3.5 w-3.5 opacity-75" />
 98 |           </Link>
@@ -14428,7 +14428,7 @@ src/pages/Home.tsx
 114 | 
 115 |         {/* Logo y título */}
 116 |         <div className="flex flex-col items-center mt-10 mb-8 select-none">
-117 |           <img src="/logo_png.png" alt="Fantasia Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
+117 |           <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-80 max-w-md mx-auto mb-4 drop-shadow-xl" />
 118 |         </div>
 119 | 
 120 |         {/* Botones principales */}
@@ -14646,7 +14646,7 @@ src/pages/Login.tsx
 159 |       >
 160 |         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
 161 |           <div className="flex justify-center mb-6">
-162 |             <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-full" />
+162 |             <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-full" />
 163 |           </div>
 164 | 
 165 |           <Form {...form}>
@@ -15070,7 +15070,7 @@ src/pages/PlansPage.tsx
 114 |             >
 115 |                 {/* Logo y cabecera - Reducido espacio */}
 116 |                 <div className="flex flex-col items-center mt-4 mb-0 select-none">
-117 |                     <img src="/logo_png.png" alt="Fantasia Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
+117 |                     <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
 118 |                 </div>
 119 |                 <div className="container mx-auto px-4 py-0 max-w-4xl">
 120 |                     {/* Back button */}
@@ -16294,7 +16294,7 @@ src/pages/SettingsPage.tsx
 153 |             >
 154 |                 {/* Logo centrado arriba */}
 155 |                 <div className="flex flex-col items-center mt-6 mb-2 select-none">
-156 |                     <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-xs mx-auto mb-2 drop-shadow-xl" />
+156 |                     <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-xs mx-auto mb-2 drop-shadow-xl" />
 157 |                 </div>
 158 |                 <div className="container mx-auto px-4 py-2 max-w-2xl">
 159 |                     {/* Back button */}
@@ -16686,7 +16686,7 @@ src/pages/Signup.tsx
 127 | 
 128 |         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
 129 |           <div className="flex justify-center mb-6">
-130 |             <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-full" />
+130 |             <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-full" />
 131 |           </div>
 132 | 
 133 |           <h1 className="text-3xl font-bold text-[#222] mb-6 text-center">
@@ -16846,7 +16846,7 @@ src/pages/SignupSuccess.tsx
 16 |       >
 17 |         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20 flex flex-col items-center">
 18 |           <div className="flex justify-center mb-6">
-19 |             <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-full" />
+19 |             <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-full" />
 20 |           </div>
 21 | 
 22 |           <CheckCircle className="h-24 w-24 text-[#BB79D1] mb-4" />
@@ -19051,7 +19051,7 @@ src/pages/Welcome.tsx
 59 |       >
 60 |         <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
 61 |           <div className="flex items-center">
-62 |             <img src="/logo_png.png" alt="Fantasia Logo" className="h-20 md:h-24" />
+62 |             <img src="/logo_fantasia.png" alt="Fantasia Logo" className="h-20 md:h-24" />
 63 |           </div>
 64 |           <div className="flex gap-3">
 65 |             <button

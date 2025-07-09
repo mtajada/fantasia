@@ -41,6 +41,7 @@ Project Structure:
 ├── package.json
 ├── postcss.config.cjs
 ├── public
+│   ├── logo_fantasia.PNG
 │   └── previews
 │       ├── animado.mp3
 │       ├── hada.mp3
@@ -144,202 +145,172 @@ Project Structure:
 └── vite.config.ts
 
 
-tailwind.config.ts
+index.html
 ```
-1 | import type { Config } from "tailwindcss";
-2 | 
-3 | export default {
-4 | 	darkMode: ["class"],
-5 | 	content: [
-6 | 		"./pages/**/*.{ts,tsx}",
-7 | 		"./components/**/*.{ts,tsx}",
-8 | 		"./app/**/*.{ts,tsx}",
-9 | 		"./src/**/*.{ts,tsx}",
-10 | 	],
-11 | 	prefix: "",
-12 | 	theme: {
-13 | 		container: {
-14 | 			center: true,
-15 | 			padding: '2rem',
-16 | 			screens: {
-17 | 				'2xl': '1400px'
-18 | 			}
-19 | 		},
-20 | 		extend: {
-21 | 			fontFamily: {
-22 | 				sans: ['Open Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-23 | 				heading: ['Quicksand', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-24 | 			},
-25 | 			colors: {
-26 | 				'brand': {
-27 | 					'pink': '#FDDDE3',      // Rosa Base
-28 | 					'purple': '#BB79D1',    // Morado
-29 | 					'blue': '#7DC4E0',      // Azul Claro
-30 | 					'yellow': '#F9DA60',    // Amarillo
-31 | 				},
-32 | 				border: 'hsl(var(--border))',
-33 | 				input: 'hsl(var(--input))',
-34 | 				ring: 'hsl(var(--ring))',
-35 | 				background: '#FFFBF5',       // Un blanco muy suave con tinte rosa/amarillo
-36 | 				foreground: 'hsl(var(--foreground))',
-37 | 				primary: {
-38 | 					DEFAULT: '#BB79D1',     // Morado como primario
-39 | 					foreground: 'hsl(var(--primary-foreground))'
-40 | 				},
-41 | 				secondary: {
-42 | 					DEFAULT: '#7DC4E0',     // Azul como secundario
-43 | 					foreground: 'hsl(var(--secondary-foreground))'
-44 | 				},
-45 | 				destructive: {
-46 | 					DEFAULT: 'hsl(var(--destructive))',
-47 | 					foreground: 'hsl(var(--destructive-foreground))'
-48 | 				},
-49 | 				muted: {
-50 | 					DEFAULT: 'hsl(var(--muted))',
-51 | 					foreground: 'hsl(var(--muted-foreground))'
-52 | 				},
-53 | 				accent: {
-54 | 					DEFAULT: '#F9DA60',     // Amarillo como acento
-55 | 					foreground: 'hsl(var(--accent-foreground))'
-56 | 				},
-57 | 				popover: {
-58 | 					DEFAULT: 'hsl(var(--popover))',
-59 | 					foreground: 'hsl(var(--popover-foreground))'
-60 | 				},
-61 | 				card: {
-62 | 					DEFAULT: '#FFFFFF',     // Blanco puro para tarjetas
-63 | 					foreground: 'hsl(var(--card-foreground))'
-64 | 				},
-65 | 				'text-primary': '#4A4A4A',  // Gris oscuro para texto principal
-66 | 				'text-secondary': '#757575', // Gris medio para texto secundario
-67 | 				story: {
-68 | 					purple: {
-69 | 						DEFAULT: '#3F2E5D',
-70 | 						50: '#F5F2FA',
-71 | 						100: '#EBE6F5',
-72 | 						200: '#D7CCE9',
-73 | 						300: '#C3B3DE',
-74 | 						400: '#AF99D2',
-75 | 						500: '#9B80C7',
-76 | 						600: '#8767BB',
-77 | 						700: '#6E4CA6',
-78 | 						800: '#563C82',
-79 | 						900: '#3F2E5D',
-80 | 						950: '#302246'
-81 | 					},
-82 | 					orange: {
-83 | 						DEFAULT: '#F4A261',
-84 | 						50: '#FEF5EE',
-85 | 						100: '#FDEADC',
-86 | 						200: '#FBCFAF',
-87 | 						300: '#F9B383',
-88 | 						400: '#F4A261',
-89 | 						500: '#F08430',
-90 | 						600: '#DD6A10',
-91 | 						700: '#A64F0C',
-92 | 						800: '#6F3608',
-93 | 						900: '#371A04'
-94 | 					},
-95 | 					blue: {
-96 | 						DEFAULT: '#457B9D',
-97 | 						50: '#E9F0F4',
-98 | 						100: '#D3E1E8',
-99 | 						200: '#A7C3D1',
-100 | 						300: '#7BAABF',
-101 | 						400: '#5692AE',
-102 | 						500: '#457B9D',
-103 | 						600: '#345C75',
-104 | 						700: '#233E4E',
-105 | 						800: '#111F26',
-106 | 						900: '#06090B'
-107 | 					},
-108 | 				}
-109 | 			},
-110 | 			borderRadius: {
-111 | 				lg: 'var(--radius)',
-112 | 				md: 'calc(var(--radius) - 2px)',
-113 | 				sm: 'calc(var(--radius) - 4px)'
-114 | 			},
-115 | 			keyframes: {
-116 | 				'accordion-down': {
-117 | 					from: { height: '0' },
-118 | 					to: { height: 'var(--radix-accordion-content-height)' }
-119 | 				},
-120 | 				'accordion-up': {
-121 | 					from: { height: 'var(--radix-accordion-content-height)' },
-122 | 					to: { height: '0' }
-123 | 				},
-124 | 				'fade-in': {
-125 | 					'0%': { opacity: '0', transform: 'translateY(10px)' },
-126 | 					'100%': { opacity: '1', transform: 'translateY(0)' }
-127 | 				},
-128 | 				'fade-out': {
-129 | 					'0%': { opacity: '1', transform: 'translateY(0)' },
-130 | 					'100%': { opacity: '0', transform: 'translateY(10px)' }
-131 | 				},
-132 | 				'scale-in': {
-133 | 					'0%': { transform: 'scale(0.95)', opacity: '0' },
-134 | 					'100%': { transform: 'scale(1)', opacity: '1' }
-135 | 				},
-136 | 				'scale-out': {
-137 | 					from: { transform: 'scale(1)', opacity: '1' },
-138 | 					to: { transform: 'scale(0.95)', opacity: '0' }
-139 | 				},
-140 | 				'slide-in-right': {
-141 | 					'0%': { transform: 'translateX(100%)' },
-142 | 					'100%': { transform: 'translateX(0)' }
-143 | 				},
-144 | 				'slide-out-right': {
-145 | 					'0%': { transform: 'translateX(0)' },
-146 | 					'100%': { transform: 'translateX(100%)' }
-147 | 				},
-148 | 				'pulse-subtle': {
-149 | 					'0%, 100%': { opacity: '1' },
-150 | 					'50%': { opacity: '0.8' }
-151 | 				},
-152 | 				'float': {
-153 | 					'0%, 100%': { transform: 'translateY(0)' },
-154 | 					'50%': { transform: 'translateY(-5px)' }
-155 | 				}
-156 | 			},
-157 | 			animation: {
-158 | 				'accordion-down': 'accordion-down 0.2s ease-out',
-159 | 				'accordion-up': 'accordion-up 0.2s ease-out',
-160 | 				'fade-in': 'fade-in 0.5s ease-out',
-161 | 				'fade-out': 'fade-out 0.5s ease-out',
-162 | 				'scale-in': 'scale-in 0.3s ease-out',
-163 | 				'scale-out': 'scale-out 0.3s ease-out',
-164 | 				'slide-in-right': 'slide-in-right 0.3s ease-out',
-165 | 				'slide-out-right': 'slide-out-right 0.3s ease-out',
-166 | 				'pulse-subtle': 'pulse-subtle 2s infinite ease-in-out',
-167 | 				'float': 'float 3s infinite ease-in-out'
-168 | 			}
-169 | 		}
-170 | 	},
-171 | 	plugins: [require("tailwindcss-animate")],
-172 | } satisfies Config;
+1 | <!DOCTYPE html>
+2 | <html lang="en">
+3 | 
+4 | <head>
+5 |   <meta charset="UTF-8" />
+6 |   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+7 |   <title>Fantasia</title>
+8 |   <meta name="description" content="Fantasia - Adult erotic stories powered by AI" />
+9 |   <meta name="author" content="" />
+10 |   
+11 |   <!-- Favicon configuración -->
+12 |   <link rel="icon" href="/favicon_v2.png" />
+13 |   <link rel="apple-touch-icon" href="/favicon_v2.png" />
+14 |   <link rel="shortcut icon" type="image/png" href="/favicon_v2.png" />
+15 |   <meta property="og:image" content="/favicon_v2.png" />
+16 |   <meta name="theme-color" content="#ffffff" />
+17 |   
+18 |   <link rel="preconnect" href="https://fonts.googleapis.com">
+19 |   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+20 |   <link
+21 |     href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap"
+22 |     rel="stylesheet">
+23 | </head>
+24 | 
+25 | <body>
+26 |   <div id="root"></div>
+27 |   <script type="module" src="/src/main.tsx"></script>
+28 | </body>
+29 | 
+30 | </html>
 ```
 
-components.json
+src/App.tsx
 ```
-1 | {
-2 |   "$schema": "https://ui.shadcn.com/schema.json",
-3 |   "style": "default",
-4 |   "rsc": false,
-5 |   "tsx": true,
-6 |   "tailwind": {
-7 |     "config": "tailwind.config.ts",
-8 |     "css": "src/index.css",
-9 |     "baseColor": "slate",
-10 |     "cssVariables": true,
-11 |     "prefix": ""
-12 |   },
-13 |   "aliases": {
-14 |     "components": "@/components",
-15 |     "utils": "@/lib/utils",
-16 |     "ui": "@/components/ui",
-17 |     "lib": "@/lib",
-18 |     "hooks": "@/hooks"
-19 |   }
-20 | }
+1 | import { Toaster } from "@/components/ui/toaster";
+2 | import { Toaster as Sonner } from "@/components/ui/sonner";
+3 | import { TooltipProvider } from "@/components/ui/tooltip";
+4 | import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+5 | import React from 'react';
+6 | import { BrowserRouter, Routes, Route } from "react-router-dom";
+7 | import { AnimatePresence } from "framer-motion";
+8 | import AuthGuard from "./components/AuthGuard";
+9 | import MainLayout from "./components/MainLayout";
+10 | 
+11 | // Pages
+12 | import Welcome from "./pages/Welcome";
+13 | import Login from "./pages/Login";
+14 | import Signup from "./pages/Signup";
+15 | import SignupSuccess from "./pages/SignupSuccess";
+16 | // import ProfileSetup from "./pages/ProfileSetup"; 
+17 | import Home from "./pages/Home";
+18 | import CharacterSelection from "./pages/CharacterSelection";
+19 | import CharacterName from "./pages/CharacterName";
+20 | 
+21 | import StoryGenre from "./pages/StoryGenre";
+22 | 
+23 | import GeneratingStory from "./pages/GeneratingStory";
+24 | import StoryViewer from "./pages/StoryViewer";
+25 | import StoryAudioPage from "./pages/StoryAudioPage";
+26 | import StoryContinuation from "./pages/StoryContinuation";
+27 | import SavedStories from "./pages/SavedStories";
+28 | import ErrorPage from "./pages/ErrorPage";
+29 | import NotFound from "./pages/NotFound";
+30 | import AuthCallback from "./pages/AuthCallback";
+31 | import CharactersManagement from "./pages/CharactersManagement";
+32 | import PaymentSuccess from "./pages/PaymentSuccess";
+33 | import PaymentCancel from "./pages/PaymentCancel";
+34 | import StoryDetailsInput from "./pages/StoryDetailsInput";
+35 | import TermsAndConditions from "./pages/TermsAndConditions";
+36 | import PrivacyPolicy from "./pages/PrivacyPolicy";
+37 | import Contact from "./pages/Contact";
+38 | import Changelog from "./pages/Changelog";
+39 | 
+40 | // New Pages for Refactor
+41 | import ProfileConfigPage from './pages/ProfileConfigPage';
+42 | import SettingsPage from './pages/SettingsPage';
+43 | import PlansPage from './pages/PlansPage';
+44 | 
+45 | const queryClient = new QueryClient();
+46 | 
+47 | const App = () => {
+48 |   return (
+49 |     <QueryClientProvider client={queryClient}>
+50 |       <TooltipProvider>
+51 |         <Toaster />
+52 |         <Sonner />
+53 |         <BrowserRouter>
+54 |           <AnimatePresence mode="wait">
+55 |             <MainLayout>
+56 |               <Routes>
+57 |                 {/* Public routes */}
+58 |                 <Route path="/" element={<Welcome />} />
+59 |                 <Route path="/login" element={<Login />} />
+60 |                 <Route path="/signup" element={<Signup />} />
+61 |                 <Route path="/signup-success" element={<SignupSuccess />} />
+62 |                 <Route path="/error" element={<ErrorPage />} />
+63 |                 <Route path="*" element={<NotFound />} />
+64 |                 <Route path="/auth/callback" element={<AuthCallback />} />
+65 |                 <Route path="/terms" element={<TermsAndConditions />} />
+66 |                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+67 |                 <Route path="/contact" element={<Contact />} />
+68 |                 <Route path="/changelog" element={<Changelog />} />
+69 | 
+70 |                 {/* Payment routes */}
+71 |                 <Route path="/payment-success" element={<AuthGuard><PaymentSuccess /></AuthGuard>} />
+72 |                 <Route path="/payment-cancel" element={<AuthGuard><PaymentCancel /></AuthGuard>} />
+73 | 
+74 |                 {/* Protected routes */}
+75 |                 <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
+76 | 
+77 |                 <Route path="/characters-management" element={<AuthGuard><CharactersManagement /></AuthGuard>} />
+78 |                 <Route path="/character-selection" element={<AuthGuard><CharacterSelection /></AuthGuard>} />
+79 |                 <Route path="/character-name" element={<AuthGuard><CharacterName /></AuthGuard>} />
+80 |                 <Route path="/story-genre" element={<AuthGuard><StoryGenre /></AuthGuard>} />
+81 | 
+82 |                 <Route path="/story-details-input" element={<AuthGuard><StoryDetailsInput /></AuthGuard>} />
+83 |                 <Route path="/generating" element={<AuthGuard><GeneratingStory /></AuthGuard>} />
+84 |                 <Route path="/story/:storyId" element={<AuthGuard><StoryViewer /></AuthGuard>} />
+85 |                 <Route path="/story/:storyId/audio/:chapterId?" element={<AuthGuard><StoryAudioPage /></AuthGuard>} />
+86 |                 <Route path="/story/:storyId/continue" element={<AuthGuard><StoryContinuation /></AuthGuard>} />
+87 |                 <Route path="/stories" element={<AuthGuard><SavedStories /></AuthGuard>} />
+88 | 
+89 |                 {/* New Protected Routes */}
+90 |                 <Route path="/profile-config" element={<AuthGuard><ProfileConfigPage /></AuthGuard>} />
+91 |                 <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+92 |                 <Route path="/plans" element={<AuthGuard><PlansPage /></AuthGuard>} />
+93 |               </Routes>
+94 |             </MainLayout>
+95 |           </AnimatePresence>
+96 |         </BrowserRouter>
+97 |       </TooltipProvider>
+98 |     </QueryClientProvider>
+99 |   );
+100 | };
+101 | 
+102 | export default App;
+```
+
+src/main.tsx
+```
+1 | import { createRoot } from 'react-dom/client'
+2 | import { useEffect } from 'react'
+3 | import App from './App.tsx'
+4 | import './index.css'
+5 | import { useUserStore } from './store/user/userStore'
+6 | import { initSyncService } from './services/syncService'
+7 | 
+8 | // Component to handle authentication check on app load
+9 | const AppWithAuth = () => {
+10 |   const { checkAuth } = useUserStore()
+11 | 
+12 |   useEffect(() => {
+13 |     // Check authentication status when app loads
+14 |     const initAuth = async () => {
+15 |       await checkAuth()
+16 |       // Inicializar el servicio de sincronización después de verificar autenticación
+17 |       initSyncService()
+18 |     }
+19 |     
+20 |     initAuth()
+21 |   }, [checkAuth])
+22 | 
+23 |   return <App />
+24 | }
+25 | 
+26 | createRoot(document.getElementById("root")!).render(<AppWithAuth />)
 ```

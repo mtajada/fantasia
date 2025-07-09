@@ -59,7 +59,7 @@ export default function Welcome() {
       >
         <header className="w-full max-w-6xl px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/logo_png.png" alt="Fantasia Logo" className="h-20 md:h-24" />
+            <img src="/logo_fantasia.png" alt="Fantasia Logo" className="h-20 md:h-24" />
           </div>
           <div className="flex gap-3">
             <button

@@ -16,7 +16,7 @@ export default function SignupSuccess() {
       >
         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20 flex flex-col items-center">
           <div className="flex justify-center mb-6">
-            <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-full" />
+            <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-full" />
           </div>
 
           <CheckCircle className="h-24 w-24 text-[#BB79D1] mb-4" />
