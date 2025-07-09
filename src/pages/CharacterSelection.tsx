@@ -107,6 +107,8 @@ export default function CharacterSelection() {
 
     // Store selected characters in sessionStorage for the story generation flow
     sessionStorage.setItem('selectedCharacters', JSON.stringify(selectedCharacters));
+    console.log("🔍 DEBUG - Saved to sessionStorage:", selectedCharacters.length, "characters");
+    console.log("🔍 DEBUG - Characters saved:", selectedCharacters.map(c => `${c.name} (${c.id})`));
     navigate("/story-genre");
   };
 
