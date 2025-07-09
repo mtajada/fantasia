@@ -138,7 +138,7 @@ export default function Signup() {
 
         <div className="w-full max-w-md bg-white/70 rounded-3xl p-8 shadow-lg border border-[#BB79D1]/20">
           <div className="flex justify-center mb-6">
-            <img src="/logo_png.png" alt="Fantasia Logo" className="w-48 max-w-full" />
+            <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-48 max-w-full" />
           </div>
 
           <h1 className="text-3xl font-bold text-[#222] mb-6 text-center">
@@ -244,8 +244,8 @@ export default function Signup() {
                         />
                       </FormControl>
                       <div className="flex-1">
-                        <label 
-                          htmlFor="ageVerification" 
+                        <label
+                          htmlFor="ageVerification"
                           className="text-sm font-medium text-[#333] leading-relaxed cursor-pointer select-none"
                           onClick={() => field.onChange(!field.value)}
                         >

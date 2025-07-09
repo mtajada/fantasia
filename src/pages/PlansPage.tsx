@@ -114,7 +114,7 @@ const PlansPage: React.FC = () => {
             >
                 {/* Logo y cabecera - Reducido espacio */}
                 <div className="flex flex-col items-center mt-4 mb-0 select-none">
-                    <img src="/logo_png.png" alt="Fantasia Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
+                    <img src="/logo_fantasia.png" alt="Fantasia Logo" className="w-60 max-w-xs mx-auto mb-0 drop-shadow-xl" />
                 </div>
                 <div className="container mx-auto px-4 py-0 max-w-4xl">
                     {/* Back button */}

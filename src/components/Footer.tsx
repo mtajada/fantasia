@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="w-full bg-white/80 py-3 md:py-4 backdrop-blur-sm mt-auto">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row justify-between items-center">
         <div className="mb-2 md:mb-0">
-          <img src="/logo_png.png" alt="Fantasia Logo" className="h-12 md:h-14" />
+          <img src="/logo_fantasia.png" alt="Fantasia Logo" className="h-12 md:h-14" />
         </div>
 
         <div className="text-[#555] text-xs text-center md:text-left mb-2 md:mb-0">
