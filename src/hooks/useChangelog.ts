@@ -19,12 +19,12 @@ export function useChangelog(): UseChangelogReturn {
         setIsLoading(true);
         setError(null);
         
-        // Parsear el contenido del archivo CHANGELOG.md
+        // Parse the CHANGELOG.md file content
         const parsedData = parseChangelog(changelogContent);
         setChangelogData(parsedData);
       } catch (err) {
         console.error('Error parsing changelog:', err);
-        setError(err instanceof Error ? err.message : 'Error desconocido al cargar el changelog');
+        setError(err instanceof Error ? err.message : 'Unknown error loading changelog');
         setChangelogData([]);
       } finally {
         setIsLoading(false);

@@ -182,18 +182,18 @@ const ProfileConfigPage: React.FC = () => {
                         transition={{ duration: 0.5 }}
                         className="pt-16 text-center mb-8"
                     >
-                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-[#A5D6F6]/80 border border-[#A5D6F6]/50 mb-4 shadow-lg">
-                            <User className="h-8 w-8 text-white" />
+                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gray-800/80 border border-gray-700/50 mb-4 shadow-lg">
+                            <User className="h-8 w-8 text-violet-400" />
                         </div>
-                        <h1 className="text-3xl font-bold mb-2 font-heading text-[#BB79D1]">Configure Your Profile</h1>
-                        <p className="text-[#222] text-md max-w-md mx-auto font-medium bg-white/60 rounded-xl px-4 py-2 shadow-sm">
+                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Configure Your Profile</h1>
+                        <p className="text-gray-200 text-md max-w-md mx-auto font-medium bg-gray-800/60 rounded-xl px-4 py-2 shadow-sm">
                             Personalize your experience for tailored adult content
                         </p>
                     </motion.div>
 
                     {isLoading && (
                         <div className="flex justify-center py-12">
-                            <div className="rounded-full h-12 w-12 border-4 border-[#A5D6F6] border-t-transparent animate-spin"></div>
+                            <div className="rounded-full h-12 w-12 border-4 border-violet-500 border-t-transparent animate-spin"></div>
                         </div>
                     )}
 
@@ -203,19 +203,19 @@ const ProfileConfigPage: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
                             onSubmit={handleSubmit}
-                            className="space-y-8 bg-white/40 backdrop-blur-md rounded-3xl border border-[#BB79D1]/20 shadow-xl p-6"
+                            className="space-y-8 bg-gray-900/90 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl p-6 sm:p-8"
                         >
                             {/* Language Select */}
                             <div className="space-y-2">
-                                <label htmlFor="language" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-[#222]">
-                                    <div className="w-8 h-8 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
-                                        <Globe className="h-4 w-4 text-[#A5D6F6]" />
+                                <label htmlFor="language" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-gray-200">
+                                    <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                        <Globe className="h-4 w-4 text-violet-400" />
                                     </div>
                                     <span>Story Language</span>
                                 </label>
 
                                 <Select value={language} onValueChange={setLanguage}>
-                                    <SelectTrigger className="w-full bg-white/10 border-[#A5D6F6]/30 backdrop-blur-sm text-[#222] hover:bg-white/20 transition-colors h-12">
+                                    <SelectTrigger className="w-full bg-gray-900/90 border-gray-700 backdrop-blur-sm text-gray-200 hover:bg-gray-800/90 transition-colors h-12 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20">
                                         {selectedLang ? (
                                             <div className="flex items-center">
                                                 <span role="img" aria-label={selectedLang.label} className="mr-2">{selectedLang.flag}</span>
@@ -225,9 +225,9 @@ const ProfileConfigPage: React.FC = () => {
                                             <SelectValue placeholder="Select a language..." />
                                         )}
                                     </SelectTrigger>
-                                    <SelectContent className="bg-white border-[#BB79D1]/40 shadow-xl rounded-2xl text-[#222]">
+                                    <SelectContent className="bg-gray-900/95 border-gray-700 shadow-2xl rounded-2xl text-gray-200 backdrop-blur-md">
                                         {languages.map((lang) => (
-                                            <SelectItem key={lang.value} value={lang.value} className="text-[#222] focus:bg-[#BB79D1]/20 focus:text-[#222]">
+                                            <SelectItem key={lang.value} value={lang.value} className="text-gray-200 focus:bg-violet-500/20 focus:text-gray-100 hover:bg-gray-800/50">
                                                 <span className="flex items-center gap-3">
                                                     <span className="text-xl inline-block min-w-[1.5rem]">{lang.flag}</span>
                                                     <span>{lang.label}</span>
@@ -240,23 +240,23 @@ const ProfileConfigPage: React.FC = () => {
 
                             {/* Preferences Text Area */}
                             <div className="space-y-2 pt-2">
-                                <label htmlFor="preferences" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-[#222]">
-                                    <div className="w-8 h-8 rounded-full bg-[#F6A5B7]/20 flex items-center justify-center">
-                                        <Heart className="h-4 w-4 text-[#F6A5B7]" />
+                                <label htmlFor="preferences" className="flex items-center gap-2 text-lg font-medium mb-2 font-heading text-gray-200">
+                                    <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
+                                        <Heart className="h-4 w-4 text-pink-400" />
                                     </div>
                                     <span>Your Preferences & Interests</span>
                                 </label>
 
-                                <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4">
+                                <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl border border-gray-700 p-4">
                                     <Textarea
                                         id="preferences"
                                         placeholder="Describe your interests, preferences, kinks, fetishes, or specific themes you enjoy in adult content. This will help personalize your stories. (Optional but recommended for better personalization)"
                                         value={preferences}
                                         onChange={(e) => setPreferences(e.target.value)}
-                                        className="bg-transparent border-none resize-none focus:ring-0 text-[#222] placeholder:text-[#222]/60 min-h-[120px]"
+                                        className="bg-transparent border-none resize-none focus:ring-0 text-gray-200 placeholder:text-gray-400 min-h-[120px]"
                                         maxLength={1000}
                                     />
-                                    <div className="text-xs text-[#7DC4E0] mt-2">
+                                    <div className="text-xs text-gray-400 mt-2">
                                         {preferences.length}/1000 characters
                                     </div>
                                 </div>
@@ -270,14 +270,14 @@ const ProfileConfigPage: React.FC = () => {
                                 disabled={isSaving || isLoading}
                                 className={`w-full mt-6 py-4 px-6 rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all ${
                                     (isSaving || isLoading)
-                                        ? 'bg-gray-400/30 border-gray-400/30 text-gray-500 cursor-not-allowed'
-                                        : 'bg-[#BB79D1]/30 border border-[#BB79D1]/30 hover:bg-[#BB79D1]/40 text-[#222]'
+                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-violet-500/25'
                                 }`}
                             >
                                 {isSaving ? (
-                                    <div className="h-5 w-5 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                                 ) : (
-                                    <Check className="h-5 w-5 text-[#BB79D1]" />
+                                    <Check className="h-5 w-5 text-white" />
                                 )}
                                 <span>{isSaving ? "Saving..." : "Save Profile"}</span>
                             </motion.button>

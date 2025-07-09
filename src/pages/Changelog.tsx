@@ -20,7 +20,7 @@ const Changelog: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -42,15 +42,17 @@ const Changelog: React.FC = () => {
               <Button
                 size="sm"
                 onClick={() => navigate(-1)}
-                className="bg-[#BB79D1] hover:bg-[#BB79D1]/80 text-white active:bg-[#E6B7D9] focus:bg-[#E6B7D9]"
+                className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 transition-all"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Volver
+                Back
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-[#222]">Registro de Cambios</h1>
-                <p className="text-[#555] mt-1">
-                  Todas las mejoras y cambios notables de Fantasia!
+                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
+                  What's New? ✨
+                </h1>
+                <p className="text-gray-300 mt-1">
+                  All the spicy updates and exciting changes to Fantasia! 🌶️
                 </p>
               </div>
             </div>
@@ -58,52 +60,52 @@ const Changelog: React.FC = () => {
             {/* Changelog entries */}
             {isLoading ? (
               <div className="flex items-center justify-center min-h-[200px]">
-                <Card className="bg-white/90 backdrop-blur-sm border-0 p-8">
-                  <div className="flex items-center gap-3 text-[#555]">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Cargando registro de cambios...</span>
+                <Card className="bg-gray-900/90 backdrop-blur-md border border-gray-800 p-8 shadow-2xl">
+                  <div className="flex items-center gap-3 text-gray-300">
+                    <Loader2 className="h-5 w-5 animate-spin text-violet-400" />
+                    <span>Loading changelog...</span>
                   </div>
                 </Card>
               </div>
             ) : error ? (
               <div className="flex items-center justify-center min-h-[200px]">
-                <Card className="bg-white/90 backdrop-blur-sm border-0 p-8">
-                  <div className="flex items-center gap-3 text-red-600">
+                <Card className="bg-gray-900/90 backdrop-blur-md border border-gray-800 p-8 shadow-2xl">
+                  <div className="flex items-center gap-3 text-red-400">
                     <AlertCircle className="h-5 w-5" />
                     <div>
-                      <p className="font-semibold">Error al cargar el changelog</p>
-                      <p className="text-sm text-[#555] mt-1">{error}</p>
+                      <p className="font-semibold">Error loading changelog</p>
+                      <p className="text-sm text-gray-400 mt-1">{error}</p>
                     </div>
                   </div>
                 </Card>
               </div>
             ) : changelogData.length === 0 ? (
               <div className="flex items-center justify-center min-h-[200px]">
-                <Card className="bg-white/90 backdrop-blur-sm border-0 p-8">
-                  <div className="text-center text-[#555]">
-                    <p className="font-semibold">No hay datos de changelog disponibles</p>
-                    <p className="text-sm mt-1">Verifica que el archivo CHANGELOG.md existe y tiene el formato correcto.</p>
+                <Card className="bg-gray-900/90 backdrop-blur-md border border-gray-800 p-8 shadow-2xl">
+                  <div className="text-center text-gray-300">
+                    <p className="font-semibold">No changelog data available</p>
+                    <p className="text-sm mt-1 text-gray-400">Please verify that the CHANGELOG.md file exists and has the correct format.</p>
                   </div>
                 </Card>
               </div>
             ) : (
               <div className="space-y-6">
                 {changelogData.map((entry, index) => (
-                  <Card key={entry.version} className="bg-white/90 backdrop-blur-sm shadow-lg border-0">
+                  <Card key={entry.version} className="bg-gray-900/90 backdrop-blur-md border border-gray-800 shadow-2xl">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Badge variant={getVersionBadgeVariant(entry.version)} className="text-sm">
+                          <Badge variant={getVersionBadgeVariant(entry.version)} className="text-sm bg-gradient-to-r from-violet-500 to-purple-600 text-white border-0">
                             v{entry.version}
                           </Badge>
                           {index === 0 && (
-                            <Badge variant="default" className="bg-[#BB79D1] text-white">
+                            <Badge variant="default" className="bg-gradient-to-r from-pink-500 to-violet-500 text-white border-0">
                               <Star className="h-3 w-3 mr-1" />
-                              Última versión
+                              Latest Version
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-[#555]">
+                        <div className="flex items-center gap-2 text-gray-400">
                           <Calendar className="h-4 w-4" />
                           <span className="text-sm">{formatDate(entry.date)}</span>
                         </div>
@@ -114,18 +116,18 @@ const Changelog: React.FC = () => {
                       <Accordion type="multiple" className="w-full">
                         {entry.features && entry.features.length > 0 && (
                           <AccordionItem value={`features-${entry.version}`}>
-                            <AccordionTrigger className="text-left hover:no-underline">
+                            <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
-                                <Star className="h-4 w-4 text-[#F6A5B7]" />
-                                <span className="font-semibold">Nuevas Funcionalidades</span>
-                                <Badge variant="outline">{entry.features.length}</Badge>
+                                <Star className="h-4 w-4 text-pink-400" />
+                                <span className="font-semibold">New Features</span>
+                                <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.features.length}</Badge>
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>
                               <ul className="space-y-2 mt-2">
                                 {entry.features.map((feature, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-[#555]">
-                                    <span className="w-2 h-2 bg-[#F6A5B7] rounded-full mt-2 flex-shrink-0"></span>
+                                  <li key={i} className="flex items-start gap-2 text-gray-300">
+                                    <span className="w-2 h-2 bg-pink-400 rounded-full mt-2 flex-shrink-0"></span>
                                     <span>{feature}</span>
                                   </li>
                                 ))}
@@ -136,18 +138,18 @@ const Changelog: React.FC = () => {
 
                         {entry.improvements && entry.improvements.length > 0 && (
                           <AccordionItem value={`improvements-${entry.version}`}>
-                            <AccordionTrigger className="text-left hover:no-underline">
+                            <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
-                                <Wrench className="h-4 w-4 text-[#7DC4E0]" />
-                                <span className="font-semibold">Mejoras</span>
-                                <Badge variant="outline">{entry.improvements.length}</Badge>
+                                <Wrench className="h-4 w-4 text-violet-400" />
+                                <span className="font-semibold">Improvements</span>
+                                <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.improvements.length}</Badge>
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>
                               <ul className="space-y-2 mt-2">
                                 {entry.improvements.map((improvement, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-[#555]">
-                                    <span className="w-2 h-2 bg-[#7DC4E0] rounded-full mt-2 flex-shrink-0"></span>
+                                  <li key={i} className="flex items-start gap-2 text-gray-300">
+                                    <span className="w-2 h-2 bg-violet-400 rounded-full mt-2 flex-shrink-0"></span>
                                     <span>{improvement}</span>
                                   </li>
                                 ))}
@@ -158,18 +160,18 @@ const Changelog: React.FC = () => {
 
                         {entry.technical && entry.technical.length > 0 && (
                           <AccordionItem value={`technical-${entry.version}`}>
-                            <AccordionTrigger className="text-left hover:no-underline">
+                            <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
-                                <Wrench className="h-4 w-4 text-[#BB79D1]" />
-                                <span className="font-semibold">Cambios Técnicos</span>
-                                <Badge variant="outline">{entry.technical.length}</Badge>
+                                <Wrench className="h-4 w-4 text-purple-400" />
+                                <span className="font-semibold">Technical Changes</span>
+                                <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.technical.length}</Badge>
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>
                               <ul className="space-y-2 mt-2">
                                 {entry.technical.map((tech, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-[#555]">
-                                    <span className="w-2 h-2 bg-[#BB79D1] rounded-full mt-2 flex-shrink-0"></span>
+                                  <li key={i} className="flex items-start gap-2 text-gray-300">
+                                    <span className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></span>
                                     <span className="font-mono text-sm">{tech}</span>
                                   </li>
                                 ))}
@@ -180,18 +182,18 @@ const Changelog: React.FC = () => {
 
                         {entry.fixes && entry.fixes.length > 0 && (
                           <AccordionItem value={`fixes-${entry.version}`}>
-                            <AccordionTrigger className="text-left hover:no-underline">
+                            <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
-                                <Bug className="h-4 w-4 text-[#f7c59f]" />
-                                <span className="font-semibold">Correcciones</span>
-                                <Badge variant="outline">{entry.fixes.length}</Badge>
+                                <Bug className="h-4 w-4 text-orange-400" />
+                                <span className="font-semibold">Bug Fixes</span>
+                                <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.fixes.length}</Badge>
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>
                               <ul className="space-y-2 mt-2">
                                 {entry.fixes.map((fix, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-[#555]">
-                                    <span className="w-2 h-2 bg-[#f7c59f] rounded-full mt-2 flex-shrink-0"></span>
+                                  <li key={i} className="flex items-start gap-2 text-gray-300">
+                                    <span className="w-2 h-2 bg-orange-400 rounded-full mt-2 flex-shrink-0"></span>
                                     <span>{fix}</span>
                                   </li>
                                 ))}
@@ -208,24 +210,24 @@ const Changelog: React.FC = () => {
 
             {/* Footer info */}
             <div className="mt-12 text-center">
-              <Card className="bg-white/80 backdrop-blur-sm border-0">
+              <Card className="bg-gray-900/80 backdrop-blur-md border border-gray-800 shadow-2xl">
                 <CardContent className="pt-6">
-                  <p className="text-[#555] text-sm">
-                    Este registro sigue el formato de{' '}
+                  <p className="text-gray-400 text-sm">
+                    This changelog follows the format of{' '}
                     <a
-                      href="https://keepachangelog.com/es-ES/1.0.0/"
+                      href="https://keepachangelog.com/en/1.0.0/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#BB79D1] hover:text-[#A5D6F6] underline"
+                      className="text-violet-400 hover:text-pink-400 underline transition-colors"
                     >
                       Keep a Changelog
                     </a>
-                    {' '}y adhiere a{' '}
+                    {' '}and adheres to{' '}
                     <a
                       href="https://semver.org/spec/v2.0.0.html"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#BB79D1] hover:text-[#A5D6F6] underline"
+                      className="text-violet-400 hover:text-pink-400 underline transition-colors"
                     >
                       Semantic Versioning
                     </a>
