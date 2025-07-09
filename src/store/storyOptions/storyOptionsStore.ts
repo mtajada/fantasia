@@ -33,6 +33,10 @@ export const useStoryOptionsStore = createPersistentStore<StoryOptionsState>(
     
     setAdditionalDetails: (details) => set({ additionalDetails: details }),
     
+    setSpicynessLevel: (level) => set((state) => ({
+      currentStoryOptions: { ...state.currentStoryOptions, spiciness_level: level }
+    })),
+    
     // Multiple character selection functions
     setSelectedCharacterIds: (characterIds: string[]) => set({ selectedCharacterIds: characterIds }),
     

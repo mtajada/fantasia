@@ -221,6 +221,10 @@ export const useUserStore = createPersistentStore<UserState>(
                    }
                }
                
+               // SOLUCION: Cargar datos de historias cuando el usuario ya está autenticado
+               // Esto resuelve el problema de que las historias no se cargan en refresh/navegación directa
+               syncAllUserData(user.id);
+               
                return user;
            } else {
                set({ user: null, profileSettings: null });

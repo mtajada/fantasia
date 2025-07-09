@@ -40,6 +40,10 @@ export class StoryContinuationService {
       const characters = bodyPayload.story.options.characters;
       const charactersInfo = `Characters (${characters.length}): ${characters.map(c => `${c.name} (${c.gender})`).join(', ')}`;
       console.log(`[StoryContinuationService] ${charactersInfo}`);
+      
+      // Log spiciness level for debugging
+      const spicynessLevel = bodyPayload.story.options.spiciness_level || 2;
+      console.log(`[StoryContinuationService] Spiciness level: ${spicynessLevel}`);
     }
 
     try {

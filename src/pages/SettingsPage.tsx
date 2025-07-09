@@ -38,9 +38,9 @@ const SettingsPage: React.FC = () => {
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
     // --- Voice Credits Constants ---
-    const PREMIUM_MONTHLY_VOICE_ALLOWANCE = 20; // O usa el valor correcto si es diferente
-    const VOICE_CREDITS_PACKAGE_AMOUNT = 20; // O usa el valor correcto si es diferente
-    const VOICE_CREDITS_PACKAGE_PRICE_EUR = 10; // O usa el valor correcto si es diferente
+    const PREMIUM_MONTHLY_VOICE_ALLOWANCE = 20; // Or use correct value if different
+    const VOICE_CREDITS_PACKAGE_AMOUNT = 20; // Or use correct value if different
+    const VOICE_CREDITS_PACKAGE_PRICE_EUR = 10; // Or use correct value if different
 
     const handleLogout = async () => {
         setIsLogoutLoading(true);
@@ -48,10 +48,10 @@ const SettingsPage: React.FC = () => {
             await logoutUser();
             // logoutUser should handle redirect internally, but navigate as a fallback
             navigate('/');
-            toast({ title: 'Sesión cerrada', description: 'Has cerrado sesión correctamente.' });
+            toast({ title: 'Signed out', description: 'You have been signed out successfully.' });
         } catch (error) {
-            console.error("Error during logout:", error);
-            toast({ title: 'Error', description: 'No se pudo cerrar sesión.', variant: 'destructive' });
+            console.error("Error during sign out:", error);
+            toast({ title: 'Error', description: 'Could not sign out.', variant: 'destructive' });
             setIsLogoutLoading(false);
         }
     };
@@ -68,18 +68,18 @@ const SettingsPage: React.FC = () => {
             if (data?.url) {
                 window.location.href = data.url;
             } else {
-                throw new Error('No se recibió URL de checkout.');
+                throw new Error('No checkout URL received.');
             }
         } catch (error: any) {
             console.error(`Error creating ${item} checkout session:`, error);
-            toast({ title: 'Error', description: `No se pudo iniciar el pago: ${error.message}`, variant: 'destructive' });
+            toast({ title: 'Error', description: `Could not start payment: ${error.message}`, variant: 'destructive' });
             setIsCheckoutLoading(false);
         }
     };
 
     const handleManageSubscription = async () => {
         if (!profileSettings?.stripe_customer_id) {
-            toast({ title: 'Error', description: 'No se encontró información de cliente para gestionar la suscripción.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'No customer information found to manage subscription.', variant: 'destructive' });
             return;
         }
 
@@ -92,11 +92,11 @@ const SettingsPage: React.FC = () => {
             if (data?.url) {
                 window.location.href = data.url;
             } else {
-                throw new Error('No se recibió URL del portal de cliente.');
+                throw new Error('No customer portal URL received.');
             }
         } catch (error: any) {
             console.error("Error creating customer portal session:", error);
-            toast({ title: 'Error', description: `No se pudo redirigir a la gestión de suscripción: ${error.message}`, variant: 'destructive' });
+            toast({ title: 'Error', description: `Could not redirect to subscription management: ${error.message}`, variant: 'destructive' });
             setIsPortalLoading(false);
         } // No finally block needed for isLoading as page redirects on success
     };
@@ -115,7 +115,7 @@ const SettingsPage: React.FC = () => {
     const premiumUser = isPremium(); // Call the selector
 
     // --- Calculate Reset Date String --- BEGIN
-    let resetDateString = "Fecha no disponible"; // Default
+    let resetDateString = "Date not available"; // Default
 
     if (premiumUser) {
         // Premium: Use current_period_end
@@ -128,27 +128,27 @@ const SettingsPage: React.FC = () => {
                     month: 'long',
                     // year: 'numeric' // Optional: add year if needed
                 }).format(endDate);
-                resetDateString = `el ${resetDateString}`;
+                resetDateString = `on ${resetDateString}`;
             } catch (e) {
-                console.error("Error formateando current_period_end:", e);
-                resetDateString = "Error al formatear fecha";
+                console.error("Error formatting current_period_end:", e);
+                resetDateString = "Error formatting date";
             }
         } else {
-            console.warn("Usuario premium sin current_period_end en profileSettings.");
-            resetDateString = "en el próximo ciclo de facturación";
+            console.warn("Premium user without current_period_end in profileSettings.");
+            resetDateString = "in the next billing cycle";
         }
     } else {
         // Free: Static message
-        resetDateString = "el día 1 del próximo mes";
+        resetDateString = "on the 1st of next month";
     }
     // --- Calculate Reset Date String --- END
 
     return (
         <PageTransition>
             <div
-                className="min-h-screen flex flex-col items-center justify-start bg-[#FFF6FA] relative"
+                className="min-h-screen flex flex-col items-center justify-start relative"
                 style={{
-                    backgroundColor: 'black',
+                    backgroundColor: '#000000',
                 }}
             >
                 {/* Logo centrado arriba */}
@@ -166,10 +166,10 @@ const SettingsPage: React.FC = () => {
                         transition={{ duration: 0.5 }}
                         className="text-center mb-6"
                     >
-                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-[#BB79D1]/80 border border-[#BB79D1]/50 mb-2 shadow-lg">
-                            <Settings className="h-8 w-8 text-white" />
+                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 border border-pink-500/30 mb-2 shadow-lg">
+                            <Settings className="h-8 w-8 text-pink-400" />
                         </div>
-                        <h1 className="text-3xl font-bold font-heading text-[#BB79D1]">Ajustes</h1>
+                        <h1 className="text-3xl font-bold font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Settings</h1>
                     </motion.div>
 
                     {/* Account Section */}
@@ -177,20 +177,20 @@ const SettingsPage: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="bg-white/40 backdrop-blur-md rounded-3xl border border-[#BB79D1]/20 shadow-xl overflow-hidden mb-5"
+                        className="bg-gray-900/90 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl ring-1 ring-gray-700/50 overflow-hidden mb-5"
                     >
-                        <div className="p-5 border-b border-[#BB79D1]/10 flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
-                                <User className="h-5 w-5 text-[#A5D6F6]" />
+                        <div className="p-5 border-b border-gray-700/50 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                <User className="h-5 w-5 text-violet-400" />
                             </div>
-                            <h2 className="text-xl font-semibold font-heading text-[#BB79D1]">Cuenta</h2>
+                            <h2 className="text-xl font-semibold font-heading text-gray-200">Account</h2>
                         </div>
                         <div className="p-5">
                             <div className="flex items-center p-2">
-                                <Mail className="h-5 w-5 text-[#BB79D1]/80 mr-3" />
+                                <Mail className="h-5 w-5 text-violet-400 mr-3" />
                                 <div className="flex-1">
-                                    <div className="text-sm text-[#BB79D1]/80 mb-1">Email</div>
-                                    <div className="font-medium text-[#BB79D1]">{user.email}</div>
+                                    <div className="text-sm text-gray-400 mb-1">Email</div>
+                                    <div className="font-medium text-gray-200">{user.email}</div>
                                 </div>
                             </div>
                         </div>
@@ -201,24 +201,24 @@ const SettingsPage: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="bg-white/40 backdrop-blur-md rounded-3xl border border-[#F9DA60]/20 shadow-xl overflow-hidden mb-5"
+                        className="bg-gray-900/90 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl ring-1 ring-gray-700/50 overflow-hidden mb-5"
                     >
-                        <div className="p-5 border-b border-[#F9DA60]/10 flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#F9DA60]/20 flex items-center justify-center">
-                                <CreditCard className="h-5 w-5 text-[#F9DA60]" />
+                        <div className="p-5 border-b border-gray-700/50 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                                <CreditCard className="h-5 w-5 text-pink-400" />
                             </div>
-                            <h2 className="text-xl font-semibold font-heading text-[#BB79D1]">Plan y Facturación</h2>
+                            <h2 className="text-xl font-semibold font-heading text-gray-200">Plan & Billing</h2>
                         </div>
                         <div className="p-5">
-                            <div className="flex items-center justify-between p-2 border-b border-[#BB79D1]/10 pb-4 mb-4">
+                            <div className="flex items-center justify-between p-2 border-b border-gray-700/50 pb-4 mb-4">
                                 <div className="flex items-center">
-                                    <div className="text-md text-[#BB79D1]">Plan Actual:</div>
+                                    <div className="text-md text-gray-200">Current Plan:</div>
                                 </div>
                                 <div className={`px-3 py-1 rounded-full font-semibold text-sm ${premiumUser
-                                    ? 'bg-gradient-to-r from-[#F9DA60]/30 to-[#F9DA60]/40 text-[#BB79D1] border border-[#F9DA60]/30'
-                                    : 'bg-[#BB79D1]/20 text-[#BB79D1] border border-[#BB79D1]/30'
+                                    ? 'bg-gradient-to-r from-pink-500/30 to-violet-500/40 text-gray-200 border border-pink-500/30'
+                                    : 'bg-gray-700/50 text-gray-300 border border-gray-600/50'
                                     }`}>
-                                    {premiumUser ? 'Premium' : 'Free'}
+                                    {premiumUser ? 'Premium ✨' : 'Free'}
                                 </div>
                             </div>
 
@@ -226,70 +226,70 @@ const SettingsPage: React.FC = () => {
                             {!premiumUser && (
                                 <div className="space-y-5">
                                     {/* Story Limits */}
-                                    <div className="bg-white/70 rounded-2xl p-4 mb-2 border border-[#BB79D1]/30 shadow-sm">
+                                    <div className="bg-gray-800/70 rounded-2xl p-4 mb-2 border border-gray-700/50 shadow-sm">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#BB79D1]/20 flex items-center justify-center">
-                                                <BookOpen className="h-5 w-5 text-[#BB79D1]" />
+                                            <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                                <BookOpen className="h-5 w-5 text-violet-400" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-lg text-[#222]">Historias restantes este mes</h3>
-                                                <p className="text-[#7DC4E0] text-sm">Cuentos que puedes crear</p>
+                                                <h3 className="font-bold text-lg text-gray-200">Stories remaining this month</h3>
+                                                <p className="text-gray-400 text-sm">Stories you can create ✨</p>
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-center mb-2 px-2">
-                                            <span className="text-[#222] font-medium">Disponibles:</span>
-                                            <span className="font-mono font-bold text-xl text-[#F6A5B7]">{profileSettings.monthly_stories_generated !== undefined ? Math.max(0, 10 - profileSettings.monthly_stories_generated) : 'N/A'}</span>
+                                            <span className="text-gray-200 font-medium">Available:</span>
+                                            <span className="font-mono font-bold text-xl text-pink-400">{profileSettings.monthly_stories_generated !== undefined ? Math.max(0, 10 - profileSettings.monthly_stories_generated) : 'N/A'}</span>
                                         </div>
-                                        <div className="text-sm text-white mt-3 flex items-center bg-[#F6A5B7] p-2 rounded-lg">
-                                            <CalendarClock className="h-4 w-4 mr-2 text-white" />
-                                            <span>El límite se reiniciará a 10 historias {resetDateString}</span>
+                                        <div className="text-sm text-gray-200 mt-3 flex items-center bg-gradient-to-r from-pink-500/30 to-violet-500/30 p-2 rounded-lg border border-pink-500/20">
+                                            <CalendarClock className="h-4 w-4 mr-2 text-pink-400" />
+                                            <span>Limit resets to 10 stories {resetDateString}</span>
                                         </div>
                                     </div>
 
                                     {/* Voice Credits */}
-                                    <div className="bg-white/70 rounded-2xl p-4 border border-[#A5D6F6]/30 shadow-sm">
+                                    <div className="bg-gray-800/70 rounded-2xl p-4 border border-gray-700/50 shadow-sm">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
-                                                <Mic className="h-5 w-5 text-[#A5D6F6]" />
+                                            <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                                <Mic className="h-5 w-5 text-violet-400" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-lg text-[#222]">Créditos de voz disponibles</h3>
-                                                <p className="text-[#7DC4E0] text-sm">Para narrar tus cuentos</p>
+                                                <h3 className="font-bold text-lg text-gray-200">Available voice credits</h3>
+                                                <p className="text-gray-400 text-sm">For narrating your stories 🎤</p>
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-center mb-2 px-2">
-                                            <span className="text-[#222] font-medium">Disponibles:</span>
-                                            <span className="font-mono font-bold text-xl text-[#A5D6F6]">{profileSettings.voice_credits || 0}</span>
+                                            <span className="text-gray-200 font-medium">Available:</span>
+                                            <span className="font-mono font-bold text-xl text-violet-400">{profileSettings.voice_credits || 0}</span>
                                         </div>
 
-                                        {/* Botón Comprar Créditos Voz (Free user) */}
+                                        {/* Voice Credits Purchase Button (Free user) */}
                                         <button
                                             onClick={() => handleCheckout('credits')}
                                             // disabled={isCheckoutLoading || isPortalLoading}
                                             disabled={true}
-                                            className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-[#A5D6F6]/40 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-gradient-to-r from-violet-500/30 to-purple-600/30 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border border-violet-500/20"
                                         >
-                                            <div className="flex items-center gap-2 text-[#BB79D1] font-bold">
+                                            <div className="flex items-center gap-2 text-gray-200 font-bold">
                                                 <CreditCard className="h-4 w-4" />
-                                                <span>Comprar 20 créditos más por 10€</span>
+                                                <span>Get 20 more credits for €10 💳</span>
                                             </div>
                                             {isCheckoutLoading ? (
-                                                <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
+                                                <div className="h-4 w-4 border-2 border-gray-200 border-t-transparent rounded-full animate-spin"></div>
                                             ) : (
-                                                <ChevronRight className="h-4 w-4 text-white" />
+                                                <ChevronRight className="h-4 w-4 text-gray-200" />
                                             )}
                                         </button>
                                     </div>
 
-                                    {/* Botón Ver Planes */}
-                                    <div className="border-t border-[#BB79D1]/10 pt-4">
+                                    {/* View Plans Button */}
+                                    <div className="border-t border-gray-700/50 pt-4">
                                         <Link
                                             to="/plans?tab=premium"
-                                            className="flex items-center justify-between w-full py-3 px-4 bg-[#f7c59f]/40 border border-[#f7c59f]/30 hover:bg-[#f7c59f]/60 text-white rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+                                            className="flex items-center justify-between w-full py-3 px-4 bg-gradient-to-r from-pink-500/30 to-violet-500/30 border border-pink-500/30 hover:from-pink-500/40 hover:to-violet-500/40 text-gray-200 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <Star className="h-4 w-4" />
-                                                <span>Ver Plan Premium</span>
+                                                <span>View Premium Plan ✨</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4" />
                                         </Link>
@@ -300,70 +300,70 @@ const SettingsPage: React.FC = () => {
                             {/* Premium User Content */}
                             {premiumUser && (
                                 <div className="space-y-5">
-                                    {/* Voice Credits Section Separada */}
-                                    <div className="bg-white/70 rounded-2xl p-4 border border-[#A5D6F6]/30 shadow-sm">
+                                    {/* Voice Credits Section Premium */}
+                                    <div className="bg-gray-800/70 rounded-2xl p-4 border border-gray-700/50 shadow-sm">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-[#A5D6F6]/20 flex items-center justify-center">
-                                                <Mic className="h-5 w-5 text-[#A5D6F6]" />
+                                            <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                                <Mic className="h-5 w-5 text-violet-400" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-lg text-[#222]">Créditos de voz disponibles</h3>
-                                                <p className="text-[#7DC4E0] text-sm">Para narrar tus cuentos</p>
+                                                <h3 className="font-bold text-lg text-gray-200">Available voice credits</h3>
+                                                <p className="text-gray-400 text-sm">For narrating your stories 🎤</p>
                                             </div>
                                         </div>
-                                        {/* Créditos del plan mensual */}
+                                        {/* Monthly plan credits */}
                                         <div className="flex justify-between items-center px-2">
-                                            <span className="text-[#222] font-medium">Del plan este mes:</span>
-                                            <span className="font-mono font-bold text-lg text-[#A5D6F6]">
+                                            <span className="text-gray-200 font-medium">Plan credits this month:</span>
+                                            <span className="font-mono font-bold text-lg text-violet-400">
                                                 {profileSettings.monthly_voice_generations_used !== undefined
                                                     ? Math.max(0, PREMIUM_MONTHLY_VOICE_ALLOWANCE - profileSettings.monthly_voice_generations_used)
                                                     : 'N/A'}
                                                 {' / '}{PREMIUM_MONTHLY_VOICE_ALLOWANCE}
                                             </span>
                                         </div>
-                                        {/* Créditos comprados adicionales */}
-                                        <div className="flex justify-between items-center mt-1 px-2 pt-2 border-t border-[#A5D6F6]/20">
-                                            <span className="text-[#222] font-medium">Adicionales comprados:</span>
-                                            <span className="font-mono font-bold text-lg text-[#A5D6F6]">
+                                        {/* Additional purchased credits */}
+                                        <div className="flex justify-between items-center mt-1 px-2 pt-2 border-t border-gray-700/30">
+                                            <span className="text-gray-200 font-medium">Purchased credits:</span>
+                                            <span className="font-mono font-bold text-lg text-violet-400">
                                                 {profileSettings.voice_credits ?? 0}
                                             </span>
                                         </div>
-                                        {/* Texto explicativo actualizado */}
-                                        <div className="text-sm text-white mt-3 flex items-center bg-[#A5D6F6] p-2 rounded-lg">
-                                            <CalendarClock className="h-4 w-4 mr-2 text-white" />
-                                            <span>Recibes {PREMIUM_MONTHLY_VOICE_ALLOWANCE} narraciones con tu plan cada mes (próximo reinicio {resetDateString}). Los créditos que compres se añaden a tu cuenta, no caducan, y se utilizan cuando agotes los de tu plan.</span>
+                                        {/* Informational text */}
+                                        <div className="text-sm text-gray-200 mt-3 flex items-center bg-gradient-to-r from-violet-500/30 to-purple-600/30 p-2 rounded-lg border border-violet-500/20">
+                                            <CalendarClock className="h-4 w-4 mr-2 text-violet-400" />
+                                            <span>You receive {PREMIUM_MONTHLY_VOICE_ALLOWANCE} narrations with your plan each month (next reset {resetDateString}). Credits you purchase are added to your account, never expire, and are used when you exhaust your plan credits.</span>
                                         </div>
-                                        {/* Botón Comprar Créditos Voz (Premium user) */}
+                                        {/* Voice Credits Purchase Button (Premium user) */}
                                         <button
                                             onClick={() => handleCheckout('credits')}
                                             disabled={isCheckoutLoading}
-                                            className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-[#A5D6F6]/40 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex items-center justify-between w-full py-3 px-4 mt-3 bg-gradient-to-r from-violet-500/30 to-purple-600/30 rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border border-violet-500/20"
                                         >
-                                            <div className="flex items-center gap-2 text-white font-bold">
+                                            <div className="flex items-center gap-2 text-gray-200 font-bold">
                                                 <CreditCard className="h-4 w-4" />
-                                                <span>Comprar {VOICE_CREDITS_PACKAGE_AMOUNT} créditos más por {VOICE_CREDITS_PACKAGE_PRICE_EUR}€</span>
+                                                <span>Buy {VOICE_CREDITS_PACKAGE_AMOUNT} more credits for €{VOICE_CREDITS_PACKAGE_PRICE_EUR} 💳</span>
                                             </div>
                                             {isCheckoutLoading ? (
-                                                <div className="h-4 w-4 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
+                                                <div className="h-4 w-4 border-2 border-gray-200 border-t-transparent rounded-full animate-spin"></div>
                                             ) : (
-                                                <ChevronRight className="h-4 w-4 text-white" />
+                                                <ChevronRight className="h-4 w-4 text-gray-200" />
                                             )}
                                         </button>
                                     </div>
-                                    {/* Gestionar Suscripción (sin cambios) */}
+                                    {/* Manage Subscription */}
                                     {profileSettings.stripe_customer_id && (
-                                        <div className="border-t border-[#BB79D1]/10 pt-4">
+                                        <div className="border-t border-gray-700/50 pt-4">
                                             <button
                                                 onClick={handleManageSubscription}
                                                 disabled={isPortalLoading}
-                                                className="flex items-center justify-between w-full py-3 px-4 bg-[#f7c59f]/40 border border-[#f7c59f]/30 hover:bg-[#f7c59f]/60 text-white rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
+                                                className="flex items-center justify-between w-full py-3 px-4 bg-gradient-to-r from-pink-500/30 to-violet-500/30 border border-pink-500/30 hover:from-pink-500/40 hover:to-violet-500/40 text-gray-200 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg"
                                             >
                                                 {isPortalLoading ? (
-                                                    <div className="h-5 w-5 border-2 border-[#BB79D1] border-t-transparent rounded-full animate-spin"></div>
+                                                    <div className="h-5 w-5 border-2 border-gray-200 border-t-transparent rounded-full animate-spin"></div>
                                                 ) : (
                                                     <div className="flex items-center gap-2">
                                                         <Settings className="h-4 w-4" />
-                                                        <span>Gestionar Suscripción</span>
+                                                        <span>Manage Subscription 💳</span>
                                                     </div>
                                                 )}
                                                 <ChevronRight className="h-4 w-4" />
@@ -380,26 +380,26 @@ const SettingsPage: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        className="bg-white/40 backdrop-blur-md rounded-3xl border border-[#BB79D1]/20 shadow-xl overflow-hidden mb-10"
+                        className="bg-gray-900/90 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl ring-1 ring-gray-700/50 overflow-hidden mb-10"
                     >
-                        <div className="p-5 border-b border-[#BB79D1]/10 flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#BB79D1]/20 flex items-center justify-center">
-                                <Settings className="h-5 w-5 text-[#BB79D1]" />
+                        <div className="p-5 border-b border-gray-700/50 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                                <Settings className="h-5 w-5 text-pink-400" />
                             </div>
-                            <h2 className="text-xl font-semibold font-heading text-[#BB79D1]">General</h2>
+                            <h2 className="text-xl font-semibold font-heading text-gray-200">General</h2>
                         </div>
                         <div className="p-5">
                             <button
                                 onClick={handleLogout}
                                 disabled={isLogoutLoading}
-                                className="flex items-center justify-center w-full py-3 px-4 bg-[#F6A5B7] hover:bg-[#BB79D1] text-white rounded-2xl font-bold gap-2 transition-colors shadow-md"
+                                className="flex items-center justify-center w-full py-3 px-4 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white rounded-2xl font-bold gap-2 transition-all shadow-md hover:shadow-lg"
                             >
                                 {isLogoutLoading ? (
                                     <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 ) : (
                                     <>
                                         <LogOut className="h-4 w-4" />
-                                        <span>Cerrar Sesión</span>
+                                        <span>Sign Out</span>
                                     </>
                                 )}
                             </button>

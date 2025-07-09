@@ -7,12 +7,13 @@ import BackButton from '../components/BackButton';
 import StoryButton from '../components/StoryButton';
 import { supabase } from '../supabaseClient';
 import type { PresetSuggestion, StoryFormat } from '../types';
-import { RefreshCw, Sparkles } from 'lucide-react';
+import { RefreshCw, Sparkles, Droplets, Flame, Zap } from 'lucide-react';
 
 const StoryDetailsInput: React.FC = () => {
   const [detailsText, setDetailsText] = useState('');
   const [format, setFormatState] = useState<StoryFormat>('episodic'); // Default to episodic
-  const { setAdditionalDetails, setFormat } = useStoryOptionsStore();
+  const [spicynessLevel, setSpicynessLevelState] = useState<number>(2); // Default to moderate
+  const { setAdditionalDetails, setFormat, setSpicynessLevel } = useStoryOptionsStore();
   const navigate = useNavigate();
 
   // --- State for Presets ---
@@ -74,8 +75,9 @@ const StoryDetailsInput: React.FC = () => {
       setAdditionalDetails(undefined); // Treat as skipped if empty
     }
     
-    // Set the selected format in the store
+    // Set the selected format and spiciness level in the store
     setFormat(format);
+    setSpicynessLevel(spicynessLevel);
     
     navigate('/generating'); // Navigate to the generation screen
   };
@@ -202,6 +204,66 @@ const StoryDetailsInput: React.FC = () => {
                 </div>
               )}
             </motion.div>
+          </motion.div>
+          
+          {/* Spiciness Level Selector */}
+          <motion.div
+            className="mb-6 w-full"
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: 0.25 }}
+          >
+            <p className="text-gray-400 text-center mb-3">Choose your spiciness level 🌶️</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Level 1: Sensual */}
+              <button
+                onClick={() => setSpicynessLevelState(1)}
+                className={`p-4 rounded-lg border-2 transition-all text-center ${
+                  spicynessLevel === 1
+                    ? 'border-blue-500 bg-blue-500/20 ring-2 ring-blue-500/50'
+                    : 'border-gray-700 bg-gray-800/50 hover:border-blue-400 hover:bg-blue-400/10'
+                }`}
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <Droplets className="w-5 h-5 text-blue-400 mr-2" />
+                  <span className="font-semibold text-blue-300">Sensual</span>
+                </div>
+                <span className="text-sm text-gray-400">Suggestive and elegant</span>
+              </button>
+              
+              {/* Level 2: Passionate */}
+              <button
+                onClick={() => setSpicynessLevelState(2)}
+                className={`p-4 rounded-lg border-2 transition-all text-center ${
+                  spicynessLevel === 2
+                    ? 'border-violet-500 bg-violet-500/20 ring-2 ring-violet-500/50'
+                    : 'border-gray-700 bg-gray-800/50 hover:border-violet-400 hover:bg-violet-400/10'
+                }`}
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <Flame className="w-5 h-5 text-violet-400 mr-2" />
+                  <span className="font-semibold text-violet-300">Passionate</span>
+                </div>
+                <span className="text-sm text-gray-400">Explicit but balanced</span>
+              </button>
+              
+              {/* Level 3: Intense */}
+              <button
+                onClick={() => setSpicynessLevelState(3)}
+                className={`p-4 rounded-lg border-2 transition-all text-center ${
+                  spicynessLevel === 3
+                    ? 'border-pink-500 bg-pink-500/20 ring-2 ring-pink-500/50'
+                    : 'border-gray-700 bg-gray-800/50 hover:border-pink-400 hover:bg-pink-400/10'
+                }`}
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <Zap className="w-5 h-5 text-pink-400 mr-2" />
+                  <span className="font-semibold text-pink-300">Intense</span>
+                </div>
+                <span className="text-sm text-gray-400">Very explicit and graphic</span>
+              </button>
+            </div>
           </motion.div>
           
           {/* Format Selector */}
