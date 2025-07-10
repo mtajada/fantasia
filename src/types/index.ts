@@ -35,6 +35,7 @@ export type StoryCharacter = {
   description: string;
   created_at?: string;
   updated_at?: string;
+  is_preset?: boolean; // Identifies preset characters vs user-created characters
 }
 
 
@@ -55,6 +56,7 @@ export type Story = {
   options: StoryOptions;
   createdAt: string;
   additional_details?: string | null;
+  characters_data?: StoryCharacter[]; // Complete array of characters used in the story
 }
 
 export type User = {

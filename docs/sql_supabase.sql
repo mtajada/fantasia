@@ -96,6 +96,7 @@ CREATE TABLE public.stories (
     story_format public.story_format NOT NULL DEFAULT 'single'::public.story_format,
     cover_image_url text NULL, -- For future use with image generation.
     character_id uuid NULL,
+    characters_data jsonb NULL, -- Complete array of characters used in the story (1-4 characters). Stores full character objects including preset character data.
     additional_details text NULL, -- For the final optional customization prompt.
     spiciness_level integer NOT NULL DEFAULT 2, -- Adult content intensity level (1=Sensual, 2=Passionate, 3=Intense)
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -108,6 +109,7 @@ CREATE TABLE public.stories (
 COMMENT ON COLUMN public.stories.story_format IS 'Indicates if the story is a single one-off or episodic with chapters.';
 COMMENT ON COLUMN public.stories.genre IS 'Story genre. Can be a preset (e.g., Erotic Romance) or a custom user value.';
 COMMENT ON COLUMN public.stories.cover_image_url IS 'URL for the story''s cover image. Functionality disabled for now but schema is ready.';
+COMMENT ON COLUMN public.stories.characters_data IS 'Complete array of characters used in the story (1-4 characters). Stores full character objects including preset character data.';
 
 
 -- Tables with no structural changes (recreated for a clean script) --
@@ -166,6 +168,14 @@ CREATE TABLE public.user_voices (
     CONSTRAINT user_voices_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
+
+-- =============================================================================
+-- STEP 3.5: CREATE PERFORMANCE INDEXES
+-- =============================================================================
+
+-- GIN index for efficient JSONB queries on characters_data field
+CREATE INDEX IF NOT EXISTS idx_stories_characters_data_gin 
+ON public.stories USING GIN (characters_data);
 
 -- =============================================================================
 -- STEP 4: ENABLE AND CONFIGURE ROW LEVEL SECURITY (RLS)
@@ -347,6 +357,48 @@ CREATE TRIGGER trigger_story_chapters_updated_at
 CREATE TRIGGER trigger_user_voices_updated_at
     BEFORE UPDATE ON public.user_voices
     FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
+
+
+-- =============================================================================
+-- ||                      CHARACTERS_DATA USAGE EXAMPLES                      ||
+-- =============================================================================
+
+-- IMPORTANT: The characters_data field was added via separate migration script.
+-- It stores complete character arrays for stories with multiple characters (1-4).
+
+-- Example 1: Insert a story with multiple characters
+-- INSERT INTO stories (user_id, title, content, characters_data, character_id, genre, story_format)
+-- VALUES (
+--     'user-uuid-here',
+--     'My Story',
+--     'Story content...',
+--     '[
+--         {"id": "char-1", "name": "Alice", "gender": "female", "description": "Beautiful", "is_preset": false},
+--         {"id": "char-2", "name": "Valentina", "gender": "female", "description": "Sultry influencer", "is_preset": true}
+--     ]'::jsonb,
+--     'char-1',  -- Primary character for compatibility (NULL for preset-only stories)
+--     'Romance',
+--     'single'
+-- );
+
+-- Example 2: Query stories by character name
+-- SELECT * FROM stories 
+-- WHERE characters_data @> '[{"name": "Valentina"}]';
+
+-- Example 3: Query stories with preset characters
+-- SELECT * FROM stories 
+-- WHERE characters_data @> '[{"is_preset": true}]';
+
+-- Example 4: Count characters in story
+-- SELECT title, jsonb_array_length(characters_data) as character_count
+-- FROM stories 
+-- WHERE characters_data IS NOT NULL;
+
+-- Example 5: Find stories with specific character combinations
+-- SELECT title, characters_data
+-- FROM stories 
+-- WHERE characters_data @> '[{"name": "Akira"}]' 
+--   AND characters_data @> '[{"name": "Elena"}]';
 
 
 -- =============================================================================

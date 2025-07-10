@@ -1,21 +1,18 @@
 // src/store/stories/storyGenerator.ts
 import { toast } from "sonner";
 import { Story, StoryOptions, StoryChapter } from "../../types";
-import { useStoriesStore } from "./storiesStore";
 import { useUserStore } from "../user/userStore";
 import { charactersService } from "../../services/charactersService";
 import { useStoryOptionsStore } from "../storyOptions/storyOptionsStore";
 import { generateId } from "../core/utils";
 import { GenerateStoryService, GenerateStoryParams } from "@/services/ai/GenerateStoryService";
-import { useChaptersStore } from "./chapters/chaptersStore";
+import { createStoryDirectly, createChapterDirectly } from "../../services/supabase";
 import { StoryCharacter } from "../../types";
 
 /**
  * Genera una historia completa (Capítulo 1 + Título) a partir de las opciones
  */
 export const generateStory = async (options: Partial<StoryOptions>): Promise<Story | null> => {
-  const storiesStore = useStoriesStore.getState();
-  const chaptersStore = useChaptersStore.getState();
   const storyOptionsState = useStoryOptionsStore.getState();
   const userStore = useUserStore.getState();
 
@@ -23,7 +20,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
   console.log("🔍 DEBUG - Detalles Adicionales:", storyOptionsState.additionalDetails);
   console.log("🔍 DEBUG - Spiciness level from options:", options.spiciness_level);
 
-  storiesStore.setIsGeneratingStory(true);
+  // Note: No longer using storiesStore.setIsGeneratingStory - state management will be handled differently
 
   // Declare variables outside try block to make them accessible in catch block
   let selectedCharacters: StoryCharacter[] = [];
@@ -121,17 +118,27 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       },
       additional_details: additionalDetails,
       createdAt: new Date().toISOString(),
+      characters_data: selectedCharacters, // Store complete character array for database
       // audioUrl se añadirá después si se genera
     };
 
     console.log("🔍 DEBUG - Story Created:", JSON.stringify(story.options, null, 2));
     console.log(`[storyGenerator_DEBUG] Title being saved to store: "${story.title}"`);
 
-    // 1. Save the main story (as before)
-    // Save the generated story in the store
-    await storiesStore.addGeneratedStory(story);
+    // 1. Save the main story FIRST using direct database insertion
+    try {
+      const storyResult = await createStoryDirectly(user.id, story);
+      if (!storyResult.success) {
+        throw new Error(`Story creation failed: ${storyResult.error?.message || 'Unknown error'}`);
+      }
+      console.log("🔍 DEBUG - Story saved successfully, now creating chapter");
+    } catch (storyError) {
+      console.error("🔍 DEBUG - Story save failed:", storyError);
+      // If story save fails, we can't proceed with chapter creation
+      throw storyError;
+    }
 
-    // 2. Create and save Chapter 1
+    // 2. Create and save Chapter 1 AFTER story is confirmed saved
     const firstChapter: StoryChapter = {
       id: generateId(),
       chapterNumber: 1,
@@ -141,7 +148,20 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       createdAt: new Date().toISOString(),
       // customInput doesn't apply here
     };
-    await chaptersStore.addChapter(story.id, firstChapter);
+    
+    // Ensure chapter is saved after story - now it should work
+    try {
+      const chapterResult = await createChapterDirectly(story.id, firstChapter);
+      if (!chapterResult.success) {
+        throw new Error(`Chapter creation failed: ${chapterResult.error?.message || 'Unknown error'}`);
+      }
+      console.log("🔍 DEBUG - Chapter saved successfully");
+    } catch (chapterError) {
+      console.error("🔍 DEBUG - Chapter save failed:", chapterError);
+      // Chapter save failure is not critical - story was saved successfully
+      console.warn("🔍 DEBUG - Chapter creation failed but story was saved");
+      // We don't throw here because the story generation was successful
+    }
 
     // Clear temporarily stored story options and sessionStorage
     storyOptionsState.resetStoryOptions();
@@ -176,7 +196,5 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     }
     
     return null;
-  } finally {
-    storiesStore.setIsGeneratingStory(false);
   }
 };

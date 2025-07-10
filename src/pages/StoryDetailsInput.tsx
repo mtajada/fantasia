@@ -320,12 +320,12 @@ const StoryDetailsInput: React.FC = () => {
           </motion.div>
           
           {/* Generate Story Button */} 
-          <div className="w-full max-w-xs mt-6">
+          <div className="w-full max-w-sm sm:max-w-xs mt-6">
             <StoryButton
               onClick={handleGenerate}
               className="w-full"
             >
-              Let's make magic! 🪄
+              Create My Story ✨
             </StoryButton>
           </div>
         </div>

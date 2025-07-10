@@ -5,9 +5,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Share, Volume2, Home, BookOpen, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { useStoriesStore } from "../store/stories/storiesStore";
-import { useChaptersStore } from "../store/stories/chapters/chaptersStore";
 import { useUserStore } from "../store/user/userStore"; // Importar para los selectores de límites
+import { getStoryDirectly, getChaptersDirectly } from "../services/supabase"; // Direct Supabase functions
 import BackButton from "../components/BackButton";
 import PageTransition from "../components/PageTransition";
 import { toast } from "sonner"; // Asegurarse que toast está importado
@@ -19,18 +18,16 @@ export default function StoryViewer() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { getStoryById, isLoadingStories } = useStoriesStore(state => ({
-    getStoryById: state.getStoryById,
-    isLoadingStories: state.isLoadingStories,
-  }));
-  const { getChaptersByStoryId } = useChaptersStore();
+  
   // --- Obtener selectores de límites/permisos del userStore ---
-  const { canContinueStory, canGenerateVoice } = useUserStore();
+  const { canContinueStory, canGenerateVoice, user } = useUserStore();
 
   // Estado local
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [chapters, setChapters] = useState<StoryChapter[]>([]);
-  const [story, setStory] = useState<Story | null>(null); // Para pasar al servicio de desafío/continuación
+  const [story, setStory] = useState<Story | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // --- Permisos derivados del store ---
   // Estos se actualizan reactivamente si el estado del userStore cambia
@@ -40,53 +37,92 @@ export default function StoryViewer() {
   // --- Cálculo para saber si es el último capítulo ---
   const isLastChapter = chapters.length > 0 && currentChapterIndex === chapters.length - 1;
 
-  // --- Efecto para cargar historia y capítulos ---
+  // --- Efecto para cargar historia y capítulos DIRECTAMENTE desde Supabase ---
   useEffect(() => {
-    if (!storyId) { navigate("/home", { replace: true }); return; }
-
-    // Esperar a que las historias terminen de cargarse
-    if (isLoadingStories) {
-      return;
-    }
-
-    const fetchedStory = getStoryById(storyId);
-
-    if (!fetchedStory) {
-      navigate("/not-found", { replace: true });
-      return;
-    }
-    setStory(fetchedStory);
-
-    const storyChapters = getChaptersByStoryId(storyId);
-    let chaptersToSet: StoryChapter[];
-    if (storyChapters.length === 0 && fetchedStory.content) {
-      chaptersToSet = [{
-        id: generateId(),
-        chapterNumber: 1,
-        title: fetchedStory.title || "Capítulo 1",
-        content: fetchedStory.content,
-        createdAt: fetchedStory.createdAt
-      }];
-    } else {
-      chaptersToSet = [...storyChapters].sort((a, b) => a.chapterNumber - b.chapterNumber);
-    }
-    setChapters(chaptersToSet);
-
-    const searchParams = new URLSearchParams(location.search);
-    const chapterParam = searchParams.get('chapter');
-    let initialIndex = chaptersToSet.length > 0 ? chaptersToSet.length - 1 : 0;
-    if (chapterParam !== null) {
-      const chapterIndex = parseInt(chapterParam, 10);
-      if (!isNaN(chapterIndex) && chapterIndex >= 0 && chapterIndex < chaptersToSet.length) {
-        initialIndex = chapterIndex;
+    const loadStoryAndChapters = async () => {
+      if (!storyId) { 
+        navigate("/home", { replace: true }); 
+        return; 
       }
-    }
-    setCurrentChapterIndex(initialIndex);
 
-  }, [storyId, location.search, getStoryById, getChaptersByStoryId, navigate, isLoadingStories]);
+      if (!user?.id) {
+        setIsLoading(true);
+        return; // Wait for user to be loaded
+      }
 
-  if (isLoadingStories) {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Load story directly from Supabase
+        console.log(`🔍 DEBUG - Loading story ${storyId} for user ${user.id}`);
+        const storyResult = await getStoryDirectly(user.id, storyId);
+        
+        if (!storyResult.success || !storyResult.story) {
+          console.error(`🔍 DEBUG - Story not found: ${storyResult.error?.message}`);
+          setError("Story not found");
+          navigate("/not-found", { replace: true });
+          return;
+        }
+
+        const fetchedStory = storyResult.story;
+        setStory(fetchedStory);
+        console.log(`🔍 DEBUG - Story loaded: "${fetchedStory.title}"`);
+
+        // Load chapters directly from Supabase
+        const chaptersResult = await getChaptersDirectly(storyId);
+        let chaptersToSet: StoryChapter[];
+
+        if (chaptersResult.success && chaptersResult.chapters && chaptersResult.chapters.length > 0) {
+          // Use chapters from database
+          chaptersToSet = [...chaptersResult.chapters].sort((a, b) => a.chapterNumber - b.chapterNumber);
+          console.log(`🔍 DEBUG - Loaded ${chaptersToSet.length} chapters from database`);
+        } else if (fetchedStory.content) {
+          // Fallback: Create chapter from story content
+          chaptersToSet = [{
+            id: generateId(),
+            chapterNumber: 1,
+            title: fetchedStory.title || "Capítulo 1",
+            content: fetchedStory.content,
+            createdAt: fetchedStory.createdAt
+          }];
+          console.log(`🔍 DEBUG - Created fallback chapter from story content`);
+        } else {
+          chaptersToSet = [];
+          console.warn(`🔍 DEBUG - No chapters or content found for story ${storyId}`);
+        }
+
+        setChapters(chaptersToSet);
+
+        // Handle chapter navigation from URL params
+        const searchParams = new URLSearchParams(location.search);
+        const chapterParam = searchParams.get('chapter');
+        let initialIndex = chaptersToSet.length > 0 ? chaptersToSet.length - 1 : 0;
+        if (chapterParam !== null) {
+          const chapterIndex = parseInt(chapterParam, 10);
+          if (!isNaN(chapterIndex) && chapterIndex >= 0 && chapterIndex < chaptersToSet.length) {
+            initialIndex = chapterIndex;
+          }
+        }
+        setCurrentChapterIndex(initialIndex);
+
+      } catch (error) {
+        console.error(`🔍 DEBUG - Error loading story:`, error);
+        setError(error instanceof Error ? error.message : "Error loading story");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStoryAndChapters();
+  }, [storyId, location.search, navigate, user?.id]);
+
+  if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center text-white" style={{backgroundColor: 'black'}}>Loading story...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-white" style={{backgroundColor: 'black'}}>Error: {error}</div>;
   }
 
   if (!story) {
