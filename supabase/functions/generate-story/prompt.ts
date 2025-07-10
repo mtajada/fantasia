@@ -147,16 +147,13 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
     request += `4. **Adult Content Guidelines:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Build tension and desire naturally through the narrative.\n`;
     request += `5. **Character Development:** Create believable, complex characters with desires and motivations. Show their emotional journey alongside the physical story.\n`;
     
-    const languageName = getLanguageName(language);
-    request += `6. **Title:** Generate an extraordinary title (memorable, evocative, intriguing). The title should follow "Sentence case" style. The title must be written in the same language selected for the story: ${languageName}.\n`;
-
-    // JSON format instructions (unchanged)
+    // JSON format instructions - simplified title handling
     request += `\n**Response format instructions (VERY IMPORTANT!):**\n`;
     request += `* You must respond with a SINGLE JSON object.\n`;
     request += `* The JSON object must have exactly two keys: "title" and "content".\n`;
-    request += `* The "title" key value should be a string containing ONLY the generated title (ideally 4-7 words), following the title guidelines above (${languageName} language, "Sentence case").\n`;
+    request += `* The "title" key value should be a string containing a short, sensual title (2-4 words maximum) that captures the story's essence.\n`;
     request += `* The "content" key value should be a string with ALL the story content, starting directly with the first sentence of the story.\n`;
-    request += `* Example of expected JSON format: {"title": "An extraordinary title here", "content": "Once upon a time in a distant place..."}\n`;
+    request += `* Example of expected JSON format: {"title": "Story title here", "content": "Story content starts here..."}\n`;
     request += `* Do NOT include ANYTHING before the '{' character that starts the JSON object.\n`;
     request += `* Do NOT include ANYTHING after the '}' character that ends the JSON object.\n`;
     request += `* Ensure the JSON is valid and complete.\n`;
