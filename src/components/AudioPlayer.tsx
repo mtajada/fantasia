@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
-import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ai/ttsService";
+import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ai/secureTtsService";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
