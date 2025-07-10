@@ -25,8 +25,6 @@ export default defineConfig(({ mode }) => {
     },
     envDir: './',
     envPrefix: 'VITE_',
-    define: {
-      'process.env.VITE_ELEVENLABS_API_KEY': JSON.stringify(env.VITE_ELEVENLABS_API_KEY),
-    }
+    // REMOVED: VITE_ELEVENLABS_API_KEY definition - API keys moved to secure Supabase secrets
   };
 });

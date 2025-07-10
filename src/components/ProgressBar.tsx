@@ -19,7 +19,7 @@ export default function ProgressBar({ current, total }: ProgressBarProps) {
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="h-full bg-primary-orange rounded-full"
+          className="h-full bg-gradient-to-r from-pink-500 to-violet-500 rounded-full"
         />
       </div>
     </div>

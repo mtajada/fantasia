@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ai/ttsService";
+import { generateSpeech, OPENAI_VOICES, OpenAIVoiceType } from "@/services/ai/secureTtsService";
 import { useAudioStore } from "@/store/stories/audio/audioStore";
 import { useUserStore } from "@/store/user/userStore";
 import { toast } from "sonner";

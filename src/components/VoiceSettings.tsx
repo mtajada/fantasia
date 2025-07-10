@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Volume2, ChevronDown, AlertCircle } from 'lucide-react';
-import { getAvailableVoices } from '../services/ai/ttsService';
+import { getAvailableVoices } from '../services/ai/secureTtsService';
 import { useUserStore } from '../store/user/userStore';
 
 interface Voice {
