@@ -53,30 +53,41 @@ export default function CharacterSelection() {
   // Load characters from Supabase directly
   useEffect(() => {
     const loadCharacters = async () => {
-      console.log("[DEBUG] CharacterSelection montado - cargando personajes directamente desde Supabase");
+      console.log("[DEBUG] CharacterSelection mounted - loading characters directly from Supabase");
       setIsLoading(true);
       setError(null);
 
       if (!user) {
-        console.error("[DEBUG] No hay usuario autenticado para cargar personajes");
-        setError("No hay usuario autenticado");
+        console.error("[DEBUG] No authenticated user to load characters");
+        setError("No authenticated user");
         setIsLoading(false);
         return;
       }
 
       try {
-        const { success, characters: loadedCharacters, error: loadError } = await getUserCharacters(user.id);
+        const loadedCharacters = await charactersService.getAllCharacters(user.id);
         
-        if (success && loadedCharacters) {
-          setCharacters(loadedCharacters);
-          console.log(`[DEBUG] Loaded ${loadedCharacters.length} characters for user ${user.id}`);
-        } else {
-          console.error("[DEBUG] Error loading characters:", loadError);
-          setError("Error loading characters");
-        }
+        // Sort characters: preset characters first (females first, then males), then user characters
+        const sortedCharacters = loadedCharacters.sort((a, b) => {
+          // If both are preset or both are user characters, sort by gender (females first)
+          if (a.is_preset === b.is_preset) {
+            if (a.is_preset) {
+              // For preset characters: females first, then males
+              if (a.gender === 'female' && b.gender !== 'female') return -1;
+              if (a.gender !== 'female' && b.gender === 'female') return 1;
+              return 0;
+            }
+            return 0; // Keep user characters in original order
+          }
+          // Preset characters come first
+          return a.is_preset ? -1 : 1;
+        });
+        
+        setCharacters(sortedCharacters);
+        console.log(`[DEBUG] Loaded ${sortedCharacters.length} total characters (preset + user) for user ${user.id}`);
       } catch (err) {
         console.error("[DEBUG] Unexpected error loading characters:", err);
-        setError("Unexpected error loading characters");
+        setError("Error loading characters");
       } finally {
         setIsLoading(false);
       }
@@ -143,20 +154,20 @@ export default function CharacterSelection() {
         <BackButton />
 
         <div className="w-full max-w-2xl mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-[#BB79D1] text-center mb-4 font-heading drop-shadow-lg">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
             Choose Your Characters
           </h1>
 
-          <p className="text-lg text-[#222] bg-white/80 rounded-xl px-4 py-2 text-center mb-6 font-medium shadow-sm">
+          <p className="text-lg text-gray-200 bg-gray-900/80 backdrop-blur-md border border-gray-800 rounded-xl px-4 py-2 text-center mb-6 font-medium shadow-lg">
             ✨ Select up to 4 characters for your erotic story! For intimate tales, fewer characters create more passionate focus.
           </p>
 
           {/* Selection counter */}
           {selectedCharacters.length > 0 && (
             <div className="flex justify-center mb-6">
-              <div className="flex items-center gap-3 px-4 py-2 bg-white/70 rounded-xl border-2 border-[#BB79D1]/60 shadow-sm">
-                <Users size={20} className="text-[#BB79D1]" />
-                <span className="text-[#222] font-medium">
+              <div className="flex items-center gap-3 px-4 py-2 bg-gray-900/90 backdrop-blur-md border border-violet-500/60 rounded-xl shadow-lg ring-1 ring-violet-500/20">
+                <Users size={20} className="text-violet-400" />
+                <span className="text-gray-200 font-medium">
                   {selectedCharacters.length}/4 characters selected
                 </span>
               </div>
@@ -165,21 +176,21 @@ export default function CharacterSelection() {
 
           {/* Selection message */}
           <div className="text-center mb-4">
-            <p className="text-[#555] bg-white/60 rounded-lg px-3 py-2 text-sm">
+            <p className="text-gray-300 bg-gray-900/60 backdrop-blur-md border border-gray-800 rounded-lg px-3 py-2 text-sm shadow-md">
               {charactersService.getCharacterSelectionMessage(selectedCharacters.length)}
             </p>
           </div>
 
           {isLoading ? (
-            <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
-              <div className="text-[#BB79D1] font-medium">Loading characters...</div>
+            <div className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 shadow-lg mb-8">
+              <div className="text-violet-400 font-medium">Loading characters...</div>
             </div>
           ) : error ? (
-            <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
-              <div className="text-red-500 font-medium">{error}</div>
+            <div className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 shadow-lg mb-8">
+              <div className="text-red-400 font-medium">{error}</div>
               <button 
                 onClick={() => window.location.reload()} 
-                className="mt-2 text-[#BB79D1] underline"
+                className="mt-2 text-violet-400 underline hover:text-violet-300 transition-colors"
               >
                 Retry
               </button>
@@ -196,22 +207,27 @@ export default function CharacterSelection() {
                   <div
                     onClick={handleCreateNewCharacter}
                     className="flex flex-col items-center justify-center p-6 h-40 cursor-pointer
-                      bg-white/70 rounded-2xl border-2 border-[#F6A5B7]/60
-                      hover:bg-[#F6A5B7]/10 hover:scale-105 hover:shadow-md
-                      transition-all duration-300"
+                      bg-gray-900/80 backdrop-blur-md border-2 border-pink-500/60 rounded-2xl
+                      hover:bg-pink-500/10 hover:scale-105 hover:shadow-lg hover:border-pink-400
+                      transition-all duration-300 shadow-md ring-1 ring-gray-700/50"
                   >
-                    <Plus size={40} className="text-[#F6A5B7] mb-2" />
-                    <span className="text-[#222] text-center font-medium">Create New</span>
+                    <Plus size={40} className="text-pink-400 mb-2" />
+                    <span className="text-gray-200 text-center font-medium">Create New</span>
                   </div>
                 </motion.div>
 
                 {characters.map((character) => {
                   const isSelected = isCharacterSelected(character.id);
                   const canSelect = canSelectMoreCharacters() || isCharacterSelected(character.id);
+                  const isPreset = character.is_preset === true;
                   
                   // Gender icon mapping
                   const genderIcon = character.gender === 'male' ? '♂' : character.gender === 'female' ? '♀' : '⚧';
                   const genderText = character.gender === 'male' ? 'Male' : character.gender === 'female' ? 'Female' : 'Non-binary';
+
+                  // Define border and styling based on preset status
+                  const borderColor = isPreset ? '#f59e0b' : '#6366f1'; // Amber for preset, indigo for user
+                  const hoverColor = isPreset ? '#f59e0b' : '#6366f1';
 
                   return (
                     <motion.div key={character.id} variants={item}>
@@ -219,12 +235,29 @@ export default function CharacterSelection() {
                         onClick={() => canSelect && handleSelectCharacter(character.id)}
                         className={`
                           relative flex flex-col items-center justify-center p-6 h-40 cursor-pointer
-                          bg-white/70 rounded-2xl border-2 transition-all duration-300
+                          bg-gray-900/80 backdrop-blur-md rounded-2xl border-2 transition-all duration-300
+                          shadow-md ring-1 ring-gray-700/50
                           ${isSelected
-                            ? 'border-[#BB79D1]/80 bg-[#BB79D1]/20 ring-4 ring-[#BB79D1]/50 shadow-lg transform scale-105'
-                            : 'border-[#7DC4E0]/60 hover:bg-[#7DC4E0]/10 hover:scale-105 hover:shadow-md'}
+                            ? 'border-violet-500/80 bg-violet-500/20 ring-4 ring-violet-500/50 shadow-lg transform scale-105'
+                            : !canSelect 
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'hover:scale-105 hover:shadow-lg'}
                           ${!canSelect ? 'opacity-50 cursor-not-allowed' : ''}
                         `}
+                        style={{
+                          borderColor: isSelected ? '#8b5cf6' : borderColor,
+                          backgroundColor: isSelected ? 'rgba(139, 92, 246, 0.2)' : 'rgba(17, 24, 39, 0.8)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected && canSelect) {
+                            e.currentTarget.style.backgroundColor = isPreset ? 'rgba(245, 158, 11, 0.1)' : 'rgba(99, 102, 241, 0.1)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(17, 24, 39, 0.8)';
+                          }
+                        }}
                       >
                         {/* Always visible checkbox */}
                         <div className="absolute top-2 right-2">
@@ -235,28 +268,33 @@ export default function CharacterSelection() {
                                 handleSelectCharacter(character.id);
                               }
                             }}
-                            className="w-5 h-5 border-2 border-[#BB79D1] data-[state=checked]:bg-[#BB79D1] data-[state=checked]:border-[#BB79D1]"
+                            className="w-5 h-5 border-2 border-violet-500 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500"
                           />
                         </div>
 
                         {/* Character icon */}
                         {isSelected ? (
-                          <UserCheck size={40} className="text-[#BB79D1] mb-2" />
+                          <UserCheck size={40} className="text-violet-400 mb-2" />
                         ) : (
-                          <User size={40} className="text-[#7DC4E0] mb-2" />
+                          <User size={40} className={isPreset ? "text-amber-500 mb-2" : "text-indigo-400 mb-2"} />
                         )}
 
-                        <span className="text-[#222] text-center font-medium">{character.name}</span>
+                        <span className="text-gray-200 text-center font-medium">
+                          {character.name}
+                          {isPreset && <span className="ml-1 text-amber-400 text-xs">★</span>}
+                        </span>
                         <div className="text-center">
-                          <span className="text-[#7DC4E0] text-xs font-medium">{genderIcon} {genderText}</span>
-                          <p className="text-[#555] text-xs mt-1 line-clamp-2">
+                          <span className={`text-xs font-medium ${isPreset ? 'text-amber-400' : 'text-indigo-400'}`}>
+                            {genderIcon} {genderText}
+                          </span>
+                          <p className="text-gray-400 text-xs mt-1 line-clamp-2">
                             {character.description || 'No description'}
                           </p>
                         </div>
 
                         {/* Selected badge */}
                         {isCharacterSelected(character.id) && (
-                          <Badge className="absolute -top-2 -left-2 bg-[#BB79D1] text-white text-xs">
+                          <Badge className="absolute -top-2 -left-2 bg-violet-500 text-white text-xs shadow-lg">
                             ✓
                           </Badge>
                         )}
@@ -268,7 +306,7 @@ export default function CharacterSelection() {
 
               {characters.length === 0 && (
                 <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
-                  <div className="text-[#555] font-medium">You don't have any saved characters. Create a new one!</div>
+                  <div className="text-[#555] font-medium">No characters available. Create a new one to get started!</div>
                 </div>
               )}
 
