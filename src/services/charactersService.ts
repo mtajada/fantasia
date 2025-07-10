@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { StoryCharacter } from '../types';
-import { getUserCharacters, syncCharacter, deleteCharacter as deleteSupabaseCharacter } from './supabase';
+import { getUserCharacters, getAllCharacters, syncCharacter, deleteCharacter as deleteSupabaseCharacter } from './supabase';
 
 // Validation constants
 export const CHARACTER_LIMITS = {
@@ -220,6 +220,18 @@ export const charactersService = {
     if (!success) {
       console.error('Error fetching characters:', error);
       throw new Error(error?.message || 'Error fetching characters');
+    }
+    
+    return characters || [];
+  },
+
+  // Get all characters (preset + user characters)
+  async getAllCharacters(userId: string): Promise<StoryCharacter[]> {
+    const { success, characters, error } = await getAllCharacters(userId);
+    
+    if (!success) {
+      console.error('Error fetching all characters:', error);
+      throw new Error(error?.message || 'Error fetching all characters');
     }
     
     return characters || [];

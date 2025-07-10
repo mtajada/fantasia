@@ -23,20 +23,28 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
 
     addGeneratedStory: async (story) => {
       console.log("🚀 ~ addGeneratedStory: ~ story:", story)
+      
       // Guardar localmente primero
       set((state) => ({
         generatedStories: [story, ...state.generatedStories],
       }));
 
-      // Luego sincronizar con Supabase
+      // Luego sincronizar con Supabase y esperar el resultado
       try {
         const user = useUserStore.getState().user;
 
         if (user) {
-          const { success } = await syncStory(user.id, story);
+          console.log("🔍 DEBUG - Attempting to sync story to database");
+          const { success, error } = await syncStory(user.id, story);
 
-          if (!success) {
+          if (success) {
+            console.log("🔍 DEBUG - Story sync successful");
+          } else {
+            console.warn("🔍 DEBUG - Story sync failed, adding to queue");
             // Si falla, agregar a la cola de sincronización
+            const primaryCharacter = story.options.characters[0];
+            const characterId = primaryCharacter && !primaryCharacter.is_preset ? primaryCharacter.id : null;
+            
             syncQueue.addToQueue("stories", "insert", {
               id: story.id,
               user_id: user.id,
@@ -45,13 +53,20 @@ export const useStoriesStore = createPersistentStore<StoriesState>(
               audio_url: story.audioUrl,
               genre: story.options.genre,
               story_format: story.options.format,
-              character_id: story.options.characters[0]?.id, // Primary character
+              character_id: characterId, // Only user-created characters, null for preset characters
+              characters_data: story.characters_data || story.options.characters, // Complete character array
               additional_details: story.additional_details,
             });
+            
+            // Throw error to inform calling code that sync failed
+            throw new Error(`Story sync failed: ${error?.message || 'Unknown error'}`);
           }
+        } else {
+          throw new Error("No authenticated user found");
         }
       } catch (error) {
         console.error("Error sincronizando historia con Supabase:", error);
+        throw error; // Re-throw to allow caller to handle
       }
     },
 

@@ -212,6 +212,76 @@ export const getUserCharacters = async (userId: string): Promise<{ success: bool
     }
 };
 
+export const getPresetCharacters = async (): Promise<{ success: boolean; characters?: StoryCharacter[]; error?: any }> => {
+    try {
+        console.log(`[DEBUG] Consultando personajes preset`);
+        const { data, error } = await supabase
+            .from("preset_characters")
+            .select("*")
+            .order('gender', { ascending: false }) // Females first, then males
+            .order('name', { ascending: true });
+
+        if (error) {
+            console.error(`[DEBUG] Error en consulta de personajes preset:`, error);
+            throw error;
+        }
+
+        console.log(`[DEBUG] Personajes preset encontrados: ${data?.length || 0}`);
+        const characters: StoryCharacter[] = data ? data.map((char) => ({
+            id: char.id,
+            name: char.name,
+            gender: char.gender,
+            description: char.description || '',
+            created_at: char.created_at,
+            updated_at: char.updated_at,
+            is_preset: true, // Mark as preset character
+        })) : [];
+
+        return { success: true, characters: characters };
+    } catch (error) {
+        console.error("Fallo general en getPresetCharacters:", error);
+        return { success: false, error };
+    }
+};
+
+export const getAllCharacters = async (userId: string): Promise<{ success: boolean; characters?: StoryCharacter[]; error?: any }> => {
+    try {
+        console.log(`[DEBUG] Consultando todos los personajes (preset + usuario) para ${userId}`);
+        
+        // Get user characters and preset characters in parallel
+        const [userCharsResult, presetCharsResult] = await Promise.all([
+            getUserCharacters(userId),
+            getPresetCharacters()
+        ]);
+
+        // Check for errors
+        if (!userCharsResult.success) {
+            console.error(`[DEBUG] Error obteniendo personajes de usuario:`, userCharsResult.error);
+            return userCharsResult;
+        }
+
+        if (!presetCharsResult.success) {
+            console.error(`[DEBUG] Error obteniendo personajes preset:`, presetCharsResult.error);
+            // If preset characters fail, still return user characters
+            console.warn(`[DEBUG] Continuando solo con personajes de usuario`);
+            return userCharsResult;
+        }
+
+        // Combine characters: preset first, then user characters
+        const allCharacters = [
+            ...(presetCharsResult.characters || []),
+            ...(userCharsResult.characters || []).map(char => ({ ...char, is_preset: false }))
+        ];
+
+        console.log(`[DEBUG] Total personajes combinados: ${allCharacters.length} (${presetCharsResult.characters?.length || 0} preset + ${userCharsResult.characters?.length || 0} usuario)`);
+
+        return { success: true, characters: allCharacters };
+    } catch (error) {
+        console.error("Fallo general en getAllCharacters:", error);
+        return { success: false, error };
+    }
+};
+
 export const deleteCharacter = async (characterId: string): Promise<{ success: boolean; error?: any }> => {
     try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -257,9 +327,21 @@ export const deleteCharacter = async (characterId: string): Promise<{ success: b
 
 // --- Funciones de Historias ---
 
-export const syncStory = async (userId: string, story: Story): Promise<{ success: boolean; error?: any }> => {
+/**
+ * Direct story creation without Zustand store dependency
+ * Replaces the storiesStore.addGeneratedStory functionality
+ */
+export const createStoryDirectly = async (userId: string, story: Story): Promise<{ success: boolean; error?: any }> => {
     try {
-        console.log(`Sincronizando historia ${story.id} para usuario ${userId}`);
+        console.log(`🔍 DEBUG - Creating story directly: ${story.id}`);
+        
+        // Only set character_id if the primary character is user-created (not preset)
+        const primaryCharacter = story.options.characters[0];
+        const characterId = primaryCharacter && !primaryCharacter.is_preset ? primaryCharacter.id : null;
+        
+        console.log(`🔍 DEBUG - Primary character: ${primaryCharacter?.name} (preset: ${primaryCharacter?.is_preset})`);
+        console.log(`🔍 DEBUG - Setting character_id to: ${characterId}`);
+        
         const storyData = {
             id: story.id,
             user_id: userId,
@@ -268,16 +350,236 @@ export const syncStory = async (userId: string, story: Story): Promise<{ success
             audio_url: story.audioUrl,
             genre: story.options.genre,
             story_format: story.options.format,
-            character_id: story.options.characters[0]?.id, // Primary character (first selected)
+            character_id: characterId, // Only user-created characters, null for preset characters
+            characters_data: story.characters_data || story.options.characters, // Complete character array
+            additional_details: story.additional_details,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
+        
+        console.log(`🔍 DEBUG - Story data being created:`, {
+            id: storyData.id,
+            character_id: storyData.character_id,
+            characters_count: Array.isArray(storyData.characters_data) ? storyData.characters_data.length : 0
+        });
+        
+        const { error } = await supabase.from("stories").insert(storyData);
+        if (error) {
+            console.error(`Error al crear historia ${story.id}:`, error);
+            throw error;
+        }
+        
+        console.log(`Historia ${story.id} creada exitosamente.`);
+        return { success: true };
+    } catch (error) {
+        console.error("Fallo general en createStoryDirectly:", error);
+        return { success: false, error };
+    }
+};
+
+/**
+ * Direct chapter creation without Zustand store dependency
+ * Replaces the chaptersStore.addChapter functionality
+ */
+export const createChapterDirectly = async (storyId: string, chapter: StoryChapter): Promise<{ success: boolean; error?: any }> => {
+    try {
+        console.log(`🔍 DEBUG - Creating chapter directly for story: ${storyId}`);
+        
+        // Generate ID if chapter doesn't have one
+        const chapterId = chapter.id || generateId("chapter");
+        
+        const chapterData = {
+            id: chapterId,
+            story_id: storyId,
+            chapter_number: chapter.chapterNumber,
+            title: chapter.title,
+            content: chapter.content,
+            generation_method: chapter.generationMethod,
+            custom_input: chapter.customInput,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
+        
+        const { error } = await supabase.from("story_chapters").insert(chapterData);
+        if (error) {
+            console.error(`Error al crear capítulo para historia ${storyId}:`, error);
+            throw error;
+        }
+        
+        console.log(`Capítulo creado exitosamente para historia ${storyId}.`);
+        return { success: true };
+    } catch (error) {
+        console.error("Fallo general en createChapterDirectly:", error);
+        return { success: false, error };
+    }
+};
+
+/**
+ * Direct story loading without Zustand store dependency
+ * Replaces useStoriesStore().getStoryById() functionality
+ */
+export const getStoryDirectly = async (userId: string, storyId: string): Promise<{ success: boolean; story?: Story; error?: any }> => {
+    try {
+        console.log(`🔍 DEBUG - Loading story directly: ${storyId} for user: ${userId}`);
+        
+        const { data, error } = await supabase
+            .from("stories")
+            .select(`*, characters (*)`)
+            .eq("id", storyId)
+            .eq("user_id", userId)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') {
+                console.log(`Story ${storyId} not found for user ${userId}`);
+                return { success: false, error: new Error('Story not found') };
+            }
+            console.error(`Error loading story ${storyId}:`, error);
+            throw error;
+        }
+
+        if (!data) {
+            return { success: false, error: new Error('Story not found') };
+        }
+
+        // Map database data to Story format
+        let characters: StoryCharacter[] = [];
+        
+        if (data.characters_data && Array.isArray(data.characters_data)) {
+            // New format: characters_data contains the complete array
+            characters = data.characters_data.map((char: any) => ({
+                id: char.id,
+                name: char.name,
+                gender: char.gender,
+                description: char.description || '',
+                created_at: char.created_at,
+                updated_at: char.updated_at,
+                is_preset: char.is_preset || false
+            }));
+            console.log(`🔍 DEBUG - Using characters_data: ${characters.length} characters`);
+        } else if (data.characters) {
+            // Legacy format: single character from relationship
+            const characterData = data.characters;
+            characters = [{
+                id: characterData.id || 'deleted_character',
+                name: characterData.name || 'Personaje Eliminado',
+                gender: characterData.gender || 'non-binary',
+                description: characterData.description || '',
+                created_at: characterData.created_at,
+                updated_at: characterData.updated_at,
+                is_preset: false
+            }];
+            console.log(`🔍 DEBUG - Using legacy character relationship`);
+        } else {
+            // No character data available
+            console.warn(`🔍 DEBUG - No character data found for story ${storyId}`);
+            characters = [{
+                id: 'deleted_character',
+                name: 'Personaje Eliminado',
+                gender: 'non-binary',
+                description: 'Este personaje ya no está disponible',
+                is_preset: false
+            }];
+        }
+
+        const story: Story = {
+            id: data.id,
+            title: data.title || "Historia sin título",
+            content: data.content,
+            audioUrl: data.audio_url,
+            options: {
+                genre: data.genre,
+                format: data.story_format,
+                characters: characters,
+                spiciness_level: data.spiciness_level || 2
+            },
+            createdAt: data.created_at,
+            additional_details: data.additional_details,
+            characters_data: characters // Include in the Story object for consistency
+        };
+
+        console.log(`🔍 DEBUG - Story loaded successfully: "${story.title}"`);
+        return { success: true, story };
+    } catch (error) {
+        console.error("Fallo general en getStoryDirectly:", error);
+        return { success: false, error };
+    }
+};
+
+/**
+ * Direct chapters loading without Zustand store dependency
+ * Replaces useChaptersStore().getChaptersByStoryId() functionality
+ */
+export const getChaptersDirectly = async (storyId: string): Promise<{ success: boolean; chapters?: StoryChapter[]; error?: any }> => {
+    try {
+        console.log(`🔍 DEBUG - Loading chapters directly for story: ${storyId}`);
+        
+        const { data, error } = await supabase
+            .from("story_chapters")
+            .select("*")
+            .eq("story_id", storyId)
+            .order('chapter_number', { ascending: true });
+
+        if (error) {
+            console.error(`Error loading chapters for story ${storyId}:`, error);
+            throw error;
+        }
+
+        const chapters: StoryChapter[] = data ? data.map((chapter) => ({
+            id: chapter.id,
+            chapterNumber: chapter.chapter_number,
+            title: chapter.title,
+            content: chapter.content,
+            createdAt: chapter.created_at,
+            generationMethod: chapter.generation_method,
+            customInput: chapter.custom_input,
+        })) : [];
+
+        console.log(`🔍 DEBUG - Loaded ${chapters.length} chapters for story ${storyId}`);
+        return { success: true, chapters };
+    } catch (error) {
+        console.error("Fallo general en getChaptersDirectly:", error);
+        return { success: false, error };
+    }
+};
+
+export const syncStory = async (userId: string, story: Story): Promise<{ success: boolean; error?: any }> => {
+    try {
+        console.log(`Sincronizando historia ${story.id} para usuario ${userId}`);
+        
+        // Only set character_id if the primary character is user-created (not preset)
+        const primaryCharacter = story.options.characters[0];
+        const characterId = primaryCharacter && !primaryCharacter.is_preset ? primaryCharacter.id : null;
+        
+        console.log(`🔍 DEBUG - Primary character: ${primaryCharacter?.name} (preset: ${primaryCharacter?.is_preset})`);
+        console.log(`🔍 DEBUG - Setting character_id to: ${characterId}`);
+        
+        const storyData = {
+            id: story.id,
+            user_id: userId,
+            title: story.title,
+            content: story.content,
+            audio_url: story.audioUrl,
+            genre: story.options.genre,
+            story_format: story.options.format,
+            character_id: characterId, // Only user-created characters, null for preset characters
+            characters_data: story.characters_data || story.options.characters, // Complete character array
             additional_details: story.additional_details,
             updated_at: new Date(),
         };
+        
+        console.log(`🔍 DEBUG - Story data being synced:`, {
+            id: storyData.id,
+            character_id: storyData.character_id,
+            characters_count: Array.isArray(storyData.characters_data) ? storyData.characters_data.length : 0
+        });
+        
         const { error } = await supabase.from("stories").upsert(storyData);
         if (error) {
             console.error(`Error al sincronizar historia ${story.id} (RLS?):`, error);
             throw error;
         }
-        console.log(`Historia ${story.id} sincronizada.`);
+        console.log(`Historia ${story.id} sincronizada exitosamente.`);
         return { success: true };
     } catch (error) {
         console.error("Fallo general en syncStory:", error);
@@ -300,8 +602,47 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
         }
 
         const stories: Story[] = data ? data.map((story) => {
-            const characterData = story.characters;
-            console.log(`[getUserStories_DEBUG] DB raw title for story ${story.id}: "${story.title}"`); // <-- ADD THIS
+            console.log(`[getUserStories_DEBUG] DB raw title for story ${story.id}: "${story.title}"`);
+
+            // Use characters_data if available (new format), otherwise fallback to character relationship (legacy)
+            let characters: StoryCharacter[] = [];
+            
+            if (story.characters_data && Array.isArray(story.characters_data)) {
+                // New format: characters_data contains the complete array
+                characters = story.characters_data.map((char: any) => ({
+                    id: char.id,
+                    name: char.name,
+                    gender: char.gender,
+                    description: char.description || '',
+                    created_at: char.created_at,
+                    updated_at: char.updated_at,
+                    is_preset: char.is_preset || false
+                }));
+                console.log(`[getUserStories_DEBUG] Using characters_data: ${characters.length} characters`);
+            } else if (story.characters) {
+                // Legacy format: single character from relationship
+                const characterData = story.characters;
+                characters = [{
+                    id: characterData.id || 'deleted_character',
+                    name: characterData.name || 'Personaje Eliminado',
+                    gender: characterData.gender || 'non-binary',
+                    description: characterData.description || '',
+                    created_at: characterData.created_at,
+                    updated_at: characterData.updated_at,
+                    is_preset: false
+                }];
+                console.log(`[getUserStories_DEBUG] Using legacy character relationship`);
+            } else {
+                // No character data available
+                console.warn(`[getUserStories_DEBUG] No character data found for story ${story.id}`);
+                characters = [{
+                    id: 'deleted_character',
+                    name: 'Personaje Eliminado',
+                    gender: 'non-binary',
+                    description: 'Este personaje ya no está disponible',
+                    is_preset: false
+                }];
+            }
 
             return {
                 id: story.id,
@@ -311,21 +652,12 @@ export const getUserStories = async (userId: string): Promise<{ success: boolean
                 options: {
                     genre: story.genre,
                     format: story.story_format,
-                    characters: [
-                        {
-                            id: characterData?.id || 'deleted_character',
-                            name: characterData?.name || 'Personaje Eliminado',
-                            gender: characterData?.gender || 'non-binary',
-                            hobbies: characterData?.hobbies || [],
-                            description: characterData?.description || '',
-                            profession: characterData?.profession || '',
-                            characterType: characterData?.character_type || '',
-                            personality: characterData?.personality || '',
-                        }
-                    ],
+                    characters: characters,
+                    spiciness_level: story.spiciness_level || 2
                 },
                 createdAt: story.created_at,
-                additional_details: story.additional_details, // <-- Incluir aquí
+                additional_details: story.additional_details,
+                characters_data: characters // Include in the Story object for consistency
             };
         }) : [];
 
