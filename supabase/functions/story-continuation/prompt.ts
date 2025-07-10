@@ -249,14 +249,25 @@ export function createContinuationPrompt(
     prompt += `\n2. **Chapter Structure:** Should have clear narrative flow, connecting with the previous chapter and advancing the overall plot. Can introduce new erotic elements or deepen existing relationships.`;
     prompt += `\n3. **Tone and Style:** Maintain the tone and style of the original story. Use sophisticated, sensual language that creates atmosphere and emotional connection. Build tension and desire naturally.`;
     prompt += `\n4. **Coherence:** Ensure characters behave consistently and that new events fit logically in the story while maintaining the erotic tension.`;
-    prompt += `\n5. **Chapter Title:** Generate a brief, attractive and relevant title for the content of this new chapter. Must be in ${languageName} and in "Sentence case".`;
+    prompt += `\n5. **Chapter Title Generation (CRITICAL INSTRUCTIONS):**\n`;
+    prompt += `   **LANGUAGE REQUIREMENT (MANDATORY):** The chapter title MUST be written in ${languageName}. NOT in English, NOT in any other language. ONLY in ${languageName}.\n`;
+    prompt += `   **Quality Requirements for Chapter Titles:**\n`;
+    prompt += `   - Length: 2-4 words maximum (keep it short and impactful)\n`;
+    prompt += `   - Style: Sensual, intriguing, progressive - appropriate for adult chapter content\n`;
+    prompt += `   - Format: "Sentence case" (first word capitalized, rest lowercase except proper nouns)\n`;
+    prompt += `   - Must reflect the specific content/progression of THIS chapter\n`;
+    prompt += `   - Should show narrative progression from previous chapters\n`;
+    prompt += `   - Use emotional/sensual words that build anticipation\n`;
+    prompt += `   **Examples of EXCELLENT chapter titles:** "Deeper Desires", "Forbidden Moments", "Secret Confessions", "Intense Connection", "Final Surrender"\n`;
+    prompt += `   **Examples of BAD chapter titles to AVOID:** "Chapter Two", "The Next Part", "Continuation", "What Happens Next", "The Story Goes On"\n`;
+    prompt += `   **FINAL REMINDER:** Chapter title language = ${languageName} (absolutely mandatory!)\n`;
     prompt += `\n6. **Adult Content:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Create engaging, erotic content that celebrates adult sexuality healthily.`;
 
     // JSON format instructions (unchanged)
     prompt += `\n\n**Response format instructions (VERY IMPORTANT!):**`;
     prompt += `\n* You must respond with a SINGLE JSON object.`;
     prompt += `\n* The JSON object must have exactly two keys: "title" and "content".`;
-    prompt += `\n* The "title" key value should be a text string containing ONLY the generated title for this new chapter, following the guidelines in point 5 of the "Guides for the New Chapter".`;
+    prompt += `\n* The "title" key value should be a text string containing ONLY the generated chapter title (2-4 words maximum), following ALL title guidelines above. REMEMBER: Title must be in ${languageName}, NOT English!`;
     prompt += `\n* The "content" key value should be a text string with ALL the content of this new chapter, starting directly with the first sentence.`;
     const exampleCharacterName = characters.length > 0 ? characters[0].name : 'the protagonist';
     prompt += `\n* Example of expected JSON format: {"title": "The Unexpected Encounter", "content": "The next morning, ${exampleCharacterName} woke up feeling a strange energy in the air..."}`;
