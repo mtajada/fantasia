@@ -203,6 +203,8 @@ export const getUserCharacters = async (userId: string): Promise<{ success: bool
             description: char.description || '',
             created_at: char.created_at,
             updated_at: char.updated_at,
+            is_preset: false, // Mark as user character
+            image_url: char.image_url || undefined, // Include image URL field for consistency
         })) : [];
 
         return { success: true, characters: characters };
@@ -235,6 +237,7 @@ export const getPresetCharacters = async (): Promise<{ success: boolean; charact
             created_at: char.created_at,
             updated_at: char.updated_at,
             is_preset: true, // Mark as preset character
+            image_url: char.image_url || undefined, // Include image URL for preset characters
         })) : [];
 
         return { success: true, characters: characters };

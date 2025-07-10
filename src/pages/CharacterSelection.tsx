@@ -272,11 +272,41 @@ export default function CharacterSelection() {
                           />
                         </div>
 
-                        {/* Character icon */}
-                        {isSelected ? (
-                          <UserCheck size={40} className="text-violet-400 mb-2" />
+                        {/* Character image/icon */}
+                        {character.image_url && isPreset ? (
+                          <div className="relative w-16 h-16 mb-2">
+                            <img 
+                              src={character.image_url} 
+                              alt={`${character.name} profile`}
+                              className="w-full h-full object-cover rounded-full border-2 border-gray-600 shadow-lg transition-all duration-300 hover:border-violet-400"
+                              loading="lazy"
+                              onError={(e) => {
+                                // Fallback to icon if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                // Show fallback icon in parent container
+                                const fallbackIcon = target.parentElement?.querySelector('.fallback-icon');
+                                if (fallbackIcon) {
+                                  fallbackIcon.classList.remove('hidden');
+                                }
+                              }}
+                            />
+                            {/* Fallback icon (hidden by default) */}
+                            <User size={40} className="hidden fallback-icon text-amber-500 absolute inset-0 m-auto" />
+                            {isSelected && (
+                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-violet-500 rounded-full flex items-center justify-center shadow-lg">
+                                <UserCheck size={14} className="text-white" />
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <User size={40} className={isPreset ? "text-amber-500 mb-2" : "text-indigo-400 mb-2"} />
+                          <>
+                            {isSelected ? (
+                              <UserCheck size={40} className="text-violet-400 mb-2" />
+                            ) : (
+                              <User size={40} className={isPreset ? "text-amber-500 mb-2" : "text-indigo-400 mb-2"} />
+                            )}
+                          </>
                         )}
 
                         <span className="text-gray-200 text-center font-medium">
