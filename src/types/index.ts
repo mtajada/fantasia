@@ -36,6 +36,7 @@ export type StoryCharacter = {
   created_at?: string;
   updated_at?: string;
   is_preset?: boolean; // Identifies preset characters vs user-created characters
+  image_url?: string; // Profile image URL for preset characters
 }
 
 
