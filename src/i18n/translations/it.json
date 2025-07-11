@@ -1,0 +1,105 @@
+{
+  "auth": {
+    "login": {
+      "welcome": "Bentornata, bellissima! 🔥",
+      "subtitle": "Pronta per la tua prossima avventura?",
+      "form": {
+        "email": "Indirizzo email",
+        "password": "Password",
+        "remember": "Ricordami",
+        "forgotPassword": "Password dimenticata?"
+      },
+      "buttons": {
+        "signIn": "Accedi",
+        "signingIn": "Accesso...",
+        "google": "Accedi con Google"
+      },
+      "error": {
+        "title": "Errore di accesso",
+        "invalid": "Hmm, non è corretto",
+        "checkCredentials": "Controlla le tue credenziali e riprova"
+      }
+    },
+    "signup": {
+      "title": "Crea account",
+      "subtitle": "Unisciti all'avventura intima",
+      "form": {
+        "email": "Indirizzo email",
+        "password": "Password",
+        "confirmPassword": "Conferma password",
+        "ageConfirm": "Confermo di avere 18 anni o più"
+      },
+      "buttons": {
+        "create": "Crea account",
+        "creating": "Creazione...",
+        "google": "Registrati con Google"
+      },
+      "navigation": {
+        "hasAccount": "Hai già un account?",
+        "signIn": "Accedi"
+      },
+      "success": {
+        "title": "Account creato! 🎉",
+        "description": "Benvenuta nella tua avventura sensuale"
+      }
+    },
+    "required": "Autenticazione richiesta",
+    "pleaseLogin": "Effettua l'accesso per configurare il tuo profilo."
+  },
+  "profileConfig": {
+    "title": "Configura il tuo profilo",
+    "subtitle": "Personalizza la tua esperienza per contenuti adulti su misura",
+    "language": {
+      "label": "Lingua delle storie",
+      "placeholder": "Seleziona una lingua...",
+      "description": "Scegli la lingua per le tue storie"
+    },
+    "preferences": {
+      "label": "Le tue preferenze e interessi",
+      "placeholder": "Descrivi i tuoi interessi, preferenze, feticci o temi specifici che ti piacciono nei contenuti adulti. Questo aiuterà a personalizzare le tue storie. (Opzionale ma consigliato)",
+      "description": "Aiutaci a personalizzare la tua esperienza",
+      "charactersCount": "{{count}}/1000 caratteri"
+    },
+    "buttons": {
+      "save": "Salva profilo",
+      "saving": "Salvataggio...",
+      "update": "Aggiorna profilo"
+    },
+    "messages": {
+      "success": "Profilo aggiornato!",
+      "successDescription": "Il tuo profilo è stato aggiornato con successo.",
+      "setupComplete": "Profilo salvato! Scegliamo un piano.",
+      "saveError": "Errore di salvataggio",
+      "saveErrorDescription": "Si è verificato un errore durante il salvataggio.",
+      "authError": "Devi essere autenticato per salvare.",
+      "loadError": "Errore nel caricamento dei dati del profilo."
+    }
+  },
+  "languages": {
+    "english": "Inglese",
+    "spanish": "Spagnolo",
+    "french": "Francese",
+    "german": "Tedesco",
+    "italian": "Italiano"
+  },
+  "genders": {
+    "male": "Maschile",
+    "female": "Femminile",
+    "nonBinary": "Non-binario"
+  },
+  "common": {
+    "buttons": {
+      "save": "Salva",
+      "cancel": "Annulla",
+      "continue": "Continua",
+      "back": "Indietro",
+      "next": "Successivo",
+      "finish": "Termina",
+      "close": "Chiudi",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "create": "Crea",
+      "update": "Aggiorna"
+    }
+  }
+}

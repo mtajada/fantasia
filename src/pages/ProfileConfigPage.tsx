@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 // Imports de Supabase (SIN Zustand Store)
 import { supabase } from "@/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // UI Components
 import BackButton from "@/components/BackButton";
@@ -16,22 +17,16 @@ import { Textarea } from "@/components/ui/textarea";
 const ProfileConfigPage: React.FC = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
+    const { t, changeLanguage, currentLanguage, availableLanguages } = useLanguage();
 
     // Estado Local del Formulario (SOLO campos que existen en DB)
-    const [language, setLanguage] = useState("en");
     const [preferences, setPreferences] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
 
-    // Definiciones de idiomas (INGLÉS PRIMERO)
-    const languages = [
-        { value: "en", label: "English", flag: "🇺🇸" },
-        { value: "es", label: "Español", flag: "🇪🇸" },
-        { value: "fr", label: "Français", flag: "🇫🇷" },
-        { value: "de", label: "Deutsch", flag: "🇩🇪" },
-        { value: "it", label: "Italiano", flag: "🇮🇹" }
-    ];
+    // Usar idiomas del contexto de idioma
+    const languages = availableLanguages;
 
     // Cargar datos DIRECTAMENTE de Supabase (SIN Store)
     useEffect(() => {
@@ -43,8 +38,8 @@ const ProfileConfigPage: React.FC = () => {
                 const { data: { user }, error: authError } = await supabase.auth.getUser();
                 if (authError || !user) {
                     toast({
-                        title: "Authentication Required",
-                        description: "Please log in to configure your profile.",
+                        title: t('profileConfig.auth.authRequiredTitle'),
+                        description: t('profileConfig.auth.authRequiredDescription'),
                         variant: "destructive",
                     });
                     navigate("/login");
@@ -63,19 +58,17 @@ const ProfileConfigPage: React.FC = () => {
                 if (profileError) {
                     console.error("Error loading profile:", profileError);
                     // Usar valores por defecto para nuevo usuario
-                    setLanguage("en");
                     setPreferences("");
                 } else {
-                    // Cargar datos existentes
-                    setLanguage(profile.language || "en");
+                    // Cargar datos existentes (idioma ya se maneja en el contexto)
                     setPreferences(profile.preferences || "");
                 }
 
             } catch (error) {
                 console.error("Error in loadProfileData:", error);
                 toast({
-                    title: "Error",
-                    description: "Failed to load profile data.",
+                    title: t('profileConfig.errors.loadProfileTitle'),
+                    description: t('profileConfig.errors.loadProfileDescription'),
                     variant: "destructive",
                 });
             } finally {
@@ -92,8 +85,8 @@ const ProfileConfigPage: React.FC = () => {
         
         if (!currentUser) {
             toast({
-                title: "Error",
-                description: "You must be authenticated to save your profile.",
+                title: t('profileConfig.auth.mustBeAuthenticatedTitle'),
+                description: t('profileConfig.auth.mustBeAuthenticatedDescription'),
                 variant: "destructive",
             });
             return;
@@ -116,7 +109,7 @@ const ProfileConfigPage: React.FC = () => {
                 .from('profiles')
                 .upsert({
                     id: currentUser.id,
-                    language: language,
+                    language: currentLanguage,
                     preferences: preferences.trim() || null,
                     has_completed_setup: true
                 }, {
@@ -136,17 +129,17 @@ const ProfileConfigPage: React.FC = () => {
 
             if (verifyError || !savedProfile?.has_completed_setup) {
                 console.error("Verification failed after upsert:", verifyError);
-                throw new Error('Profile was not saved correctly. Please try again.');
+                throw new Error(t('profileConfig.errors.profileNotSavedError'));
             }
 
             // Navegación condicional
             const nextPath = wasSetupComplete ? "/home" : "/plans";
             const successDescription = wasSetupComplete
-                ? "Your profile has been updated successfully."
-                : "Profile saved! Let's choose a plan.";
+                ? t('profileConfig.success.profileUpdatedDescription')
+                : t('profileConfig.success.profileSavedDescription');
 
             toast({
-                title: "Profile Updated!",
+                title: t('profileConfig.success.profileUpdatedTitle'),
                 description: successDescription,
             });
             
@@ -155,8 +148,8 @@ const ProfileConfigPage: React.FC = () => {
         } catch (error) {
             console.error("Error saving profile:", error);
             toast({
-                title: "Save Error",
-                description: "An error occurred while saving your profile.",
+                title: t('profileConfig.errors.saveErrorTitle'),
+                description: t('profileConfig.errors.saveErrorDescription'),
                 variant: "destructive",
             });
         } finally {
@@ -164,7 +157,7 @@ const ProfileConfigPage: React.FC = () => {
         }
     };
 
-    const selectedLang = languages.find(l => l.value === language);
+    const selectedLang = languages.find(l => l.value === currentLanguage);
 
     return (
         <PageTransition>
@@ -185,9 +178,9 @@ const ProfileConfigPage: React.FC = () => {
                         <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gray-800/80 border border-gray-700/50 mb-4 shadow-lg">
                             <User className="h-8 w-8 text-violet-400" />
                         </div>
-                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Configure Your Profile</h1>
+                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">{t('profileConfig.header.title')}</h1>
                         <p className="text-gray-200 text-md max-w-md mx-auto font-medium bg-gray-800/60 rounded-xl px-4 py-2 shadow-sm">
-                            Personalize your experience for tailored adult content
+                            {t('profileConfig.header.subtitle')}
                         </p>
                     </motion.div>
 
@@ -211,10 +204,10 @@ const ProfileConfigPage: React.FC = () => {
                                     <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
                                         <Globe className="h-4 w-4 text-violet-400" />
                                     </div>
-                                    <span>Story Language</span>
+                                    <span>{t('profileConfig.form.language.label')}</span>
                                 </label>
 
-                                <Select value={language} onValueChange={setLanguage}>
+                                <Select value={currentLanguage} onValueChange={changeLanguage}>
                                     <SelectTrigger className="w-full bg-gray-900/90 border-gray-700 backdrop-blur-sm text-gray-200 hover:bg-gray-800/90 transition-colors h-12 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20">
                                         {selectedLang ? (
                                             <div className="flex items-center">
@@ -222,7 +215,7 @@ const ProfileConfigPage: React.FC = () => {
                                                 {selectedLang.label}
                                             </div>
                                         ) : (
-                                            <SelectValue placeholder="Select a language..." />
+                                            <SelectValue placeholder={t('profileConfig.form.language.placeholder')} />
                                         )}
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-900/95 border-gray-700 shadow-2xl rounded-2xl text-gray-200 backdrop-blur-md">
@@ -244,20 +237,20 @@ const ProfileConfigPage: React.FC = () => {
                                     <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
                                         <Heart className="h-4 w-4 text-pink-400" />
                                     </div>
-                                    <span>Your Preferences & Interests</span>
+                                    <span>{t('profileConfig.form.preferences.label')}</span>
                                 </label>
 
                                 <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl border border-gray-700 p-4">
                                     <Textarea
                                         id="preferences"
-                                        placeholder="Describe your interests, preferences, kinks, fetishes, or specific themes you enjoy in adult content. This will help personalize your stories. (Optional but recommended for better personalization)"
+                                        placeholder={t('profileConfig.form.preferences.placeholder')}
                                         value={preferences}
                                         onChange={(e) => setPreferences(e.target.value)}
                                         className="bg-transparent border-none resize-none focus:ring-0 text-gray-200 placeholder:text-gray-400 min-h-[120px]"
                                         maxLength={1000}
                                     />
                                     <div className="text-xs text-gray-400 mt-2">
-                                        {preferences.length}/1000 characters
+                                        {t('profileConfig.form.preferences.charactersCount', { count: preferences.length })}
                                     </div>
                                 </div>
                             </div>
@@ -279,7 +272,7 @@ const ProfileConfigPage: React.FC = () => {
                                 ) : (
                                     <Check className="h-5 w-5 text-white" />
                                 )}
-                                <span>{isSaving ? "Saving..." : "Save Profile"}</span>
+                                <span>{isSaving ? t('profileConfig.actions.saving') : t('profileConfig.actions.saveProfile')}</span>
                             </motion.button>
                         </motion.form>
                     )}

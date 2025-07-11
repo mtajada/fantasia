@@ -1,0 +1,105 @@
+{
+  "auth": {
+    "login": {
+      "welcome": "Bienvenue, magnifique! 🔥",
+      "subtitle": "Prête pour votre prochaine aventure?",
+      "form": {
+        "email": "Adresse e-mail",
+        "password": "Mot de passe",
+        "remember": "Se souvenir de moi",
+        "forgotPassword": "Mot de passe oublié?"
+      },
+      "buttons": {
+        "signIn": "Se connecter",
+        "signingIn": "Connexion...",
+        "google": "Se connecter avec Google"
+      },
+      "error": {
+        "title": "Erreur de connexion",
+        "invalid": "Hmm, ce n'est pas correct",
+        "checkCredentials": "Vérifiez vos identifiants et réessayez"
+      }
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "subtitle": "Rejoignez l'aventure intime",
+      "form": {
+        "email": "Adresse e-mail",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "ageConfirm": "Je confirme avoir 18 ans ou plus"
+      },
+      "buttons": {
+        "create": "Créer un compte",
+        "creating": "Création...",
+        "google": "S'inscrire avec Google"
+      },
+      "navigation": {
+        "hasAccount": "Vous avez déjà un compte?",
+        "signIn": "Se connecter"
+      },
+      "success": {
+        "title": "Compte créé! 🎉",
+        "description": "Bienvenue dans votre aventure sensuelle"
+      }
+    },
+    "required": "Authentification requise",
+    "pleaseLogin": "Veuillez vous connecter pour configurer votre profil."
+  },
+  "profileConfig": {
+    "title": "Configurez votre profil",
+    "subtitle": "Personnalisez votre expérience pour du contenu adulte sur mesure",
+    "language": {
+      "label": "Langue des histoires",
+      "placeholder": "Sélectionnez une langue...",
+      "description": "Choisissez la langue pour vos histoires"
+    },
+    "preferences": {
+      "label": "Vos préférences et intérêts",
+      "placeholder": "Décrivez vos intérêts, préférences, fétiches ou thèmes spécifiques que vous appréciez dans le contenu adulte. Cela aidera à personnaliser vos histoires. (Optionnel mais recommandé)",
+      "description": "Aidez-nous à personnaliser votre expérience",
+      "charactersCount": "{{count}}/1000 caractères"
+    },
+    "buttons": {
+      "save": "Sauvegarder le profil",
+      "saving": "Sauvegarde...",
+      "update": "Mettre à jour le profil"
+    },
+    "messages": {
+      "success": "Profil mis à jour!",
+      "successDescription": "Votre profil a été mis à jour avec succès.",
+      "setupComplete": "Profil sauvegardé! Choisissons un plan.",
+      "saveError": "Erreur de sauvegarde",
+      "saveErrorDescription": "Une erreur s'est produite lors de la sauvegarde.",
+      "authError": "Vous devez être authentifié pour sauvegarder.",
+      "loadError": "Échec du chargement des données du profil."
+    }
+  },
+  "languages": {
+    "english": "Anglais",
+    "spanish": "Espagnol",
+    "french": "Français",
+    "german": "Allemand",
+    "italian": "Italien"
+  },
+  "genders": {
+    "male": "Masculin",
+    "female": "Féminin",
+    "nonBinary": "Non-binaire"
+  },
+  "common": {
+    "buttons": {
+      "save": "Sauvegarder",
+      "cancel": "Annuler",
+      "continue": "Continuer",
+      "back": "Retour",
+      "next": "Suivant",
+      "finish": "Terminer",
+      "close": "Fermer",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "create": "Créer",
+      "update": "Mettre à jour"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { useUserStore } from './store/user/userStore'
 import { initSyncService } from './services/syncService'
+import { LanguageProvider } from './contexts/LanguageContext'
 
 // Component to handle authentication check on app load
 const AppWithAuth = () => {
@@ -20,7 +21,11 @@ const AppWithAuth = () => {
     initAuth()
   }, [checkAuth])
 
-  return <App />
+  return (
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
+  )
 }
 
 createRoot(document.getElementById("root")!).render(<AppWithAuth />)

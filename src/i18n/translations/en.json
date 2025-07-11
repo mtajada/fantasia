@@ -1,0 +1,331 @@
+{
+  "auth": {
+    "login": {
+      "welcome": "Welcome back, gorgeous! 🔥",
+      "subtitle": "Ready for your next adventure?",
+      "form": {
+        "email": "Email address",
+        "password": "Password",
+        "remember": "Remember me",
+        "forgotPassword": "Forgot your password?"
+      },
+      "buttons": {
+        "signIn": "Sign In",
+        "signingIn": "Signing in...",
+        "google": "Sign in with Google"
+      },
+      "error": {
+        "title": "Login Error",
+        "invalid": "Hmm, that's not right",
+        "checkCredentials": "Check your credentials and try again"
+      }
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Join the intimate adventure",
+      "form": {
+        "email": "Email address",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "ageConfirm": "I confirm that I am 18 years or older"
+      },
+      "buttons": {
+        "create": "Create Account",
+        "creating": "Creating...",
+        "google": "Sign up with Google"
+      },
+      "navigation": {
+        "hasAccount": "Already have an account?",
+        "signIn": "Sign In"
+      },
+      "success": {
+        "title": "Account Created! 🎉",
+        "description": "Welcome to your sensual adventure"
+      }
+    },
+    "required": "Authentication Required",
+    "pleaseLogin": "Please log in to configure your profile."
+  },
+  "profileConfig": {
+    "title": "Configure Your Profile",
+    "subtitle": "Personalize your experience for tailored adult content",
+    "language": {
+      "label": "Story Language",
+      "placeholder": "Select a language...",
+      "description": "Choose the language for your stories"
+    },
+    "preferences": {
+      "label": "Your Preferences & Interests",
+      "placeholder": "Describe your interests, preferences, kinks, fetishes, or specific themes you enjoy in adult content. This will help personalize your stories. (Optional but recommended for better personalization)",
+      "description": "Help us tailor your experience",
+      "charactersCount": "{{count}}/1000 characters"
+    },
+    "buttons": {
+      "save": "Save Profile",
+      "saving": "Saving...",
+      "update": "Update Profile"
+    },
+    "messages": {
+      "success": "Profile Updated!",
+      "successDescription": "Your profile has been updated successfully.",
+      "setupComplete": "Profile saved! Let's choose a plan.",
+      "saveError": "Save Error",
+      "saveErrorDescription": "An error occurred while saving your profile.",
+      "authError": "You must be authenticated to save your profile.",
+      "loadError": "Failed to load profile data."
+    }
+  },
+  "languages": {
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "italian": "Italiano"
+  },
+  "genders": {
+    "male": "Male",
+    "female": "Female",
+    "nonBinary": "Non-binary"
+  },
+  "welcome": {
+    "hero": {
+      "title": "Intimate Stories Tailored for You 🔥",
+      "subtitle": "Experience personalized adult content that ignites your imagination",
+      "cta": "CREATE YOUR FIRST FANTASY"
+    },
+    "features": {
+      "personalized": "Personalized Adult Stories",
+      "voice": "Sensual Voice Narration",
+      "privacy": "Privacy & Discretion",
+      "customizable": "Fully Customizable Characters"
+    }
+  },
+  "plans": {
+    "premium": {
+      "title": "Premium Unleashed 🔥",
+      "subtitle": "Unlock Your Desires 💜"
+    },
+    "features": {
+      "stories": "Stories Generated",
+      "continuations": "Story Continuations",
+      "voice": "Voice Narration (AI)",
+      "characters": "Custom Characters"
+    },
+    "buttons": {
+      "getPremium": "Get Premium Now 💎",
+      "continueFree": "Continue with free plan",
+      "processing": "Processing..."
+    }
+  },
+  "home": {
+    "title": "Your Intimate Library",
+    "limits": {
+      "storyLimit": "Story limit reached",
+      "upgradePrompt": "Upgrade to continue creating"
+    },
+    "buttons": {
+      "createStory": "Create New Story 🔥",
+      "myCharacters": "My Characters",
+      "myStories": "My Stories",
+      "settings": "Settings"
+    }
+  },
+  "characters": {
+    "selection": {
+      "title": "Choose Your Characters",
+      "description": "Select up to 4 characters for your story",
+      "continue": "Continue with {{count}} character(s)",
+      "clear": "Clear Selection"
+    },
+    "form": {
+      "createTitle": "Create Character",
+      "editTitle": "Edit Character",
+      "name": "Character name",
+      "nameDescription": "Give your character a name",
+      "gender": "Character gender",
+      "genderDescription": "Select your character's gender",
+      "description": "Character description",
+      "descriptionDescription": "Describe your character's appearance, personality, and any other details"
+    },
+    "management": {
+      "title": "Your Intimate Cast 🔥",
+      "createNew": "Create New Character ✨",
+      "empty": "No characters yet",
+      "emptyDescription": "Create your first character to start your story"
+    },
+    "buttons": {
+      "save": "Save Character",
+      "saving": "Saving...",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create Character"
+    }
+  },
+  "stories": {
+    "genre": {
+      "title": "Choose your story's vibe",
+      "description": "Pick a genre or type your own...",
+      "options": {
+        "eroticRomance": "Erotic Romance",
+        "bdsm": "BDSM",
+        "paranormal": "Paranormal Erotica",
+        "lgbtq": "LGBTQ+",
+        "scifi": "Sci-Fi Erotica",
+        "fantasy": "Fantasy Erotica",
+        "contemporary": "Contemporary",
+        "historical": "Historical Romance"
+      }
+    },
+    "details": {
+      "title": "Any juicy details? 🔥",
+      "subtitle": "Optional, but fun! 😉",
+      "spiciness": {
+        "label": "Spiciness Level",
+        "sensual": "Sensual",
+        "passionate": "Passionate",
+        "intense": "Intense"
+      },
+      "customDetails": "Custom story details",
+      "customDetailsPlaceholder": "Describe specific scenarios, settings, or themes you'd like to include..."
+    },
+    "saved": {
+      "title": "My Stories 📚",
+      "empty": "You have no saved stories.",
+      "emptyDescription": "Create your first story to get started",
+      "sortRecent": "Most Recent",
+      "sortOldest": "Oldest"
+    },
+    "continuation": {
+      "title": "Continue Your Story",
+      "continue": "Continue story",
+      "newDirection": "New direction",
+      "customize": "Customize",
+      "generating": "Generating continuation..."
+    },
+    "viewer": {
+      "chapter": "Chapter {{number}}",
+      "continue": "Continue Story",
+      "readAgain": "Read Again",
+      "saveStory": "Save Story",
+      "shareStory": "Share Story"
+    }
+  },
+  "audio": {
+    "player": {
+      "customize": "Customize narration",
+      "play": "Play",
+      "pause": "Pause",
+      "loading": "Loading audio...",
+      "error": "Audio error",
+      "notFound": "Audio file not found"
+    },
+    "voice": {
+      "settings": {
+        "title": "Customize narration",
+        "selectVoice": "Select voice",
+        "preview": "Preview",
+        "generate": "Generate Audio"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": {
+      "title": "Account",
+      "email": "Email",
+      "language": "Language",
+      "preferences": "Preferences"
+    },
+    "billing": {
+      "title": "Plan & Billing",
+      "currentPlan": "Current Plan",
+      "upgrade": "Upgrade Plan",
+      "manageSubscription": "Manage Subscription"
+    },
+    "privacy": {
+      "title": "Privacy",
+      "dataSettings": "Data Settings",
+      "contentSettings": "Content Settings"
+    }
+  },
+  "payment": {
+    "processing": "Processing...",
+    "premium": "Premium Subscription",
+    "buyCredits": "Buy Credits",
+    "success": {
+      "title": "Payment Successful! 🎉",
+      "description": "Perfect! Your purchase has been processed successfully."
+    },
+    "cancel": {
+      "title": "Payment Cancelled",
+      "description": "Your payment was cancelled. You can try again anytime."
+    }
+  },
+  "error": {
+    "title": "Oops! Something went wrong 🔥",
+    "description": "We're having trouble processing your request",
+    "buttons": {
+      "tryAgain": "Try Again 🔄",
+      "goHome": "Go Home",
+      "contact": "Contact Support"
+    }
+  },
+  "notFound": {
+    "title": "Oops! Lost in the fantasy? 🔥",
+    "description": "Seems like you've wandered into uncharted territory",
+    "buttons": {
+      "backHome": "Back to the action"
+    }
+  },
+  "loading": {
+    "default": "Loading...",
+    "profile": "Loading profile...",
+    "stories": "Loading stories...",
+    "characters": "Loading characters...",
+    "generating": "Generating...",
+    "saving": "Saving..."
+  },
+  "common": {
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "continue": "Continue",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish",
+      "close": "Close",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "update": "Update"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "syncing": "Syncing...",
+      "synced": "Synced",
+      "error": "Error"
+    },
+    "navigation": {
+      "home": "Home",
+      "stories": "Stories",
+      "characters": "Characters",
+      "settings": "Settings",
+      "profile": "Profile",
+      "plans": "Plans"
+    }
+  },
+  "terms": {
+    "title": "Terms and Conditions",
+    "accept": "I accept the terms and conditions",
+    "privacy": "Privacy Policy",
+    "ageVerification": "Age Verification Required"
+  },
+  "contact": {
+    "title": "Contact Support",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send Message",
+    "success": "Message sent successfully"
+  }
+}
