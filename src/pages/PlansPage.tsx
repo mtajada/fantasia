@@ -314,7 +314,6 @@ const PlansPage: React.FC = () => {
                                         >
                                             <Star className="h-4 w-4" />
                                             <span>Premium</span>
-                                            <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">Coming Soon</span>
                                         </button>
                                     </div>
                                 </div>
@@ -332,11 +331,6 @@ const PlansPage: React.FC = () => {
                                                     {activePlan === 'premium' && <Star className="h-5 w-5 text-pink-400" />}
                                                     Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
                                                 </h2>
-                                                {activePlan === 'premium' && (
-                                                    <span className="bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                                        Coming Soon
-                                                    </span>
-                                                )}
                                             </div>
                                             {activePlan === 'premium' ? (
                                                 <>
@@ -361,13 +355,19 @@ const PlansPage: React.FC = () => {
                                         {activePlan === 'premium' && (
                                             <div className="p-6 pt-4 pb-0">
                                                 <button
-                                                    disabled={true}
-                                                    className="w-full py-4 px-6 bg-gradient-to-r from-violet-500/60 to-purple-600/40 text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg cursor-not-allowed relative overflow-hidden min-h-[44px] text-base sm:text-sm"
+                                                    onClick={() => handleCheckout('premium')}
+                                                    disabled={isCheckoutLoading}
+                                                    className="w-full py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm"
                                                 >
-                                                    <Star className="h-5 w-5" />
-                                                    <span>Get Premium Now 🌟</span>
+                                                    {isCheckoutLoading ? (
+                                                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <>
+                                                            <Star className="h-5 w-5" />
+                                                            <span>Get Premium Now 🌟</span>
+                                                        </>
+                                                    )}
                                                 </button>
-                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">We're working to offer you this option very soon</p>
                                             </div>
                                         )}
 

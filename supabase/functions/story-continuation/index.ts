@@ -311,6 +311,25 @@ serve(async (req: Request) => {
     const storyFormat = body.storyFormat || story?.options?.format || 'episodic';
     const spicynessLevel = story?.options?.spiciness_level || 2; // Extract from story options, default to 2
 
+    // NUEVO: Verificar límites mensuales de historias usando la función SQL
+    const { data: canGenerate, error: limitError } = await supabaseAdmin.rpc('can_generate_story', {
+      user_uuid: userId
+    });
+
+    if (limitError) {
+      console.error(`[${functionVersion}] Error checking story limits:`, limitError);
+      throw new Error("Error al verificar límites de generación.");
+    }
+
+    if (!canGenerate) {
+      console.log(`[${functionVersion}] User ${userId} has reached monthly story limit`);
+      return new Response(JSON.stringify({
+        error: 'Monthly story limit reached. Upgrade to premium for unlimited stories.'
+      }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
     // Límites (largely same logic as v6.1)
     if (isContinuationAction) {
       const { data: profile, error: profileError } = await supabaseAdmin.from('profiles').select('subscription_status').eq('id', userId).maybeSingle();
@@ -427,6 +446,20 @@ serve(async (req: Request) => {
 
     } else {
       throw new Error(`Acción no soportada: ${action}`);
+    }
+
+    // NUEVO: Incrementar contador después de generar continuación exitosa
+    if (isContinuationAction && responsePayload.content) {
+      const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
+        user_uuid: userId
+      });
+
+      if (incrementError) {
+        console.error(`[${functionVersion}] Error incrementing story count:`, incrementError);
+        // No fallar, solo registrar el error
+      } else {
+        console.log(`[${functionVersion}] Story count incremented for user ${userId}`);
+      }
     }
 
     console.log(`[${functionVersion}] Action ${action} completed successfully for ${userId}.`);
