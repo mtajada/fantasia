@@ -6,6 +6,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Share, Volume2, Home, BookOpen, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../store/user/userStore"; // Importar para los selectores de límites
+import { useLimitWarnings } from "@/hooks/useLimitWarnings"; // Add limit warnings for monthly limits
 import { getStoryDirectly, getChaptersDirectly } from "../services/supabase"; // Direct Supabase functions
 import BackButton from "../components/BackButton";
 import PageTransition from "../components/PageTransition";
@@ -21,6 +22,9 @@ export default function StoryViewer() {
   
   // --- Obtener selectores de límites/permisos del userStore ---
   const { canContinueStory, canGenerateVoice, user } = useUserStore();
+  
+  // --- NEW: Use limit warnings for monthly story limits ---
+  const { limitStatus } = useLimitWarnings();
 
   // Estado local
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -30,8 +34,14 @@ export default function StoryViewer() {
   const [error, setError] = useState<string | null>(null);
 
   // --- Permisos derivados del store ---
-  // Estos se actualizan reactivamente si el estado del userStore cambia
-  const isAllowedToContinue = storyId ? canContinueStory(storyId) : false;
+  // NEW: Check both chapter limits AND monthly story limits
+  const canContinueBasedOnChapters = storyId ? canContinueStory(storyId) : false;
+  const canContinueBasedOnMonthlyLimit = limitStatus ? 
+    (limitStatus.stories.isUnlimited || limitStatus.stories.current < limitStatus.stories.limit) : 
+    true; // Allow if data hasn't loaded yet
+    
+  // Final permission: both chapter and monthly limits must be satisfied
+  const isAllowedToContinue = canContinueBasedOnChapters && canContinueBasedOnMonthlyLimit;
   const isAllowedToGenerateVoice = canGenerateVoice();
 
   // --- Cálculo para saber si es el último capítulo ---
@@ -193,15 +203,26 @@ export default function StoryViewer() {
 
   // --- *** INICIO: Lógica de Continuación MODIFICADA *** ---
   const goToContinuationPage = () => {
-    // Usa el estado derivado isAllowedToContinue
-    if (isAllowedToContinue) {
-      // Navega a la PÁGINA de continuación, no genera aquí
-      navigate(`/story/${storyId}/continue?refresh=${Date.now()}`);
-    } else {
-      toast.error("Continuation limit reached", {
-        description: "You can only add one free continuation per story."
+    // Check monthly limit first, then chapter limit
+    if (!canContinueBasedOnMonthlyLimit) {
+      const isPremium = limitStatus?.subscriptionStatus === 'active' || limitStatus?.subscriptionStatus === 'trialing';
+      toast.error(isPremium ? "Premium Limit Reached 💎" : "Story Limit Reached 🚫", {
+        description: isPremium
+          ? "You've reached your premium story limit. Contact support for more information 📞"
+          : `🔒 You've used all ${limitStatus?.stories.limit || 10} stories this month! Upgrade to premium for unlimited stories ✨`
       });
+      return;
     }
+    
+    if (!canContinueBasedOnChapters) {
+      toast.error("Continuation limit reached 📖", {
+        description: "You can only add one free continuation per story. Upgrade to premium for unlimited continuations! 🌟"
+      });
+      return;
+    }
+    
+    // Both limits satisfied - allow continuation
+    navigate(`/story/${storyId}/continue?refresh=${Date.now()}`);
   };
 
   // --- *** FIN: Lógica de Continuación MODIFICADA *** ---
@@ -289,11 +310,13 @@ export default function StoryViewer() {
                   className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue && isLastChapter ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-violet-500/25' : 'bg-gray-700 cursor-not-allowed text-gray-400 border border-gray-600'}`}
                   // Título dinámico según la razón de la deshabilitación
                   title={
-                    !isAllowedToContinue
-                      ? "Free continuation limit reached"
-                      : !isLastChapter
-                        ? "You can only continue from the last chapter"
-                        : "Continue the story"
+                    !canContinueBasedOnMonthlyLimit
+                      ? `Monthly story limit reached (${limitStatus?.stories.current || 0}/${limitStatus?.stories.limit || 10})`
+                      : !canContinueBasedOnChapters
+                        ? "Free continuation limit reached (max 1 per story)"
+                        : !isLastChapter
+                          ? "You can only continue from the last chapter"
+                          : "Continue the story"
                   }
                 >
                   <BookOpen size={22} className="mr-2" />

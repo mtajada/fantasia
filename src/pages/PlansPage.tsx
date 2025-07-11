@@ -7,6 +7,8 @@ import BackButton from '@/components/BackButton';
 import { getUserProfile } from '@/services/supabase';
 import { getCurrentUser } from '@/supabaseAuth';
 import { ProfileSettings } from '@/types';
+import { useLimitWarnings } from '@/hooks/useLimitWarnings';
+import LimitIndicator from '@/components/LimitIndicator';
 import {
     Star,
     BookOpen,
@@ -26,6 +28,7 @@ import {
 const PlansPage: React.FC = () => {
     const location = useLocation();
     const { toast } = useToast();
+    const { limitStatus, warnings, hasWarnings } = useLimitWarnings();
     const [profileSettings, setProfileSettings] = useState<ProfileSettings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
@@ -183,14 +186,21 @@ const PlansPage: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="mb-6">
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-gray-300">Available:</span>
-                                                    <span className="font-mono font-bold text-lg text-violet-400">{profileSettings?.voice_credits || 0}</span>
-                                                </div>
-                                                <div className="h-2 bg-gray-700/40 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-gradient-to-r from-violet-500 to-purple-600"
-                                                        style={{ width: `${Math.min(100, ((profileSettings?.voice_credits || 0) / 20) * 100)}%` }}></div>
-                                                </div>
+                                                {limitStatus ? (
+                                                    <LimitIndicator
+                                                        type="voice_credits"
+                                                        current={limitStatus.voiceCredits.current}
+                                                        limit={limitStatus.voiceCredits.limit}
+                                                        isUnlimited={limitStatus.voiceCredits.isUnlimited}
+                                                        showUpgradePrompt={false}
+                                                        className="p-0 bg-transparent border-0 shadow-none ring-0"
+                                                    />
+                                                ) : (
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-gray-300">Available:</span>
+                                                        <span className="font-mono font-bold text-lg text-violet-400">{profileSettings?.voice_credits || 0}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                             <button
                                                 onClick={() => handleCheckout('credits')}
@@ -248,6 +258,34 @@ const PlansPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
+                                {/* Premium Usage Statistics */}
+                                {limitStatus && (
+                                    <div className="mt-8 bg-gray-900/80 backdrop-blur-md rounded-3xl p-5 border border-gray-800 shadow-lg transition-all duration-300">
+                                        <h3 className="font-bold text-xl mb-4 flex items-center gap-2 font-heading text-gray-50">
+                                            <TrendingUp className="h-6 w-6 text-violet-400" />
+                                            <span>Usage This Month</span>
+                                        </h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                            <LimitIndicator
+                                                type="stories"
+                                                current={limitStatus.stories.current}
+                                                limit={limitStatus.stories.limit}
+                                                isUnlimited={limitStatus.stories.isUnlimited}
+                                                showUpgradePrompt={false}
+                                                className="p-3 bg-gray-800/60 border border-gray-700 shadow-sm ring-0"
+                                            />
+                                            <LimitIndicator
+                                                type="voice_credits"
+                                                current={limitStatus.voiceCredits.current}
+                                                limit={limitStatus.voiceCredits.limit}
+                                                isUnlimited={limitStatus.voiceCredits.isUnlimited}
+                                                showUpgradePrompt={false}
+                                                className="p-3 bg-gray-800/60 border border-gray-700 shadow-sm ring-0"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Bottom Premium Features Reminder */}
                                 <div className="mt-8 bg-gray-900/80 backdrop-blur-md rounded-3xl p-5 border border-gray-800 shadow-lg transition-all duration-300">
                                     <h3 className="font-bold text-xl mb-4 flex items-center gap-2 font-heading text-gray-50">
@@ -368,6 +406,34 @@ const PlansPage: React.FC = () => {
                                                         </>
                                                     )}
                                                 </button>
+                                            </div>
+                                        )}
+
+                                        {/* Limit Indicators for Free Users */}
+                                        {activePlan === 'free' && limitStatus && (
+                                            <div className="p-6 pt-4 pb-0">
+                                                <h3 className="font-bold text-base sm:text-lg mb-4 flex items-center gap-2 font-heading text-gray-50">
+                                                    <TrendingUp className="h-5 w-5 text-orange-400" />
+                                                    <span>Your Current Usage</span>
+                                                </h3>
+                                                <div className="space-y-4 mb-6">
+                                                    <LimitIndicator
+                                                        type="stories"
+                                                        current={limitStatus.stories.current}
+                                                        limit={limitStatus.stories.limit}
+                                                        isUnlimited={limitStatus.stories.isUnlimited}
+                                                        showUpgradePrompt={true}
+                                                        className="p-3 bg-gray-800/60 border border-gray-700 shadow-sm ring-0"
+                                                    />
+                                                    <LimitIndicator
+                                                        type="voice_credits"
+                                                        current={limitStatus.voiceCredits.current}
+                                                        limit={limitStatus.voiceCredits.limit}
+                                                        isUnlimited={limitStatus.voiceCredits.isUnlimited}
+                                                        showUpgradePrompt={true}
+                                                        className="p-3 bg-gray-800/60 border border-gray-700 shadow-sm ring-0"
+                                                    />
+                                                </div>
                                             </div>
                                         )}
 
