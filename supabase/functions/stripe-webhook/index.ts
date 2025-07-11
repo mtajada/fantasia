@@ -136,7 +136,7 @@ serve(async (req: Request) => {
           const { error } = await supabaseAdmin
             .from('profiles')
             .update({
-              stripe_subscription_id: subscription.id,
+              subscription_id: subscription.id,
               subscription_status: status,
               stripe_customer_id: stripeCustomerId, // Asegurar que esté guardado/actualizado
               current_period_end: currentPeriodEnd.toISOString(),
@@ -300,7 +300,7 @@ serve(async (req: Request) => {
         const { error } = await supabaseAdmin
           .from('profiles')
           .update({
-            stripe_subscription_id: null,
+            subscription_id: null,
             subscription_status: 'canceled',
             current_period_end: null,
             monthly_voice_generations_used: 0,
