@@ -245,28 +245,67 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     return key;
   }, []);
 
+  // Safe loading translation function
+  const loadingTranslationFunction: TranslationFunction = useCallback((key: string) => {
+    console.warn(`Translation called during loading, returning key: ${key}`);
+    return key;
+  }, []);
+
   // Memoized context value
-  const contextValue: LanguageContextType = useMemo(() => ({
+  const contextValue: LanguageContextType = useMemo(() => {
+    // During loading or if no translation function is ready, use safe fallback
+    let finalTranslationFunction: TranslationFunction;
+    
+    if (isLoading || isChanging) {
+      finalTranslationFunction = loadingTranslationFunction;
+    } else if (translationFunction) {
+      finalTranslationFunction = translationFunction;
+    } else {
+      finalTranslationFunction = defaultTranslationFunction;
+    }
+    
+    // Debug logging to understand context state
+    console.log('LanguageContext contextValue creation:', {
+      currentLanguage,
+      isLoading,
+      isChanging,
+      hasTranslationFunction: !!translationFunction,
+      hasDefaultFunction: !!defaultTranslationFunction,
+      finalFunctionType: typeof finalTranslationFunction,
+      finalFunctionIsFunction: typeof finalTranslationFunction === 'function',
+      finalFunctionValue: finalTranslationFunction.toString().substring(0, 100)
+    });
+    
+    // Additional safety check
+    if (typeof finalTranslationFunction !== 'function') {
+      console.error('CRITICAL: finalTranslationFunction is not a function!', finalTranslationFunction);
+      finalTranslationFunction = loadingTranslationFunction;
+    }
+    
+    return {
+      currentLanguage,
+      availableLanguages: SUPPORTED_LANGUAGES,
+      isLoading,
+      changeLanguage,
+      t: finalTranslationFunction,
+      // Required interface functions
+      getLanguage: (code: SupportedLanguages) => {
+        return SUPPORTED_LANGUAGES.find(lang => lang.value === code);
+      },
+      isSupported: (lang: string): lang is SupportedLanguages => {
+        return SUPPORTED_LANGUAGES.some(supported => supported.value === lang);
+      },
+      getUserLanguage: loadUserLanguage,
+      updateUserLanguage: saveLanguageToSupabase
+    };
+  }, [
     currentLanguage,
-    availableLanguages: SUPPORTED_LANGUAGES,
     isLoading,
-    changeLanguage,
-    t: translationFunction || defaultTranslationFunction,
-    // Required interface functions
-    getLanguage: (code: SupportedLanguages) => {
-      return SUPPORTED_LANGUAGES.find(lang => lang.value === code);
-    },
-    isSupported: (lang: string): lang is SupportedLanguages => {
-      return SUPPORTED_LANGUAGES.some(supported => supported.value === lang);
-    },
-    getUserLanguage: loadUserLanguage,
-    updateUserLanguage: saveLanguageToSupabase
-  }), [
-    currentLanguage,
-    isLoading,
+    isChanging,
     changeLanguage,
     translationFunction,
     defaultTranslationFunction,
+    loadingTranslationFunction,
     loadUserLanguage,
     saveLanguageToSupabase
   ]);

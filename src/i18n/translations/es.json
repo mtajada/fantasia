@@ -65,6 +65,24 @@
       "saving": "Guardando...",
       "update": "Actualizar Perfil"
     },
+    "auth": {
+      "authRequiredTitle": "Autenticación Requerida",
+      "authRequiredDescription": "Por favor inicia sesión para configurar tu perfil",
+      "mustBeAuthenticatedTitle": "Debes estar autenticado",
+      "mustBeAuthenticatedDescription": "Debes estar autenticado para guardar tu perfil"
+    },
+    "errors": {
+      "loadProfileTitle": "Error al Cargar",
+      "loadProfileDescription": "Error al cargar los datos del perfil",
+      "saveErrorTitle": "Error al Guardar",
+      "saveErrorDescription": "Ocurrió un error al guardar tu perfil",
+      "profileNotSavedError": "No se pudo guardar el perfil correctamente"
+    },
+    "success": {
+      "profileUpdatedTitle": "¡Perfil Actualizado!",
+      "profileUpdatedDescription": "Tu perfil se ha actualizado exitosamente",
+      "profileSavedDescription": "¡Perfil guardado! Elijamos un plan"
+    },
     "messages": {
       "success": "¡Perfil Actualizado!",
       "successDescription": "Tu perfil se ha actualizado exitosamente.",

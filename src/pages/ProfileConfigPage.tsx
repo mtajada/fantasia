@@ -17,13 +17,26 @@ import { Textarea } from "@/components/ui/textarea";
 const ProfileConfigPage: React.FC = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { t, changeLanguage, currentLanguage, availableLanguages } = useLanguage();
+    const { t, changeLanguage, currentLanguage, availableLanguages, isLoading: languageLoading } = useLanguage();
 
     // Estado Local del Formulario (SOLO campos que existen en DB)
     const [preferences, setPreferences] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
+
+    // Safety check: Ensure t is a function before proceeding
+    if (languageLoading || typeof t !== 'function') {
+        console.warn('ProfileConfigPage: Language not ready, t is:', typeof t, t);
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-black">
+                <div className="flex justify-center py-12">
+                    <div className="rounded-full h-12 w-12 border-4 border-violet-500 border-t-transparent animate-spin"></div>
+                </div>
+                <p className="text-gray-400 mt-4">Loading language system...</p>
+            </div>
+        );
+    }
 
     // Usar idiomas del contexto de idioma
     const languages = availableLanguages;
@@ -178,9 +191,9 @@ const ProfileConfigPage: React.FC = () => {
                         <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gray-800/80 border border-gray-700/50 mb-4 shadow-lg">
                             <User className="h-8 w-8 text-violet-400" />
                         </div>
-                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">{t('profileConfig.header.title')}</h1>
+                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">{t('profileConfig.title')}</h1>
                         <p className="text-gray-200 text-md max-w-md mx-auto font-medium bg-gray-800/60 rounded-xl px-4 py-2 shadow-sm">
-                            {t('profileConfig.header.subtitle')}
+                            {t('profileConfig.subtitle')}
                         </p>
                     </motion.div>
 
@@ -204,7 +217,7 @@ const ProfileConfigPage: React.FC = () => {
                                     <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
                                         <Globe className="h-4 w-4 text-violet-400" />
                                     </div>
-                                    <span>{t('profileConfig.form.language.label')}</span>
+                                    <span>{t('profileConfig.language.label')}</span>
                                 </label>
 
                                 <Select value={currentLanguage} onValueChange={changeLanguage}>
@@ -215,7 +228,7 @@ const ProfileConfigPage: React.FC = () => {
                                                 {selectedLang.label}
                                             </div>
                                         ) : (
-                                            <SelectValue placeholder={t('profileConfig.form.language.placeholder')} />
+                                            <SelectValue placeholder={t('profileConfig.language.placeholder')} />
                                         )}
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-900/95 border-gray-700 shadow-2xl rounded-2xl text-gray-200 backdrop-blur-md">
@@ -237,20 +250,20 @@ const ProfileConfigPage: React.FC = () => {
                                     <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
                                         <Heart className="h-4 w-4 text-pink-400" />
                                     </div>
-                                    <span>{t('profileConfig.form.preferences.label')}</span>
+                                    <span>{t('profileConfig.preferences.label')}</span>
                                 </label>
 
                                 <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl border border-gray-700 p-4">
                                     <Textarea
                                         id="preferences"
-                                        placeholder={t('profileConfig.form.preferences.placeholder')}
+                                        placeholder={t('profileConfig.preferences.placeholder')}
                                         value={preferences}
                                         onChange={(e) => setPreferences(e.target.value)}
                                         className="bg-transparent border-none resize-none focus:ring-0 text-gray-200 placeholder:text-gray-400 min-h-[120px]"
                                         maxLength={1000}
                                     />
                                     <div className="text-xs text-gray-400 mt-2">
-                                        {t('profileConfig.form.preferences.charactersCount', { count: preferences.length })}
+                                        {t('profileConfig.preferences.charactersCount', { count: preferences.length })}
                                     </div>
                                 </div>
                             </div>
@@ -272,7 +285,7 @@ const ProfileConfigPage: React.FC = () => {
                                 ) : (
                                     <Check className="h-5 w-5 text-white" />
                                 )}
-                                <span>{isSaving ? t('profileConfig.actions.saving') : t('profileConfig.actions.saveProfile')}</span>
+                                <span>{isSaving ? t('profileConfig.buttons.saving') : t('profileConfig.buttons.save')}</span>
                             </motion.button>
                         </motion.form>
                     )}

@@ -65,6 +65,24 @@
       "saving": "Saving...",
       "update": "Update Profile"
     },
+    "auth": {
+      "authRequiredTitle": "Authentication Required",
+      "authRequiredDescription": "Please log in to configure your profile",
+      "mustBeAuthenticatedTitle": "Must be authenticated",
+      "mustBeAuthenticatedDescription": "You must be authenticated to save your profile"
+    },
+    "errors": {
+      "loadProfileTitle": "Load Error",
+      "loadProfileDescription": "Failed to load profile data",
+      "saveErrorTitle": "Save Error",
+      "saveErrorDescription": "An error occurred while saving your profile",
+      "profileNotSavedError": "Profile could not be saved correctly"
+    },
+    "success": {
+      "profileUpdatedTitle": "Profile Updated!",
+      "profileUpdatedDescription": "Your profile has been updated successfully",
+      "profileSavedDescription": "Profile saved! Let's choose a plan"
+    },
     "messages": {
       "success": "Profile Updated!",
       "successDescription": "Your profile has been updated successfully.",
