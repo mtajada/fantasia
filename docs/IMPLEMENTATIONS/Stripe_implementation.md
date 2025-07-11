@@ -102,8 +102,18 @@ Implementar un sistema completo de gesti�n de l�mites y suscripciones que ga
   await supabase.rpc('increment_story_count', { user_id: userId });
   ```
 
-#### **Paso 1.2: Implementar Sistema de Reseteo Mensual**
-- **Opci�n A**: Funci�n Edge con cron job
+#### ✅ **Paso 1.2: Implementar Sistema de Reseteo Mensual** ✅ **COMPLETADO**
+
+**Estado**: ✅ **COMPLETADO** - Cron scheduler activo y funcionando  
+**Opción implementada**: Opción B - Cron job nativo en Supabase  
+**Resultado verificado**: 
+- Job ID: 1 activo en pg_cron
+- Programado para ejecutarse el 1º de cada mes a las 00:00 UTC  
+- Función `reset_monthly_counters()` configurada correctamente
+- Extensión pg_cron v1.6 instalada y operativa
+- Verificado funcionamiento: `SELECT * FROM cron.job WHERE jobname = 'monthly-counters-reset'`
+
+- **~Opci�n A~**: Funci�n Edge con cron job (no implementada)
   ```typescript
   // Crear nueva funci�n: /supabase/functions/monthly-reset-scheduler/index.ts
   import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
@@ -363,16 +373,8 @@ Implementar un sistema completo de gesti�n de l�mites y suscripciones que ga
 - Monitoring y alertas para fallos cr�ticos
 - Backup y recovery procedures para datos de suscripci�n
 
-## 6. Cronograma de Implementaci�n
 
-| Fase | Duraci�n | Dependencias | Entregables |
-|------|----------|--------------|-------------|
-| **Fase 1** | 3-5 d�as | Acceso a Supabase | L�mites cr�ticos resueltos |
-| **Fase 2** | 2-3 d�as | Fase 1 completa | UI mejorada con indicadores |
-| **Fase 3** | 2-3 d�as | Fase 2 completa | Monitoring implementado |
-| **Fase 4** | 2-3 d�as | Fase 3 completa | Testing completo |
 
-**Tiempo total estimado**: 9-14 d�as
 
 ## 7. Riesgos y Mitigaciones
 
@@ -380,18 +382,10 @@ Implementar un sistema completo de gesti�n de l�mites y suscripciones que ga
 - **Mitigaci�n**: Implementar cola de retry y logs detallados
 - **Rollback**: Mantener funcionalidad actual hasta validaci�n completa
 
-### **Riesgo Medio**: Usuarios existentes pierden cr�ditos durante reseteo
+### **Riesgo Medio**: Usuarios existentes pierden cr�ditos durante reseteo  (no importa)
 - **Mitigaci�n**: Hacer backup de datos antes de implementar reseteo autom�tico
 - **Rollback**: Script de restauraci�n de cr�ditos
 
 ### **Riesgo Bajo**: Performance degradada por nuevas validaciones
 - **Mitigaci�n**: Optimizaci�n de queries y cach� estrat�gico
 - **Rollback**: Flags de feature para deshabilitar validaciones pesadas
-
----
-
-**Documento creado**: Enero 2025  
-**Versi�n**: 1.0  
-**Estado**: Pendiente de implementaci�n  
-**Responsable**: Equipo de desarrollo  
-**Pr�xima revisi�n**: Post-implementaci�n Fase 1

@@ -10,14 +10,6 @@
 
 BEGIN;
 
--- =============================================================================
--- STEP 1: CLEANUP OF OBSOLETE TABLES
--- We remove tables related to "challenges", which no longer exist.
--- =============================================================================
-
-DROP TABLE IF EXISTS public.challenge_questions;
-DROP TABLE IF EXISTS public.challenges;
-
 
 -- =============================================================================
 -- STEP 2: CREATION OF CUSTOM DATA TYPES (ENUMS)
@@ -529,47 +521,6 @@ CREATE TRIGGER trigger_user_voices_updated_at
     BEFORE UPDATE ON public.user_voices
     FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
 
-
--- =============================================================================
--- ||                      CHARACTERS_DATA USAGE EXAMPLES                      ||
--- =============================================================================
-
--- IMPORTANT: The characters_data field was added via separate migration script.
--- It stores complete character arrays for stories with multiple characters (1-4).
-
--- Example 1: Insert a story with multiple characters
--- INSERT INTO stories (user_id, title, content, characters_data, character_id, genre, story_format)
--- VALUES (
---     'user-uuid-here',
---     'My Story',
---     'Story content...',
---     '[
---         {"id": "char-1", "name": "Alice", "gender": "female", "description": "Beautiful", "is_preset": false},
---         {"id": "char-2", "name": "Valentina", "gender": "female", "description": "Sultry influencer", "is_preset": true}
---     ]'::jsonb,
---     'char-1',  -- Primary character for compatibility (NULL for preset-only stories)
---     'Romance',
---     'single'
--- );
-
--- Example 2: Query stories by character name
--- SELECT * FROM stories 
--- WHERE characters_data @> '[{"name": "Valentina"}]';
-
--- Example 3: Query stories with preset characters
--- SELECT * FROM stories 
--- WHERE characters_data @> '[{"is_preset": true}]';
-
--- Example 4: Count characters in story
--- SELECT title, jsonb_array_length(characters_data) as character_count
--- FROM stories 
--- WHERE characters_data IS NOT NULL;
-
--- Example 5: Find stories with specific character combinations
--- SELECT title, characters_data
--- FROM stories 
--- WHERE characters_data @> '[{"name": "Akira"}]' 
---   AND characters_data @> '[{"name": "Elena"}]';
 
 
 -- =============================================================================
