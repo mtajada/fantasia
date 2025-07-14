@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLimitWarnings } from "@/hooks/useLimitWarnings";
 import LimitIndicator from "@/components/LimitIndicator";
 import NavigationBar from "@/components/NavigationBar";
+import { navigationUtils } from "@/lib/utils";
+import { trackFeatureUsed, trackLimitReached } from "@/services/analyticsService";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -74,20 +76,48 @@ export default function Home() {
   }
 
 
-  const handleNewStory = () => {
-    if (canCreateStory()) {
-      navigate("/character-selection");
-    } else {
-      const remaining = getRemainingMonthlyStories();
-      const isPremium = isPremiumUser();
-      
-      toast({
-        title: isPremium ? "Premium Limit Reached 💎" : "Story Limit Reached 🚫",
-        description: isPremium
-          ? "You've reached your premium story limit. Contact support for more information 📞"
-          : `🔒 You've used all ${limitStatus?.stories.limit || 10} stories this month! Upgrade to premium for unlimited stories ✨`,
-        variant: "destructive",
-      });
+  const handleNewStory = async () => {
+    try {
+      // Track that user attempted to create a story
+      await trackFeatureUsed(
+        'create_story_button',
+        `stories_remaining_${getRemainingMonthlyStories()}`,
+        'Home'
+      );
+
+      if (canCreateStory()) {
+        // Track successful story creation initiation
+        await trackFeatureUsed(
+          'story_creation_started',
+          `premium_user_${isPremiumUser()}`,
+          'Home'
+        );
+        navigate("/character-selection");
+      } else {
+        // Track limit reached event
+        const currentStories = limitStatus?.stories.current || 0;
+        const limitValue = limitStatus?.stories.limit || 10;
+        
+        await trackLimitReached('stories', currentStories, limitValue, 'Home_create_button');
+        
+        // Track that user was redirected to upgrade
+        await trackFeatureUsed(
+          'upgrade_redirect_from_limit',
+          'stories_limit_reached',
+          'Home'
+        );
+        
+        // Redirect to premium plans instead of showing toast
+        navigationUtils.redirectToUpgradePremium();
+      }
+    } catch (analyticsError) {
+      console.warn('[Home] Analytics tracking failed:', analyticsError);
+      // Continue with navigation even if analytics fails
+      if (canCreateStory()) {
+        navigate("/character-selection");
+      } else {
+        navigationUtils.redirectToUpgradePremium();
+      }
     }
   };
 
@@ -143,11 +173,11 @@ export default function Home() {
           <button
             className={`w-full py-5 rounded-2xl text-lg font-semibold shadow-xl transition-all duration-300 ${canCreateStory()
               ? "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 hover:-translate-y-1"
-              : "bg-gray-700 text-gray-400 cursor-not-allowed"
+              : "bg-gray-700 text-gray-400 cursor-pointer hover:bg-gray-600"
               }`}
             onClick={handleNewStory}
-            disabled={!canCreateStory()}
-            title={!canCreateStory() ? `You have ${getRemainingMonthlyStories()} stories left this month` : ""}
+            aria-disabled={!canCreateStory()}
+            title={!canCreateStory() ? "Monthly story limit reached - Click to upgrade to premium" : ""}
           >
             {canCreateStory() ? "Create New Story ✨" : "🔒 Limit Reached - Upgrade?"}
           </button>

@@ -9,6 +9,7 @@ import { getCurrentUser } from '@/supabaseAuth';
 import { ProfileSettings } from '@/types';
 import { useLimitWarnings } from '@/hooks/useLimitWarnings';
 import LimitIndicator from '@/components/LimitIndicator';
+import { trackPaymentEvent, trackUpgradeConversion, trackFeatureUsed } from '@/services/analyticsService';
 import {
     Star,
     BookOpen,
@@ -31,7 +32,6 @@ const PlansPage: React.FC = () => {
     const { limitStatus, warnings, hasWarnings } = useLimitWarnings();
     const [profileSettings, setProfileSettings] = useState<ProfileSettings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
     
     // Premium check function
     const isPremium = () => {
@@ -44,7 +44,7 @@ const PlansPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'comparison' | 'details'>('comparison');
     const [activePlan, setActivePlan] = useState<'free' | 'premium'>('free');
 
-    // Load user data and handle tab query parameter
+    // Load user data and handle tab/focus query parameters
     useEffect(() => {
         const loadUserData = async () => {
             try {
@@ -52,7 +52,6 @@ const PlansPage: React.FC = () => {
                 const { user: currentUser } = await getCurrentUser();
                 
                 if (currentUser) {
-                    setUser(currentUser);
                     const { success, profile } = await getUserProfile(currentUser.id);
                     
                     if (success && profile) {
@@ -71,18 +70,73 @@ const PlansPage: React.FC = () => {
         
         loadUserData();
         
-        // Handle tab query parameter
+        // Handle query parameters
         const queryParams = new URLSearchParams(location.search);
         const tabParam = queryParams.get('tab');
-        if (tabParam === 'premium') {
+        const focusParam = queryParams.get('focus');
+        
+        // Handle focus=credits parameter - always show premium view for credits
+        if (focusParam === 'credits') {
             setActivePlan('premium');
-        } else if (tabParam === 'free') {
-            setActivePlan('free');
+            // Auto-scroll to credits section after a short delay to ensure it's rendered
+            setTimeout(() => {
+                const creditsSection = document.getElementById('voice-credits-section');
+                if (creditsSection) {
+                    creditsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Add temporary highlight effect
+                    creditsSection.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.6)';
+                    setTimeout(() => {
+                        creditsSection.style.boxShadow = '';
+                    }, 3000);
+                }
+            }, 500);
+        } else {
+            // Handle regular tab parameter
+            if (tabParam === 'premium') {
+                setActivePlan('premium');
+            } else if (tabParam === 'free') {
+                setActivePlan('free');
+            }
         }
     }, [location.search]);
 
     const handleCheckout = async (item: 'premium' | 'credits') => {
         setIsCheckoutLoading(true);
+        
+        // Track analytics before attempting payment
+        try {
+            const currentSubscriptionType = profileSettings?.subscription_status || 'free';
+            
+            // Track payment attempt
+            await trackPaymentEvent('payment_attempted', {
+                product_type: item === 'premium' ? 'subscription' : 'credits'
+            }, 'PlansPage');
+
+            // Track upgrade conversion intent for premium purchases
+            if (item === 'premium' && currentSubscriptionType !== 'active') {
+                await trackUpgradeConversion(
+                    currentSubscriptionType,
+                    'premium',
+                    'PlansPage',
+                    {
+                        limitThatTriggered: hasWarnings ? 
+                            (warnings.some(w => w.type === 'stories') ? 'stories' : 'voice_credits') : 
+                            undefined
+                    }
+                );
+            }
+
+            // Track feature usage
+            await trackFeatureUsed(
+                `checkout_${item}`,
+                `${activePlan}_tab_${activeTab}_section`,
+                'PlansPage'
+            );
+        } catch (analyticsError) {
+            console.warn('[PlansPage] Analytics tracking failed:', analyticsError);
+            // Continue with checkout even if analytics fails
+        }
+
         try {
             const { data, error } = await supabase.functions.invoke('create-checkout-session', {
                 body: JSON.stringify({ item }),
@@ -91,13 +145,37 @@ const PlansPage: React.FC = () => {
             if (error) throw error;
 
             if (data?.url) {
+                // Track successful checkout session creation before redirect
+                try {
+                    await trackPaymentEvent('payment_completed', {
+                        product_type: item === 'premium' ? 'subscription' : 'credits',
+                        stripe_session_id: data.session_id || 'unknown'
+                    }, 'PlansPage');
+                } catch (analyticsError) {
+                    console.warn('[PlansPage] Post-checkout analytics failed:', analyticsError);
+                }
+                
                 window.location.href = data.url;
             } else {
                 throw new Error('No checkout URL received.');
             }
         } catch (error: Error | unknown) {
             console.error(`Error creating ${item} checkout session:`, error);
-            toast({ title: 'Error', description: `Could not start payment: ${error instanceof Error ? error.message : 'Unknown error'}`, variant: 'destructive' });
+            
+            // Track checkout failure
+            try {
+                await trackPaymentEvent('payment_attempted', {
+                    product_type: item === 'premium' ? 'subscription' : 'credits'
+                }, 'PlansPage');
+            } catch (analyticsError) {
+                console.warn('[PlansPage] Error analytics tracking failed:', analyticsError);
+            }
+            
+            toast({ 
+                title: 'Error', 
+                description: `Could not start payment: ${error instanceof Error ? error.message : 'Unknown error'}`, 
+                variant: 'destructive' 
+            });
             setIsCheckoutLoading(false);
         } // No finally needed as page redirects on success
     };
@@ -174,7 +252,7 @@ const PlansPage: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 px-4 sm:px-0">
                                     {/* Card: Buy Voice Credits */}
-                                    <div className="bg-gray-900/90 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-gray-800 transition-all duration-300">
+                                    <div id="voice-credits-section" className="bg-gray-900/90 backdrop-blur-md rounded-3xl overflow-hidden shadow-xl border border-gray-800 transition-all duration-300">
                                         <div className="p-6">
                                             <div className="flex items-center gap-3 mb-4">
                                                 <div className="w-10 h-10 rounded-full bg-violet-500/40 flex items-center justify-center">

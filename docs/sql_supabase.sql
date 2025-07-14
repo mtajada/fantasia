@@ -160,6 +160,25 @@ CREATE TABLE public.user_voices (
     CONSTRAINT user_voices_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
+-- 'usage_events' table: Tracks user behavior and analytics events
+DROP TABLE IF EXISTS public.usage_events;
+CREATE TABLE public.usage_events (
+    id uuid NOT NULL DEFAULT extensions.uuid_generate_v4(),
+    user_id uuid NOT NULL,
+    event_type text NOT NULL,
+    event_data jsonb NULL,
+    metadata jsonb NULL,
+    source text NULL, -- Component or page where event originated
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT usage_events_pkey PRIMARY KEY (id),
+    CONSTRAINT usage_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+);
+COMMENT ON TABLE public.usage_events IS 'Stores analytics events for tracking user behavior, limit reaches, and conversion tracking.';
+COMMENT ON COLUMN public.usage_events.event_type IS 'Type of event: limit_reached, upgrade_conversion, feature_used, etc.';
+COMMENT ON COLUMN public.usage_events.event_data IS 'Event-specific data (e.g., limit_type, credits_added).';
+COMMENT ON COLUMN public.usage_events.metadata IS 'Additional context data (e.g., user_agent, subscription_type).';
+COMMENT ON COLUMN public.usage_events.source IS 'Where the event originated (e.g., PlansPage, StoryViewer).';
+
 
 -- =============================================================================
 -- STEP 3.5: CREATE PERFORMANCE INDEXES
@@ -237,6 +256,19 @@ CREATE POLICY "Authenticated users can read active presets."
     ON public.preset_suggestions FOR SELECT
     TO authenticated
     USING (is_active = true);
+
+-- Policies for 'usage_events' (Users can only insert their own events, admins can read)
+DROP POLICY IF EXISTS "Users can insert their own usage events." ON public.usage_events;
+CREATE POLICY "Users can insert their own usage events."
+    ON public.usage_events FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read their own usage events." ON public.usage_events;
+CREATE POLICY "Users can read their own usage events."
+    ON public.usage_events FOR SELECT
+    TO authenticated
+    USING (auth.uid() = user_id);
 
 
 COMMIT;

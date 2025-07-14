@@ -67,7 +67,7 @@ export const useLimitWarnings = () => {
       // Fetch profile data with limits
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('subscription_status, stories_generated_this_month, voice_credits')
+        .select('subscription_status, monthly_stories_generated, voice_credits')
         .eq('id', user.id)
         .single();
 
@@ -85,7 +85,7 @@ export const useLimitWarnings = () => {
       
       const status: LimitStatus = {
         stories: {
-          current: profile.stories_generated_this_month || 0,
+          current: profile.monthly_stories_generated || 0,
           limit: FREE_STORY_LIMIT,
           isUnlimited: isPremium
         },

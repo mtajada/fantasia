@@ -12,7 +12,7 @@ import BackButton from "../components/BackButton";
 import PageTransition from "../components/PageTransition";
 import { toast } from "sonner"; // Asegurarse que toast está importado
 import { StoryChapter, Story } from "../types"; // Importar Story
-import { parseTextToParagraphs } from '@/lib/utils';
+import { parseTextToParagraphs, navigationUtils } from '@/lib/utils';
 import { generateId } from "../store/core/utils";
 
 export default function StoryViewer() {
@@ -34,14 +34,8 @@ export default function StoryViewer() {
   const [error, setError] = useState<string | null>(null);
 
   // --- Permisos derivados del store ---
-  // NEW: Check both chapter limits AND monthly story limits
-  const canContinueBasedOnChapters = storyId ? canContinueStory(storyId) : false;
-  const canContinueBasedOnMonthlyLimit = limitStatus ? 
-    (limitStatus.stories.isUnlimited || limitStatus.stories.current < limitStatus.stories.limit) : 
-    true; // Allow if data hasn't loaded yet
-    
-  // Final permission: both chapter and monthly limits must be satisfied
-  const isAllowedToContinue = canContinueBasedOnChapters && canContinueBasedOnMonthlyLimit;
+  // Simplified: canContinueStory now only checks monthly limits
+  const isAllowedToContinue = storyId ? canContinueStory(storyId) : false;
   const isAllowedToGenerateVoice = canGenerateVoice();
 
   // --- Cálculo para saber si es el último capítulo ---
@@ -180,9 +174,8 @@ export default function StoryViewer() {
     if (isAllowedToGenerateVoice) {
       navigate(`/story/${storyId}/audio/${currentChapterIndex}`);
     } else {
-      toast.error("Voice limit reached", {
-        description: "You don't have free voice generations or credits available."
-      });
+      // Redirect to buy credits instead of showing toast
+      navigationUtils.redirectToBuyCredits();
     }
   };
 
@@ -201,31 +194,28 @@ export default function StoryViewer() {
     navigate('/'); // Navegar explícitamente a la página de inicio
   };
 
-  // --- *** INICIO: Lógica de Continuación MODIFICADA *** ---
+  // --- *** INICIO: Lógica de Continuación MEJORADA *** ---
   const goToContinuationPage = () => {
-    // Check monthly limit first, then chapter limit
-    if (!canContinueBasedOnMonthlyLimit) {
-      const isPremium = limitStatus?.subscriptionStatus === 'active' || limitStatus?.subscriptionStatus === 'trialing';
-      toast.error(isPremium ? "Premium Limit Reached 💎" : "Story Limit Reached 🚫", {
-        description: isPremium
-          ? "You've reached your premium story limit. Contact support for more information 📞"
-          : `🔒 You've used all ${limitStatus?.stories.limit || 10} stories this month! Upgrade to premium for unlimited stories ✨`
+    // First check if it's the last chapter (UX requirement)
+    if (!isLastChapter) {
+      toast.error("Can only continue from last chapter", {
+        description: "Navigate to the last chapter to continue the story."
       });
       return;
     }
     
-    if (!canContinueBasedOnChapters) {
-      toast.error("Continuation limit reached 📖", {
-        description: "You can only add one free continuation per story. Upgrade to premium for unlimited continuations! 🌟"
-      });
+    // Check monthly limits and redirect if reached
+    if (!isAllowedToContinue) {
+      // Redirect to premium plans instead of showing toast
+      navigationUtils.redirectToUpgradePremium();
       return;
     }
     
-    // Both limits satisfied - allow continuation
+    // User can continue - proceed to continuation page
     navigate(`/story/${storyId}/continue?refresh=${Date.now()}`);
   };
 
-  // --- *** FIN: Lógica de Continuación MODIFICADA *** ---
+  // --- *** FIN: Lógica de Continuación SIMPLIFICADA *** ---
 
   // --- Renderizado ---
   const currentChapter = chapters[currentChapterIndex];
@@ -306,17 +296,15 @@ export default function StoryViewer() {
               <div className="flex flex-col sm:flex-row gap-5 sm:gap-8 justify-center items-center w-full">
                 <button
                   onClick={goToContinuationPage}
-                  disabled={!isAllowedToContinue || !isLastChapter}
-                  className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue && isLastChapter ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-violet-500/25' : 'bg-gray-700 cursor-not-allowed text-gray-400 border border-gray-600'}`}
+                  aria-disabled={!isAllowedToContinue || !isLastChapter}
+                  className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-auto ${isAllowedToContinue && isLastChapter ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-violet-500/25' : 'bg-gray-700 cursor-pointer hover:bg-gray-600 text-gray-400 border border-gray-600'}`}
                   // Título dinámico según la razón de la deshabilitación
                   title={
-                    !canContinueBasedOnMonthlyLimit
-                      ? `Monthly story limit reached (${limitStatus?.stories.current || 0}/${limitStatus?.stories.limit || 10})`
-                      : !canContinueBasedOnChapters
-                        ? "Free continuation limit reached (max 1 per story)"
-                        : !isLastChapter
-                          ? "You can only continue from the last chapter"
-                          : "Continue the story"
+                    !isAllowedToContinue
+                      ? "Monthly story limit reached - Click to upgrade to premium"
+                      : !isLastChapter
+                        ? "You can only continue from the last chapter"
+                        : "Continue the story"
                   }
                 >
                   <BookOpen size={22} className="mr-2" />
@@ -327,9 +315,9 @@ export default function StoryViewer() {
               {/* Segunda fila: Narrar */}
               <button
                 onClick={toggleAudioPlayer}
-                disabled={!isAllowedToGenerateVoice}
-                className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white shadow-pink-500/25' : 'bg-gray-700 cursor-not-allowed text-gray-400 border border-gray-600'}`}
-                title={!isAllowedToGenerateVoice ? "Voice limit or credits exhausted" : "Listen to narration"}
+                aria-disabled={!isAllowedToGenerateVoice}
+                className={`flex items-center justify-center px-5 sm:px-6 py-3 sm:py-4 rounded-2xl font-semibold transition-all shadow-lg text-base sm:text-lg w-full sm:w-64 ${isAllowedToGenerateVoice ? 'bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white shadow-pink-500/25' : 'bg-gray-700 cursor-pointer hover:bg-gray-600 text-gray-400 border border-gray-600'}`}
+                title={!isAllowedToGenerateVoice ? "Voice credits exhausted - Click to buy more credits" : "Listen to narration"}
               >
                 <Volume2 size={22} className="mr-2" />
                 Narrate
