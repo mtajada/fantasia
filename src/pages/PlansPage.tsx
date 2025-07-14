@@ -221,7 +221,6 @@ const PlansPage: React.FC = () => {
         { name: 'Stories Generated', free: '10 / month', premium: 'Unlimited', icon: BookOpen, limited: true },
         { name: 'Story Continuations', free: '1', premium: 'Unlimited', icon: TrendingUp, limited: true },
         { name: 'Voice Narration (AI)', free: 'Yes (2 / month)', premium: 'Yes (20/month incl.)', icon: Mic, limited: true },
-        { name: 'Creative Challenges', free: 'Unlimited', premium: 'Unlimited', icon: CheckCircle, limited: false },
     ];
 
     return (
