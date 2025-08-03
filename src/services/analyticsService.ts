@@ -83,8 +83,8 @@ export async function trackUsageEvent(
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      console.warn('[Analytics] Cannot track event - user not authenticated');
-      return { success: false, error: 'User not authenticated' };
+      console.warn('[Analytics] No se puede rastrear evento - usuario no autenticado');
+      return { success: false, error: 'Usuario no autenticado' };
     }
 
     // Get user profile for additional metadata
@@ -115,18 +115,18 @@ export async function trackUsageEvent(
       });
 
     if (insertError) {
-      console.error('[Analytics] Failed to track event:', insertError);
+      console.error('[Analytics] Error al rastrear evento:', insertError);
       return { success: false, error: insertError.message };
     }
 
-    console.log(`[Analytics] Tracked event: ${eventType} from ${source || 'unknown'}`);
+    console.log(`[Analytics] Evento rastreado: ${eventType} desde ${source || 'desconocido'}`);
     return { success: true };
 
   } catch (error) {
-    console.error('[Analytics] Exception tracking event:', error);
+    console.error('[Analytics] Excepción rastreando evento:', error);
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      error: error instanceof Error ? error.message : 'Error desconocido' 
     };
   }
 }
@@ -144,7 +144,7 @@ export async function trackLimitReached(
   // Get user subscription type for context
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { success: false, error: 'User not authenticated' };
+    return { success: false, error: 'Usuario no autenticado' };
   }
 
   const { data: profile } = await supabase
@@ -198,7 +198,7 @@ export async function trackFeatureUsed(
   // Get user subscription type
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { success: false, error: 'User not authenticated' };
+    return { success: false, error: 'Usuario no autenticado' };
   }
 
   const { data: profile } = await supabase
@@ -305,7 +305,7 @@ export async function getUserUsageStats(
   try {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return { success: false, error: 'User not authenticated' };
+      return { success: false, error: 'Usuario no autenticado' };
     }
 
     const startDate = new Date();
@@ -353,7 +353,7 @@ export async function getUserUsageStats(
   } catch (error) {
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      error: error instanceof Error ? error.message : 'Error desconocido' 
     };
   }
 }
@@ -408,7 +408,7 @@ export async function trackEventBatch(
     if (result.success) {
       processed++;
     } else {
-      console.warn(`[Analytics] Failed to track event in batch: ${event.eventType}`);
+      console.warn(`[Analytics] Error al rastrear evento en lote: ${event.eventType}`);
     }
   }
 
@@ -429,7 +429,7 @@ export async function clearOldEvents(
   try {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return { success: false, error: 'User not authenticated' };
+      return { success: false, error: 'Usuario no autenticado' };
     }
 
     const cutoffDate = new Date();
@@ -450,7 +450,7 @@ export async function clearOldEvents(
   } catch (error) {
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      error: error instanceof Error ? error.message : 'Error desconocido' 
     };
   }
 }

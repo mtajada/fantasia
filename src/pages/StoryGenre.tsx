@@ -10,12 +10,12 @@ import { cn } from "../lib/utils";
 import { StoryCharacter } from "../types";
 
 const suggestedGenres = [
-  { id: "erotic-romance", name: "Erotic Romance", icon: "💘" },
+  { id: "erotic-romance", name: "Romance Erótico", icon: "💘" },
   { id: "bdsm", name: "BDSM", icon: "⛓️" },
-  { id: "paranormal-erotica", name: "Paranormal Erotica", icon: "👻" },
-  { id: "lgbtq+", name: "LGBTQ+", icon: "🏳️‍🌈" },
-  { id: "sci-fi-erotica", name: "Sci-Fi Erotica", icon: "👽" },
-  { id: "taboo-forbidden", name: "Taboo / Forbidden", icon: "🤫" },
+  { id: "paranormal-erotica", name: "Erótica Paranormal", icon: "👻" },
+  { id: "humillacion", name: "Humillación", icon: "😳" },
+  { id: "sci-fi-erotica", name: "Ciencia Ficción Erótica", icon: "👽" },
+  { id: "taboo-forbidden", name: "Tabú / Prohibido", icon: "🤫" },
 ];
 
 export default function StoryGenre() {
@@ -33,12 +33,12 @@ export default function StoryGenre() {
       try {
         const characters = JSON.parse(selectedCharactersData);
         setSelectedCharacters(characters);
-        console.log("🔍 StoryGenre - Characters loaded from sessionStorage:", characters.length);
+        console.log("🔍 StoryGenre - Protagonistas cargados desde sessionStorage:", characters.length);
       } catch (error) {
-        console.error("Error parsing selectedCharacters in StoryGenre:", error);
+        console.error("Error parseando los protagonistas en StoryGenre:", error);
       }
     } else {
-      console.warn("StoryGenre - No characters found in sessionStorage, redirecting to character selection");
+      console.warn("StoryGenre - No se encontraron protagonistas en sessionStorage, redirigiendo a la selección de protagonistas");
       navigate("/character-selection");
     }
   }, [navigate]);
@@ -83,7 +83,7 @@ export default function StoryGenre() {
             transition={{ duration: 0.5 }}
             className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500"
           >
-            Choose your story's vibe
+            Define el tono de tu fantasía
           </motion.h1>
 
           <motion.p
@@ -92,7 +92,7 @@ export default function StoryGenre() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg text-gray-300 text-center mb-6 max-w-xl"
           >
-            Pick a genre or type your own. This will set the mood and style for your narrative. Let's get spicy! 🔥
+            Elige un género o escribe el tuyo. Esto definirá el ambiente y el estilo de tu narrativa. ¡Vamos a ponernos picantes! 🔥
           </motion.p>
 
           {/* Show selected characters */}
@@ -103,7 +103,7 @@ export default function StoryGenre() {
               transition={{ duration: 0.3, delay: 0.4 }}
               className="bg-white/10 rounded-lg p-3 mb-6 text-center"
             >
-              <p className="text-sm text-gray-300 mb-1">Selected characters:</p>
+              <p className="text-sm text-gray-300 mb-1">Protagonistas elegidos:</p>
               <p className="text-violet-300 font-medium">
                 {selectedCharacters.map(char => char.name).join(', ')} ({selectedCharacters.length})
               </p>
@@ -140,10 +140,10 @@ export default function StoryGenre() {
             transition={{ delay: 0.5 }}
             className="w-full max-w-md mb-10"
           >
-            <p className="text-center text-gray-400 mb-3">Or, walk on the wild side and create your own:</p>
+            <p className="text-center text-gray-400 mb-3">O, si te atreves, crea el tuyo:</p>
             <Input
               type="text"
-              placeholder="e.g., Dark Comedy, Psychological Thriller..."
+              placeholder="Ej: Comedia Oscura, Thriller Psicológico..."
               value={customGenre}
               onChange={handleCustomGenreChange}
               className="w-full bg-gray-900 border-2 border-gray-700 rounded-lg text-center text-white placeholder:text-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
@@ -154,9 +154,9 @@ export default function StoryGenre() {
             <StoryButton
               onClick={handleContinue}
               disabled={!selectedGenre}
-              className="w-full"
+              isFullWidth
             >
-              Continue
+              Continuar
             </StoryButton>
           </div>
         </div>

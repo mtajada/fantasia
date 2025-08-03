@@ -31,12 +31,12 @@ const StoryDetailsInput: React.FC = () => {
         .eq('is_active', true);
 
       if (error) {
-        console.error('Error fetching presets:', error.message);
+        console.error('Error obteniendo preajustes:', error.message);
       } else if (data) {
         setAllPresets(data);
       }
     } catch (err) {
-      console.error('Unexpected error fetching presets:', err);
+      console.error('Error inesperado obteniendo preajustes:', err);
     } finally {
       setIsLoadingPresets(false);
     }
@@ -74,11 +74,11 @@ const StoryDetailsInput: React.FC = () => {
     } else {
       setAdditionalDetails(undefined); // Treat as skipped if empty
     }
-    
+
     // Set the selected format and spiciness level in the store
     setFormat(format);
     setSpicynessLevel(spicynessLevel);
-    
+
     navigate('/generating'); // Navigate to the generation screen
   };
 
@@ -118,7 +118,7 @@ const StoryDetailsInput: React.FC = () => {
         }}
       >
         <BackButton />
-        
+
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center p-4">
           {/* Animated title and subtitle */}
           <motion.h1
@@ -127,7 +127,7 @@ const StoryDetailsInput: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500"
           >
-            Any <span className="text-pink-400">juicy details</span>? 🤫
+            ¿Algún detalle jugoso? 🤫
           </motion.h1>
 
           <motion.p
@@ -136,7 +136,7 @@ const StoryDetailsInput: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg text-gray-300 text-center mb-10 max-w-xl"
           >
-            Spice up your story with some extra instructions or wild ideas! 🌶️
+            ¡Dale un toque picante a tu historia con instrucciones extra o ideas salvajes! 🌶️
           </motion.p>
 
           {/* "Optional Step" Badge */}
@@ -149,10 +149,10 @@ const StoryDetailsInput: React.FC = () => {
           >
             <span className="inline-flex items-center px-4 py-1 rounded-full text-sm font-semibold bg-gray-800/80 border border-gray-700 text-violet-300 shadow-sm">
               <Sparkles className="w-4 h-4 mr-1.5 text-violet-400" />
-              Optional, but fun! ✨
+              ¡Opcional, pero divertido! ✨
             </span>
           </motion.div>
-          
+
           {/* Presets Section */}
           <motion.div
             className="mb-4 w-full"
@@ -162,18 +162,18 @@ const StoryDetailsInput: React.FC = () => {
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center justify-between mb-3 w-full">
-              <p className="text-center text-gray-400">Need some inspo? 😉</p>
+              <p className="text-center text-gray-400">¿Necesitas inspiración? 😉</p>
               <button
                 onClick={selectRandomPresets}
                 disabled={isLoadingPresets || allPresets.length < 3}
                 className="text-violet-400 hover:text-violet-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center bg-gray-800/80 px-3 py-1 rounded-full shadow-sm border border-gray-700"
               >
                 <RefreshCw size={14} className="mr-1.5" />
-                New Ideas
+                Nuevas Ideas
               </button>
             </div>
 
-            <motion.div 
+            <motion.div
               variants={container}
               initial="hidden"
               animate="show"
@@ -200,12 +200,12 @@ const StoryDetailsInput: React.FC = () => {
                 ))
               ) : (
                 <div className="col-span-full text-center text-gray-400 text-sm italic p-4 h-24 rounded-lg bg-gray-800/50 border-2 border-gray-700">
-                  No suggestions available right now. Get creative! 💡
+                  No hay sugerencias disponibles ahora mismo. ¡Ponte creative! 💡
                 </div>
               )}
             </motion.div>
           </motion.div>
-          
+
           {/* Spiciness Level Selector */}
           <motion.div
             className="mb-6 w-full"
@@ -214,58 +214,55 @@ const StoryDetailsInput: React.FC = () => {
             animate="visible"
             transition={{ delay: 0.25 }}
           >
-            <p className="text-gray-400 text-center mb-3">Choose your spiciness level 🌶️</p>
+            <p className="text-gray-400 text-center mb-3">Elige el nivel de picante 🌶️</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Level 1: Sensual */}
               <button
                 onClick={() => setSpicynessLevelState(1)}
-                className={`p-4 rounded-lg border-2 transition-all text-center ${
-                  spicynessLevel === 1
+                className={`p-4 rounded-lg border-2 transition-all text-center ${spicynessLevel === 1
                     ? 'border-blue-500 bg-blue-500/20 ring-2 ring-blue-500/50'
                     : 'border-gray-700 bg-gray-800/50 hover:border-blue-400 hover:bg-blue-400/10'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-center mb-2">
                   <Droplets className="w-5 h-5 text-blue-400 mr-2" />
                   <span className="font-semibold text-blue-300">Sensual</span>
                 </div>
-                <span className="text-sm text-gray-400">Suggestive and elegant</span>
+                <span className="text-sm text-gray-400">Sugestivo y elegante</span>
               </button>
-              
+
               {/* Level 2: Passionate */}
               <button
                 onClick={() => setSpicynessLevelState(2)}
-                className={`p-4 rounded-lg border-2 transition-all text-center ${
-                  spicynessLevel === 2
+                className={`p-4 rounded-lg border-2 transition-all text-center ${spicynessLevel === 2
                     ? 'border-violet-500 bg-violet-500/20 ring-2 ring-violet-500/50'
                     : 'border-gray-700 bg-gray-800/50 hover:border-violet-400 hover:bg-violet-400/10'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-center mb-2">
                   <Flame className="w-5 h-5 text-violet-400 mr-2" />
-                  <span className="font-semibold text-violet-300">Passionate</span>
+                  <span className="font-semibold text-violet-300">Apasionado</span>
                 </div>
-                <span className="text-sm text-gray-400">Explicit but balanced</span>
+                <span className="text-sm text-gray-400">Explícito pero equilibrado</span>
               </button>
-              
+
               {/* Level 3: Intense */}
               <button
                 onClick={() => setSpicynessLevelState(3)}
-                className={`p-4 rounded-lg border-2 transition-all text-center ${
-                  spicynessLevel === 3
+                className={`p-4 rounded-lg border-2 transition-all text-center ${spicynessLevel === 3
                     ? 'border-pink-500 bg-pink-500/20 ring-2 ring-pink-500/50'
                     : 'border-gray-700 bg-gray-800/50 hover:border-pink-400 hover:bg-pink-400/10'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-center mb-2">
                   <Zap className="w-5 h-5 text-pink-400 mr-2" />
-                  <span className="font-semibold text-pink-300">Intense</span>
+                  <span className="font-semibold text-pink-300">Intenso</span>
                 </div>
-                <span className="text-sm text-gray-400">Very explicit and graphic</span>
+                <span className="text-sm text-gray-400">Muy explícito y gráfico</span>
               </button>
             </div>
           </motion.div>
-          
+
           {/* Format Selector */}
           <motion.div
             className="mb-6 w-full"
@@ -274,35 +271,33 @@ const StoryDetailsInput: React.FC = () => {
             animate="visible"
             transition={{ delay: 0.3 }}
           >
-            <p className="text-gray-400 text-center mb-3">Choose your story format 📚</p>
+            <p className="text-gray-400 text-center mb-3">Elige el formato de tu historia 📚</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => setFormatState('episodic')}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  format === 'episodic' 
-                    ? 'border-violet-500 bg-violet-500/20 ring-2 ring-violet-500/50' 
+                className={`p-4 rounded-lg border-2 transition-all ${format === 'episodic'
+                    ? 'border-violet-500 bg-violet-500/20 ring-2 ring-violet-500/50'
                     : 'border-gray-700 bg-gray-800/50 hover:border-violet-400 hover:bg-violet-400/10'
-                }`}
+                  }`}
               >
-                <span className="block font-semibold text-violet-300 mb-1">By Chapters</span>
-                <span className="text-sm text-gray-400">Story with open ending for continuation</span>
+                <span className="block font-semibold text-violet-300 mb-1">Por Capítulos</span>
+                <span className="text-sm text-gray-400">Historia con final abierto para continuarla</span>
               </button>
-              
+
               <button
                 onClick={() => setFormatState('single')}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  format === 'single' 
-                    ? 'border-pink-500 bg-pink-500/20 ring-2 ring-pink-500/50' 
+                className={`p-4 rounded-lg border-2 transition-all ${format === 'single'
+                    ? 'border-pink-500 bg-pink-500/20 ring-2 ring-pink-500/50'
                     : 'border-gray-700 bg-gray-800/50 hover:border-pink-400 hover:bg-pink-400/10'
-                }`}
+                  }`}
               >
-                <span className="block font-semibold text-pink-300 mb-1">Complete Story</span>
-                <span className="text-sm text-gray-400">Full story with beginning, middle, and end</span>
+                <span className="block font-semibold text-pink-300 mb-1">Historia Completa</span>
+                <span className="text-sm text-gray-400">Historia completa con principio, nudo y desenlace</span>
               </button>
             </div>
           </motion.div>
-          
-          {/* Animated Textarea Container */} 
+
+          {/* Animated Textarea Container */}
           <motion.div
             className="mb-6 w-full"
             variants={fadeIn}
@@ -314,18 +309,18 @@ const StoryDetailsInput: React.FC = () => {
               id="storyDetailsTextarea"
               value={detailsText}
               onChange={(e) => setDetailsText(e.target.value)}
-              placeholder="Drop your brilliant ideas here, or pick a suggestion from above... ✨"
+              placeholder="Suelta aquí tus ideas más brillantes, o elige una sugerencia... ✨"
               className="w-full p-4 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all h-32 resize-none"
             />
           </motion.div>
-          
-          {/* Generate Story Button */} 
+
+          {/* Generate Story Button */}
           <div className="w-full max-w-sm sm:max-w-xs mt-6">
             <StoryButton
               onClick={handleGenerate}
-              className="w-full"
+              isFullWidth
             >
-              Create My Story ✨
+              ¡Crea mi historia! ✨
             </StoryButton>
           </div>
         </div>

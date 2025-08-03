@@ -91,7 +91,7 @@ export default function CharactersManagement() {
           console.error("Error deleting character:", deleteError);
           toast({
             title: "Error",
-            description: "Could not delete character. Please try again.",
+            description: "No se pudo eliminar el personaje. Inténtalo de nuevo, amor.",
             variant: "destructive",
           });
         }
@@ -99,7 +99,7 @@ export default function CharactersManagement() {
         console.error("Unexpected error deleting character:", err);
         toast({
           title: "Error",
-          description: "Unexpected error deleting character",
+          description: "Error inesperado al eliminar personaje",
           variant: "destructive",
         });
       } finally {
@@ -211,14 +211,14 @@ export default function CharactersManagement() {
                           <button 
                             onClick={() => handleEditCharacter(character.id)}
                             className={`${isMobile ? 'w-12 h-12' : 'w-11 h-11'} rounded-full bg-gray-800/80 hover:bg-violet-500/20 flex items-center justify-center text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-500/50 transition-all duration-300 shadow-sm backdrop-blur-sm`}
-                            aria-label="Edit"
+                            aria-label="Editar"
                           >
                             <Edit size={isMobile ? 18 : 16} />
                           </button>
                           <button 
                             onClick={() => handleDeleteClick(character)}
                             className={`${isMobile ? 'w-12 h-12' : 'w-11 h-11'} rounded-full bg-gray-800/80 hover:bg-pink-500/20 flex items-center justify-center text-pink-400 hover:text-pink-300 border border-pink-500/30 hover:border-pink-500/50 transition-all duration-300 shadow-sm backdrop-blur-sm`}
-                            aria-label="Delete"
+                            aria-label="Eliminar"
                           >
                             <Trash2 size={isMobile ? 18 : 16} />
                           </button>
@@ -240,23 +240,23 @@ export default function CharactersManagement() {
               animate={{ scale: 1, opacity: 1 }}
               className={`bg-gray-900/95 backdrop-blur-md border border-gray-800 rounded-2xl ${isMobile ? 'p-6' : 'p-8'} max-w-md w-full shadow-2xl ring-1 ring-gray-700/50`}
             >
-              <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400 mb-3`}>Delete Character 🗑️</h3>
+              <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400 mb-3`}>Eliminar Personaje 🗑️</h3>
               <p className={`text-gray-300 mb-6 ${isMobile ? 'text-sm' : 'text-base'}`}>
-                Are you sure you want to remove <span className="font-medium text-violet-400">{characterToDelete.name}</span> from your intimate cast? 
-                This action cannot be undone.
+                ¿Estás seguro de que quieres eliminar a <span className="font-medium text-violet-400">{characterToDelete.name}</span> de tu reparto íntimo? 
+                Esta acción no se puede deshacer.
               </p>
               <div className={`flex ${isMobile ? 'gap-3' : 'gap-4'}`}>
                 <button
                   onClick={cancelDelete}
                   className={`flex-1 ${isMobile ? 'py-3 px-4' : 'py-3 px-6'} bg-gray-800/80 hover:bg-gray-700/80 rounded-2xl text-gray-300 font-medium transition-all duration-300 border border-gray-700 shadow-sm backdrop-blur-sm`}
                 >
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   onClick={confirmDelete}
                   className={`flex-1 ${isMobile ? 'py-3 px-4' : 'py-3 px-6'} bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 rounded-2xl text-white font-medium transition-all duration-300 shadow-lg shadow-pink-500/25`}
                 >
-                  Delete
+                  Eliminar
                 </button>
               </div>
             </motion.div>

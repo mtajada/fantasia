@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { StoryChapter as StoryChapterType } from "../types";
 
+// Componente para mostrar capítulos de historia con animaciones sensuales
 interface StoryChapterProps {
   chapter: StoryChapterType;
   isLatest?: boolean;

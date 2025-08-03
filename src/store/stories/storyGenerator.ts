@@ -47,10 +47,10 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
         selectedCharacters = JSON.parse(selectedCharactersData);
         console.log("🔍 DEBUG - Characters loaded from sessionStorage:", selectedCharacters.length);
       } catch (error) {
-        console.error("Error parsing selectedCharacters from sessionStorage:", error);
+        console.error("Error parseando selectedCharacters desde sessionStorage:", error);
       }
     } else {
-      console.warn("No selectedCharacters found in sessionStorage");
+      console.warn("No se encontraron selectedCharacters en sessionStorage");
     }
     
     // Fallback: Try to get characters from storyOptions as backup
@@ -94,7 +94,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       additionalDetails: additionalDetails || undefined,
     };
 
-    console.log("Sending request to generate-story Edge Function with params:", payload);
+    console.log("Enviando solicitud a la Edge Function generate-story con parámetros:", payload);
     console.log("🔍 DEBUG - Spiciness level in final payload:", payload.options.spiciness_level);
 
     const storyResponse = await GenerateStoryService.generateStoryWithAI(payload);
@@ -171,7 +171,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
     return story;
 
   } catch (error: unknown) {
-    console.error("Error generating story in storyGenerator:", error);
+    console.error("Error generando historia en storyGenerator:", error);
     console.error("🔍 DEBUG - Error context:", {
       selectedCharactersCount: selectedCharacters?.length || 0,
       hasProfileSettings: !!profileSettings,
@@ -192,7 +192,7 @@ export const generateStory = async (options: Partial<StoryOptions>): Promise<Sto
       sessionStorage.removeItem('selectedCharacters');
       console.log("🔍 DEBUG - Cleared sessionStorage after error");
     } catch (storageError) {
-      console.warn("Could not clear sessionStorage:", storageError);
+      console.warn("No se pudo limpiar sessionStorage:", storageError);
     }
     
     return null;

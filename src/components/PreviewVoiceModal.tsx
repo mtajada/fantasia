@@ -82,7 +82,7 @@ export function PreviewVoiceModal({
             {/* Header */}
             <div className="flex justify-between items-center px-4 py-2 bg-gray-100">
               <h2 className="text-lg font-semibold text-gray-800">
-                Vista previa de voz
+                Escucha tu voz seductora 🎵
               </h2>
               <button onClick={onClose} className="p-1">
                 <X size={20} className="text-gray-600" />
@@ -134,7 +134,7 @@ export function PreviewVoiceModal({
                 size="sm"
                 onClick={onClose}
               >
-                Cerrar
+                Ya me convenciste 💖
               </Button>
             </div>
           </motion.div>

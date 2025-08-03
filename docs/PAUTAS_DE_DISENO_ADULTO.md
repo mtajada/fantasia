@@ -137,13 +137,14 @@ The new design emphasizes:
 
 ### Tone & Language Guidelines
 
-#### Language Requirements
-- **English Only:** All user-facing text must be in English
-- **Spanish Translation Mandatory:** Any Spanish text found in the codebase MUST be translated to English immediately
-- **No Spanish:** The platform has migrated from Spanish to English
-- **Console Logs:** All console.log statements must also be in English
-- **Error Messages:** All error messages and notifications in English
-- **Comments:** Code comments should be in English
+#### Requisitos de Idioma
+- **Solo Español:** Todo el texto de cara al usuario debe estar en español
+- **Traducción Obligatoria:** Cualquier texto en inglés encontrado en el código DEBE ser traducido al español inmediatamente
+- **Sin Inglés:** La plataforma ha migrado completamente al español
+- **Console Logs:** Todas las declaraciones console.log también deben estar en español
+- **Mensajes de Error:** Todos los mensajes de error y notificaciones en español
+- **Comentarios:** Los comentarios del código deben estar en español
+- **Lenguaje Inclusivo:** Usar lenguaje neutro en género para todos los usuarios
 
 #### Adult-Oriented Language & Tone
 - **Sophisticated:** Use mature, refined language
@@ -165,57 +166,100 @@ The new design emphasizes:
 💎 - For premium/exclusive content
 ```
 
-#### Example Transformations
+#### Ejemplos de Transformación (Inglés → Español Spicy Inclusivo)
 ```
-Before: "¡Crea tu cuento mágico!"
-After: "Create your intimate story ✨"
+Before: "Create your intimate story ✨"
+After: "¡Crea tu historia íntima, cariño! ✨"
 
-Before: "Detalles adicionales"
-After: "Any juicy details? 🤫"
+Before: "Any juicy details? 🤫"
+After: "¿Algún detalle jugoso? 🤫"
 
-Before: "Generar historia"
-After: "Let's make magic! 🪄"
+Before: "Let's make magic! 🪄"
+After: "¡Es hora de crear magia! 🪄"
 
-Before: console.log("Error al generar historia");
-After: console.log("Error generating story");
+Before: "Welcome back, gorgeous!"
+After: "¡Qué bueno tenerte de vuelta, belleza!"
 
-Before: toast.error("No se pudo crear la historia");
-After: toast.error("Could not create story");
+Before: "Ready for your next adventure?"
+After: "¿Preparade para tu próxima aventura picante? 🌶️"
+
+Before: console.log("Error generating story");
+After: console.log("Error generando historia");
+
+Before: toast.error("Could not create story");
+After: toast.error("No se pudo crear la historia");
 ```
 
-#### Common UI Text Examples
+#### Ejemplos de Texto UI Común (Español Spicy Inclusivo)
 ```
-// Navigation & Actions
-"Back" (not "Volver")
-"Continue" (not "Continuar")
-"Generate" (not "Generar")
-"Save" (not "Guardar")
-"Delete" (not "Eliminar")
-"Edit" (not "Editar")
-"Share" (not "Compartir")
+// Navegación y Acciones
+"Volver" (no "Back")
+"Continuar" (no "Continue")
+"Generar" o "¡Crear magia!" (no "Generate")
+"Guardar" (no "Save")
+"Eliminar" (no "Delete")
+"Editar" (no "Edit")
+"Compartir" (no "Share")
 
-// Story-related
-"Story" (not "Historia")
-"Chapter" (not "Capítulo")
-"Character" (not "Personaje")
-"Generate Story" (not "Generar Historia")
-"Continue Story" (not "Continuar Historia")
-"Story Details" (not "Detalles de Historia")
+// Relacionado con Historias
+"Historia" (no "Story")
+"Capítulo" (no "Chapter")
+"Personaje" (no "Character")
+"Generar Historia" o "¡Crear tu aventura!" (no "Generate Story")
+"Continuar Historia" o "¡Sigue la diversión!" (no "Continue Story")
+"Detalles de Historia" o "Detalles jugosos" (no "Story Details")
 
-// User Interface
-"Loading..." (not "Cargando...")
-"Please wait" (not "Por favor espera")
-"Try again" (not "Intenta de nuevo")
-"Success!" (not "¡Éxito!")
-"Error" (not "Error")
-"Warning" (not "Advertencia")
+// Interfaz de Usuario
+"Cargando..." o "Preparando la magia..." (no "Loading...")
+"Por favor espera" o "Un momentito, cariño" (no "Please wait")
+"Intenta de nuevo" o "¡Otra vez!" (no "Try again")
+"¡Éxito!" o "¡Perfecto, amor!" (no "Success!")
+"Error" (no "Error")
+"Advertencia" (no "Warning")
 
-// Forms
-"Name" (not "Nombre")
-"Description" (not "Descripción")
-"Settings" (not "Configuración")
-"Profile" (not "Perfil")
-"Preferences" (not "Preferencias")
+// Formularios
+"Nombre" (no "Name")
+"Descripción" (no "Description")
+"Configuración" (no "Settings")
+"Perfil" (no "Profile")
+"Preferencias" (no "Preferences")
+```
+
+#### Vocabulario Spicy Neutro en Género
+
+**Palabras de cariño neutras (usar en lugar de términos específicos de género):**
+```
+✅ USAR:
+- "Cariño", "Amor", "Cielo", "Corazón"
+- "Mi vida", "Hermosura", "Tentación"
+- "Belleza", "Encanto", "Seducción"
+
+❌ EVITAR:
+- "Bienvenido/a", "Listo/a", "Guapo/a"
+- "Princesa", "Príncipe", "Rey", "Reina"
+- "Chico/a", "Niño/a" (además inapropiado para contenido adulto)
+```
+
+**Adjetivos inclusivos spicy:**
+```
+✅ USAR:
+- "Irresistible", "Tentador", "Seductor"
+- "Ardiente", "Apasionante", "Intenso"
+- "Delicioso", "Picante", "Atrevido"
+
+❌ EVITAR:
+- Cualquier adjetivo que asuma género específico
+```
+
+**Frases neutrales spicy:**
+```
+✅ EJEMPLOS:
+- "¡Prepárate para algo especial!"
+- "¡Tu aventura te espera!"
+- "¡Vamos a encender la pasión!"
+- "¡Es hora de jugar!"
+- "¿Preparade para la acción?" (usando 'e' inclusiva)
+- "¡Qué bueno tenerte aquí, cariño!"
 ```
 
 ---

@@ -37,11 +37,11 @@ export default function PaymentSuccess() {
             </div>
 
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 mb-4 text-center">
-              Payment Successful! 💎
+              ¡Pago Exitoso! 💎
             </h1>
 
             <p className="text-gray-300 text-lg mb-12 text-center">
-              Perfect! Your purchase was completed successfully. Your account will be updated shortly.
+              ¡Perfecto! Tu compra se completó con éxito. Tu cuenta se actualizará en breve.
             </p>
 
             <button
@@ -49,7 +49,7 @@ export default function PaymentSuccess() {
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl py-4 font-semibold text-lg shadow-lg shadow-violet-500/25 transition-all duration-300 hover:transform hover:scale-105"
             >
               <Home size={20} />
-              Continue Your Journey ✨
+              Continúa Tu Aventura ✨
             </button>
           </div>
         </div>

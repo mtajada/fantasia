@@ -136,12 +136,12 @@ export default function StoryAudioPlayer({ text, onClose }: StoryAudioPlayerProp
       } else {
         try {
           await audioRef.current.play().catch(error => {
-            console.error('Safari playback error:', error);
+            console.error('Error de reproducción Safari:', error);
             toast.error("Safari requiere interacción directa - Haz click primero en el botón");
           });
           setIsPlaying(true);
         } catch (error) {
-          console.error('Error starting playback:', error);
+          console.error('Error al iniciar la reproducción:', error);
           setIsPlaying(false);
           toast.error("No se pudo reproducir el audio");
         }
@@ -233,16 +233,16 @@ export default function StoryAudioPlayer({ text, onClose }: StoryAudioPlayerProp
       if (audioRef.current) {
         try {
           await audioRef.current.play().catch(error => {
-            console.error('Safari playback error:', error);
+            console.error('Error de reproducción Safari:', error);
             toast.error("Safari requiere interacción directa - Haz click primero en el botón");
           });
           setIsPlaying(true);
         } catch (error) {
-          console.error('Error auto-playing after generation:', error);
+          console.error('Error en reproducción automática después de la generación:', error);
         }
       }
     } catch (error) {
-      console.error('Error generating audio:', error);
+      console.error('Error al generar el audio:', error);
       toast.error("Error al generar el audio");
       setGenerationStatus("temp-audio", "chapter", 'error', 0);
     } finally {

@@ -17,7 +17,7 @@ export default function SavedStories() {
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
+    return new Intl.DateTimeFormat('es-ES', { 
       year: 'numeric', 
       month: 'short', 
       day: 'numeric' 
@@ -80,7 +80,7 @@ export default function SavedStories() {
         
         <div className="w-full max-w-2xl mx-auto px-4 py-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
-            My Stories ✨
+            Mis Historias ✨
           </h1>
           
           {storiesWithChaptersInfo.length > 0 && (
@@ -90,18 +90,18 @@ export default function SavedStories() {
             >
               <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${sortOrder === 'newest' ? 'bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-lg shadow-pink-500/25' : 'hover:bg-gray-800/80 text-gray-300'}`}>
                 <SortDesc size={16} />
-                <span>Most Recent</span>
+                <span>Más Recientes</span>
               </button>
               <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${sortOrder === 'oldest' ? 'bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-lg shadow-pink-500/25' : 'hover:bg-gray-800/80 text-gray-300'}`}>
                 <SortAsc size={16} />
-                <span>Oldest</span>
+                <span>Más Antiguas</span>
               </button>
             </div>
           )}
           
           {sortedStories.length === 0 ? (
             <div className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-6 shadow-2xl">
-              <p className="text-gray-300 font-medium">You have no saved stories.</p>
+              <p className="text-gray-300 font-medium">No tienes historias guardadas.</p>
             </div>
           ) : (
             <motion.div
@@ -134,7 +134,7 @@ export default function SavedStories() {
                           {story.hasMultipleChapters && (
                             <span className="text-violet-400 flex items-center">
                               <Bookmark size={14} className="mr-1" />
-                              {story.chaptersCount} chapters
+                              {story.chaptersCount} capítulos
                             </span>
                           )}
                         </div>
@@ -157,7 +157,7 @@ export default function SavedStories() {
                       </div>
                       <div className="text-gray-200 text-sm flex-1">
                         <span className="font-medium">
-                          {story.options.characters?.map(char => char.name).join(', ') || "No characters"}
+                          {story.options.characters?.map(char => char.name).join(', ') || "Sin personajes"}
                         </span>
                       </div>
                       <div className="flex gap-2">
@@ -168,7 +168,7 @@ export default function SavedStories() {
                         )}
                         <div className="px-2 py-1 text-xs rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-400 border border-violet-500/40 flex items-center gap-1">
                           <Clock size={11} className="text-violet-400" />
-                          {story.options.format === 'single' ? 'Complete' : 'Chapters'}
+                          {story.options.format === 'single' ? 'Completa' : 'Capítulos'}
                         </div>
                       </div>
                     </div>
@@ -199,7 +199,7 @@ export default function SavedStories() {
                                 </div>
                                 <div>
                                   <h4 className="text-gray-200 font-medium">
-                                    {chapter.title || `Chapter ${index + 1}`}
+                                    {chapter.title || `Capítulo ${index + 1}`}
                                   </h4>
                                   <span className="text-gray-400 text-xs">
                                     {formatDate(chapter.createdAt)}

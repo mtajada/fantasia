@@ -27,7 +27,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
   return (
     <div className={`${positionClasses[position]} flex gap-3 z-20 ${className}`}>
-      {/* Compact Limit Indicators */}
+      {/* Indicadores de Límites Compactos */}
       {showLimitIndicators && limitStatus && (
         <div className="hidden sm:flex gap-2">
           <div className="px-3 py-2 rounded-xl bg-gray-900/90 backdrop-blur-md border border-gray-700/50 shadow-lg transition-all duration-300 hover:bg-gray-800/90">
@@ -51,33 +51,33 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         </div>
       )}
       
-      {/* Plans Link */}
+      {/* Enlace a Planes */}
       <Link
         to="/plans"
         className="flex items-center gap-2 px-3 py-1.5 rounded-xl shadow-lg text-xs font-semibold transition-all duration-300 bg-gray-900/90 backdrop-blur-md border border-gray-700/50 hover:bg-gray-800/90 text-violet-400 hover:text-violet-300 hover:scale-105"
-        aria-label="View plans and subscription"
+        aria-label="Ver planes y suscripción"
       >
-        <img src="/logo_fantasia.png" alt="subscription status icon" className="h-5 w-5" />
+        <img src="/logo_fantasia.png" alt="icono de estado de suscripción" className="h-5 w-5" />
         <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent font-bold">
           {subscriptionText}
         </span>
         <ChevronRight className="h-3.5 w-3.5 opacity-75" />
       </Link>
       
-      {/* Profile Link */}
+      {/* Enlace de Perfil */}
       <Link
         to="/profile-config"
         className="w-9 h-9 rounded-full bg-gray-900/90 backdrop-blur-md border border-gray-700/50 flex items-center justify-center text-violet-400 hover:bg-gray-800/90 hover:text-violet-300 transition-all duration-300 shadow-lg hover:scale-105"
-        aria-label="Profile Configuration"
+        aria-label="Configuración de Perfil"
       >
         <User className="h-5 w-5" />
       </Link>
       
-      {/* Settings Link */}
+      {/* Enlace de Configuración */}
       <Link
         to="/settings"
         className="w-9 h-9 rounded-full bg-gray-900/90 backdrop-blur-md border border-gray-700/50 flex items-center justify-center text-violet-400 hover:bg-gray-800/90 hover:text-violet-300 transition-all duration-300 shadow-lg hover:scale-105"
-        aria-label="Settings"
+        aria-label="Configuración"
       >
         <Settings className="h-5 w-5" />
       </Link>

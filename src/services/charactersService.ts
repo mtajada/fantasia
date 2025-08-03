@@ -32,35 +32,35 @@ export const validateCharacter = (character: StoryCharacter): CharacterValidatio
 
   // Validate required fields
   if (!character.name || character.name.trim().length === 0) {
-    errors.push("Name is required");
+    errors.push("El nombre es obligatorio, cariño");
     isValid = false;
   } else {
     // Validate name length
     if (character.name.length < CHARACTER_LIMITS.MIN_NAME_LENGTH) {
-      errors.push(`Name must be at least ${CHARACTER_LIMITS.MIN_NAME_LENGTH} characters`);
+      errors.push(`El nombre debe tener al menos ${CHARACTER_LIMITS.MIN_NAME_LENGTH} caracteres`);
       isValid = false;
     }
     if (character.name.length > CHARACTER_LIMITS.MAX_NAME_LENGTH) {
-      errors.push(`Name cannot exceed ${CHARACTER_LIMITS.MAX_NAME_LENGTH} characters`);
+      errors.push(`El nombre no puede exceder ${CHARACTER_LIMITS.MAX_NAME_LENGTH} caracteres`);
       isValid = false;
     }
   }
 
   // Validate gender (required in new structure)
   if (!character.gender) {
-    errors.push("Gender is required");
+    errors.push("El género es obligatorio");
     isValid = false;
   }
 
   // Validate description (required in new structure)
   if (!character.description || character.description.trim().length === 0) {
-    errors.push("Description is required");
+    errors.push("La descripción es necesaria para dar vida a tu fantasía");
     isValid = false;
   } else if (character.description.length < 10) {
-    errors.push("Description must be at least 10 characters");
+    errors.push("La descripción debe tener al menos 10 caracteres. ¡Cuéntanos más detalles íntimos!");
     isValid = false;
   } else if (character.description.length < 20) {
-    warnings.push("A more detailed description will make your character more captivating and stories more intimate");
+    warnings.push("Una descripción más detallada hará tu personaje más cautivador y las historias más íntimas");
   }
 
   return {
@@ -83,13 +83,13 @@ export const validateCharacterSelection = (
 
   // Check maximum limit
   if (currentSelection.length >= CHARACTER_LIMITS.MAX_CHARACTERS) {
-    errors.push(`Maximum ${CHARACTER_LIMITS.MAX_CHARACTERS} characters allowed`);
+    errors.push(`Máximo ${CHARACTER_LIMITS.MAX_CHARACTERS} personajes permitidos`);
     isValid = false;
   }
 
   // Check if character is already selected
   if (currentSelection.some(char => char.id === characterToSelect.id)) {
-    errors.push("This character is already selected");
+    errors.push("Este personaje ya está seleccionado");
     isValid = false;
   }
 
@@ -102,7 +102,7 @@ export const validateCharacterSelection = (
 
   // Warning for stories with many characters
   if (currentSelection.length >= 2) {
-    warnings.push("For intimate stories, fewer characters allow each one to shine more in your fantasy");
+    warnings.push("Para historias íntimas, menos personajes permiten que cada uno brille más en tu fantasía");
   }
 
   return {
@@ -126,19 +126,19 @@ export const validateMultipleCharacterSelection = (
 
   // Check limits
   if (characters.length < CHARACTER_LIMITS.MIN_CHARACTERS) {
-    errors.push(`You must select at least ${CHARACTER_LIMITS.MIN_CHARACTERS} character`);
+    errors.push(`Debes seleccionar al menos ${CHARACTER_LIMITS.MIN_CHARACTERS} personaje`);
     isValid = false;
   }
 
   if (characters.length > CHARACTER_LIMITS.MAX_CHARACTERS) {
-    errors.push(`Maximum ${CHARACTER_LIMITS.MAX_CHARACTERS} characters allowed`);
+    errors.push(`Máximo ${CHARACTER_LIMITS.MAX_CHARACTERS} personajes permitidos`);
     isValid = false;
   }
 
   // Check for duplicates
   const uniqueIds = new Set(characters.map(char => char.id));
   if (uniqueIds.size !== characters.length) {
-    errors.push("Duplicate characters are not allowed");
+    errors.push("No se permiten personajes duplicados");
     isValid = false;
   }
 
@@ -146,16 +146,16 @@ export const validateMultipleCharacterSelection = (
   for (const character of characters) {
     const charValidation = validateCharacter(character);
     if (!charValidation.isValid) {
-      errors.push(`Character "${character.name}": ${charValidation.errors.join(", ")}`);
+      errors.push(`Personaje "${character.name}": ${charValidation.errors.join(", ")}`);
       isValid = false;
     }
   }
 
   // Warnings based on character count
   if (characters.length >= 3) {
-    warnings.push("✨ With 3+ characters, your story will be rich and passionate, but may be longer");
+    warnings.push("✨ Con 3+ personajes, tu historia será rica y apasionada, pero puede ser más larga");
   } else if (characters.length === 2) {
-    warnings.push("✨ Perfect! Two characters create dynamic and intimate encounters");
+    warnings.push("✨ ¡Perfecto! Dos personajes crean encuentros dinámicos e íntimos");
   }
 
   return {
@@ -174,7 +174,7 @@ export const validateStoryGeneration = (characters: StoryCharacter[]): Character
   if (characters.length === 0) {
     return {
       isValid: false,
-      errors: ["You must select at least one character to generate your story"],
+      errors: ["Debes seleccionar al menos un personaje para generar tu historia"],
       warnings: []
     };
   }
@@ -195,17 +195,17 @@ export const validateStoryGeneration = (characters: StoryCharacter[]): Character
 export const getCharacterSelectionMessage = (count: number): string => {
   switch (count) {
     case 0:
-      return "✨ Select up to 4 characters for your erotic story!";
+      return "✨ ¡Selecciona hasta 4 personajes para tu historia erótica!";
     case 1:
-      return "✨ Great start! You can add up to 3 more characters for steamy encounters";
+      return "✨ ¡Excelente comienzo! Puedes agregar hasta 3 personajes más para encuentros ardientes";
     case 2:
-      return "✨ Perfect! This combination will create dynamic and passionate moments";
+      return "✨ ¡Perfecto! Esta combinación creará momentos dinámicos y apasionados";
     case 3:
-      return "✨ Amazing! Your story will be incredibly rich with these 3 characters";
+      return "✨ ¡Increíble! Tu historia será increíblemente rica con estos 3 personajes";
     case 4:
-      return "✨ Maximum reached! These 4 characters will create an epic erotic adventure";
+      return "✨ ¡Máximo alcanzado! Estos 4 personajes crearán una aventura erótica épica";
     default:
-      return "✨ For intimate stories, fewer characters allow each one to shine in your fantasy";
+      return "✨ Para historias íntimas, menos personajes permiten que cada uno brille en tu fantasía";
   }
 };
 
@@ -218,8 +218,8 @@ export const charactersService = {
     const { success, characters, error } = await getUserCharacters(userId);
     
     if (!success) {
-      console.error('Error fetching characters:', error);
-      throw new Error(error?.message || 'Error fetching characters');
+      console.error('Error obteniendo personajes:', error);
+      throw new Error(error?.message || 'Error obteniendo personajes');
     }
     
     return characters || [];
@@ -230,8 +230,8 @@ export const charactersService = {
     const { success, characters, error } = await getAllCharacters(userId);
     
     if (!success) {
-      console.error('Error fetching all characters:', error);
-      throw new Error(error?.message || 'Error fetching all characters');
+      console.error('Error obteniendo todos los personajes:', error);
+      throw new Error(error?.message || 'Error obteniendo todos los personajes');
     }
     
     return characters || [];
@@ -247,8 +247,8 @@ export const charactersService = {
     const { success, error } = await syncCharacter(userId, characterData as StoryCharacter);
     
     if (!success) {
-      console.error('Error creating character:', error);
-      throw new Error(error?.message || 'Error creating character');
+      console.error('Error creando personaje:', error);
+      throw new Error(error?.message || 'Error creando personaje');
     }
     
     // Return the character with generated ID
@@ -263,8 +263,8 @@ export const charactersService = {
     const { success, error } = await syncCharacter(userId, { id: characterId, ...updates } as StoryCharacter);
     
     if (!success) {
-      console.error('Error updating character:', error);
-      throw new Error(error?.message || 'Error updating character');
+      console.error('Error actualizando personaje:', error);
+      throw new Error(error?.message || 'Error actualizando personaje');
     }
     
     return { id: characterId, ...updates } as StoryCharacter;
@@ -275,8 +275,8 @@ export const charactersService = {
     const { success, error } = await deleteSupabaseCharacter(characterId);
     
     if (!success) {
-      console.error('Error deleting character:', error);
-      throw new Error(error?.message || 'Error deleting character');
+      console.error('Error eliminando personaje:', error);
+      throw new Error(error?.message || 'Error eliminando personaje');
     }
   },
 

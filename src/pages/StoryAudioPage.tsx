@@ -23,7 +23,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const user = useUserStore.getState().user;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("Supabase URL or Anon Key is missing. Check your .env file.");
+  console.error("Falta la URL o la clave anónima de Supabase. Revisa tu archivo .env.");
   // Podrías lanzar un error o manejar esto de alguna manera
 }
 
@@ -135,7 +135,7 @@ export default function StoryAudioPage() {
       
       // Añadir carga de capítulos frescos
       loadChaptersFromSupabase(storyId).catch(() => 
-        toast.error("Error cargando capítulos")
+        toast.error("Error cargando capítulos. Intenta de nuevo.")
       );
     }
   }, [storyId, navigate, getStoryById, loadChaptersFromSupabase]);
@@ -170,7 +170,7 @@ export default function StoryAudioPage() {
   // Nueva función para obtener audio desde Supabase
   const getAudioFromSupabase = async (storyIdToFetch: string, chapterIdx: number, voiceIdToFetch: string) => {
     if (!supabase) {
-      console.error("Cliente Supabase no inicializado.");
+      console.error("Cliente Supabase no inicializado. No se puede obtener audio.");
       return null;
     }
     if (!chapters[chapterIdx]) {
@@ -193,7 +193,7 @@ export default function StoryAudioPage() {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error al buscar audio existente:', error.message);
+        console.error('Error al buscar audio existente en la base de datos:', error.message);
         return null;
       }
 
@@ -213,7 +213,7 @@ export default function StoryAudioPage() {
         });
         
       if (existsError) {
-        console.error('Error al verificar existencia del archivo:', existsError);
+        console.error('Error al verificar existencia del archivo de audio:', existsError);
         return null;
       }
       
@@ -231,7 +231,7 @@ export default function StoryAudioPage() {
       
       return null;
     } catch (e) {
-      console.error('Error al buscar audio existente:', e);
+      console.error('Error general al buscar audio existente:', e);
       return null;
     }
   };
@@ -288,13 +288,13 @@ export default function StoryAudioPage() {
           setAudioUrl(url);
           // Solo mostrar toast de éxito si es una nueva combinación
           if (isNewCombination) {
-            toastManager.show('success', "Audio cargado correctamente");
+            toastManager.show('success', "¡Audio cargado correctamente! Disfruta.");
           }
         } else {
           setAudioUrl(null);
           // Solo mostrar toast de info si es una nueva combinación
           if (isNewCombination) {
-            toastManager.show('info', "No hay audio grabado para esta voz y capítulo");
+            toastManager.show('info', "No hay audio grabado para esta voz y capítulo. ¡Es hora de crear magia!");
           }
         }
       } catch (error) {
@@ -306,7 +306,7 @@ export default function StoryAudioPage() {
         });
         
         if (isNewCombination) {
-          toastManager.show('error', "Error al cargar el audio");
+          toastManager.show('error', "Error al cargar el audio. ¡Intenta de nuevo, corazón!");
         }
       } finally {
         setIsLoading(false);
@@ -347,7 +347,7 @@ export default function StoryAudioPage() {
       },
       onloaderror: () => {
         setIsLoading(false);
-        toastManager.show('error', "No se pudo cargar el audio", "Posible problema de CORS o formato");
+        toastManager.show('error', "No se pudo cargar el audio", "Posible problema de CORS o formato. Intenta con otra voz.");
       },
       onplay: () => {
         setIsPlaying(true);
@@ -423,7 +423,7 @@ export default function StoryAudioPage() {
    
     const url = PREVIEW_FILES[voiceId];
     if (!url) {
-      toastManager.show('error', "Vista previa no disponible para esta voz");
+      toastManager.show('error', "Vista previa no disponible para esta voz. ¡Qué lástima!");
       return;
     }
     setPreviewUrl(url);
@@ -454,7 +454,7 @@ export default function StoryAudioPage() {
     }
 
     if (!howlRef.current) {
-      toastManager.show('error', "Reproductor no inicializado");
+      toastManager.show('error', "Reproductor no inicializado. ¡Algo salió mal!");
       return;
     }
 
@@ -499,7 +499,7 @@ export default function StoryAudioPage() {
       // Validar capítulo actual
       const chapter = chapters[currentChapterIndex];
       if (!chapter || !chapter.id) {
-        toast.error("Error: No se pudo identificar el capítulo");
+        toast.error("Error: No se pudo identificar el capítulo. ¡Vaya, qué misterio!");
         setIsLoading(false);
         setShowGenerationPopup(false);
         clearInterval(progressInterval);
@@ -541,7 +541,7 @@ export default function StoryAudioPage() {
       setGenerationStatus(storyId || '', currentChapterIndex, 'generating', 95);
 
       if (!supabase) {
-        toast.error("Cliente Supabase no inicializado");
+        toast.error("Cliente Supabase no inicializado. ¡No podemos continuar!");
         setIsLoading(false);
         setShowGenerationPopup(false);
         clearInterval(progressInterval);
@@ -558,7 +558,7 @@ export default function StoryAudioPage() {
       clearInterval(progressInterval);
 
       if (functionError) {
-        toast.error(`Error al subir el audio: ${functionError.message || 'Error desconocido'}`);
+        toast.error(`Error al subir el audio: ${functionError.message || 'Error desconocido'}. ¡Intenta de nuevo, cariño!`);
         setGenerationStatus(storyId || '', currentChapterIndex, 'error', 0);
         setIsLoading(false);
         setShowGenerationPopup(false);
@@ -570,14 +570,14 @@ export default function StoryAudioPage() {
         setGenerationStatus(storyId || '', currentChapterIndex, 'completed', 100);
         setShowGenerationPopup(false);
         setGenerationProgress(100);
-        toast.success("Audio generado y guardado");
+        toast.success("¡Audio generado y guardado con éxito! ✨");
       } else {
-        toast.error("Error al procesar la respuesta del servidor");
+        toast.error("Error al procesar la respuesta del servidor. ¡Qué pena!");
         setGenerationStatus(storyId || '', currentChapterIndex, 'error', 0);
       }
       
     } catch (error) {
-      toast.error(`Error: ${error instanceof Error ? error.message : 'Problema desconocido'}`);
+      toast.error(`Error: ${error instanceof Error ? error.message : 'Problema desconocido. ¡A veces pasa!'}`);
       setGenerationStatus(storyId || '', currentChapterIndex, 'error', 0);
     } finally {
       setIsLoading(false);

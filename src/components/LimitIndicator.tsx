@@ -46,7 +46,7 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
           }
         }
       } catch (error) {
-        console.warn('[LimitIndicator] Failed to track limit event:', error);
+        console.warn('[LimitIndicator] Error al rastrear evento de límite:', error);
       }
     };
 
@@ -67,7 +67,7 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
       // Navigate to plans page (you may want to customize this behavior)
       window.location.href = '/plans';
     } catch (error) {
-      console.warn('[LimitIndicator] Failed to track upgrade click:', error);
+      console.warn('[LimitIndicator] Error al rastrear clic de mejora:', error);
       // Still navigate even if tracking fails
       window.location.href = '/plans';
     }
@@ -81,8 +81,8 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
   
   // Label mapping
   const labelMap = {
-    stories: 'Stories this month',
-    voice_credits: 'Voice credits'
+    stories: 'Historias sensuales este mes',
+    voice_credits: 'Créditos de voz seductora'
   };
   
   const Icon = iconMap[type];
@@ -129,7 +129,7 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-sm font-bold ${getTextColor()}`}>
-            {isUnlimited ? 'Unlimited ∞' : `${current}/${limit}`}
+            {isUnlimited ? 'Ilimitado ∞' : `${current}/${limit}`}
           </span>
           {isNearLimit && !isUnlimited && (
             <AlertTriangle className="h-4 w-4 text-orange-400" />
@@ -155,19 +155,19 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
         <div>
           {isUnlimited ? (
             <span className="text-xs bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent font-medium">
-              Premium benefits active ✨
+              Beneficios premium activos ✨
             </span>
           ) : isAtLimit ? (
             <span className="text-xs text-red-400 font-medium">
-              Limit reached 🚫
+              Límite alcanzado, cariño 🚫
             </span>
           ) : isNearLimit ? (
             <span className="text-xs text-orange-400 font-medium">
-              {limit - current} remaining 🔥
+              {limit - current} restantes 🔥
             </span>
           ) : (
             <span className="text-xs text-gray-300">
-              {limit - current} remaining this month
+              {limit - current} restantes este mes
             </span>
           )}
         </div>
@@ -177,7 +177,7 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
             onClick={handleUpgradeClick}
             className="text-xs bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent hover:from-pink-300 hover:to-violet-300 font-medium transition-all hover:scale-105 active:scale-95"
           >
-            Upgrade →
+            ¡Mejora tu experiencia! →
           </button>
         )}
       </div>
@@ -188,10 +188,10 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
           {isAtLimit && (
             <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-xl backdrop-blur-sm">
               <p className="text-xs text-red-400 leading-relaxed">
-                🔒 You've reached your monthly {type === 'stories' ? 'story' : 'voice credit'} limit. 
+                🔒 Has alcanzado tu límite mensual de {type === 'stories' ? 'historias' : 'créditos de voz'}, amor. 
                 <br className="hidden sm:block" />
                 <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent font-medium">
-                  Upgrade to premium for unlimited access 💎
+                  ¡Mejora a premium para acceso ilimitado! 💎
                 </span>
               </p>
             </div>
@@ -200,10 +200,10 @@ export const LimitIndicator: React.FC<LimitIndicatorProps> = ({
           {isNearLimit && !isAtLimit && (
             <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-xl backdrop-blur-sm">
               <p className="text-xs text-orange-400 leading-relaxed">
-                ⚠️ You have {limit - current} {type === 'stories' ? 'stories' : 'voice credits'} left this month.
+                ⚠️ Te quedan {limit - current} {type === 'stories' ? 'historias' : 'créditos de voz'} este mes, cielo.
                 <br className="hidden sm:block" />
                 <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent font-medium">
-                  Consider upgrading to premium 🌟
+                  ¡Considera mejorar a premium! 🌟
                 </span>
               </p>
             </div>

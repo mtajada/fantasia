@@ -62,7 +62,7 @@ const PlansPage: React.FC = () => {
                     }
                 }
             } catch (error) {
-                console.error('Error loading user data:', error);
+                console.error('Error cargando datos de usuario:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -198,7 +198,7 @@ const PlansPage: React.FC = () => {
                 throw new Error('No customer portal URL received.');
             }
         } catch (error: Error | unknown) {
-            console.error("Error creating customer portal session:", error);
+            console.error("Error creando sesión del portal de cliente:", error);
             toast({ title: 'Error', description: `Could not redirect to subscription management: ${error instanceof Error ? error.message : 'Unknown error'}`, variant: 'destructive' });
             setIsPortalLoading(false);
         } // No finally block needed for isLoading as page redirects on success
@@ -210,7 +210,7 @@ const PlansPage: React.FC = () => {
         return (
             <PageTransition>
                 <div className="relative min-h-screen flex flex-col items-center justify-center p-0" style={{ backgroundColor: 'black' }}>
-                    <div className="text-white text-lg sm:text-xl px-4">Loading...</div>
+                    <div className="text-white text-lg sm:text-xl px-4">Cargando...</div>
                 </div>
             </PageTransition>
         );
@@ -218,9 +218,9 @@ const PlansPage: React.FC = () => {
 
     // Define features for comparison table (updated per requirements)
     const features = [
-        { name: 'Stories Generated', free: '10 / month', premium: 'Unlimited', icon: BookOpen, limited: true },
-        { name: 'Story Continuations', free: '1', premium: 'Unlimited', icon: TrendingUp, limited: true },
-        { name: 'Voice Narration (AI)', free: 'Yes (2 / month)', premium: 'Yes (20/month incl.)', icon: Mic, limited: true },
+        { name: 'Historias Generadas', free: '10 / mes', premium: 'Ilimitadas', icon: BookOpen, limited: true },
+        { name: 'Continuaciones Ardientes', free: '1', premium: 'Ilimitadas', icon: TrendingUp, limited: true },
+        { name: 'Narración Sensual (IA)', free: 'Sí (2 / mes)', premium: 'Sí (20/mes incl.)', icon: Mic, limited: true },
     ];
 
     return (
@@ -246,8 +246,8 @@ const PlansPage: React.FC = () => {
                                     <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 mb-2">
                                         <Star className="h-8 w-8 text-white" />
                                     </div>
-                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Premium Unleashed ✨</h1>
-                                    <p className="text-gray-300 text-base sm:text-lg px-4 sm:px-0">Enjoy all features without limits</p>
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Premium Liberado ✨</h1>
+                                    <p className="text-gray-300 text-base sm:text-lg px-4 sm:px-0">Disfruta todas las funciones sin límites</p>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 px-4 sm:px-0">
                                     {/* Card: Buy Voice Credits */}
@@ -258,8 +258,8 @@ const PlansPage: React.FC = () => {
                                                     <Mic className="h-5 w-5 text-violet-400" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-lg sm:text-xl font-heading text-gray-50">Voice Credits 🎤</h3>
-                                                    <p className="text-gray-300 text-sm">Enhance your stories</p>
+                                                    <h3 className="font-bold text-lg sm:text-xl font-heading text-gray-50">Créditos de Voz 🎤</h3>
+                                                    <p className="text-gray-300 text-sm">Potencia tus fantasías</p>
                                                 </div>
                                             </div>
                                             <div className="mb-6">
@@ -274,7 +274,7 @@ const PlansPage: React.FC = () => {
                                                     />
                                                 ) : (
                                                     <div className="flex justify-between items-center mb-2">
-                                                        <span className="text-gray-300">Available:</span>
+                                                        <span className="text-gray-300">Disponibles:</span>
                                                         <span className="font-mono font-bold text-lg text-violet-400">{profileSettings?.voice_credits || 0}</span>
                                                     </div>
                                                 )}
@@ -289,7 +289,7 @@ const PlansPage: React.FC = () => {
                                                 ) : (
                                                     <>
                                                         <CreditCard className="h-4 w-4" />
-                                                        <span>Buy More Credits</span>
+                                                        <span>Comprar Más Créditos</span>
                                                     </>
                                                 )}
                                             </button>
@@ -303,18 +303,18 @@ const PlansPage: React.FC = () => {
                                                     <Star className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-lg sm:text-xl font-heading text-gray-50">Premium Subscription 💎</h3>
-                                                    <p className="text-gray-300 text-sm">Manage your plan</p>
+                                                    <h3 className="font-bold text-lg sm:text-xl font-heading text-gray-50">Suscripción Premium 💎</h3>
+                                                    <p className="text-gray-300 text-sm">Gestiona tu plan</p>
                                                 </div>
                                             </div>
                                             <div className="space-y-4 mb-6">
                                                 <div className="bg-gray-800/70 rounded-lg p-3 flex justify-between items-center border border-pink-500/30">
-                                                    <span className="text-gray-300 font-medium">Status:</span>
-                                                    <span className="font-bold text-pink-400 bg-pink-500/20 px-3 py-1 rounded-full border border-pink-500/30">Active</span>
+                                                    <span className="text-gray-300 font-medium">Estado:</span>
+                                                    <span className="font-bold text-pink-400 bg-pink-500/20 px-3 py-1 rounded-full border border-pink-500/30">Activo</span>
                                                 </div>
                                                 <div className="bg-violet-500/10 rounded-lg p-3 flex justify-between items-center">
-                                                    <span className="text-gray-300">Benefits:</span>
-                                                    <span className="font-medium text-violet-400">All included</span>
+                                                    <span className="text-gray-300">Beneficios:</span>
+                                                    <span className="font-medium text-violet-400">Todo incluido</span>
                                                 </div>
                                             </div>
                                             <button
@@ -324,7 +324,7 @@ const PlansPage: React.FC = () => {
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <Settings className="h-4 w-4" />
-                                                    <span>Manage Subscription</span>
+                                                    <span>Gestionar Suscripción</span>
                                                 </div>
                                                 {isPortalLoading ? (
                                                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -340,7 +340,7 @@ const PlansPage: React.FC = () => {
                                     <div className="mt-8 bg-gray-900/80 backdrop-blur-md rounded-3xl p-5 border border-gray-800 shadow-lg transition-all duration-300">
                                         <h3 className="font-bold text-xl mb-4 flex items-center gap-2 font-heading text-gray-50">
                                             <TrendingUp className="h-6 w-6 text-violet-400" />
-                                            <span>Usage This Month</span>
+                                            <span>Uso Este Mes</span>
                                         </h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                                             <LimitIndicator
@@ -367,7 +367,7 @@ const PlansPage: React.FC = () => {
                                 <div className="mt-8 bg-gray-900/80 backdrop-blur-md rounded-3xl p-5 border border-gray-800 shadow-lg transition-all duration-300">
                                     <h3 className="font-bold text-xl mb-4 flex items-center gap-2 font-heading text-gray-50">
                                         <Sparkles className="h-6 w-6 text-pink-400" />
-                                        <span>Active Premium Benefits</span>
+                                        <span>Beneficios Premium Activos</span>
                                     </h3>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {features.map((feature, i) => (
@@ -391,7 +391,7 @@ const PlansPage: React.FC = () => {
                                         className="inline-block py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all duration-200 mx-auto min-h-[44px] text-base sm:text-sm"
                                     >
                                         <BookOpen className="h-5 w-5" />
-                                        <span>Go to App</span>
+                                        <span>Ir a la App</span>
                                     </Link>
                                 </div>
                             </div>
@@ -403,9 +403,9 @@ const PlansPage: React.FC = () => {
                             <div>
                                 {/* Header */}
                                 <div className="text-center mb-4 transition-all duration-300">
-                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent px-4 sm:px-0">Unlock Your Desires 🔥</h1>
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent px-4 sm:px-0">Libera Tus Deseos 🔥</h1>
                                     <p className="text-gray-300 text-base sm:text-lg mx-auto max-w-xl px-4 sm:px-0">
-                                        Compare plans and choose the best experience for your stories
+                                        Compara planes y elige la mejor experiencia para tus fantasías
                                     </p>
                                 </div>
                                 {/* Plan Toggle */}
@@ -418,7 +418,7 @@ const PlansPage: React.FC = () => {
                                                 : 'text-gray-300 hover:text-white'
                                                 }`}
                                         >
-                                            <span>Free</span>
+                                            <span>Gratis</span>
                                         </button>
                                         <button
                                             onClick={() => setActivePlan('premium')}
@@ -444,25 +444,25 @@ const PlansPage: React.FC = () => {
                                             <div className="flex justify-between items-center">
                                                 <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 font-heading text-gray-50">
                                                     {activePlan === 'premium' && <Star className="h-5 w-5 text-pink-400" />}
-                                                    Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
+                                                    Plan {activePlan === 'premium' ? 'Premium' : 'Gratis'}
                                                 </h2>
                                             </div>
                                             {activePlan === 'premium' ? (
                                                 <>
-                                                    <p className="text-gray-300 mt-1 font-medium">Limitless creativity for your stories</p>
+                                                    <p className="text-gray-300 mt-1 font-medium">Creatividad sin límites para tus fantasías</p>
                                                     <div className="flex items-center mt-3 bg-gray-800/70 p-3 rounded-xl justify-between border border-violet-500">
                                                         <div className="flex items-center gap-2">
                                                             <Euro className="h-5 w-5 text-violet-400" />
-                                                            <span className="text-gray-300 font-medium">Price:</span>
+                                                            <span className="text-gray-300 font-medium">Precio:</span>
                                                         </div>
                                                         <div className="font-bold text-xl text-violet-400 flex items-center gap-1">
                                                             <span>10€</span>
-                                                            <span className="text-sm font-normal text-gray-300 opacity-80">/month</span>
+                                                            <span className="text-sm font-normal text-gray-300 opacity-80">/mes</span>
                                                         </div>
                                                     </div>
                                                 </>
                                             ) : (
-                                                <p className="text-gray-300 mt-1">Perfect to start exploring</p>
+                                                <p className="text-gray-300 mt-1">Perfecto para comenzar a explorar</p>
                                             )}
                                         </div>
 
@@ -479,7 +479,7 @@ const PlansPage: React.FC = () => {
                                                     ) : (
                                                         <>
                                                             <Star className="h-5 w-5" />
-                                                            <span>Get Premium Now 🌟</span>
+                                                            <span>Obtener Premium Ahora 🌟</span>
                                                         </>
                                                     )}
                                                 </button>
@@ -491,7 +491,7 @@ const PlansPage: React.FC = () => {
                                             <div className="p-6 pt-4 pb-0">
                                                 <h3 className="font-bold text-base sm:text-lg mb-4 flex items-center gap-2 font-heading text-gray-50">
                                                     <TrendingUp className="h-5 w-5 text-orange-400" />
-                                                    <span>Your Current Usage</span>
+                                                    <span>Tu Uso Actual</span>
                                                 </h3>
                                                 <div className="space-y-4 mb-6">
                                                     <LimitIndicator
@@ -518,7 +518,7 @@ const PlansPage: React.FC = () => {
                                         <div className="p-6">
                                             <h3 className="font-bold text-base sm:text-lg mb-4 flex items-center gap-2 font-heading text-gray-50">
                                                 <Sparkles className="h-5 w-5 text-pink-400" />
-                                                <span>{activePlan === 'premium' ? 'Premium Benefits' : 'Plan Features'}</span>
+                                                <span>{activePlan === 'premium' ? 'Beneficios Premium' : 'Características del Plan'}</span>
                                             </h3>
 
                                             <ul className="space-y-3">
@@ -552,7 +552,7 @@ const PlansPage: React.FC = () => {
                                                                 <div className="text-sm font-medium text-gray-300">
                                                                     {activePlan === 'premium' ? feature.premium : feature.free}
                                                                     {activePlan === 'free' && feature.limited && (
-                                                                        <span className="text-xs text-violet-400 ml-1 font-bold">(limited)</span>
+                                                                        <span className="text-xs text-violet-400 ml-1 font-bold">(limitado)</span>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -572,7 +572,7 @@ const PlansPage: React.FC = () => {
                                         className="py-4 px-6 sm:px-8 bg-gradient-to-r from-pink-500 to-violet-500 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 transition-all duration-200 hover:from-pink-600 hover:to-violet-600 min-h-[44px] text-base sm:text-sm"
                                     >
                                         <Star className="h-5 w-5" />
-                                        <span>View Premium Plan</span>
+                                        <span>Ver Plan Premium</span>
                                         <ChevronRight className="h-4 w-4" />
                                     </button>
                                 )}
@@ -582,7 +582,7 @@ const PlansPage: React.FC = () => {
                                         className="py-4 px-6 sm:px-8 bg-gray-800/70 text-gray-300 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 transition-all duration-200 hover:bg-gray-700/70 min-h-[44px] text-base sm:text-sm"
                                     >
                                         <ChevronLeft className="h-4 w-4" />
-                                        <span>View Free Plan</span>
+                                        <span>Ver Plan Gratis</span>
                                     </button>
                                 )}
                                 {/* Continue with free plan button */}
@@ -591,7 +591,7 @@ const PlansPage: React.FC = () => {
                                         to="/home"
                                         className="py-4 px-6 sm:px-8 bg-transparent border border-gray-600/50 hover:bg-gray-800/20 text-gray-300 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 min-h-[44px] text-base sm:text-sm"
                                     >
-                                        Continue with free plan
+                                        Continuar con plan gratis
                                     </Link>
                                 )}
                             </div>

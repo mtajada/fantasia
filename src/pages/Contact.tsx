@@ -21,19 +21,19 @@ const Contact: React.FC = () => {
             <div className="mb-6 bg-yellow-900/20 border border-yellow-600/40 rounded-lg p-4 backdrop-blur-sm">
               <div className="flex items-center gap-2 text-yellow-400">
                 <AlertTriangle className="h-5 w-5" />
-                <span className="font-medium">Note: We need to update this with a real email address</span>
+                <span className="font-medium">Nota: Necesitamos actualizar esto con una dirección de correo real</span>
               </div>
             </div>
             
             <div className="text-center mb-6">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">Contact</h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">Contacto</h1>
             </div>
 
             <div className="space-y-8 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-8 shadow-2xl ring-1 ring-gray-700/50">
               <div className="flex flex-col items-center text-center space-y-8">
                 <div className="flex flex-col items-center">
                   <Mail className="h-10 w-10 text-violet-500 mb-2" />
-                  <h2 className="text-xl font-bold text-gray-200">Email</h2>
+                  <h2 className="text-xl font-bold text-gray-200">Correo</h2>
                   <a
                     href="mailto:hello@fantasia.app"
                     className="text-lg text-violet-400 hover:text-pink-400 transition-colors"
@@ -44,16 +44,16 @@ const Contact: React.FC = () => {
 
                 <div className="flex flex-col items-center">
                   <MapPin className="h-10 w-10 text-pink-500 mb-2" />
-                  <h2 className="text-xl font-bold text-gray-200">Location</h2>
+                  <h2 className="text-xl font-bold text-gray-200">Ubicación</h2>
                   <p className="text-lg text-gray-300">San Francisco, CA</p>
                 </div>
 
                 <div className="pt-8 border-t border-gray-700/50 w-3/4 mx-auto">
                   <div className="flex flex-col items-center">
                     <div className="flex items-center mb-2">
-                      <span className="text-xl font-bold text-gray-200 mr-2">Made with</span>
+                      <span className="text-xl font-bold text-gray-200 mr-2">Hecho con</span>
                       <Heart className="h-6 w-6 text-pink-500 fill-pink-500" />
-                      <span className="text-xl font-bold text-gray-200 ml-2">by:</span>
+                      <span className="text-xl font-bold text-gray-200 ml-2">por:</span>
                     </div>
                     <p className="text-lg text-center text-gray-300">
                     </p>
@@ -68,7 +68,7 @@ const Contact: React.FC = () => {
                 onClick={() => navigate(-1)}
                 className="min-w-32 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-semibold shadow-lg shadow-violet-500/25 transition-all hover:scale-105"
               >
-                Back
+                Volver
               </Button>
             </div>
           </div>

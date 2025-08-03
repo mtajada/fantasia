@@ -33,7 +33,7 @@ export default function Login() {
 
       if (error) {
         toast({
-          title: "Login Error",
+          title: "Error de inicio de sesión",
           description: error.message,
           variant: "destructive"
         });
@@ -44,40 +44,40 @@ export default function Login() {
         loginUser(user);
 
         toast({
-          title: "Welcome back, gorgeous! ✨",
-          description: "Ready for your next adventure?",
+          title: "¡Qué bueno tenerte de vuelta, belleza! ✨",
+          description: "¿Preparade para tu próxima aventura picante?",
         });
 
         try {
-          // Check if user already has a configured profile
+          // Verificar si el usuario ya tiene un perfil configurado
           const { success, profile } = await getUserProfile(user.id);
 
           if (success && profile) {
-            // If user has profile, redirect to main page
+            // Si el usuario tiene perfil, redirigir a la página principal
             navigate("/home");
           } else {
-            // If no profile, redirect to profile setup
+            // Si no tiene perfil, redirigir a la configuración de perfil
             navigate("/profile");
           }
         } catch (profileError) {
-          console.error("Error checking profile:", profileError);
-          // In case of error, redirect to profile setup for safety
+          console.error("Error verificando perfil:", profileError);
+          // En caso de error, redirigir a configuración de perfil por seguridad
           navigate("/profile");
         }
       } else {
         toast({
-          title: "Hmm, that's not right",
-          description: "Check your credentials and try again",
+          title: "Hmm, algo no está bien",
+          description: "Revisa tus credenciales e intenta de nuevo",
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Something went wrong",
-        description: "An unexpected error occurred",
+        title: "Algo salió mal",
+        description: "Ocurrió un error inesperado",
         variant: "destructive"
       });
-      console.error(err);
+      console.error("Error en login:", err);
     } finally {
       setIsLoading(false);
     }
@@ -90,18 +90,18 @@ export default function Login() {
 
       if (error) {
         toast({
-          title: "Google sign-in error",
+          title: "Error de inicio con Google",
           description: error.message,
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Something went wrong",
-        description: "An unexpected error occurred while signing in with Google",
+        title: "Algo salió mal",
+        description: "Ocurrió un error inesperado al iniciar sesión con Google",
         variant: "destructive"
       });
-      console.error(err);
+      console.error("Error en login con Google:", err);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -111,8 +111,8 @@ export default function Login() {
     const email = form.getValues("email");
     if (!email) {
       toast({
-        title: "Email required",
-        description: "Please enter your email address to reset your password",
+        title: "Email requerido",
+        description: "Por favor ingresa tu dirección de email para restablecer tu contraseña",
         variant: "destructive"
       });
       return;
@@ -124,7 +124,7 @@ export default function Login() {
 
       if (error) {
         toast({
-          title: "Reset request error",
+          title: "Error en solicitud de restablecimiento",
           description: error.message,
           variant: "destructive"
         });
@@ -132,16 +132,16 @@ export default function Login() {
       }
 
       toast({
-        title: "Check your email ✨",
-        description: "We've sent you instructions to reset your password",
+        title: "Revisa tu email ✨",
+        description: "Te hemos enviado instrucciones para restablecer tu contraseña",
       });
     } catch (err) {
       toast({
-        title: "Something went wrong",
-        description: "An unexpected error occurred",
+        title: "Algo salió mal",
+        description: "Ocurrió un error inesperado",
         variant: "destructive"
       });
-      console.error(err);
+      console.error("Error en reset de contraseña:", err);
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +176,7 @@ export default function Login() {
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Email address"
+                          placeholder="Tu correo, cariño"
                           className="pl-10 py-6 rounded-xl bg-gray-900/90 border-gray-700 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20 text-gray-100 placeholder-gray-400"
                           type="email"
                           {...field}
@@ -197,7 +197,7 @@ export default function Login() {
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Password"
+                          placeholder="Tu secreto... 🤫"
                           className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-700 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20 text-gray-100 placeholder-gray-400"
                           type={showPassword ? "text" : "password"}
                           {...field}
@@ -224,7 +224,7 @@ export default function Login() {
                     onChange={() => setRememberSession(!rememberSession)}
                     className="rounded text-pink-500 focus:ring-pink-500 border-gray-700 bg-gray-900/90"
                   />
-                  <span className="text-sm text-gray-300">Remember me</span>
+                  <span className="text-sm text-gray-300">Mantenerme dentro</span>
                 </label>
 
                 <button
@@ -232,7 +232,7 @@ export default function Login() {
                   onClick={handleForgotPassword}
                   className="text-sm text-pink-500 hover:text-pink-400 hover:underline transition-colors"
                 >
-                  Forgot your password?
+                  ¿Un desliz con la contraseña?
                 </button>
               </div>
 
@@ -241,13 +241,13 @@ export default function Login() {
                 disabled={isLoading}
                 className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 disabled:opacity-60 disabled:cursor-not-allowed transform hover:scale-105 shadow-violet-500/25"
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "Entrando..." : "Entrar"}
               </button>
 
 
               <div className="relative flex items-center my-4">
                 <div className="flex-grow border-t border-gray-700/50"></div>
-                <span className="mx-4 flex-shrink text-gray-400 text-sm">Or continue with</span>
+                <span className="mx-4 flex-shrink text-gray-400 text-sm">O entra con</span>
                 <div className="flex-grow border-t border-gray-700/50"></div>
               </div>
               <button
@@ -262,17 +262,17 @@ export default function Login() {
                   <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                   <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
-                {isGoogleLoading ? "Connecting..." : "Sign in with Google"}
+                {isGoogleLoading ? "Conectando con placer..." : "Entrar con Google"}
               </button>
 
               <div className="text-center mt-5">
-                <span className="text-gray-400 text-sm">New to the experience? </span>
+                <span className="text-gray-400 text-sm">¿Primera vez aquí? </span>
                 <button
                   type="button"
                   onClick={() => navigate("/signup")}
                   className="text-pink-500 font-semibold text-sm hover:underline hover:text-pink-400 transition-colors"
                 >
-                  Join us
+                  Únete al placer
                 </button>
               </div>
             </form>

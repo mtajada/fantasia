@@ -31,7 +31,7 @@ console.log(`story-continuation ${functionVersion}: Using model ${MODEL_NAME} vi
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("URL de Supabase o clave de rol de servicio no configurada");
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // --- Interfaces for AI JSON Responses ---
@@ -237,7 +237,7 @@ serve(async (req: Request) => {
     console.log(`[${functionVersion}] Handling POST request...`);
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error("Authorization header missing or invalid.");
+      console.error("Encabezado de autorización faltante o inválido.");
       return new Response(JSON.stringify({ error: 'Token inválido o ausente.' }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -245,7 +245,7 @@ serve(async (req: Request) => {
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) {
-      console.error("Auth Error:", authError);
+      console.error("Error de autenticación:", authError);
       return new Response(JSON.stringify({ error: authError?.message || 'No autenticado.' }), {
         status: authError?.status || 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -278,7 +278,7 @@ serve(async (req: Request) => {
       // Validate story has required content and at least one character
       const hasCharacterData = (story.options.characters && story.options.characters.length > 0) || story.options.character?.name;
       if (!story.content || !story.options || !hasCharacterData || !story.title) {
-        console.error("Story validation failed:", {
+        console.error("Validación de historia fallida:", {
           hasContent: !!story.content,
           hasOptions: !!story.options,
           hasCharacterData: hasCharacterData,
@@ -353,7 +353,7 @@ serve(async (req: Request) => {
 
     // --- Ejecutar Acción Principal ---
     let responsePayload: any = {}; // Use 'any' for flexibility, or a union type
-    console.log(`[${functionVersion}] Executing action: ${action} for user ${userId}, story ${story_id || 'N/A'}`);
+    console.log(`[${functionVersion}] Ejecutando acción: ${action} para usuario ${userId}, historia ${story_id || 'N/A'}`);
 
     if (action === 'generateOptions') {
       const optionsResponse = await generateContinuationOptions(story as Story, chapters as Chapter[], language, preferences, spicynessLevel);
@@ -441,7 +441,7 @@ serve(async (req: Request) => {
         // Optionally throw, but providing a message might be better UX for continuations
       }
 
-      console.log(`[${functionVersion}] Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
+      console.log(`[${functionVersion}] Título final: "${finalTitle}", Longitud de contenido final: ${finalContent.length}`);
       responsePayload = { content: finalContent, title: finalTitle };
 
     } else {
@@ -468,7 +468,7 @@ serve(async (req: Request) => {
     });
 
   } catch (error: any) {
-    console.error(`Error in ${functionVersion} (User: ${userId || 'UNKNOWN'}, Action: ${requestedAction}):`, error.message, error.stack);
+    console.error(`Error en ${functionVersion} (Usuario: ${userId || 'DESCONOCIDO'}, Acción: ${requestedAction}):`, error.message, error.stack);
     let statusCode = 500;
     const lowerMessage = error.message.toLowerCase();
 

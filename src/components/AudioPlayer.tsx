@@ -20,9 +20,9 @@ interface Voice {
 }
 
 const ELEVENLABS_MODELS = [
-  { id: 'eleven_multilingual_v2', name: 'Multilingüe V2', description: 'Mejor para español y otros idiomas' },
-  { id: 'eleven_monolingual_v1', name: 'Monolingüe V1', description: 'Mejor para inglés' },
-  { id: 'eleven_turbo_v2', name: 'Turbo V2', description: 'Más rápido, buena calidad' }
+  { id: 'eleven_multilingual_v2', name: 'Multilingüe V2', description: 'Perfecto para español y otros idiomas, amor' },
+  { id: 'eleven_monolingual_v1', name: 'Monolíngue V1', description: 'Ideal para inglés, cariño' },
+  { id: 'eleven_turbo_v2', name: 'Turbo V2', description: 'Más rápido, excelente calidad, belleza' }
 ];
 
 interface AudioPlayerProps {
@@ -73,7 +73,7 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
   useEffect(() => {
     if (audioRef.current) {
       const handleLoadedMetadata = () => {
-        console.log('Audio metadata loaded, duration:', audioRef.current?.duration);
+        console.log('Metadatos de audio cargados, duración:', audioRef.current?.duration);
         setDuration(audioRef.current?.duration || 0);
       };
 
@@ -87,7 +87,7 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
   // Maneja la actualización de la URL del audio
   useEffect(() => {
     if (audioRef.current && audioUrl) {
-      console.log('Setting audio source:', audioUrl);
+      console.log('Configurando fuente de audio:', audioUrl);
       audioRef.current.src = audioUrl;
       audioRef.current.load();
     }
@@ -99,7 +99,7 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
       try {
         await handleGenerateAudio();
       } catch (err) {
-        console.error('Error al generar audio:', err);
+        console.error('Error al generar el audio, amor:', err);
         return;
       } finally {
         setIsLoading(false);
@@ -108,20 +108,20 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
 
     if (audioRef.current) {
       if (isPlaying) {
-        console.log('Pausing audio...');
+        console.log('Pausando audio...');
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        console.log('Starting playback...');
+        console.log('Iniciando reproducción...');
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              console.log('Playback started successfully');
+              console.log('Reproducción iniciada exitosamente');
               setIsPlaying(true);
             })
             .catch(error => {
-              console.error('Error starting playback:', error);
+              console.error('Error al iniciar la reproducción:', error);
               setIsPlaying(false);
             });
         }
@@ -134,7 +134,7 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
       setIsGenerating(true);
       setError(null);
       
-      console.log('Generating audio with voice:', selectedVoice.id, 'and model:', selectedModel.id);
+      console.log('Generando audio con voz:', selectedVoice.id, 'y modelo:', selectedModel.id);
       const audioBlob = await generateSpeech({
         text,
         voice: selectedVoice.id as OpenAIVoiceType,
@@ -142,13 +142,13 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
       });
       
       const audioObjectUrl = URL.createObjectURL(audioBlob);
-      console.log('Audio generated successfully, URL:', audioObjectUrl);
+      console.log('Audio generado exitosamente, URL:', audioObjectUrl);
       setAudioUrl(audioObjectUrl);
       setIsGenerating(false);
       return audioObjectUrl;
     } catch (err) {
-      console.error('Error al generar audio:', err);
-      setError(err instanceof Error ? err.message : 'Error al generar el audio');
+      console.error('Error al generar audio, cariño:', err);
+      setError(err instanceof Error ? err.message : 'Error al generar el audio, amor');
       setIsGenerating(false);
       throw err;
     }
@@ -190,14 +190,14 @@ export default function AudioPlayer({ text, className, onComplete }: AudioPlayer
   };
 
   const handleEndedEvent = () => {
-    console.log('Audio ended event triggered');
+    console.log('Evento de fin de audio activado');
     setIsPlaying(false);
     setCurrentTime(duration);
     onComplete?.();
   };
 
   const handlePauseEvent = () => {
-    console.log('Audio pause event triggered');
+    console.log('Evento de pausa de audio activado');
     setIsPlaying(false);
   };
 

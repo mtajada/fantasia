@@ -6,7 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export default function ErrorPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const error = location.state?.error || "Something went wrong";
+  const error = location.state?.error || "Algo salió mal";
   const isMobile = useIsMobile();
 
   const tryAgain = () => {
@@ -30,11 +30,11 @@ export default function ErrorPage() {
             </div>
 
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 mb-4 text-center">
-              Oops! Something went wrong 🤫
+              ¡Oops! Algo salió mal 🤫
             </h1>
 
             <p className="text-gray-300 mb-10 text-center">
-              We're having trouble creating your intimate experience. Let's try again.
+              Estamos teniendo problemas creando tu experiencia íntima. Intentemos de nuevo.
             </p>
 
             <div className="w-full">
@@ -43,7 +43,7 @@ export default function ErrorPage() {
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl py-4 font-semibold text-lg mb-4 shadow-lg shadow-violet-500/25 transition-all duration-300 hover:transform hover:scale-105"
               >
                 <RefreshCw className="animate-spin-slow" size={20} />
-                Try Again ✨
+                Intentar de Nuevo ✨
               </button>
 
               <button
@@ -51,7 +51,7 @@ export default function ErrorPage() {
                 className="w-full flex items-center justify-center gap-2 bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 border border-gray-700 rounded-2xl py-4 font-semibold text-lg shadow transition-all duration-300 hover:transform hover:scale-105"
               >
                 <Home size={20} />
-                Back to Home 🏠
+                Volver al Inicio 🏠
               </button>
             </div>
           </div>

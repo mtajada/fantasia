@@ -1,6 +1,7 @@
 
 import { ButtonHTMLAttributes, ReactNode } from "react";
 
+// Botón personalizado para acciones de historia con estilo spicy
 interface StoryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: "primary" | "secondary";

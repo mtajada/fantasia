@@ -164,11 +164,11 @@ export const useUserStore = createPersistentStore<UserState>(
 
     canGenerateVoice: () => {
       const settings = get().profileSettings;
-      console.log('[canGenerateVoice_DEBUG] Checking canGenerateVoice. Settings:', settings);
+      console.log('[canGenerateVoice_DEBUG] Verificando canGenerateVoice. Configuración:', settings);
 
       // a. Handle missing profile
       if (!settings) {
-        console.warn('[canGenerateVoice_DEBUG] No profile settings found. Denying voice generation.');
+        console.warn('[canGenerateVoice_DEBUG] No se encontró configuración de perfil. Denegando generación de voz.');
         return false;
       }
 
