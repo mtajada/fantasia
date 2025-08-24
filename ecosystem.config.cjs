@@ -1,12 +1,12 @@
 module.exports = {
   apps: [
     {
-      name: "cuenta-cuentos",
+      name: "fantasia-site",
       script: "npm",
       args: "run start:prod",
       env: {
         NODE_ENV: "production",
-        PORT: "8080"
+        PORT: "8081"
       },
       instances: 1,
       exec_mode: "fork",
