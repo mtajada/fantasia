@@ -28,7 +28,7 @@ const PlansPage: React.FC = () => {
     const { toast } = useToast();
     const [profileSettings, setProfileSettings] = useState<ProfileSettings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
     
     // Premium check function
     const isPremium = () => {
@@ -139,7 +139,7 @@ const PlansPage: React.FC = () => {
     const features = [
         { name: 'Stories Generated', free: '10 / month', premium: 'Unlimited', icon: BookOpen, limited: true },
         { name: 'Story Continuations', free: '1', premium: 'Unlimited', icon: TrendingUp, limited: true },
-        { name: 'Voice Narration (AI)', free: 'Yes (2 / month)', premium: 'Yes (20/month incl.)', icon: Mic, limited: true },
+        { name: 'Voice Narration (AI)', free: 'Yes (2 / month)', premium: 'Yes (20/month incl.)', icon: Mic, limited: true, comingSoon: true },
         { name: 'Creative Challenges', free: 'Unlimited', premium: 'Unlimited', icon: CheckCircle, limited: false },
     ];
 
@@ -192,7 +192,7 @@ const PlansPage: React.FC = () => {
                                                         style={{ width: `${Math.min(100, ((profileSettings?.voice_credits || 0) / 20) * 100)}%` }}></div>
                                                 </div>
                                             </div>
-                                            <button
+                                            {/* <button
                                                 onClick={() => handleCheckout('credits')}
                                                 disabled={isCheckoutLoading}
                                                 className="w-full py-4 px-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm"
@@ -205,7 +205,7 @@ const PlansPage: React.FC = () => {
                                                         <span>Buy More Credits</span>
                                                     </>
                                                 )}
-                                            </button>
+                                            </button> */}
                                         </div>
                                     </div>
                                     {/* Card: Manage Subscription */}
@@ -258,10 +258,15 @@ const PlansPage: React.FC = () => {
                                         {features.map((feature, i) => (
                                             <li key={i} className="flex items-center gap-3 bg-gray-800/70 p-3 rounded-xl border border-gray-700/50 shadow-sm">
                                                 <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0" />
-                                                <div>
-                                                    <div className="flex items-center gap-2">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 flex-wrap">
                                                         <feature.icon className="h-4 w-4 text-violet-400" />
                                                         <span className="font-bold text-gray-50">{feature.name}</span>
+                                                        {feature.comingSoon && (
+                                                            <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/40 rounded-full">
+                                                                Coming Soon
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <span className="text-sm font-medium text-violet-400">{feature.premium}</span>
                                                 </div>
@@ -273,7 +278,7 @@ const PlansPage: React.FC = () => {
                                 <div className="mt-8 mb-14 text-center transition-all duration-300">
                                     <Link
                                         to="/home"
-                                        className="inline-block py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all duration-200 mx-auto min-h-[44px] text-base sm:text-sm"
+                                        className="py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all duration-200 mx-auto min-h-[44px] text-base sm:text-sm"
                                     >
                                         <BookOpen className="h-5 w-5" />
                                         <span>Go to App</span>
@@ -314,7 +319,6 @@ const PlansPage: React.FC = () => {
                                         >
                                             <Star className="h-4 w-4" />
                                             <span>Premium</span>
-                                            <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs font-bold py-0.5 px-2 rounded-full shadow-md">Coming Soon</span>
                                         </button>
                                     </div>
                                 </div>
@@ -332,11 +336,6 @@ const PlansPage: React.FC = () => {
                                                     {activePlan === 'premium' && <Star className="h-5 w-5 text-pink-400" />}
                                                     Plan {activePlan === 'premium' ? 'Premium' : 'Free'}
                                                 </h2>
-                                                {activePlan === 'premium' && (
-                                                    <span className="bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                                        Coming Soon
-                                                    </span>
-                                                )}
                                             </div>
                                             {activePlan === 'premium' ? (
                                                 <>
@@ -347,7 +346,7 @@ const PlansPage: React.FC = () => {
                                                             <span className="text-gray-300 font-medium">Price:</span>
                                                         </div>
                                                         <div className="font-bold text-xl text-violet-400 flex items-center gap-1">
-                                                            <span>10€</span>
+                                                            <span>9.98€€</span>
                                                             <span className="text-sm font-normal text-gray-300 opacity-80">/month</span>
                                                         </div>
                                                     </div>
@@ -361,13 +360,20 @@ const PlansPage: React.FC = () => {
                                         {activePlan === 'premium' && (
                                             <div className="p-6 pt-4 pb-0">
                                                 <button
-                                                    disabled={true}
-                                                    className="w-full py-4 px-6 bg-gradient-to-r from-violet-500/60 to-purple-600/40 text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg cursor-not-allowed relative overflow-hidden min-h-[44px] text-base sm:text-sm"
+                                                    onClick={() => handleCheckout('premium')}
+                                                    disabled={isCheckoutLoading}
+                                                    className="w-full py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg transition-all duration-200 relative overflow-hidden min-h-[44px] text-base sm:text-sm"
                                                 >
-                                                    <Star className="h-5 w-5" />
-                                                    <span>Get Premium Now 🌟</span>
+                                                    {isCheckoutLoading ? (
+                                                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <>
+                                                            <Star className="h-5 w-5" />
+                                                            <span>Get Premium Now 🔥</span>
+                                                        </>
+                                                    )}
                                                 </button>
-                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">We're working to offer you this option very soon</p>
+                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">Unlock unlimited stories and premium features</p>
                                             </div>
                                         )}
 
@@ -401,10 +407,15 @@ const PlansPage: React.FC = () => {
                                                                     )
                                                                 )}
                                                             </div>
-                                                            <div>
-                                                                <div className="flex items-center gap-2">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 flex-wrap">
                                                                     <feature.icon className="h-4 w-4 text-violet-400" />
                                                                     <span className="font-bold text-gray-50">{feature.name}</span>
+                                                                    {feature.comingSoon && (
+                                                                        <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/40 rounded-full">
+                                                                            Coming Soon
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <div className="text-sm font-medium text-gray-300">
                                                                     {activePlan === 'premium' ? feature.premium : feature.free}
