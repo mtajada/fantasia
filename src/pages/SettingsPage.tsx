@@ -128,7 +128,7 @@ const SettingsPage: React.FC = () => {
                     month: 'long',
                     // year: 'numeric' // Optional: add year if needed
                 }).format(endDate);
-                resetDateString = `el ${resetDateString}`;
+                resetDateString = `on ${resetDateString}`;
             } catch (e) {
                 console.error("Error formateando current_period_end, amor:", e);
                 resetDateString = "Error formateando fecha, cariño";
@@ -263,7 +263,7 @@ const SettingsPage: React.FC = () => {
                                         </div>
 
                                         {/* Voice Credits Purchase Button (Free user) */}
-                                        <button
+                                        {/* <button
                                             onClick={() => handleCheckout('credits')}
                                             // disabled={isCheckoutLoading || isPortalLoading}
                                             disabled={true}
@@ -278,7 +278,7 @@ const SettingsPage: React.FC = () => {
                                             ) : (
                                                 <ChevronRight className="h-4 w-4 text-gray-200" />
                                             )}
-                                        </button>
+                                        </button> */}
                                     </div>
 
                                     {/* View Plans Button */}
@@ -399,7 +399,7 @@ const SettingsPage: React.FC = () => {
                                 ) : (
                                     <>
                                         <LogOut className="h-4 w-4" />
-                                        <span>Cerrar Sesión</span>
+                                        <span>Sign Out</span>
                                     </>
                                 )}
                             </button>

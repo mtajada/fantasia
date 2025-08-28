@@ -35,6 +35,7 @@ export class StoryContinuationService {
       ...payload // Incluir el resto de los datos (story, chapters, etc.)
     };
 
+<<<<<<< HEAD
     // Registrar información de personajes para depuración (consistente con GenerateStoryService)
     if (bodyPayload.story && bodyPayload.story.options && bodyPayload.story.options.characters) {
       const characters = bodyPayload.story.options.characters;
@@ -44,6 +45,17 @@ export class StoryContinuationService {
       // Registrar nivel de intensidad para depuración
       const spicynessLevel = bodyPayload.story.options.spiciness_level || 2;
       console.log(`[StoryContinuationService] Nivel de intensidad: ${spicynessLevel}`);
+=======
+    // Log character information for debugging (consistent with GenerateStoryService)
+    if (bodyPayload.story && bodyPayload.story.options && bodyPayload.story.options.characters) {
+      const characters = bodyPayload.story.options.characters;
+      const charactersInfo = `Characters (${characters.length}): ${characters.map(c => `${c.name} (${c.gender})`).join(', ')}`;
+      console.log(`[StoryContinuationService] ${charactersInfo}`);
+      
+      // Log spiciness level for debugging
+      const spicynessLevel = bodyPayload.story.options.spiciness_level || 2;
+      console.log(`[StoryContinuationService] Spiciness level: ${spicynessLevel}`);
+>>>>>>> origin/main
     }
 
     try {

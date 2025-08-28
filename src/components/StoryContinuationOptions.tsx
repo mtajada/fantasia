@@ -35,7 +35,7 @@ export default function StoryContinuationOptions({
     if (options && options.length === 3) {
       setDisplayOptions(options);
     } else {
-      console.warn("No se recibieron 3 opciones en el componente. Usando opciones predeterminadas.");
+      console.warn("Didn't receive 3 options in component. Using default options.");
       setDisplayOptions(defaultOptions);
     }
   }, [options]);

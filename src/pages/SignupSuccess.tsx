@@ -49,7 +49,7 @@ export default function SignupSuccess() {
                   ¡Cuenta Creada! ✨
                 </CardTitle>
                 <CardDescription className="text-gray-300 text-center text-lg">
-                  Bienvenide a tu aventura sensual
+                  Bienvenido a tu aventura sensual
                 </CardDescription>
               </motion.div>
             </CardHeader>

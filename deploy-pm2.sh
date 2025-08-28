@@ -38,7 +38,7 @@ npm run build:prod
 
 # Stop previous instance in PM2 (if exists)
 echo -e "${GREEN}Stopping previous instance (if exists)...${NC}"
-pm2 delete cuenta-cuentos 2>/dev/null || true
+pm2 delete fantasia-site 2>/dev/null || true
 
 # Start with PM2
 echo -e "${GREEN}Starting the application with PM2...${NC}"
@@ -53,8 +53,8 @@ echo -e "${GREEN}Showing application status...${NC}"
 pm2 status
 
 echo -e "${GREEN}=== Deployment completed ===${NC}"
-echo -e "${GREEN}The application is available at: http://localhost:80${NC}"
-echo -e "${YELLOW}To see the logs: pm2 logs cuenta-cuentos${NC}"
-echo -e "${YELLOW}To stop the application: pm2 stop cuenta-cuentos${NC}"
-echo -e "${YELLOW}To restart the application: pm2 restart cuenta-cuentos${NC}"
+echo -e "${GREEN}The application is available at: http://localhost:8081${NC}"
+echo -e "${YELLOW}To see the logs: pm2 logs fantasia-site${NC}"
+echo -e "${YELLOW}To stop the application: pm2 stop fantasia-site${NC}"
+echo -e "${YELLOW}To restart the application: pm2 restart fantasia-site${NC}"
 echo -e "${YELLOW}To monitor resources: pm2 monit${NC}" 

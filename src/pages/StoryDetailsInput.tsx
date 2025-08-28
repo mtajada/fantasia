@@ -118,7 +118,6 @@ const StoryDetailsInput: React.FC = () => {
         }}
       >
         <BackButton />
-
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center p-4">
           {/* Animated title and subtitle */}
           <motion.h1
@@ -205,7 +204,6 @@ const StoryDetailsInput: React.FC = () => {
               )}
             </motion.div>
           </motion.div>
-
           {/* Spiciness Level Selector */}
           <motion.div
             className="mb-6 w-full"

@@ -156,7 +156,7 @@ export default function StoryGenre() {
               disabled={!selectedGenre}
               isFullWidth
             >
-              Continuar
+              Continue
             </StoryButton>
           </div>
         </div>

@@ -32,6 +32,7 @@ const PlansPage: React.FC = () => {
     const { limitStatus, warnings, hasWarnings } = useLimitWarnings();
     const [profileSettings, setProfileSettings] = useState<ProfileSettings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
     
     // Premium check function
     const isPremium = () => {
@@ -44,7 +45,7 @@ const PlansPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'comparison' | 'details'>('comparison');
     const [activePlan, setActivePlan] = useState<'free' | 'premium'>('free');
 
-    // Load user data and handle tab/focus query parameters
+    // Load user data and handle tab query parameter
     useEffect(() => {
         const loadUserData = async () => {
             try {
@@ -52,6 +53,7 @@ const PlansPage: React.FC = () => {
                 const { user: currentUser } = await getCurrentUser();
                 
                 if (currentUser) {
+                    setUser(currentUser);
                     const { success, profile } = await getUserProfile(currentUser.id);
                     
                     if (success && profile) {
@@ -70,7 +72,7 @@ const PlansPage: React.FC = () => {
         
         loadUserData();
         
-        // Handle query parameters
+        // Handle tab query parameter
         const queryParams = new URLSearchParams(location.search);
         const tabParam = queryParams.get('tab');
         const focusParam = queryParams.get('focus');
@@ -279,7 +281,7 @@ const PlansPage: React.FC = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                            <button
+                                            {/* <button
                                                 onClick={() => handleCheckout('credits')}
                                                 disabled={isCheckoutLoading}
                                                 className="w-full py-4 px-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm"
@@ -292,7 +294,7 @@ const PlansPage: React.FC = () => {
                                                         <span>Comprar Más Créditos</span>
                                                     </>
                                                 )}
-                                            </button>
+                                            </button> */}
                                         </div>
                                     </div>
                                     {/* Card: Manage Subscription */}
@@ -324,7 +326,7 @@ const PlansPage: React.FC = () => {
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <Settings className="h-4 w-4" />
-                                                    <span>Gestionar Suscripción</span>
+                                                    <span>Manage Subscription</span>
                                                 </div>
                                                 {isPortalLoading ? (
                                                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -483,6 +485,7 @@ const PlansPage: React.FC = () => {
                                                         </>
                                                     )}
                                                 </button>
+                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">Unlock unlimited stories and premium features</p>
                                             </div>
                                         )}
 

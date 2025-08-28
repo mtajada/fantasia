@@ -250,13 +250,13 @@ export default function CharactersManagement() {
                   onClick={cancelDelete}
                   className={`flex-1 ${isMobile ? 'py-3 px-4' : 'py-3 px-6'} bg-gray-800/80 hover:bg-gray-700/80 rounded-2xl text-gray-300 font-medium transition-all duration-300 border border-gray-700 shadow-sm backdrop-blur-sm`}
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
                   className={`flex-1 ${isMobile ? 'py-3 px-4' : 'py-3 px-6'} bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 rounded-2xl text-white font-medium transition-all duration-300 shadow-lg shadow-pink-500/25`}
                 >
-                  Eliminar
+                  Delete
                 </button>
               </div>
             </motion.div>

@@ -11,7 +11,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Project Type**: Single Page Application (SPA)  
 **Target Audience**: Adults (18+)  
 **Content Focus**: Adult erotic literature and interactive experiences  
+<<<<<<< HEAD
 **Language**: Español (tono spicy, no usar términos con género o/a)
+=======
+**Language**: English (migrating from Spanish)
+>>>>>>> origin/main
 
 ## Technology Stack
 
@@ -220,6 +224,7 @@ Legacy files (may be outdated):
 
 ## Development Guidelines
 
+<<<<<<< HEAD
 ### Design Work Guidelines
 **IMPORTANT**: When working as a designer or making UI/UX changes, always reference the adult design guidelines at `/docs/PAUTAS_DE_DISENO_ADULTO.md`. This document contains:
 - Adult-oriented color palette and visual system
@@ -227,6 +232,8 @@ Legacy files (may be outdated):
 - Component patterns for erotic platform
 - **CRITICAL**: Functional preservation disclaimer - only modify visual aspects, never alter functionality
 
+=======
+>>>>>>> origin/main
 ### Transformation Rules
 1. **Think First**: Read codebase for relevant files, write plan to tasks/todo.md
 2. **Check Before Working**: Always verify plan with user before implementation
@@ -236,7 +243,11 @@ Legacy files (may be outdated):
 
 ### Project Transformation Context
 - **Content Migration**: Transform from children's stories to adult erotic content
+<<<<<<< HEAD
 - **Migración de Idioma**: Cambio completo al español con tono spicy e inclusivo para todo el contenido
+=======
+- **Language Migration**: Gradually change from Spanish to English (new features in English)
+>>>>>>> origin/main
 - **Architecture Migration**: Replace Zustand local store with direct Supabase queries
 - **Simplicity Focus**: Avoid massive or complex changes, every change should be incremental
 
@@ -245,6 +256,7 @@ Legacy files (may be outdated):
 - **ESLint** configuration with React rules
 - **Consistent naming** (camelCase for JS, snake_case for DB)
 - **Component organization** by feature/domain
+<<<<<<< HEAD
 - **Enfoque español-first** para todas las funciones y componentes con lenguaje inclusivo
 
 ### Lenguaje Spicy e Inclusivo
@@ -258,6 +270,9 @@ Legacy files (may be outdated):
 - **Console Logs**: Todos los console.log y error messages en español
 - **Comentarios**: Todos los comentarios de código en español
 - **Error Messages**: Mensajes de error en español con tono apropiado
+=======
+- **English-first approach** for new functions and components
+>>>>>>> origin/main
 
 ### Best Practices
 - **Prefer editing** existing files over creating new ones
@@ -308,6 +323,7 @@ Legacy files (may be outdated):
 
 ## Transformation Roadmap
 
+<<<<<<< HEAD
 ### ✅ Phase 1: Content Migration (COMPLETED)
 - ✅ **Story Generation**: Adult content prompts fully implemented
 - ✅ **Character System**: Completely migrated to simplified structure (name, gender, description)
@@ -323,14 +339,35 @@ Legacy files (may be outdated):
 - ❌ **Database Optimization**: Optimize for adult content storage and retrieval
 
 ### Phase 3: Enhanced Features (PLANNED)
+=======
+### Phase 1: Content Migration (Current)
+- **Story Generation**: Update prompts for adult content
+- **Character System**: ✅ Completed - Simplified to name, gender, and description
+- **Content Warnings**: Implement age verification and content warnings
+- **Language**: Begin Spanish to English migration
+
+### Phase 2: Architecture Migration
+- **State Management**: Replace Zustand with direct Supabase queries
+- **Real-time Features**: Implement Supabase real-time subscriptions
+- **Database Optimization**: Optimize for adult content storage and retrieval
+
+### Phase 3: Enhanced Features
+>>>>>>> origin/main
 - **Advanced Personalization**: AI-driven content customization
 - **Community Features**: User-generated content and sharing
 - **Enhanced Privacy**: Advanced privacy controls for adult platform
 
+<<<<<<< HEAD
 ### Current Technical Debt (PRIORITY ORDER)
 - **🔥 HIGHEST PRIORITY**: Complete Zustand to Supabase migration for user/story stores
 - **Contenido en Español Spicy**: Mantenimiento del lenguaje inclusivo y tono spicy en toda la plataforma
 - **Component Localization**: Final adult content UI adaptations
+=======
+### Current Technical Debt
+- **Spanish Language Content**: Systematic translation needed
+- **Zustand Dependencies**: Local storage elimination required
+- **Component Localization**: Adult content UI adaptations needed
+>>>>>>> origin/main
 - **Image Generation**: Re-enable functionality when ready for production
 
 ## Implementation Guidelines
@@ -347,6 +384,7 @@ Legacy files (may be outdated):
 - **Testing**: Manual testing for each change
 - **Documentation**: Update docs as changes are implemented
 
+<<<<<<< HEAD
 ## Implementation Status
 
 ### Completed Major Implementations
@@ -384,3 +422,13 @@ The **highest priority** remaining task is completing the migration from Zustand
 **Maintainer**: Development Team
 
 For detailed implementation guides, see the `/docs` directory, `/docs/IMPLEMENTATIONS/` directory, and `/tasks/todo.md`.
+=======
+---
+
+**Last Updated**: January 2025  
+**Version**: 1.1.4  
+**Transformation Status**: Phase 1 - Content Migration  
+**Maintainer**: Development Team
+
+For detailed implementation guides, see the `/docs` directory and `/tasks/todo.md`.
+>>>>>>> origin/main

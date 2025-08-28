@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
-import StoryButton from "../components/StoryButton";
 import PageTransition from "../components/PageTransition";
 import { useToast } from "@/hooks/use-toast";
 import BackButton from "../components/BackButton";

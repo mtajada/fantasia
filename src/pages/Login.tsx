@@ -33,7 +33,7 @@ export default function Login() {
 
       if (error) {
         toast({
-          title: "Error de inicio de sesión",
+          title: "Login Error",
           description: error.message,
           variant: "destructive"
         });
@@ -49,14 +49,14 @@ export default function Login() {
         });
 
         try {
-          // Verificar si el usuario ya tiene un perfil configurado
+          // Check if user already has a configured profile
           const { success, profile } = await getUserProfile(user.id);
 
           if (success && profile) {
             // Si el usuario tiene perfil, redirigir a la página principal
             navigate("/home");
           } else {
-            // Si no tiene perfil, redirigir a la configuración de perfil
+            // If no profile, redirect to profile setup
             navigate("/profile");
           }
         } catch (profileError) {

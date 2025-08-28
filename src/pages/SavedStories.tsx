@@ -17,7 +17,7 @@ export default function SavedStories() {
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('es-ES', { 
+    return new Intl.DateTimeFormat('en-US', { 
       year: 'numeric', 
       month: 'short', 
       day: 'numeric' 
@@ -134,7 +134,7 @@ export default function SavedStories() {
                           {story.hasMultipleChapters && (
                             <span className="text-violet-400 flex items-center">
                               <Bookmark size={14} className="mr-1" />
-                              {story.chaptersCount} capítulos
+                              {story.chaptersCount} chapters
                             </span>
                           )}
                         </div>

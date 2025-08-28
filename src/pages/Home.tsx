@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { supabase } from '@/supabaseClient';
 import { useStoriesStore } from "../store/stories/storiesStore";
 import PageTransition from "../components/PageTransition";
-import { useToast } from "@/hooks/use-toast";
 
 import { useLimitWarnings } from "@/hooks/useLimitWarnings";
 import NavigationBar from "@/components/NavigationBar";
@@ -14,7 +12,6 @@ import { trackFeatureUsed, trackLimitReached } from "@/services/analyticsService
 export default function Home() {
   const navigate = useNavigate();
   const { generatedStories } = useStoriesStore(); // Mantener para las historias
-  const { toast } = useToast();
   const { limitStatus } = useLimitWarnings();
   const [isLoading, setIsLoading] = React.useState(true);
   const [profile, setProfile] = React.useState<{ has_completed_setup: boolean; subscription_status: string | null; } | null>(null);
@@ -173,7 +170,6 @@ export default function Home() {
             </button>
           )}
         </div>
-
 
       </div>
     </PageTransition>

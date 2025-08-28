@@ -446,7 +446,7 @@ export default function CharacterName() {
                 className={`${isMobile ? 'w-full' : 'w-[48%]'} text-lg py-4 shadow-md hover:shadow-lg transition-all rounded-2xl font-medium bg-white/70 hover:bg-white/90 text-[#BB79D1] border border-[#BB79D1]/30 disabled:opacity-50`}
                 disabled={loading}
               >
-                Atrás
+                Back
               </button>
               
               <button

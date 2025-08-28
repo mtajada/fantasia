@@ -71,6 +71,7 @@ export function createContinuationOptionsPrompt(
 
     const languageName = getLanguageName(language);
     let prompt = `You are a creative assistant expert in generating interesting and coherent continuations for erotic stories for adults.
+<<<<<<< HEAD
   Primary Story Language: ${languageName}. Target Audience: Adults (18+). Use clear and direct language.`;
 
     // Add spiciness level specific guidelines
@@ -80,6 +81,17 @@ export function createContinuationOptionsPrompt(
         prompt += ` CONTENT INTENSITY: INTENSE (Level 2) - Generate continuation options that embrace very explicit and graphic sexual content. Options should suggest detailed, direct, and provocative scenarios while maintaining consent and positivity.`;
     } else if (spicynessLevel === 3) {
         prompt += ` CONTENT INTENSITY: EXTREME (Level 3) - Generate continuation options that embrace extremely explicit and raw sexual content. Options should suggest highly detailed, unfiltered, and provocative scenarios with the most direct language possible.`;
+=======
+  Primary Story Language: ${languageName}. Target Audience: Adults (18+).`;
+
+    // Add spiciness level specific guidelines
+    if (spicynessLevel === 1) {
+        prompt += ` CONTENT INTENSITY: SENSUAL (Level 1) - Generate continuation options that maintain suggestive and implicit content. Focus on elegant, emotional connections, subtle tension, and anticipation rather than explicit descriptions.`;
+    } else if (spicynessLevel === 2) {
+        prompt += ` CONTENT INTENSITY: PASSIONATE (Level 2) - Generate continuation options that include explicit but balanced sexual content. Options should suggest clear intimate scenarios while maintaining elegance and emotional connection.`;
+    } else if (spicynessLevel === 3) {
+        prompt += ` CONTENT INTENSITY: INTENSE (Level 3) - Generate continuation options that embrace very explicit and graphic sexual content. Options should suggest detailed, direct, and provocative scenarios while maintaining consent and positivity.`;
+>>>>>>> origin/main
     }
 
     if (preferences && preferences.trim()) {
@@ -160,16 +172,28 @@ export function createContinuationPrompt(
 
     const languageName = getLanguageName(language);
     let prompt = `You are an expert writer continuing erotic stories for adults.
+<<<<<<< HEAD
   Write always in ${languageName}, using clear and direct language appropriate for mature audiences (18+).
+=======
+  Write always in ${languageName}, with sophisticated and sensual language appropriate for mature audiences (18+).
+>>>>>>> origin/main
   The original story has a genre of '${story.options.genre}'.`;
 
     // Add spiciness level specific guidelines
     if (spicynessLevel === 1) {
+<<<<<<< HEAD
         prompt += ` CONTENT INTENSITY: PASSIONATE (Level 1) - Continue with explicit but balanced sexual content. Include clear descriptions of intimate acts using direct language, focusing on emotions and physical sensations.`;
     } else if (spicynessLevel === 2) {
         prompt += ` CONTENT INTENSITY: INTENSE (Level 2) - Continue with very explicit and graphic sexual content. Include detailed descriptions of sexual acts, positions, and physical sensations. Use direct and provocative language with high sexual intensity while maintaining consent and positivity.`;
     } else if (spicynessLevel === 3) {
         prompt += ` CONTENT INTENSITY: EXTREME (Level 3) - Continue with extremely explicit and raw sexual content. Include highly detailed and graphic descriptions of all sexual acts. Use the most direct, unfiltered, and provocative language with maximum sexual intensity while maintaining consent.`;
+=======
+        prompt += ` CONTENT INTENSITY: SENSUAL (Level 1) - Continue with suggestive and implicit content. Use elegant, metaphorical language that builds tension through emotional connection, subtle touches, and anticipation. Focus on romance and desire rather than explicit descriptions.`;
+    } else if (spicynessLevel === 2) {
+        prompt += ` CONTENT INTENSITY: PASSIONATE (Level 2) - Continue with explicit but balanced sexual content. Include clear descriptions of intimate acts without excessive graphic detail. Use sensual and direct but elegant language, focusing on emotions and physical sensations.`;
+    } else if (spicynessLevel === 3) {
+        prompt += ` CONTENT INTENSITY: INTENSE (Level 3) - Continue with very explicit and graphic sexual content. Include detailed descriptions of sexual acts, positions, and physical sensations. Use direct and provocative language with high sexual intensity while maintaining consent and positivity.`;
+>>>>>>> origin/main
     }
 
     // Chapter length guidance based on story format
@@ -247,7 +271,11 @@ export function createContinuationPrompt(
     }
 
     prompt += `\n2. **Chapter Structure:** Should have clear narrative flow, connecting with the previous chapter and advancing the overall plot. Can introduce new erotic elements or deepen existing relationships.`;
+<<<<<<< HEAD
     prompt += `\n3. **Tone and Style:** Maintain the tone and style of the original story. Use clear, direct language that engages all readers. Build tension efficiently without unnecessary elaboration.`;
+=======
+    prompt += `\n3. **Tone and Style:** Maintain the tone and style of the original story. Use sophisticated, sensual language that creates atmosphere and emotional connection. Build tension and desire naturally.`;
+>>>>>>> origin/main
     prompt += `\n4. **Coherence:** Ensure characters behave consistently and that new events fit logically in the story while maintaining the erotic tension.`;
     prompt += `\n5. **Chapter Title Generation (CRITICAL INSTRUCTIONS):**\n`;
     prompt += `   **LANGUAGE REQUIREMENT (MANDATORY):** The chapter title MUST be written in ${languageName}. NOT in English, NOT in any other language. ONLY in ${languageName}.\n`;
