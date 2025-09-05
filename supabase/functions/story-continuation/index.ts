@@ -31,11 +31,7 @@ console.log(`story-continuation ${functionVersion}: Using model ${MODEL_NAME} vi
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-<<<<<<< HEAD
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("URL de Supabase o clave de rol de servicio no configurada");
-=======
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase URL or Service Role Key not set");
->>>>>>> origin/main
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // --- Interfaces for AI JSON Responses ---
@@ -241,11 +237,7 @@ serve(async (req: Request) => {
     console.log(`[${functionVersion}] Handling POST request...`);
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-<<<<<<< HEAD
       console.error("Encabezado de autorización faltante o inválido.");
-=======
-      console.error("Authorization header missing or invalid.");
->>>>>>> origin/main
       return new Response(JSON.stringify({ error: 'Token inválido o ausente.' }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -253,11 +245,7 @@ serve(async (req: Request) => {
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) {
-<<<<<<< HEAD
       console.error("Error de autenticación:", authError);
-=======
-      console.error("Auth Error:", authError);
->>>>>>> origin/main
       return new Response(JSON.stringify({ error: authError?.message || 'No autenticado.' }), {
         status: authError?.status || 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -290,11 +278,7 @@ serve(async (req: Request) => {
       // Validate story has required content and at least one character
       const hasCharacterData = (story.options.characters && story.options.characters.length > 0) || story.options.character?.name;
       if (!story.content || !story.options || !hasCharacterData || !story.title) {
-<<<<<<< HEAD
         console.error("Validación de historia fallida:", {
-=======
-        console.error("Story validation failed:", {
->>>>>>> origin/main
           hasContent: !!story.content,
           hasOptions: !!story.options,
           hasCharacterData: hasCharacterData,
@@ -327,7 +311,6 @@ serve(async (req: Request) => {
     const storyFormat = body.storyFormat || story?.options?.format || 'episodic';
     const spicynessLevel = story?.options?.spiciness_level || 2; // Extract from story options, default to 2
 
-<<<<<<< HEAD
     // NUEVO: Verificar límites mensuales de historias usando la función SQL
     const { data: canGenerate, error: limitError } = await supabaseAdmin.rpc('can_generate_story', {
       user_uuid: userId
@@ -347,8 +330,6 @@ serve(async (req: Request) => {
       });
     }
 
-=======
->>>>>>> origin/main
     // Límites (largely same logic as v6.1)
     if (isContinuationAction) {
       const { data: profile, error: profileError } = await supabaseAdmin.from('profiles').select('subscription_status').eq('id', userId).maybeSingle();
@@ -464,18 +445,13 @@ serve(async (req: Request) => {
         // Optionally throw, but providing a message might be better UX for continuations
       }
 
-<<<<<<< HEAD
       console.log(`[${functionVersion}] Título final: "${finalTitle}", Longitud de contenido final: ${finalContent.length}`);
-=======
-      console.log(`[${functionVersion}] Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
->>>>>>> origin/main
       responsePayload = { content: finalContent, title: finalTitle };
 
     } else {
       throw new Error(`Acción no soportada: ${action}`);
     }
 
-<<<<<<< HEAD
     // NUEVO: Incrementar contador después de generar continuación exitosa
     if (isContinuationAction && responsePayload.content) {
       const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
@@ -490,19 +466,13 @@ serve(async (req: Request) => {
       }
     }
 
-=======
->>>>>>> origin/main
     console.log(`[${functionVersion}] Action ${action} completed successfully for ${userId}.`);
     return new Response(JSON.stringify(responsePayload), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error: any) {
-<<<<<<< HEAD
     console.error(`Error en ${functionVersion} (Usuario: ${userId || 'DESCONOCIDO'}, Acción: ${requestedAction}):`, error.message, error.stack);
-=======
-    console.error(`Error in ${functionVersion} (User: ${userId || 'UNKNOWN'}, Action: ${requestedAction}):`, error.message, error.stack);
->>>>>>> origin/main
     let statusCode = 500;
     const lowerMessage = error.message.toLowerCase();
 

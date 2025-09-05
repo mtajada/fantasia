@@ -458,7 +458,7 @@ const PlansPage: React.FC = () => {
                                                             <span className="text-gray-300 font-medium">Precio:</span>
                                                         </div>
                                                         <div className="font-bold text-xl text-violet-400 flex items-center gap-1">
-                                                            <span>10€</span>
+                                                            <span>9.98€</span>
                                                             <span className="text-sm font-normal text-gray-300 opacity-80">/mes</span>
                                                         </div>
                                                     </div>

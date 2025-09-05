@@ -1,31 +1,17 @@
 // supabase/functions/generate-story/index.ts
-<<<<<<< HEAD
 // v7.0 (Cliente OpenAI + Salida JSON): Usa cliente OpenAI para Gemini, espera JSON.
 // IMPORTANTE: prompt.ts ha sido actualizado para instruir a la IA para salida JSON.
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 import OpenAI from "npm:openai@^4.33.0"; // Usando cliente OpenAI
-=======
-// v7.0 (OpenAI Client + JSON Output): Uses OpenAI client for Gemini, expects JSON.
-// IMPORTANT: prompt.ts has been updated to instruct AI for JSON output.
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { corsHeaders } from '../_shared/cors.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
-import OpenAI from "npm:openai@^4.33.0"; // Using OpenAI client
->>>>>>> origin/main
 
 // Importar funciones de prompt desde prompt.ts
 // createUserPrompt_JsonFormat (antes createUserPrompt_SeparatorFormat) ahora genera un prompt que pide JSON.
 import { createSystemPrompt, createUserPrompt_JsonFormat } from './prompt.ts';
 
-<<<<<<< HEAD
 // --- Función Helper: Títulos por defecto según idioma ---
 function obtenerTituloPorDefectoSegunIdioma(language: string): string {
-=======
-// --- Helper Function: Language-aware default titles ---
-function getLanguageAwareDefaultTitle(language: string): string {
->>>>>>> origin/main
   const languageDefaults: Record<string, string> = {
     'es': 'Aventura Inolvidable',
     'en': 'Unforgettable Adventure',
@@ -61,17 +47,10 @@ function getLanguageAwareDefaultContent(language: string): string {
 function cleanExtractedText(text: string | undefined | null, type: 'title' | 'content', language: string = 'en'): string {
   const defaultText = type === 'title' ? getLanguageAwareDefaultTitle(language) : getLanguageAwareDefaultContent(language);
   if (text === null || text === undefined || typeof text !== 'string') {
-<<<<<<< HEAD
     console.warn(`[Helper v7.0] cleanExtractedText (${type}): Entrada vacía/no es cadena.`);
     return defaultText;
   }
   console.log(`[Helper v7.0] cleanExtractedText (${type}) - ANTES: "${text.substring(0, 150)}..."`);
-=======
-    console.warn(`[Helper v7.0] cleanExtractedText (${type}): Input empty/not string.`);
-    return defaultText;
-  }
-  console.log(`[Helper v7.0] cleanExtractedText (${type}) - BEFORE: "${text.substring(0, 150)}..."`);
->>>>>>> origin/main
   let cleaned = text.trim();
 
   // These might be less necessary if AI strictly adheres to JSON values, but good for robustness
@@ -87,11 +66,7 @@ function cleanExtractedText(text: string | undefined | null, type: 'title' | 'co
   cleaned = cleaned.replace(/^(Respuesta|Aquí tienes el título|El título es):\s*/i, '').trim();
   cleaned = cleaned.replace(/^(Aquí tienes el cuento|El cuento es):\s*/i, '').trim();
 
-<<<<<<< HEAD
   console.log(`[Helper v7.0] cleanExtractedText (${type}) - DESPUÉS: "${cleaned.substring(0, 150)}..."`);
-=======
-  console.log(`[Helper v7.0] cleanExtractedText (${type}) - AFTER: "${cleaned.substring(0, 150)}..."`);
->>>>>>> origin/main
   return cleaned || defaultText; // Ensure non-empty string or default
 }
 
@@ -136,13 +111,8 @@ serve(async (req: Request) => {
   const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-<<<<<<< HEAD
     console.error("URL de Supabase o clave de rol de servicio no configurada");
     throw new Error("URL de Supabase o clave de rol de servicio no configurada");
-=======
-    console.error("Supabase URL or Service Role Key not set");
-    throw new Error("Supabase URL or Service Role Key not set");
->>>>>>> origin/main
   }
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -162,11 +132,7 @@ serve(async (req: Request) => {
     console.log(`[${functionVersion}] Handling POST request...`);
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-<<<<<<< HEAD
       console.error("Encabezado de autorización faltante o inválido.");
-=======
-      console.error("Authorization header missing or invalid.");
->>>>>>> origin/main
       return new Response(JSON.stringify({ error: 'Token inválido o ausente.' }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -175,11 +141,7 @@ serve(async (req: Request) => {
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
     if (authError || !user) {
-<<<<<<< HEAD
       console.error("Error de autenticación:", authError);
-=======
-      console.error("Auth Error:", authError);
->>>>>>> origin/main
       return new Response(JSON.stringify({ error: authError?.message || 'No autenticado.' }), {
         status: authError?.status || 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -231,11 +193,7 @@ serve(async (req: Request) => {
       console.log(`[${functionVersion}] Params Received:`, JSON.stringify(params, null, 2));
       console.log(`[${functionVersion}] Validating basic structure...`);
       console.log(`[${functionVersion}] profile.language:`, profile?.language, typeof profile?.language);
-<<<<<<< HEAD
       console.log(`[${functionVersion}] profile.preferences:`, profile?.preferences ? 'proporcionado' : 'ninguno');
-=======
-      console.log(`[${functionVersion}] profile.preferences:`, profile?.preferences ? 'provided' : 'none');
->>>>>>> origin/main
       console.log(`[${functionVersion}] params.options:`, params.options);
       if (params.options) {
         console.log(`[${functionVersion}] params.options.format:`, params.options.format, typeof params.options.format);
@@ -248,38 +206,22 @@ serve(async (req: Request) => {
       console.log(`[${functionVersion}] Starting detailed validation...`);
 
       if (!params) {
-<<<<<<< HEAD
         console.error("[ERROR DE VALIDACIÓN] params es null/undefined");
-=======
-        console.error("[VALIDATION ERROR] params is null/undefined");
->>>>>>> origin/main
         throw new Error("Parámetros inválidos: datos no recibidos.");
       }
 
       if (typeof params !== 'object') {
-<<<<<<< HEAD
         console.error("[ERROR DE VALIDACIÓN] params no es un objeto:", typeof params);
-=======
-        console.error("[VALIDATION ERROR] params is not an object:", typeof params);
->>>>>>> origin/main
         throw new Error("Parámetros inválidos: formato incorrecto.");
       }
 
       if (!params.options) {
-<<<<<<< HEAD
         console.error("[ERROR DE VALIDACIÓN] falta params.options");
-=======
-        console.error("[VALIDATION ERROR] params.options is missing");
->>>>>>> origin/main
         throw new Error("Parámetros inválidos: falta 'options'.");
       }
 
       if (typeof params.options !== 'object') {
-<<<<<<< HEAD
         console.error("[ERROR DE VALIDACIÓN] params.options no es un objeto:", typeof params.options);
-=======
-        console.error("[VALIDATION ERROR] params.options is not an object:", typeof params.options);
->>>>>>> origin/main
         throw new Error("Parámetros inválidos: 'options' debe ser un objeto.");
       }
 
@@ -288,7 +230,6 @@ serve(async (req: Request) => {
 
       // Language and preferences come from profile, not params
       if (!profile?.language || typeof profile.language !== 'string') {
-<<<<<<< HEAD
         errors.push('El perfil de usuario debe tener una configuración de idioma válida');
         console.error("[ERROR DE VALIDACIÓN] profile.language:", profile?.language, typeof profile?.language);
       }
@@ -301,20 +242,6 @@ serve(async (req: Request) => {
       if (typeof params.options.genre !== 'string' || !params.options.genre) {
         errors.push('options.genre debe ser una cadena no vacía');
         console.error("[ERROR DE VALIDACIÓN] genre:", params.options.genre, typeof params.options.genre);
-=======
-        errors.push('User profile must have a valid language setting');
-        console.error("[VALIDATION ERROR] profile.language:", profile?.language, typeof profile?.language);
-      }
-
-      if (typeof params.options.format !== 'string' || !params.options.format) {
-        errors.push('options.format must be a non-empty string');
-        console.error("[VALIDATION ERROR] format:", params.options.format, typeof params.options.format);
-      }
-
-      if (typeof params.options.genre !== 'string' || !params.options.genre) {
-        errors.push('options.genre must be a non-empty string');
-        console.error("[VALIDATION ERROR] genre:", params.options.genre, typeof params.options.genre);
->>>>>>> origin/main
       }
 
       // Validate spiciness level (optional, default to 2 if not provided)
@@ -322,41 +249,24 @@ serve(async (req: Request) => {
         if (typeof params.options.spiciness_level !== 'number' || 
             params.options.spiciness_level < 1 || 
             params.options.spiciness_level > 3) {
-<<<<<<< HEAD
           errors.push('options.spiciness_level debe ser un número entre 1 y 3');
           console.error("[ERROR DE VALIDACIÓN] spiciness_level:", params.options.spiciness_level, typeof params.options.spiciness_level);
-=======
-          errors.push('options.spiciness_level must be a number between 1 and 3');
-          console.error("[VALIDATION ERROR] spiciness_level:", params.options.spiciness_level, typeof params.options.spiciness_level);
->>>>>>> origin/main
         }
       }
 
       if (errors.length > 0) {
-<<<<<<< HEAD
         console.error("[ERROR DE VALIDACIÓN] Validación básica fallida:", errors);
         throw new Error(`Parámetros básicos inválidos: ${errors.join(', ')}.`);
       }
 
       console.log(`[${functionVersion}] ¡Validación básica exitosa!`);
-=======
-        console.error("[VALIDATION ERROR] Basic validation failed:", errors);
-        throw new Error(`Invalid basic parameters: ${errors.join(', ')}.`);
-      }
-
-      console.log(`[${functionVersion}] Basic validation passed!`);
->>>>>>> origin/main
 
       // Validate character data - support both legacy (character) and new (characters) formats
       const hasMultipleCharacters = params.options.characters && Array.isArray(params.options.characters) && params.options.characters.length > 0;
       const hasSingleCharacter = params.options.character && typeof params.options.character === 'object' && params.options.character.name;
 
       if (!hasMultipleCharacters && !hasSingleCharacter) {
-<<<<<<< HEAD
         console.error("Validación fallida. No se encontraron datos de personaje válidos:", {
-=======
-        console.error("Validation failed. No valid character data found:", {
->>>>>>> origin/main
           hasCharacters: !!params.options.characters,
           charactersIsArray: Array.isArray(params.options.characters),
           charactersLength: params.options.characters?.length,
@@ -370,17 +280,10 @@ serve(async (req: Request) => {
       let charactersArray;
       if (hasMultipleCharacters) {
         charactersArray = params.options.characters;
-<<<<<<< HEAD
         console.log(`[${functionVersion}] Modo múltiples personajes: ${charactersArray.length} personajes`);
       } else {
         charactersArray = [params.options.character];
         console.log(`[${functionVersion}] Modo personaje único (legado): ${params.options.character.name}`);
-=======
-        console.log(`[${functionVersion}] Multiple characters mode: ${charactersArray.length} characters`);
-      } else {
-        charactersArray = [params.options.character];
-        console.log(`[${functionVersion}] Single character mode (legacy): ${params.options.character.name}`);
->>>>>>> origin/main
       }
 
       // Validate characters array (1-4 characters)
@@ -393,19 +296,11 @@ serve(async (req: Request) => {
       );
 
       if (invalidCharacters.length > 0) {
-<<<<<<< HEAD
         console.error("Validación fallida. Se encontraron personajes inválidos:", invalidCharacters);
         throw new Error("Todos los personajes deben tener un nombre válido.");
       }
 
       console.log(`[${functionVersion}] Personajes validados: ${charactersArray.map(c => c.name).join(', ')}`);
-=======
-        console.error("Validation failed. Invalid characters found:", invalidCharacters);
-        throw new Error("Todos los personajes deben tener un nombre válido.");
-      }
-
-      console.log(`[${functionVersion}] Characters validated: ${charactersArray.map(c => c.name).join(', ')}`);
->>>>>>> origin/main
 
       // Store normalized characters array for use in prompts
       params.options.characters = charactersArray;
@@ -425,11 +320,7 @@ serve(async (req: Request) => {
     });
     const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-<<<<<<< HEAD
     console.log(`[${functionVersion}] Llamando a IA (${MODEL_NAME}) para salida JSON (Usuario: ${userId}). Longitud del prompt: ${combinedPrompt.length}`);
-=======
-    console.log(`[${functionVersion}] Calling AI (${MODEL_NAME}) for JSON output (User: ${userId}). Prompt length: ${combinedPrompt.length}`);
->>>>>>> origin/main
 
     const chatCompletion = await openai.chat.completions.create({
       model: MODEL_NAME, // Usando el modelo Grok explícito
@@ -443,17 +334,10 @@ serve(async (req: Request) => {
     const aiResponseContent = chatCompletion.choices[0]?.message?.content;
     const finishReason = chatCompletion.choices[0]?.finish_reason;
 
-<<<<<<< HEAD
     console.log(`[${functionVersion}] Respuesta JSON cruda de IA (primeros 200 caracteres): ${aiResponseContent?.substring(0, 200) || '(No se recibió texto)'}... Razón de finalización: ${finishReason}`);
 
     if (finishReason === 'length') {
       console.warn(`[${functionVersion}] La generación de IA puede haber sido truncada debido a finish_reason 'length'.`);
-=======
-    console.log(`[${functionVersion}] Raw AI JSON response (first 200 chars): ${aiResponseContent?.substring(0, 200) || '(No text received)'}... Finish Reason: ${finishReason}`);
-
-    if (finishReason === 'length') {
-      console.warn(`[${functionVersion}] AI generation may have been truncated due to 'length' finish_reason.`);
->>>>>>> origin/main
     }
     // Nota: blockReason específico como en GoogleGenerativeAI no está directamente disponible.
     // Se confía en finish_reason o contenido vacío para problemas.
@@ -471,11 +355,7 @@ serve(async (req: Request) => {
           finalTitle = cleanExtractedText(storyResult.title, 'title', userLanguage);
           finalContent = cleanExtractedText(storyResult.content, 'content', userLanguage);
           parsedSuccessfully = true;
-<<<<<<< HEAD
           console.log(`[${functionVersion}] JSON de IA parseado exitosamente. Título: "${finalTitle}"`);
-=======
-          console.log(`[${functionVersion}] Parsed AI JSON successfully. Title: "${finalTitle}"`);
->>>>>>> origin/main
         } else {
           console.warn(`[${functionVersion}] AI response JSON structure is invalid. Received: ${aiResponseContent.substring(0, 500)}...`);
         }
@@ -487,51 +367,29 @@ serve(async (req: Request) => {
     }
 
     if (!parsedSuccessfully) {
-<<<<<<< HEAD
       console.warn(`[${functionVersion}] Usando respaldo: Título por defecto, e intentando usar respuesta cruda de IA (si existe) como contenido (después de limpiar).`);
-=======
-      console.warn(`[${functionVersion}] Using fallback: Default title, and attempting to use raw AI response (if any) as content (after cleaning).`);
->>>>>>> origin/main
       finalContent = cleanExtractedText(aiResponseContent, 'content', userLanguage); // aiResponseContent could be null here
       // finalTitle remains the language-aware default
     }
 
     if (!finalContent) {
-<<<<<<< HEAD
       console.error(`[${functionVersion}] El contenido está vacío incluso después del parseo JSON/respaldo y limpieza.`);
-=======
-      console.error(`[${functionVersion}] Content is empty even after JSON parsing/fallback and cleaning.`);
->>>>>>> origin/main
       // Considerar devolver la respuesta cruda o un mensaje de error específico
       finalContent = "Hubo un problema al generar el contenido del cuento, pero aquí está la respuesta cruda de la IA (puede no estar formateada): " + (aiResponseContent || "No se recibió respuesta de la IA.");
     }
 
-<<<<<<< HEAD
     console.log(`[${functionVersion}] Título final: "${finalTitle}", Longitud de contenido final: ${finalContent.length}`);
 
     // 8. Incrementar Contador
     if (userIdForIncrement) {
       console.log(`[${functionVersion}] Incrementando contador para ${userIdForIncrement}...`);
-=======
-    console.log(`[${functionVersion}] Final Title: "${finalTitle}", Final Content Length: ${finalContent.length}`);
-
-    // 8. Incrementar Contador
-    if (userIdForIncrement) {
-      console.log(`[${functionVersion}] Incrementing count for ${userIdForIncrement}...`);
->>>>>>> origin/main
       const { error: incrementError } = await supabaseAdmin.rpc('increment_story_count', {
         user_uuid: userIdForIncrement
       });
       if (incrementError) {
-<<<<<<< HEAD
         console.error(`[${functionVersion}] CRÍTICO: Falló incremento de contador para ${userIdForIncrement}: ${incrementError.message}`);
       } else {
         console.log(`[${functionVersion}] Contador incrementado para ${userIdForIncrement}.`);
-=======
-        console.error(`[${functionVersion}] CRITICAL: Failed count increment for ${userIdForIncrement}: ${incrementError.message}`);
-      } else {
-        console.log(`[${functionVersion}] Count incremented for ${userIdForIncrement}.`);
->>>>>>> origin/main
       }
     }
 
@@ -546,11 +404,7 @@ serve(async (req: Request) => {
 
   } catch (error) {
     // 10. Manejo de Errores
-<<<<<<< HEAD
     console.error(`[${functionVersion}] Error (Usuario: ${userId || 'DESCONOCIDO'}):`, error);
-=======
-    console.error(`[${functionVersion}] Error (User: ${userId || 'UNKNOWN'}):`, error);
->>>>>>> origin/main
     let statusCode = 500;
     const message = error instanceof Error ? error.message : "Error interno desconocido.";
 

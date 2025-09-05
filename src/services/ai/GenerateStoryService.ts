@@ -21,31 +21,20 @@ export class GenerateStoryService {
    */
   public static async generateStoryWithAI(params: GenerateStoryParams): Promise<GenerateStoryResponse> {
     try {
-<<<<<<< HEAD
       console.log('Enviando solicitud a la Edge Function generate-story con parámetros:', params); // Parámetros de log
 
       // Asegurarse de pasar el token de autenticación si la función lo requiere (lo hace)
-=======
-      console.log('Sending request to generate-story Edge Function with params:', params); // Log parameters
-
-      // Make sure to pass the authentication token if the function requires it (it does)
->>>>>>> origin/main
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData.session) {
         throw new Error(sessionError?.message || 'User not authenticated.');
       }
       const token = sessionData.session.access_token;
 
-<<<<<<< HEAD
       // Validar estructura de personaje para asegurar compatibilidad con el nuevo esquema
-=======
-      // Validate character structure to ensure compatibility with new schema
->>>>>>> origin/main
       if (params.options.characters && params.options.characters.length > 0) {
         const validGenders = ['male', 'female', 'non-binary'];
         for (const character of params.options.characters) {
           if (!character.name || typeof character.name !== 'string' || character.name.trim().length === 0) {
-<<<<<<< HEAD
             throw new Error(`Personaje inválido: campo de nombre faltante o vacío`);
           }
           if (!character.gender || !validGenders.includes(character.gender)) {
@@ -71,46 +60,14 @@ export class GenerateStoryService {
 
       const { data, error } = await supabase.functions.invoke<GenerateStoryResponse>('generate-story', { // Especificar tipo de respuesta <T>
         body: params, // El body ya contiene options, language, etc. y additionalDetails
-=======
-            throw new Error(`Invalid character: missing or empty name field`);
-          }
-          if (!character.gender || !validGenders.includes(character.gender)) {
-            throw new Error(`Invalid character "${character.name}": gender must be one of ${validGenders.join(', ')}`);
-          }
-          if (!character.description || typeof character.description !== 'string' || character.description.trim().length === 0) {
-            throw new Error(`Invalid character "${character.name}": missing or empty description field`);
-          }
-        }
-        console.log('✅ Character structure validation passed');
-      }
-
-      // Include spiciness level in options if provided
-      if (params.spicynessLevel !== undefined) {
-        params.options.spiciness_level = params.spicynessLevel;
-      }
-
-      // DEBUG: Log the exact payload being sent including character info
-      const charactersInfo = `Characters (${params.options.characters?.length || 0}): ${params.options.characters?.map(c => `${c.name} (${c.gender})`).join(', ') || 'None'}`;
-      console.log(`>>> Payload being sent to generate-story: ${charactersInfo}`);
-      console.log(`>>> Spiciness level: ${params.options.spiciness_level || 'default (2)'}`);
-      console.log(">>> Full payload:", JSON.stringify(params, null, 2));
-
-      const { data, error } = await supabase.functions.invoke<GenerateStoryResponse>('generate-story', { // Specify response type <T>
-        body: params, // Body already contains options, language, etc. and additionalDetails
->>>>>>> origin/main
         headers: {
           'Authorization': `Bearer ${token}` // Pass the token
         }
       });
 
       if (error) {
-<<<<<<< HEAD
         console.error('Error en la Edge Function generate-story:', error);
         // Puedes intentar obtener más detalles del error si es un HttpError
-=======
-        console.error('Error in generate-story Edge Function:', error);
-        // You can try to get more error details if it's an HttpError
->>>>>>> origin/main
         let message = error.message;
         if ((error as any).context) { // Supabase FunctionsHttpError has 'context'
           message = `${message} - ${JSON.stringify((error as any).context)}`;
@@ -118,31 +75,18 @@ export class GenerateStoryService {
         throw new Error(message);
       }
 
-<<<<<<< HEAD
       // Validar que la respuesta tenga el formato esperado { content: string, title: string }
-=======
-      // Validate that the response has the expected format { content: string, title: string }
->>>>>>> origin/main
       if (!data || typeof data.content !== 'string' || typeof data.title !== 'string') {
         console.error('Unexpected response from generate-story:', data);
         throw new Error('The generate-story response does not contain valid content and title.');
       }
 
-<<<<<<< HEAD
       console.log('Respuesta de generate-story recibida (título):', data.title);
       return data; // Devolver el objeto completo { content, title }
 
     } catch (error) {
       console.error('Error en GenerateStoryService.generateStoryWithAI:', error);
       // Re-lanzar para que el llamador (storyGenerator) pueda manejarlo
-=======
-      console.log('Response from generate-story received (title):', data.title);
-      return data; // Return the complete { content, title } object
-
-    } catch (error) {
-      console.error('Error in GenerateStoryService.generateStoryWithAI:', error);
-      // Re-throw so the caller (storyGenerator) can handle it
->>>>>>> origin/main
       throw error;
     }
   }

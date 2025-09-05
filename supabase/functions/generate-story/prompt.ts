@@ -16,11 +16,6 @@ function getLanguageName(languageCode: string): string {
         'ko': 'Korean',
         'zh': 'Chinese'
     };
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> origin/main
     return languageMap[languageCode] || 'English';
 }
 
@@ -29,7 +24,6 @@ export function createSystemPrompt(language: string, preferences?: string | null
     console.log(`[Adult Content v8.0] createSystemPrompt: lang=${language}, preferences=${preferences ? 'provided' : 'none'}, spiciness=${spicynessLevel}`);
 
     const languageName = getLanguageName(language);
-<<<<<<< HEAD
     let base = `You are an expert writer creating personalized erotic stories for adults. Write always in ${languageName}, using clear and direct sensual language appropriate for mature audiences (18+).`;
 
     // Add spiciness level specific guidelines
@@ -41,19 +35,6 @@ export function createSystemPrompt(language: string, preferences?: string | null
         base += ` CONTENT INTENSITY: EXTREME (Level 3) - Create extremely explicit and raw sexual content. Include highly detailed and graphic descriptions of all sexual acts, positions, and physical responses. Use the most direct, unfiltered, and provocative language without any euphemisms or restraint. Focus on pure physical intensity and raw desire while maintaining consent.`;
     }
 
-=======
-    let base = `You are an expert writer creating personalized erotic stories for adults. Write always in ${languageName}, with sophisticated and sensual language appropriate for mature audiences (18+).`;
-    
-    // Add spiciness level specific guidelines
-    if (spicynessLevel === 1) {
-        base += ` CONTENT INTENSITY: SENSUAL (Level 1) - Create suggestive and implicit content. Use elegant, metaphorical language that builds tension through glances, intimate conversations, and subtle touches. Scenes should end just before explicit acts or suggest them discretely. Focus on emotional connection and anticipation rather than graphic descriptions.`;
-    } else if (spicynessLevel === 2) {
-        base += ` CONTENT INTENSITY: PASSIONATE (Level 2) - Create explicit but balanced sexual content. Include clear descriptions of sexual acts without excessive graphic detail. Use sensual and direct but elegant language, focusing on emotions and physical sensations. Keep sexual scenes brief and avoid overly graphic descriptions while maintaining explicitness.`;
-    } else if (spicynessLevel === 3) {
-        base += ` CONTENT INTENSITY: INTENSE (Level 3) - Create very explicit and graphic sexual content. Include detailed descriptions of sexual acts, positions, and physical sensations. Use direct and provocative language without euphemisms. Maintain high sexual intensity with detailed, visual descriptions while emphasizing consent and positivity.`;
-    }
-    
->>>>>>> origin/main
     if (preferences && preferences.trim()) {
         base += ` The user has specified these preferences and interests: "${preferences.trim()}". Incorporate these elements thoughtfully and naturally into the story to create a personalized experience.`;
         base += ` Guidelines for user preferences:\n`;
@@ -65,19 +46,11 @@ export function createSystemPrompt(language: string, preferences?: string | null
     } else {
         base += ` Since no specific preferences were provided, create a sensual and engaging story with broad adult appeal, focusing on romance, attraction, and intimate connections.`;
     }
-<<<<<<< HEAD
 
     base += ` The story should follow a clear and direct narrative structure: a concise beginning, focused development, and satisfying resolution. Get to the point quickly without excessive buildup.`;
     base += ` Use clear and accessible language that engages all readers equally. Focus on authentic character interactions and meaningful moments without unnecessary embellishment.`;
     base += ` Ensure all content is consensual, positive, and celebrates adult sexuality in a healthy and appealing way.`;
 
-=======
-    
-    base += ` The story should follow a clear narrative structure: an engaging beginning that sets the mood, development with building tension and desire, and a satisfying climax and resolution.`;
-    base += ` Use sophisticated and evocative language that creates atmosphere and emotional connection. Focus on character development, sensual descriptions, and meaningful intimate moments.`;
-    base += ` Ensure all content is consensual, positive, and celebrates adult sexuality in a healthy and appealing way.`;
-    
->>>>>>> origin/main
     return base;
 }
 
@@ -113,11 +86,6 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
 
     // Create base request with character handling
     let request = `Create an erotic story for adults. Genre: ${options.genre}. `;
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> origin/main
     if (isMultipleCharacters) {
         request += `Main Characters (${characters.length}): `;
         characters.forEach((char, index) => {
@@ -127,11 +95,6 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
             if (index < characters.length - 1) request += '; ';
         });
         request += `.\n\n`;
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> origin/main
         // Add specific instructions for multiple characters
         request += `**Instructions for multiple characters:**\n`;
         request += `- Ensure ALL characters have significant participation in the story\n`;
@@ -150,11 +113,6 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
     // Content and structure instructions for adult content
     request += `**Content, Length and Structure Instructions:**\n`;
     request += `1. **Story Format:** '${storyFormat}'.\n`;
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> origin/main
     if (storyFormat === 'single') {
         request += `    * Complete Story: ~2150 tokens (~1600-1800 words).\n`;
         request += `    * This should be a complete story with clear beginning, development, climax, and satisfying conclusion.\n`;
@@ -181,17 +139,10 @@ export function createUserPrompt_JsonFormat({ options, additionalDetails }: Crea
         request += `    * Build initial attraction and erotic tension\n`;
         request += `    * End with anticipation and desire for continuation\n`;
     }
-<<<<<<< HEAD
     request += `3. **Tone and Style:** Use clear, direct language that creates engaging scenes for all readers. Write concisely and get to the point without unnecessary elaboration.\n`;
     request += `4. **Adult Content Guidelines:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Build tension and desire naturally through the narrative.\n`;
     request += `5. **Character Development:** Create believable, complex characters with desires and motivations. Show their emotional journey alongside the physical story.\n`;
 
-=======
-    request += `3. **Tone and Style:** Use sophisticated, sensual language that builds atmosphere and emotional connection. Create vivid scenes that engage the reader's imagination.\n`;
-    request += `4. **Adult Content Guidelines:** All interactions must be consensual and positive. Focus on emotional connection alongside physical attraction. Build tension and desire naturally through the narrative.\n`;
-    request += `5. **Character Development:** Create believable, complex characters with desires and motivations. Show their emotional journey alongside the physical story.\n`;
-    
->>>>>>> origin/main
     // JSON format instructions - simplified title handling
     request += `\n**Response format instructions (VERY IMPORTANT!):**\n`;
     request += `* You must respond with a SINGLE JSON object.\n`;

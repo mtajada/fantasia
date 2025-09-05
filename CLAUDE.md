@@ -11,11 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Project Type**: Single Page Application (SPA)  
 **Target Audience**: Adults (18+)  
 **Content Focus**: Adult erotic literature and interactive experiences  
-<<<<<<< HEAD
 **Language**: Español (tono spicy e inclusivo)
-=======
-**Language**: English (migrating from Spanish)
->>>>>>> origin/main
 
 ## Technology Stack
 
@@ -240,11 +236,7 @@ Legacy files (may be outdated):
 
 ### Project Transformation Context
 - **Content Migration**: Transform from children's stories to adult erotic content
-<<<<<<< HEAD
 - **Migración de Idioma**: Cambio completo al español con tono spicy e inclusivo para todo el contenido
-=======
-- **Language Migration**: Gradually change from Spanish to English (new features in English)
->>>>>>> origin/main
 - **Architecture Migration**: Replace Zustand local store with direct Supabase queries
 - **Simplicity Focus**: Avoid massive or complex changes, every change should be incremental
 
@@ -253,7 +245,6 @@ Legacy files (may be outdated):
 - **ESLint** configuration with React rules
 - **Consistent naming** (camelCase for JS, snake_case for DB)
 - **Component organization** by feature/domain
-<<<<<<< HEAD
 - **Enfoque español-first** para todas las funciones y componentes con lenguaje inclusivo
 
 ### Lenguaje Spicy e Inclusivo
@@ -267,9 +258,6 @@ Legacy files (may be outdated):
 - **Console Logs**: Todos los console.log y error messages en español
 - **Comentarios**: Todos los comentarios de código en español
 - **Error Messages**: Mensajes de error en español con tono apropiado
-=======
-- **English-first approach** for new functions and components
->>>>>>> origin/main
 
 ### Best Practices
 - **Prefer editing** existing files over creating new ones
@@ -326,11 +314,7 @@ Legacy files (may be outdated):
 - ✅ **Adult Profile System**: Preferences-based personalization implemented
 - ✅ **Authentication Flow**: Login/signup optimized for adult platform
 - ✅ **Content Warnings**: Age verification and content warnings integrated
-<<<<<<< HEAD
 - ✅ **Idioma**: Interfaz completamente migrada al español con mensajes spicy e inclusivos para adultos
-=======
-- ✅ **Language**: Core UI migrated to English with adult-appropriate messaging
->>>>>>> origin/main
 
 ### 🔄 Phase 2: Architecture Migration (IN PROGRESS)
 - ✅ **Character Store Migration**: Zustand character store eliminated, direct Supabase queries implemented
@@ -345,11 +329,7 @@ Legacy files (may be outdated):
 
 ### Current Technical Debt (PRIORITY ORDER)
 - **🔥 HIGHEST PRIORITY**: Complete Zustand to Supabase migration for user/story stores
-<<<<<<< HEAD
 - **Contenido en Español Spicy**: Mantenimiento del lenguaje inclusivo y tono spicy en toda la plataforma
-=======
-- **Spanish Language Content**: Systematic translation of remaining legacy content
->>>>>>> origin/main
 - **Component Localization**: Final adult content UI adaptations
 - **Image Generation**: Re-enable functionality when ready for production
 
