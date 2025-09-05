@@ -43,7 +43,7 @@ export default function StoryContinuation() {
 
     const fetchedStory = getStoryById(storyId);
     if (!fetchedStory) {
-      toast.error("Story not found");
+      toast.error("Historia no encontrada. ¡Qué misterio!");
       navigate("/saved-stories");
       return;
     }
@@ -69,7 +69,7 @@ export default function StoryContinuation() {
     const allowed = canContinueStory(storyId);
     setIsAllowedToContinue(allowed);
     if (!allowed) {
-      toast.info("You've reached the free continuation limit for this story.");
+      toast.info("Has alcanzado el límite de continuaciones gratuitas para esta historia. ¡Pero la diversión no tiene por qué acabar!");
     }
 
   }, [storyId, getStoryById, getChaptersByStoryId, navigate, canContinueStory]);
@@ -83,7 +83,7 @@ export default function StoryContinuation() {
   const generateOptions = useCallback(async () => {
     if (!story || chapters.length === 0 || !isAllowedToContinue) return;
 
-    console.log(`Generating options for story ${story.id}`);
+    console.log(`Generando opciones para la historia ${story.id}`);
     setIsLoadingOptions(true);
     setContinuationOptions([]);
     try {
@@ -94,12 +94,12 @@ export default function StoryContinuation() {
       if (response?.options?.length === 3) {
         setContinuationOptions(response.options);
       } else {
-        console.warn("generateOptions: Didn't receive 3 valid options. Using defaults.");
+        console.warn("generateOptions: No se recibieron 3 opciones válidas. Usando las predeterminadas.");
         throw new Error("Fallback");
       }
     } catch (error) {
-      console.error("Error generating continuation options:", error);
-      toast.error("Could not generate options. Try again.");
+      console.error("Error generando opciones de continuación:", error);
+      toast.error("No se pudieron generar las opciones. Intenta de nuevo.");
       setContinuationOptions([
         { summary: "Explore the mysterious sanctuary." },
         { summary: "Follow the intriguing whisper." },
@@ -123,12 +123,12 @@ export default function StoryContinuation() {
     customInput?: string
   ) => {
     if (!story || !storyId || !isAllowedToContinue) {
-      toast.error("You can't continue this story (limit reached).");
+      toast.error("No puedes continuar esta historia (límite alcanzado). ¡Pero siempre hay más fantasías por explorar!");
       return;
     }
 
     setIsLoading(true);
-    toast.loading("Creating your continuation...");
+    toast.loading("Creando tu próxima aventura... 🪄");
 
     try {
       const nextChapterNumber = chapters.length + 1;
@@ -150,17 +150,17 @@ export default function StoryContinuation() {
       setChapters(updatedChapters);
 
       toast.dismiss();
-      toast.success("Continuation created successfully! ✨");
+      toast.success("¡Continuación creada con éxito! ✨");
 
       setShouldGenerateOptions(true);
 
       navigate(`/story/${storyId}?chapter=${newChapter.chapterNumber - 1}`);
 
     } catch (error: any) {
-      console.error("Error generating continuation:", error);
+      console.error("Error generando continuación:", error);
       toast.dismiss();
-      toast.error("Error generating continuation", {
-        description: error?.message || "Please try again.",
+      toast.error("Error generando continuación", {
+        description: error?.message || "Por favor, intenta de nuevo. ¡La pasión espera!",
       });
     } finally {
       setIsLoading(false);
@@ -171,7 +171,7 @@ export default function StoryContinuation() {
     if (!story) return; // Añadir guarda por si acaso
     // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
     const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
-    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to freeContinuation service.`);
+    console.log(`[StoryContinuation] Pasando ${currentChaptersFromStore.length} capítulos al servicio de continuación gratuita.`);
 
     handleGenerateAndSaveChapter(
       // Pasar los capítulos correctos del store
@@ -184,12 +184,12 @@ export default function StoryContinuation() {
     if (!story) return; // Añadir guarda
     const selectedOptionSummary = continuationOptions[index]?.summary;
     if (!selectedOptionSummary) {
-      toast.error("Selected option is not valid.");
+      toast.error("La opción seleccionada no es válida. ¡Elige con picardía!");
       return;
     }
     // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
     const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
-    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to optionContinuation service.`);
+    console.log(`[StoryContinuation] Pasando ${currentChaptersFromStore.length} capítulos al servicio de continuación por opción.`);
 
     handleGenerateAndSaveChapter(
       // Pasar los capítulos correctos del store
@@ -203,7 +203,7 @@ export default function StoryContinuation() {
     setShowCustomInput(false);
     // Obtener el estado MÁS ACTUAL de los capítulos ANTES de enviar
     const currentChaptersFromStore = useChaptersStore.getState().getChaptersByStoryId(story.id);
-    console.log(`[StoryContinuation] Passing ${currentChaptersFromStore.length} chapters to directedContinuation service.`);
+    console.log(`[StoryContinuation] Pasando ${currentChaptersFromStore.length} capítulos al servicio de continuación dirigida.`);
 
     handleGenerateAndSaveChapter(
       // Pasar los capítulos correctos del store
@@ -253,7 +253,7 @@ export default function StoryContinuation() {
               <div className="flex items-center">
                 <BookOpen size={20} className="mr-2 text-violet-400" />
                 <h2 className="text-lg font-medium truncate" title={chapters[chapters.length - 1].title || `Chapter ${chapters.length}`}>
-                  Continuing: {chapters[chapters.length - 1].title || `Chapter ${chapters.length}`}
+                  Continuando: {chapters[chapters.length - 1].title || `Capítulo ${chapters.length}`}
                 </h2>
               </div>
             </motion.div>
@@ -265,7 +265,7 @@ export default function StoryContinuation() {
             transition={{ duration: 0.3, delay: 0.1 }}
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent drop-shadow-lg"
           >
-            How would you like it to continue? ✨
+            ¿Cómo quieres que siga la historia? ✨
           </motion.h1>
 
           <motion.p
@@ -274,7 +274,7 @@ export default function StoryContinuation() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="text-base sm:text-lg text-gray-200 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl px-4 py-3 text-center mb-6 font-medium shadow-xl ring-1 ring-gray-700/50"
           >
-            Choose your path to continue the story 🤫
+            Elige tu camino para continuar la historia 🤫
           </motion.p>
 
           <motion.div
@@ -308,7 +308,7 @@ export default function StoryContinuation() {
               className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 mt-6 shadow-xl ring-1 ring-gray-700/50"
             >
               <p className="text-pink-400 font-semibold">
-                You've reached the free continuation limit for this story. Consider upgrading to Premium for unlimited continuations! 💎
+                Has alcanzado el límite de continuaciones gratuitas para esta historia. ¡Considera mejorar a Premium para continuaciones ilimitadas y desatar tu imaginación sin frenos! 💎
               </p>
             </motion.div>
           )}

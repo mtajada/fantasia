@@ -28,7 +28,7 @@ export const syncUserProfile = async (
     dataToSync: Partial<ProfileSettings> & { [key: string]: any },
 ): Promise<{ success: boolean; error?: any }> => {
     try {
-        console.log(`[syncUserProfile_DEBUG] Attempting to sync for user ${userId} with data:`, dataToSync);
+        console.log(`[syncUserProfile_DEBUG] Intentando sincronizar para usuario ${userId} con datos:`, dataToSync);
 
         // Preparamos los datos para upsert, asegurando que 'id' y 'updated_at' están presentes
         const upsertData = {
@@ -51,7 +51,7 @@ export const syncUserProfile = async (
             console.error("Error sincronizando perfil (posible RLS):", error);
             throw error; // Re-lanzar para el catch general
         }
-        console.log(`[syncUserProfile_DEBUG] Profile synced successfully for user ${userId}`);
+        console.log(`[syncUserProfile_DEBUG] Perfil sincronizado exitosamente para usuario ${userId}`);
         return { success: true };
     } catch (error) {
         console.error("Fallo general en syncUserProfile:", error);
@@ -64,7 +64,7 @@ export const syncUserProfile = async (
 export const getUserProfile = async (userId: string, retries = 2): Promise<{ success: boolean, profile?: ProfileSettings, error?: any }> => {
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
-            console.log(`Requesting profile for user: ${userId} (attempt ${attempt + 1}/${retries + 1})`);
+            console.log(`Solicitando perfil para usuario: ${userId} (intento ${attempt + 1}/${retries + 1})`);
 
             const { data, error } = await supabase
                 .from("profiles")
@@ -73,21 +73,21 @@ export const getUserProfile = async (userId: string, retries = 2): Promise<{ suc
                 .single();
 
             if (error && error.code === 'PGRST116') {
-                console.log(`Profile not found for user ${userId}. This is a definitive result, no retry.`);
-                return { success: false }; // No profile is not a transient error
+                console.log(`Perfil no encontrado para usuario ${userId}. Este es un resultado definitivo, no se reintenta.`);
+                return { success: false }; // La ausencia de perfil no es un error transitorio
             } else if (error) {
-                console.warn(`Attempt ${attempt + 1} to fetch profile for ${userId} failed:`, error.message);
+                console.warn(`Intento ${attempt + 1} para obtener perfil de ${userId} falló:`, error.message);
                 if (attempt === retries) {
-                    console.error(`Final attempt to fetch profile for ${userId} failed after multiple retries.`, error);
-                    throw error; // Throw final error to be caught by the outer block
+                    console.error(`Último intento para obtener perfil de ${userId} falló después de múltiples reintentos.`, error);
+                    throw error; // Lanzar error final para ser capturado por el bloque externo
                 }
-                // Wait with exponential backoff before retrying
+                // Esperar con backoff exponencial antes de reintentar
                 await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-                continue; // Next attempt
+                continue; // Siguiente intento
             }
 
             if (data) {
-                console.log(`Successfully fetched profile data for user ${userId}.`);
+                console.log(`Datos de perfil obtenidos exitosamente para usuario ${userId}.`);
                 const profile: ProfileSettings = {
                     language: data.language,
                     preferences: data.preferences,
@@ -104,21 +104,21 @@ export const getUserProfile = async (userId: string, retries = 2): Promise<{ suc
                 return { success: true, profile: profile };
             }
 
-            // This case should ideally not be reached if a profile is always created on sign-up
-            console.warn(`Unexpectedly found no profile data for user ${userId} without an error.`);
+            // Este caso idealmente no debería alcanzarse si un perfil siempre se crea al registrarse
+            console.warn(`Inesperadamente no se encontraron datos de perfil para usuario ${userId} sin un error.`);
             return { success: false };
 
         } catch (error) {
             if (attempt === retries) {
-                console.error(`A critical error occurred while fetching profile for ${userId}. All retries failed.`, error);
+                console.error(`Ocurrió un error crítico al obtener perfil para ${userId}. Todos los reintentos fallaron.`, error);
                 return { success: false, error };
             }
-            // Wait before the next attempt in case of a thrown error
+            // Esperar antes del siguiente intento en caso de error lanzado
             await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         }
     }
-    // This is returned if all retries fail
-    return { success: false, error: new Error('All attempts to fetch the profile have failed.') };
+    // Esto se devuelve si todos los reintentos fallan
+    return { success: false, error: new Error('Todos los intentos para obtener el perfil han fallado.') };
 };
 
 // --- Funciones de Personajes ---
@@ -435,14 +435,14 @@ export const getStoryDirectly = async (userId: string, storyId: string): Promise
         if (error) {
             if (error.code === 'PGRST116') {
                 console.log(`Story ${storyId} not found for user ${userId}`);
-                return { success: false, error: new Error('Story not found') };
+                return { success: false, error: new Error('Historia no encontrada') };
             }
             console.error(`Error loading story ${storyId}:`, error);
             throw error;
         }
 
         if (!data) {
-            return { success: false, error: new Error('Story not found') };
+            return { success: false, error: new Error('Historia no encontrada') };
         }
 
         // Map database data to Story format
@@ -501,7 +501,7 @@ export const getStoryDirectly = async (userId: string, storyId: string): Promise
             characters_data: characters // Include in the Story object for consistency
         };
 
-        console.log(`🔍 DEBUG - Story loaded successfully: "${story.title}"`);
+        console.log(`🔍 DEBUG - Historia cargada exitosamente: "${story.title}"`);
         return { success: true, story };
     } catch (error) {
         console.error("Fallo general en getStoryDirectly:", error);

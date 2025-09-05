@@ -8,7 +8,7 @@ export default function PaymentCancel() {
   const [timeLeft, setTimeLeft] = useState(5);
 
   useEffect(() => {
-    // Automatically redirect after 5 seconds
+    // Redirigir automáticamente después de 5 segundos
     if (timeLeft > 0) {
       const timer = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
@@ -38,15 +38,15 @@ export default function PaymentCancel() {
             </div>
 
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 mb-4 text-center">
-              Payment Cancelled 💔
+              Pago Cancelado 💔
             </h1>
 
             <p className="text-gray-300 text-center mb-4">
-              No worries, darling. Your payment was cancelled and no charges were made to your account.
+              No te preocupes, cariño. Tu pago fue cancelado y no se realizaron cargos a tu cuenta.
             </p>
 
             <p className="text-gray-300 mb-8 text-center">
-              Redirecting you back to your profile in <span className="font-bold text-pink-400">{timeLeft}</span> seconds.
+              Te redirigiremos a tu perfil en <span className="font-bold text-pink-400">{timeLeft}</span> segundos.
             </p>
 
             <button
@@ -54,7 +54,7 @@ export default function PaymentCancel() {
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl py-4 font-semibold text-lg shadow-lg shadow-violet-500/25 transition-all duration-300 hover:transform hover:scale-105"
             >
               <ArrowLeft size={20} />
-              Back to Profile ✨
+              Volver al Perfil ✨
             </button>
           </div>
         </div>

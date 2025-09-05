@@ -24,10 +24,10 @@ const ProfileConfigPage: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
 
-    // Definiciones de idiomas (INGLÉS PRIMERO)
+    // Definiciones de idiomas (ESPAÑOL PRIMERO)
     const languages = [
-        { value: "en", label: "English", flag: "🇺🇸" },
         { value: "es", label: "Español", flag: "🇪🇸" },
+        { value: "en", label: "English", flag: "🇺🇸" },
         { value: "fr", label: "Français", flag: "🇫🇷" },
         { value: "de", label: "Deutsch", flag: "🇩🇪" },
         { value: "it", label: "Italiano", flag: "🇮🇹" }
@@ -43,8 +43,8 @@ const ProfileConfigPage: React.FC = () => {
                 const { data: { user }, error: authError } = await supabase.auth.getUser();
                 if (authError || !user) {
                     toast({
-                        title: "Authentication Required",
-                        description: "Please log in to configure your profile.",
+                        title: "Autenticación Requerida",
+                        description: "Por favor inicia sesión para configurar tu perfil, belleza.",
                         variant: "destructive",
                     });
                     navigate("/login");
@@ -61,21 +61,21 @@ const ProfileConfigPage: React.FC = () => {
                     .single();
 
                 if (profileError) {
-                    console.error("Error loading profile:", profileError);
+                    console.error("Error cargando perfil, cariño:", profileError);
                     // Usar valores por defecto para nuevo usuario
-                    setLanguage("en");
+                    setLanguage("es");
                     setPreferences("");
                 } else {
                     // Cargar datos existentes
-                    setLanguage(profile.language || "en");
+                    setLanguage(profile.language || "es");
                     setPreferences(profile.preferences || "");
                 }
 
             } catch (error) {
-                console.error("Error in loadProfileData:", error);
+                console.error("Error en loadProfileData, amor:", error);
                 toast({
                     title: "Error",
-                    description: "Failed to load profile data.",
+                    description: "No pude cargar los datos del perfil, amor.",
                     variant: "destructive",
                 });
             } finally {
@@ -93,7 +93,7 @@ const ProfileConfigPage: React.FC = () => {
         if (!currentUser) {
             toast({
                 title: "Error",
-                description: "You must be authenticated to save your profile.",
+                description: "Debes estar autenticade para guardar tu perfil, cariño.",
                 variant: "destructive",
             });
             return;
@@ -135,28 +135,28 @@ const ProfileConfigPage: React.FC = () => {
                 .single();
 
             if (verifyError || !savedProfile?.has_completed_setup) {
-                console.error("Verification failed after upsert:", verifyError);
-                throw new Error('Profile was not saved correctly. Please try again.');
+                console.error("Verificación falló después del upsert, amor:", verifyError);
+                throw new Error('El perfil no se guardó correctamente. Inténtalo de nuevo, cariño.');
             }
 
-            // Navegación condicional
+            // Navegación condicional para belleza
             const nextPath = wasSetupComplete ? "/home" : "/plans";
             const successDescription = wasSetupComplete
-                ? "Your profile has been updated successfully."
-                : "Profile saved! Let's choose a plan.";
+                ? "Tu perfil se actualizó con éxito, amor."
+                : "¡Perfil guardado! Ahora elijamos un plan para ti, belleza.";
 
             toast({
-                title: "Profile Updated!",
+                title: "¡Perfil Actualizado!",
                 description: successDescription,
             });
             
             navigate(nextPath);
 
         } catch (error) {
-            console.error("Error saving profile:", error);
+            console.error("Error guardando perfil, belleza:", error);
             toast({
-                title: "Save Error",
-                description: "An error occurred while saving your profile.",
+                title: "Error al Guardar",
+                description: "Ocurrió un error al guardar tu perfil, amor.",
                 variant: "destructive",
             });
         } finally {
@@ -185,9 +185,9 @@ const ProfileConfigPage: React.FC = () => {
                         <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gray-800/80 border border-gray-700/50 mb-4 shadow-lg">
                             <User className="h-8 w-8 text-violet-400" />
                         </div>
-                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Configure Your Profile</h1>
+                        <h1 className="text-3xl font-bold mb-2 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Configura Tu Perfil Sensual</h1>
                         <p className="text-gray-200 text-md max-w-md mx-auto font-medium bg-gray-800/60 rounded-xl px-4 py-2 shadow-sm">
-                            Personalize your experience for tailored adult content
+                            Personaliza tu experiencia sensual a tu medida, cariño
                         </p>
                     </motion.div>
 
@@ -211,7 +211,7 @@ const ProfileConfigPage: React.FC = () => {
                                     <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
                                         <Globe className="h-4 w-4 text-violet-400" />
                                     </div>
-                                    <span>Story Language</span>
+                                    <span>Idioma de Tus Historias Sensuales</span>
                                 </label>
 
                                 <Select value={language} onValueChange={setLanguage}>
@@ -222,7 +222,7 @@ const ProfileConfigPage: React.FC = () => {
                                                 {selectedLang.label}
                                             </div>
                                         ) : (
-                                            <SelectValue placeholder="Select a language..." />
+                                            <SelectValue placeholder="Selecciona tu idioma preferido, amor..." />
                                         )}
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-900/95 border-gray-700 shadow-2xl rounded-2xl text-gray-200 backdrop-blur-md">
@@ -244,20 +244,20 @@ const ProfileConfigPage: React.FC = () => {
                                     <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center">
                                         <Heart className="h-4 w-4 text-pink-400" />
                                     </div>
-                                    <span>Your Preferences & Interests</span>
+                                    <span>Tus Deseos y Fantasías</span>
                                 </label>
 
                                 <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl border border-gray-700 p-4">
                                     <Textarea
                                         id="preferences"
-                                        placeholder="Describe your interests, preferences, kinks, fetishes, or specific themes you enjoy in adult content. This will help personalize your stories. (Optional but recommended for better personalization)"
+                                        placeholder="Describe tus fantasías, deseos, kinks y preferencias sensuales que más te excitan. Esto hará que tus historias sean mucho más picantes y personalizadas. ¡Sé tan explícite como quieras, amor! (Opcional pero súper recomendado para una experiencia más intensa)"
                                         value={preferences}
                                         onChange={(e) => setPreferences(e.target.value)}
                                         className="bg-transparent border-none resize-none focus:ring-0 text-gray-200 placeholder:text-gray-400 min-h-[120px]"
                                         maxLength={1000}
                                     />
                                     <div className="text-xs text-gray-400 mt-2">
-                                        {preferences.length}/1000 characters
+                                        {preferences.length}/1000 caracteres
                                     </div>
                                 </div>
                             </div>
@@ -279,7 +279,7 @@ const ProfileConfigPage: React.FC = () => {
                                 ) : (
                                     <Check className="h-5 w-5 text-white" />
                                 )}
-                                <span>{isSaving ? "Saving..." : "Save Profile"}</span>
+                                <span>{isSaving ? "Guardando tu perfil sensual..." : "Guardar Mi Perfil Picante"}</span>
                             </motion.button>
                         </motion.form>
                     )}

@@ -72,7 +72,7 @@ export default function Welcome() {
               onClick={() => navigate("/signup")}
               className="py-2 px-4 rounded-xl text-white font-medium bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 transition-all duration-200 shadow-md"
             >
-              Get Started
+              Empezar Ahora
             </button>
           </div>
         </header>
@@ -86,10 +86,10 @@ export default function Welcome() {
             className="text-center mb-10 md:mb-12"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              Intimate Stories <span className="text-pink-400">Tailored for You</span> ✨
+              Historias Íntimas <span className="text-pink-400">Hechas para Ti</span> ✨
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-              Personalized erotic tales crafted to your desires, featuring sensual voice narration and interactive adult experiences.
+              Relatos eróticos personalizados creados según tus deseos, con narración sensual y experiencias íntimas interactivas.
             </p>
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -102,7 +102,7 @@ export default function Welcome() {
                 className="py-3 px-8 rounded-2xl text-white text-lg font-semibold bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 transition-all duration-200 shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2"
               >
                 <Wand2 size={20} />
-                <span>CREATE YOUR FIRST FANTASY</span>
+                <span>CREA TU PRIMERA FANTASÍA</span>
               </button>
             </motion.div>
           </motion.div>
@@ -115,26 +115,26 @@ export default function Welcome() {
             className="w-full mb-12"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              What Makes <span className="text-pink-400">Fantasia</span> Special? 🌶️
+              ¿Qué Hace <span className="text-pink-400">Fantasia</span> Tan Especial? 🌶️
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               <FeatureCard
                 icon={<Heart className="w-6 h-6" />}
-                title="Personalized Adult Stories"
-                description="Erotic tales crafted to your unique desires, fantasies, and preferences."
+                title="Historias Íntimas Personalizadas"
+                description="Relatos eróticos creados según tus deseos únicos, fantasías y preferencias más ardientes."
                 color="#ec4899"
               />
               <FeatureCard
                 icon={<Headphones className="w-6 h-6" />}
-                title="Sensual Voice Narration"
-                description="Professional adult voice work that brings your intimate stories to life."
+                title="Narración Sensual que Te Envolverá"
+                description="Voces profesionales sensuales que dan vida a tus historias más íntimas y seductoras."
                 color="#8b5cf6"
               />
               <FeatureCard
                 icon={<Shield className="w-6 h-6" />}
-                title="Privacy & Discretion"
-                description="Secure, private platform designed for sophisticated adult entertainment."
+                title="Privacidad y Discreción Total"
+                description="Plataforma segura y privada diseñada para entretenimiento adulto sofisticado y discreto."
                 color="#a855f7"
               />
             </div>
@@ -148,39 +148,39 @@ export default function Welcome() {
             className="w-full mb-12 bg-gray-900/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-gray-800 ring-1 ring-gray-700/50"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              Premium Adult Experience 💎
+              Experiencia Adulta Premium 💎
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <BenefitItem
                 icon={<Star className="text-yellow-400" size={24} />}
-                title="Explore Your Fantasies"
-                description="Safe space to discover and explore your deepest desires."
+                title="Explora Tus Fantasías Más Ardientes"
+                description="Espacio seguro para descubrir y explorar tus deseos más profundos y sensuales."
               />
               <BenefitItem
                 icon={<BookOpen className="text-pink-400" size={24} />}
-                title="Sophisticated Stories"
-                description="High-quality erotic literature tailored to mature audiences."
+                title="Historias Sofisticadas y Seductoras"
+                description="Literatura erótica de alta calidad diseñada para audiencias maduras y exigentes."
               />
               <BenefitItem
                 icon={<Crown className="text-violet-400" size={24} />}
-                title="Premium Quality"
-                description="Professional-grade adult content with exceptional attention to detail."
+                title="Calidad Premium Irresistible"
+                description="Contenido adulto de grado profesional con atención excepcional a cada detalle seductor."
               />
               <BenefitItem
                 icon={<Zap className="text-pink-500" size={24} />}
-                title="Unlimited Stories"
-                description="Generate endless personalized erotic tales whenever you desire."
+                title="Historias Ilimitadas Para Ti"
+                description="Genera infinitas historias eróticas personalizadas cuando tu corazón lo desee."
               />
               <BenefitItem
                 icon={<Heart className="text-red-400" size={24} />}
-                title="Intimate Connection"
-                description="Stories that resonate with your personal tastes and preferences."
+                title="Conexión Íntima y Profunda"
+                description="Historias que resuenan con tus gustos personales y preferencias más íntimas."
               />
               <BenefitItem
                 icon={<Sparkles className="text-violet-500" size={24} />}
-                title="Complete Customization"
-                description="Every story adapts to your unique adult interests and kinks."
+                title="Personalización Completa Para Ti"
+                description="Cada historia se adapta a tus intereses adultos únicos y preferencias más atrevidas."
               />
             </div>
           </motion.div>

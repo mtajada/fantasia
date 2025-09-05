@@ -159,3 +159,24 @@ export function parseChangelog(markdownContent: string): ChangelogEntry[] {
   
   return entries;
 }
+
+// Navigation utility functions for user conversion flow
+export const navigationUtils = {
+  /**
+   * Redirects users to upgrade to premium subscription
+   * Used when story generation limits are reached
+   */
+  redirectToUpgradePremium: () => {
+    // Use replace: true to prevent back-button loops
+    window.location.href = '/plans';
+  },
+
+  /**
+   * Redirects users to buy more voice credits
+   * Used when voice credit limits are reached  
+   */
+  redirectToBuyCredits: () => {
+    // Add focus parameter to highlight credits section
+    window.location.href = '/plans?focus=credits';
+  }
+};

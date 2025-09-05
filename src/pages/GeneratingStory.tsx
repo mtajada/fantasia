@@ -15,7 +15,7 @@ export default function GeneratingStory() {
   useEffect(() => {
     // Prevent double execution
     if (hasStartedGeneration || generationStartedRef.current) {
-      console.log("🔍 DEBUG - Generation already started, skipping");
+      console.log("🔍 DEBUG - La generación ya ha comenzado, saltando.");
       return;
     }
     
@@ -25,16 +25,16 @@ export default function GeneratingStory() {
     
     const generate = async () => {
       try {
-        console.log("🔍 DEBUG - Starting story generation with options:", initialOptionsRef.current);
+        console.log("🔍 DEBUG - Iniciando la generación de la historia con las opciones:", initialOptionsRef.current);
         const story = await generateStory(initialOptionsRef.current);
         if (story) {
           navigate(`/story/${story.id}`);
         } else {
-          console.error("Story generation failed - returned null");
-          navigate("/error", { state: { error: "Story generation failed - no story returned" } });
+          console.error("La generación de la historia falló - devolvió nulo");
+          navigate("/error", { state: { error: "La generación de la historia falló - no se devolvió ninguna historia" } });
         }
       } catch (error) {
-        console.error("Error generating story:", error);
+        console.error("Error generando historia:", error);
         navigate("/error", { state: { error } });
       }
     };

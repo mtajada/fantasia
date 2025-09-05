@@ -37,18 +37,18 @@ export default function StoryContinuationCustomInput({
         >
           <ArrowLeft size={20} />
         </button>
-        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Describe your desires</h2>
+        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Cuéntame tus deseos, cariño 🔥</h2>
       </div>
 
       <p className="mb-4 text-gray-300 font-medium">
-        Tell me how you'd like the story to unfold. Include new characters, 
-        settings, or situations. Be creative and bold! 🌶️
+        Dime cómo quieres que se desarrolle tu fantasía. Incluye nuevos personajes, 
+        escenarios o situaciones. ¡Sé creativo y atrevido! 🌶️
       </p>
 
       <textarea
         value={userInput}
         onChange={(e) => setUserInput(e.target.value)}
-        placeholder="Example: I'd like the protagonist to discover a mysterious element that allows them to..."
+        placeholder="Ejemplo: Me gustaría que el protagonista descubra un elemento misterioso que le permita..."
         className="w-full h-32 sm:h-40 p-4 rounded-xl bg-gray-800/80 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none mb-4 border border-gray-700 transition-all"
         disabled={isSubmitting || disabled}
       />
@@ -68,7 +68,7 @@ export default function StoryContinuationCustomInput({
           ) : (
             <Send size={18} className="mr-2" />
           )}
-          {isSubmitting ? "Creating magic..." : "Make it happen"}
+          {isSubmitting ? "Creando magia sensual..." : "¡Hagamos que suceda! ✨"}
         </button>
       </div>
     </motion.div>

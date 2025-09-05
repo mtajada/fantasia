@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, PenLine, Sparkles, Lightbulb, Wand2, Loader2 } from "lucide-react";
 
+// Opciones de continuación de historia con estilo spicy y seductor
+
 interface StoryContinuationOptionsProps {
   options: { summary: string }[];
   onSelectOption: (index: number) => void;
@@ -22,12 +24,12 @@ export default function StoryContinuationOptions({
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<{ summary: string }[]>([]);
   
-  // Ensure we always have 3 options
+  // Asegurar que siempre tengamos 3 opciones sensuales
   useEffect(() => {
     const defaultOptions = [
-      { summary: "Explore the hidden sanctuary." },
-      { summary: "Follow the mysterious whisper." },
-      { summary: "Discover the forbidden desire." }
+      { summary: "Explora el santuario secreto y ardiente." },
+      { summary: "Sigue el susurro misterioso que te llama." },
+      { summary: "Descubre el deseo prohibido que te consume." }
     ];
     
     if (options && options.length === 3) {
@@ -43,7 +45,7 @@ export default function StoryContinuationOptions({
     setTimeout(() => onSelectOption(index), 300);
   };
 
-  // Adult color palette with gradients for each option
+  // Paleta de colores seductora con gradientes para cada opción
   const optionStyles = [
     { bg: "bg-gradient-to-r from-violet-500 to-purple-600", icon: <Lightbulb className="shrink-0 mr-3" size={24} /> },
     { bg: "bg-gradient-to-r from-pink-500 to-violet-500", icon: <Wand2 className="shrink-0 mr-3" size={24} /> },
@@ -65,7 +67,7 @@ export default function StoryContinuationOptions({
           disabled={disabled}
           className={`w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl p-5 transition-all shadow-lg shadow-violet-500/25 flex items-center justify-between ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
-          <span className="text-base sm:text-lg font-semibold">Free Continue</span>
+          <span className="text-base sm:text-lg font-semibold">¡Sigue la diversión!</span>
           <ArrowRight size={20} />
         </button>
       </motion.div>
@@ -77,7 +79,7 @@ export default function StoryContinuationOptions({
         transition={{ duration: 0.4, delay: 0.2 }}
         className="space-y-2"
       >
-        <h3 className="text-base sm:text-lg font-medium mb-3 text-gray-200 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl px-4 py-2 text-center shadow-xl ring-1 ring-gray-700/50">Choose your desire:</h3>
+        <h3 className="text-base sm:text-lg font-medium mb-3 text-gray-200 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl px-4 py-2 text-center shadow-xl ring-1 ring-gray-700/50">Elige tu deseo, cariño:</h3>
         
         {isLoading ? (
           <div className="flex justify-center p-6 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl shadow-xl ring-1 ring-gray-700/50">
@@ -101,7 +103,7 @@ export default function StoryContinuationOptions({
                 <div className="flex-1">
                   <div className="flex items-start mb-2">
                     {optionStyles[index].icon}
-                    <span className="font-medium text-base sm:text-lg">{`Option ${index + 1}`}</span>
+                    <span className="font-medium text-base sm:text-lg">{`Opción ${index + 1}`}</span>
                   </div>
                   <p className="pl-8 text-white/90">{option.summary}</p>
                 </div>
@@ -129,7 +131,7 @@ export default function StoryContinuationOptions({
           className="w-full bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 border border-gray-700 rounded-xl p-5 transition-all shadow-lg flex items-center justify-center font-semibold backdrop-filter backdrop-blur-md hover:shadow-xl hover:scale-[1.02]"
         >
           <PenLine size={20} className="mr-3 text-violet-400" />
-          <span className="text-base sm:text-lg">Describe your fantasy 🌶️</span>
+          <span className="text-base sm:text-lg">Describe tu fantasía, amor 🌶️</span>
         </button>
       </motion.div>
     </div>

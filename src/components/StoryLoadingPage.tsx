@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PageTransition from './PageTransition';
 
+// Página de carga con tips picantes mientras se genera la historia
+
 interface StoryLoadingPageProps {
   type: 'generation' | 'continuation';
   characters?: Array<{name: string; gender: string}>;
@@ -10,37 +12,37 @@ interface StoryLoadingPageProps {
   onComplete?: () => void;
 }
 
-const ADULT_TIPS = [
-  "Customize your story with explicit content preferences 🌶️",
-  "Create multiple characters and make them interact ✨",
-  "Try different situations and scenarios 🎭",
-  "Your story can be narrated with sensual voices 💫",
-  "Continue your story if you love where it's going 🔥",
-  "Explore different genres and intensities 🪄",
-  "Add personal details to make it uniquely yours 🤫",
-  "Characters can have complex relationships and desires 💎",
-  "Set the mood with different story formats 🌙",
-  "AI creates personalized content just for you ✨",
-  "Stories can range from sensual to passionate 🌶️",
-  "Build tension with episodic storytelling 📚",
-  "Single stories offer complete satisfaction 💫",
-  "Voice narration adds an intimate touch 🎭",
-  "Premium features unlock unlimited possibilities 💎",
-  "Your preferences shape every story detail 🪄",
-  "Multiple characters create complex dynamics 🔥",
-  "Stories adapt to your personal tastes 🤫",
-  "Continuation options let you direct the plot 🌙",
-  "Each story is crafted with your desires in mind ✨",
-  "AI understands nuance and sophistication 💫",
-  "Stories can explore any theme or scenario 🎭",
-  "Your imagination is the only limit 🌶️",
-  "Privacy and discretion are always maintained 🤫",
-  "Premium voices enhance the experience 💎",
-  "Stories evolve based on your choices 🔥",
-  "Every detail is tailored to your preferences 🪄",
-  "Create your perfect fantasy world 🌙",
-  "AI generates content that surprises and delights ✨",
-  "Your story, your rules, your satisfaction 💫"
+const CONSEJOS_PICANTES = [
+  "Personaliza tu historia con preferencias de contenido explícito 🌶️",
+  "Crea varios personajes y haz que interactúen de forma ardiente ✨",
+  "Prueba diferentes situaciones y escenarios sensuales 🎭",
+  "Tu historia puede ser narrada con voces seductoras 💫",
+  "Continúa tu historia si te encanta hacia dónde va, cariño 🔥",
+  "Explora diferentes géneros e intensidades eróticas 🪄",
+  "Añade detalles personales para hacerla únicamente tuya 🤫",
+  "Los personajes pueden tener relaciones complejas y deseos ardientes 💎",
+  "Establece el ambiente con diferentes formatos de historia 🌙",
+  "La IA crea contenido personalizado solo para ti, belleza ✨",
+  "Las historias pueden ir de lo sensual a lo apasionado 🌶️",
+  "Construye tensión con narrativa episódica 📚",
+  "Las historias únicas ofrecen satisfacción completa 💫",
+  "La narración de voz añade un toque íntimo 🎭",
+  "Las características premium desbloquean posibilidades ilimitadas 💎",
+  "Tus preferencias moldean cada detalle de la historia 🪄",
+  "Múltiples personajes crean dinámicas complejas y excitantes 🔥",
+  "Las historias se adaptan a tus gustos personales, amor 🤫",
+  "Las opciones de continuación te permiten dirigir la trama 🌙",
+  "Cada historia se crea pensando en tus deseos ✨",
+  "La IA entiende los matices y la sofisticación 💫",
+  "Las historias pueden explorar cualquier tema o escenario 🎭",
+  "Tu imaginación es el único límite, cariño 🌶️",
+  "La privacidad y discreción siempre se mantienen 🤫",
+  "Las voces premium mejoran la experiencia sensual 💎",
+  "Las historias evolucionan según tus elecciones 🔥",
+  "Cada detalle se adapta a tus preferencias 🪄",
+  "Crea tu mundo de fantasía perfecta 🌙",
+  "La IA genera contenido que sorprende y deleita ✨",
+  "Tu historia, tus reglas, tu satisfacción, belleza 💫"
 ];
 
 const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({ 
@@ -66,7 +68,7 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
     }, 100);
     
     const tipInterval = setInterval(() => {
-      setCurrentTip(prev => (prev + 1) % ADULT_TIPS.length);
+      setCurrentTip(prev => (prev + 1) % CONSEJOS_PICANTES.length);
     }, 3000);
     
     return () => {
@@ -77,17 +79,17 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
   
   const getMainMessage = () => {
     if (type === 'generation') {
-      return "We're crafting your personalized story...";
+      return "Estamos creando tu historia personalizada, cariño...";
     } else {
-      return "Creating your story continuation...";
+      return "Creando la continuación de tu historia sensual...";
     }
   };
   
   const getSubMessage = () => {
     if (type === 'generation') {
-      return "Your story is being tailored to your preferences. Please stay on this page while we work our magic ✨";
+      return "Tu historia se está adaptando a tus preferencias. Por favor mantente en esta página mientras hacemos nuestra magia ✨";
     } else {
-      return "Continuing your story with the perfect next chapter. This won't take long! 🪄";
+      return "Continuando tu historia con el siguiente capítulo perfecto. ¡No tardaremos mucho, amor! 🪄";
     }
   };
   
@@ -107,7 +109,7 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
             className="w-full mb-8"
           >
             <div className="flex justify-between text-sm text-gray-300 mb-2">
-              <span>Creating your story...</span>
+              <span>Preparando tu historia...</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
@@ -146,7 +148,7 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
               <div className="grid grid-cols-3 gap-2">
                 {characters && characters.length > 0 && (
                   <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-500/30">
-                    <p className="text-xs font-semibold text-blue-400">Characters ({characters.length})</p>
+                    <p className="text-xs font-semibold text-blue-400">Personajes ({characters.length})</p>
                     <p className="text-sm text-gray-300 truncate">
                       {characters.map(char => char.name).join(', ')}
                     </p>
@@ -155,16 +157,16 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
                 
                 {genre && (
                   <div className="bg-purple-500/20 p-2 rounded-lg border border-purple-500/30">
-                    <p className="text-xs font-semibold text-purple-400">Genre</p>
+                    <p className="text-xs font-semibold text-purple-400">Género</p>
                     <p className="text-sm text-gray-300 truncate">{genre}</p>
                   </div>
                 )}
                 
                 {format && (
                   <div className="bg-yellow-500/20 p-2 rounded-lg border border-yellow-500/30">
-                    <p className="text-xs font-semibold text-yellow-400">Format</p>
+                    <p className="text-xs font-semibold text-yellow-400">Formato</p>
                     <p className="text-sm text-gray-300 truncate">
-                      {format === 'single' ? 'Complete Story' : 'By Chapters'}
+                      {format === 'single' ? 'Historia Completa' : 'Por Capítulos'}
                     </p>
                   </div>
                 )}
@@ -180,7 +182,7 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
             className="bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 text-center shadow-2xl"
           >
             <h3 className="text-lg font-semibold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent mb-3">
-              Did you know?
+              ¿Sabías que...?
             </h3>
             <motion.p
               key={currentTip}
@@ -190,7 +192,7 @@ const StoryLoadingPage: React.FC<StoryLoadingPageProps> = ({
               transition={{ duration: 0.3 }}
               className="text-gray-300 text-sm leading-relaxed"
             >
-              {ADULT_TIPS[currentTip]}
+              {CONSEJOS_PICANTES[currentTip]}
             </motion.p>
           </motion.div>
           

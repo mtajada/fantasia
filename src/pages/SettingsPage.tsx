@@ -48,10 +48,10 @@ const SettingsPage: React.FC = () => {
             await logoutUser();
             // logoutUser should handle redirect internally, but navigate as a fallback
             navigate('/');
-            toast({ title: 'Signed out', description: 'You have been signed out successfully.' });
+            toast({ title: 'Sesión Cerrada', description: 'Has cerrado sesión exitosamente, amor.' });
         } catch (error) {
-            console.error("Error during sign out:", error);
-            toast({ title: 'Error', description: 'Could not sign out.', variant: 'destructive' });
+            console.error("Error durante el cierre de sesión, cariño:", error);
+            toast({ title: 'Error', description: 'No pude cerrar la sesión, belleza.', variant: 'destructive' });
             setIsLogoutLoading(false);
         }
     };
@@ -68,18 +68,18 @@ const SettingsPage: React.FC = () => {
             if (data?.url) {
                 window.location.href = data.url;
             } else {
-                throw new Error('No checkout URL received.');
+                throw new Error('No se recibió URL de pago, amor.');
             }
         } catch (error: any) {
-            console.error(`Error creating ${item} checkout session:`, error);
-            toast({ title: 'Error', description: `Could not start payment: ${error.message}`, variant: 'destructive' });
+            console.error(`Error creando sesión de pago ${item}, cariño:`, error);
+            toast({ title: 'Error', description: `No pude iniciar el pago, amor: ${error.message}`, variant: 'destructive' });
             setIsCheckoutLoading(false);
         }
     };
 
     const handleManageSubscription = async () => {
         if (!profileSettings?.stripe_customer_id) {
-            toast({ title: 'Error', description: 'No customer information found to manage subscription.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'No encontré información del cliente para gestionar la suscripción, cariño.', variant: 'destructive' });
             return;
         }
 
@@ -92,11 +92,11 @@ const SettingsPage: React.FC = () => {
             if (data?.url) {
                 window.location.href = data.url;
             } else {
-                throw new Error('No customer portal URL received.');
+                throw new Error('No se recibió URL del portal de cliente, amor.');
             }
         } catch (error: any) {
-            console.error("Error creating customer portal session:", error);
-            toast({ title: 'Error', description: `Could not redirect to subscription management: ${error.message}`, variant: 'destructive' });
+            console.error("Error creando sesión del portal de cliente, belleza:", error);
+            toast({ title: 'Error', description: `No pude redirigir a la gestión de suscripción, amor: ${error.message}`, variant: 'destructive' });
             setIsPortalLoading(false);
         } // No finally block needed for isLoading as page redirects on success
     };
@@ -115,7 +115,7 @@ const SettingsPage: React.FC = () => {
     const premiumUser = isPremium(); // Call the selector
 
     // --- Calculate Reset Date String --- BEGIN
-    let resetDateString = "Date not available"; // Default
+    let resetDateString = "Fecha no disponible"; // Por defecto, cariño
 
     if (premiumUser) {
         // Premium: Use current_period_end
@@ -130,16 +130,16 @@ const SettingsPage: React.FC = () => {
                 }).format(endDate);
                 resetDateString = `on ${resetDateString}`;
             } catch (e) {
-                console.error("Error formatting current_period_end:", e);
-                resetDateString = "Error formatting date";
+                console.error("Error formateando current_period_end, amor:", e);
+                resetDateString = "Error formateando fecha, cariño";
             }
         } else {
-            console.warn("Premium user without current_period_end in profileSettings.");
-            resetDateString = "in the next billing cycle";
+            console.warn("Usuario premium sin current_period_end en profileSettings, amor.");
+            resetDateString = "en el próximo ciclo de facturación";
         }
     } else {
         // Free: Static message
-        resetDateString = "on the 1st of next month";
+        resetDateString = "el 1 del próximo mes";
     }
     // --- Calculate Reset Date String --- END
 
@@ -169,7 +169,7 @@ const SettingsPage: React.FC = () => {
                         <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 border border-pink-500/30 mb-2 shadow-lg">
                             <Settings className="h-8 w-8 text-pink-400" />
                         </div>
-                        <h1 className="text-3xl font-bold font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Settings</h1>
+                        <h1 className="text-3xl font-bold font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">Configuración Sensual</h1>
                     </motion.div>
 
                     {/* Account Section */}
@@ -183,13 +183,13 @@ const SettingsPage: React.FC = () => {
                             <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
                                 <User className="h-5 w-5 text-violet-400" />
                             </div>
-                            <h2 className="text-xl font-semibold font-heading text-gray-200">Account</h2>
+                            <h2 className="text-xl font-semibold font-heading text-gray-200">Cuenta</h2>
                         </div>
                         <div className="p-5">
                             <div className="flex items-center p-2">
                                 <Mail className="h-5 w-5 text-violet-400 mr-3" />
                                 <div className="flex-1">
-                                    <div className="text-sm text-gray-400 mb-1">Email</div>
+                                    <div className="text-sm text-gray-400 mb-1">Correo</div>
                                     <div className="font-medium text-gray-200">{user.email}</div>
                                 </div>
                             </div>
@@ -207,18 +207,18 @@ const SettingsPage: React.FC = () => {
                             <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
                                 <CreditCard className="h-5 w-5 text-pink-400" />
                             </div>
-                            <h2 className="text-xl font-semibold font-heading text-gray-200">Plan & Billing</h2>
+                            <h2 className="text-xl font-semibold font-heading text-gray-200">Plan y Facturación</h2>
                         </div>
                         <div className="p-5">
                             <div className="flex items-center justify-between p-2 border-b border-gray-700/50 pb-4 mb-4">
                                 <div className="flex items-center">
-                                    <div className="text-md text-gray-200">Current Plan:</div>
+                                    <div className="text-md text-gray-200">Plan Actual:</div>
                                 </div>
                                 <div className={`px-3 py-1 rounded-full font-semibold text-sm ${premiumUser
                                     ? 'bg-gradient-to-r from-pink-500/30 to-violet-500/40 text-gray-200 border border-pink-500/30'
                                     : 'bg-gray-700/50 text-gray-300 border border-gray-600/50'
                                     }`}>
-                                    {premiumUser ? 'Premium ✨' : 'Free'}
+                                    {premiumUser ? 'Premium ✨' : 'Gratis'}
                                 </div>
                             </div>
 
@@ -232,17 +232,17 @@ const SettingsPage: React.FC = () => {
                                                 <BookOpen className="h-5 w-5 text-violet-400" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-lg text-gray-200">Stories remaining this month</h3>
-                                                <p className="text-gray-400 text-sm">Stories you can create ✨</p>
+                                                <h3 className="font-bold text-lg text-gray-200">Historias restantes este mes</h3>
+                                                <p className="text-gray-400 text-sm">Historias que puedes crear ✨</p>
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-center mb-2 px-2">
-                                            <span className="text-gray-200 font-medium">Available:</span>
+                                            <span className="text-gray-200 font-medium">Disponibles:</span>
                                             <span className="font-mono font-bold text-xl text-pink-400">{profileSettings.monthly_stories_generated !== undefined ? Math.max(0, 10 - profileSettings.monthly_stories_generated) : 'N/A'}</span>
                                         </div>
                                         <div className="text-sm text-gray-200 mt-3 flex items-center bg-gradient-to-r from-pink-500/30 to-violet-500/30 p-2 rounded-lg border border-pink-500/20">
                                             <CalendarClock className="h-4 w-4 mr-2 text-pink-400" />
-                                            <span>Limit resets to 10 stories {resetDateString}</span>
+                                            <span>Límite se reinicia a 10 historias {resetDateString}</span>
                                         </div>
                                     </div>
 
@@ -253,17 +253,17 @@ const SettingsPage: React.FC = () => {
                                                 <Mic className="h-5 w-5 text-violet-400" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-lg text-gray-200">Available voice credits</h3>
-                                                <p className="text-gray-400 text-sm">For narrating your stories 🎤</p>
+                                                <h3 className="font-bold text-lg text-gray-200">Créditos de voz disponibles</h3>
+                                                <p className="text-gray-400 text-sm">Para narrar tus historias 🎤</p>
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-center mb-2 px-2">
-                                            <span className="text-gray-200 font-medium">Available:</span>
+                                            <span className="text-gray-200 font-medium">Disponibles:</span>
                                             <span className="font-mono font-bold text-xl text-violet-400">{profileSettings.voice_credits || 0}</span>
                                         </div>
 
                                         {/* Voice Credits Purchase Button (Free user) */}
-                                        <button
+                                        {/* <button
                                             onClick={() => handleCheckout('credits')}
                                             // disabled={isCheckoutLoading || isPortalLoading}
                                             disabled={true}
@@ -271,14 +271,14 @@ const SettingsPage: React.FC = () => {
                                         >
                                             <div className="flex items-center gap-2 text-gray-200 font-bold">
                                                 <CreditCard className="h-4 w-4" />
-                                                <span>Get 20 more credits for €10 💳</span>
+                                                <span>Consigue 20 créditos más por 10€ 💳</span>
                                             </div>
                                             {isCheckoutLoading ? (
                                                 <div className="h-4 w-4 border-2 border-gray-200 border-t-transparent rounded-full animate-spin"></div>
                                             ) : (
                                                 <ChevronRight className="h-4 w-4 text-gray-200" />
                                             )}
-                                        </button>
+                                        </button> */}
                                     </div>
 
                                     {/* View Plans Button */}
@@ -289,7 +289,7 @@ const SettingsPage: React.FC = () => {
                                         >
                                             <div className="flex items-center gap-2">
                                                 <Star className="h-4 w-4" />
-                                                <span>View Premium Plan ✨</span>
+                                                <span>Ver Plan Premium ✨</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4" />
                                         </Link>
@@ -307,13 +307,13 @@ const SettingsPage: React.FC = () => {
                                                 <Mic className="h-5 w-5 text-violet-400" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-lg text-gray-200">Available voice credits</h3>
-                                                <p className="text-gray-400 text-sm">For narrating your stories 🎤</p>
+                                                <h3 className="font-bold text-lg text-gray-200">Créditos de voz disponibles</h3>
+                                                <p className="text-gray-400 text-sm">Para narrar tus historias 🎤</p>
                                             </div>
                                         </div>
                                         {/* Monthly plan credits */}
                                         <div className="flex justify-between items-center px-2">
-                                            <span className="text-gray-200 font-medium">Plan credits this month:</span>
+                                            <span className="text-gray-200 font-medium">Créditos del plan este mes:</span>
                                             <span className="font-mono font-bold text-lg text-violet-400">
                                                 {profileSettings.monthly_voice_generations_used !== undefined
                                                     ? Math.max(0, PREMIUM_MONTHLY_VOICE_ALLOWANCE - profileSettings.monthly_voice_generations_used)
@@ -323,7 +323,7 @@ const SettingsPage: React.FC = () => {
                                         </div>
                                         {/* Additional purchased credits */}
                                         <div className="flex justify-between items-center mt-1 px-2 pt-2 border-t border-gray-700/30">
-                                            <span className="text-gray-200 font-medium">Purchased credits:</span>
+                                            <span className="text-gray-200 font-medium">Créditos comprados:</span>
                                             <span className="font-mono font-bold text-lg text-violet-400">
                                                 {profileSettings.voice_credits ?? 0}
                                             </span>
@@ -331,7 +331,7 @@ const SettingsPage: React.FC = () => {
                                         {/* Informational text */}
                                         <div className="text-sm text-gray-200 mt-3 flex items-center bg-gradient-to-r from-violet-500/30 to-purple-600/30 p-2 rounded-lg border border-violet-500/20">
                                             <CalendarClock className="h-4 w-4 mr-2 text-violet-400" />
-                                            <span>You receive {PREMIUM_MONTHLY_VOICE_ALLOWANCE} narrations with your plan each month (next reset {resetDateString}). Credits you purchase are added to your account, never expire, and are used when you exhaust your plan credits.</span>
+                                            <span>Recibes {PREMIUM_MONTHLY_VOICE_ALLOWANCE} narraciones con tu plan cada mes (próximo reinicio {resetDateString}). Los créditos que compres se añaden a tu cuenta, nunca expiran y se usan cuando agotas los créditos de tu plan.</span>
                                         </div>
                                         {/* Voice Credits Purchase Button (Premium user) */}
                                         <button
@@ -341,7 +341,7 @@ const SettingsPage: React.FC = () => {
                                         >
                                             <div className="flex items-center gap-2 text-gray-200 font-bold">
                                                 <CreditCard className="h-4 w-4" />
-                                                <span>Buy {VOICE_CREDITS_PACKAGE_AMOUNT} more credits for €{VOICE_CREDITS_PACKAGE_PRICE_EUR} 💳</span>
+                                                <span>Compra {VOICE_CREDITS_PACKAGE_AMOUNT} créditos más por {VOICE_CREDITS_PACKAGE_PRICE_EUR}€ 💳</span>
                                             </div>
                                             {isCheckoutLoading ? (
                                                 <div className="h-4 w-4 border-2 border-gray-200 border-t-transparent rounded-full animate-spin"></div>
@@ -363,7 +363,7 @@ const SettingsPage: React.FC = () => {
                                                 ) : (
                                                     <div className="flex items-center gap-2">
                                                         <Settings className="h-4 w-4" />
-                                                        <span>Manage Subscription 💳</span>
+                                                        <span>Gestionar Suscripción 💳</span>
                                                     </div>
                                                 )}
                                                 <ChevronRight className="h-4 w-4" />

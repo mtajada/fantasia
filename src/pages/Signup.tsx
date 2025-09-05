@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
-import StoryButton from "../components/StoryButton";
 import PageTransition from "../components/PageTransition";
 import { useToast } from "@/hooks/use-toast";
 import BackButton from "../components/BackButton";
@@ -31,8 +30,8 @@ export default function Signup() {
   const handleSignup = async (data: { email: string; password: string; confirmPassword: string; ageVerification: boolean }) => {
     if (!data.email || !data.password || !data.confirmPassword) {
       toast({
-        title: "Registration error",
-        description: "Please complete all fields",
+        title: "Error de registro",
+        description: "Por favor completa todos los campos",
         variant: "destructive"
       });
       return;
@@ -40,8 +39,8 @@ export default function Signup() {
 
     if (!data.ageVerification) {
       toast({
-        title: "Age verification required",
-        description: "You must confirm that you are 18 years of age or older to register",
+        title: "Verificación de edad requerida",
+        description: "Debes confirmar que tienes 18 años o más para registrarte",
         variant: "destructive"
       });
       return;
@@ -49,8 +48,8 @@ export default function Signup() {
 
     if (data.password !== data.confirmPassword) {
       toast({
-        title: "Registration error",
-        description: "Passwords don't match",
+        title: "Error de registro",
+        description: "Las contraseñas no coinciden",
         variant: "destructive"
       });
       return;
@@ -62,7 +61,7 @@ export default function Signup() {
 
       if (error) {
         toast({
-          title: "Registration error",
+          title: "Error de registro",
           description: error.message,
           variant: "destructive"
         });
@@ -71,27 +70,27 @@ export default function Signup() {
 
       if (user) {
         toast({
-          title: "Registration successful",
-          description: "Your account has been created!",
+          title: "Registro exitoso",
+          description: "¡Tu cuenta ha sido creada!",
         });
-        // Redirigir a la página de login después de un registro exitoso
+        // Redirigir a la página de éxito después de un registro exitoso
         setTimeout(() => {
           navigate("/signup-success");
         }, 2000);
       } else {
         toast({
-          title: "Registration error",
-          description: "Could not create account",
+          title: "Error de registro",
+          description: "No se pudo crear la cuenta",
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Unexpected error",
-        description: "An unexpected error occurred",
+        title: "Error inesperado",
+        description: "Ocurrió un error inesperado",
         variant: "destructive"
       });
-      console.error(err);
+      console.error("Error en registro:", err);
     } finally {
       setIsLoading(false);
     }
@@ -104,18 +103,18 @@ export default function Signup() {
 
       if (error) {
         toast({
-          title: "Error signing up with Google",
+          title: "Error registrándose con Google",
           description: error.message,
           variant: "destructive"
         });
       }
     } catch (err) {
       toast({
-        title: "Unexpected error",
-        description: "An error occurred signing up with Google",
+        title: "Error inesperado",
+        description: "Ocurrió un error al registrarse con Google",
         variant: "destructive"
       });
-      console.error(err);
+      console.error("Error en registro con Google:", err);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -142,7 +141,7 @@ export default function Signup() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-bold text-center mb-6 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-            Create Account
+            Únete a la Fantasía
           </h1>
 
           <Form {...form}>
@@ -159,7 +158,7 @@ export default function Signup() {
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Email address"
+                          placeholder="Tu correo, bombón"
                           className="pl-10 py-6 rounded-xl bg-gray-900/90 border-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 text-white placeholder:text-gray-400"
                           type="email"
                           {...field}
@@ -181,7 +180,7 @@ export default function Signup() {
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Password"
+                          placeholder="Crea tu secreto... 🤫"
                           className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 text-white placeholder:text-gray-400"
                           type={showPassword ? "text" : "password"}
                           {...field}
@@ -210,7 +209,7 @@ export default function Signup() {
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400" size={20} />
                       <FormControl>
                         <Input
-                          placeholder="Confirm password"
+                          placeholder="Confirma tu secreto... 🤫"
                           className="pl-10 pr-10 py-6 rounded-xl bg-gray-900/90 border-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 text-white placeholder:text-gray-400"
                           type={showConfirmPassword ? "text" : "password"}
                           {...field}
@@ -249,10 +248,10 @@ export default function Signup() {
                           className="text-sm font-medium text-gray-200 leading-relaxed cursor-pointer select-none"
                           onClick={() => field.onChange(!field.value)}
                         >
-                          I confirm that I am 18 years of age or older
+                          Confirmo que soy mayor de 18 años y quiero jugar
                         </label>
                         <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                          By clicking this button, you confirm that you are at least 18 years old and consent to access AI-generated content that may be inappropriate for minors
+                          Al marcar esta casilla, declaras que tienes al menos 18 años y das tu consentimiento para entrar en un mundo de contenido para adultos. Prepárate para lo inesperado.
                         </p>
                       </div>
                     </div>
@@ -266,12 +265,12 @@ export default function Signup() {
                 disabled={isLoading || !form.watch('ageVerification')}
                 className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-60 disabled:cursor-not-allowed shadow-violet-500/25"
               >
-                {isLoading ? "Creating account..." : "Create Account"}
+                {isLoading ? "Creando tu acceso..." : "Entrar en la Fantasía"}
               </button>
 
               <div className="relative flex items-center my-4">
                 <div className="flex-grow border-t border-gray-700"></div>
-                <span className="mx-4 flex-shrink text-gray-300 text-sm">Or sign up with</span>
+                <span className="mx-4 flex-shrink text-gray-300 text-sm">O entra con</span>
                 <div className="flex-grow border-t border-gray-700"></div>
               </div>
 
@@ -287,17 +286,17 @@ export default function Signup() {
                   <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                   <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
-                {isGoogleLoading ? "Connecting..." : "Sign up with Google"}
+                {isGoogleLoading ? "Abriendo las puertas..." : "Registrarse con Google"}
               </button>
 
               <div className="text-center mt-5">
-                <span className="text-gray-300 text-sm">Already have an account? </span>
+                <span className="text-gray-300 text-sm">¿Ya eres parte del juego? </span>
                 <button
                   type="button"
                   onClick={() => navigate("/login")}
                   className="text-violet-400 font-semibold text-sm hover:underline"
                 >
-                  Sign In
+                  Entra aquí
                 </button>
               </div>
             </form>

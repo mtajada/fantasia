@@ -22,7 +22,7 @@ export class StoryContinuationService {
    * @returns La respuesta de la Edge Function (depende de la acción).
    */
   private static async invokeContinuationFunction<T = any>(action: string, payload: object): Promise<T> {
-    console.log(`Enviando solicitud a la Edge Function story-continuation (action: ${action})...`);
+    console.log(`Enviando solicitud a la Edge Function story-continuation (acción: ${action})...`);
 
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !sessionData.session) {
@@ -35,23 +35,23 @@ export class StoryContinuationService {
       ...payload // Incluir el resto de los datos (story, chapters, etc.)
     };
 
-    // Log character information for debugging (consistent with GenerateStoryService)
+    // Registrar información de personajes para depuración (consistente con GenerateStoryService)
     if (bodyPayload.story && bodyPayload.story.options && bodyPayload.story.options.characters) {
       const characters = bodyPayload.story.options.characters;
-      const charactersInfo = `Characters (${characters.length}): ${characters.map(c => `${c.name} (${c.gender})`).join(', ')}`;
+      const charactersInfo = `Personajes (${characters.length}): ${characters.map(c => `${c.name} (${c.gender})`).join(', ')}`;
       console.log(`[StoryContinuationService] ${charactersInfo}`);
       
-      // Log spiciness level for debugging
+      // Registrar nivel de intensidad para depuración
       const spicynessLevel = bodyPayload.story.options.spiciness_level || 2;
-      console.log(`[StoryContinuationService] Spiciness level: ${spicynessLevel}`);
+      console.log(`[StoryContinuationService] Nivel de intensidad: ${spicynessLevel}`);
     }
 
     try {
       const jsonBodyString = JSON.stringify(bodyPayload, null, 2); // Pretty print
       console.log(`[StoryContinuationService_DEBUG] Body payload AFTER stringify (length: ${jsonBodyString?.length}):\n---\n${jsonBodyString}\n---`);
     } catch (stringifyError) {
-        console.error('[StoryContinuationService_DEBUG] Error during JSON.stringify:', stringifyError, 'Payload was:', bodyPayload);
-        throw new Error('Failed to stringify payload before sending to edge function.'); // Re-throw or handle
+        console.error('[StoryContinuationService_DEBUG] Error durante JSON.stringify:', stringifyError, 'Payload era:', bodyPayload);
+        throw new Error('Error al serializar payload antes de enviar a la edge function.'); // Re-lanzar o manejar
     }
 
     const { data, error } = await supabase.functions.invoke<T>('story-continuation', { // Usar tipo genérico o específico
@@ -63,7 +63,7 @@ export class StoryContinuationService {
     });
 
     if (error) {
-      console.error(`Error en Edge Function story-continuation (action: ${action}):`, error);
+      console.error(`Error en Edge Function story-continuation (acción: ${action}):`, error);
       let message = error.message;
       if ((error as any).context) {
         message = `${message} - ${JSON.stringify((error as any).context)}`;
@@ -71,7 +71,7 @@ export class StoryContinuationService {
       throw new Error(message);
     }
 
-    console.log(`Respuesta recibida de story-continuation (action: ${action})`);
+    console.log(`Respuesta recibida de story-continuation (acción: ${action})`);
     return data as T; // Devolver datos (casteo puede ser necesario)
   }
 
@@ -88,7 +88,7 @@ export class StoryContinuationService {
       language: story.options.language
     });
     if (!response || !Array.isArray(response.options)) {
-      console.error("Respuesta inválida para generateOptions:", response);
+      console.error("Respuesta inválida para generación de opciones:", response);
       throw new Error("No se pudieron generar las opciones de continuación.");
     }
     return response;
@@ -104,7 +104,7 @@ export class StoryContinuationService {
       language: story.options.language 
     });
     if (!response || typeof response.content !== 'string' || typeof response.title !== 'string') {
-      console.error("Respuesta inválida para freeContinuation:", response);
+      console.error("Respuesta inválida para continuación libre:", response);
       throw new Error("No se pudo generar la continuación libre.");
     }
     return response;
@@ -121,7 +121,7 @@ export class StoryContinuationService {
       language: story.options.language 
     });
     if (!response || typeof response.content !== 'string' || typeof response.title !== 'string') {
-      console.error("Respuesta inválida para optionContinuation:", response);
+      console.error("Respuesta inválida para continuación de opción:", response);
       throw new Error("No se pudo generar la continuación de opción.");
     }
     return response;
@@ -138,7 +138,7 @@ export class StoryContinuationService {
       language: story.options.language 
     });
     if (!response || typeof response.content !== 'string' || typeof response.title !== 'string') {
-      console.error("Respuesta inválida para directedContinuation:", response);
+      console.error("Respuesta inválida para continuación dirigida:", response);
       throw new Error("No se pudo generar la continuación dirigida.");
     }
     return response;

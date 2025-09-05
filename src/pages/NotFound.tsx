@@ -26,11 +26,11 @@ export default function NotFound() {
             </div>
 
             <h1 className="text-3xl font-bold mb-4 text-center bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-              Oops! Lost in the fantasy? 🤫
+              ¡Ups! ¿Te perdiste en la fantasía? 🤫
             </h1>
 
             <p className="text-gray-300 mb-10 text-center">
-              Seems like you've wandered into uncharted territory... Let's get you back to the heat! 🔥
+              Parece que te has adentrado en un territorio inexplorado... ¡Volvamos a la acción! 🔥
             </p>
 
             <button
@@ -38,7 +38,7 @@ export default function NotFound() {
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-full py-4 font-semibold text-lg shadow-lg shadow-violet-500/25 transition-all duration-300 hover:scale-105"
             >
               <Home size={20} />
-              Back to the action
+              Volver a la acción
             </button>
           </div>
         </div>

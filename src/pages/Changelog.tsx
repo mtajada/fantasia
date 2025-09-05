@@ -20,7 +20,7 @@ const Changelog: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -45,14 +45,14 @@ const Changelog: React.FC = () => {
                 className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 transition-all"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Volver
               </Button>
               <div>
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
-                  What's New? ✨
+                  ¿Qué Hay de Nuevo? ✨
                 </h1>
                 <p className="text-gray-300 mt-1">
-                  All the spicy updates and exciting changes to Fantasia! 🌶️
+                  ¡Todas las actualizaciones picantes y cambios emocionantes de Fantasia! 🌶️
                 </p>
               </div>
             </div>
@@ -63,7 +63,7 @@ const Changelog: React.FC = () => {
                 <Card className="bg-gray-900/90 backdrop-blur-md border border-gray-800 p-8 shadow-2xl">
                   <div className="flex items-center gap-3 text-gray-300">
                     <Loader2 className="h-5 w-5 animate-spin text-violet-400" />
-                    <span>Loading changelog...</span>
+                    <span>Cargando registro de cambios...</span>
                   </div>
                 </Card>
               </div>
@@ -73,7 +73,7 @@ const Changelog: React.FC = () => {
                   <div className="flex items-center gap-3 text-red-400">
                     <AlertCircle className="h-5 w-5" />
                     <div>
-                      <p className="font-semibold">Error loading changelog</p>
+                      <p className="font-semibold">Error cargando registro de cambios</p>
                       <p className="text-sm text-gray-400 mt-1">{error}</p>
                     </div>
                   </div>
@@ -83,8 +83,8 @@ const Changelog: React.FC = () => {
               <div className="flex items-center justify-center min-h-[200px]">
                 <Card className="bg-gray-900/90 backdrop-blur-md border border-gray-800 p-8 shadow-2xl">
                   <div className="text-center text-gray-300">
-                    <p className="font-semibold">No changelog data available</p>
-                    <p className="text-sm mt-1 text-gray-400">Please verify that the CHANGELOG.md file exists and has the correct format.</p>
+                    <p className="font-semibold">No hay datos de registro de cambios disponibles</p>
+                    <p className="text-sm mt-1 text-gray-400">Por favor verifica que el archivo CHANGELOG.md existe y tiene el formato correcto.</p>
                   </div>
                 </Card>
               </div>
@@ -101,7 +101,7 @@ const Changelog: React.FC = () => {
                           {index === 0 && (
                             <Badge variant="default" className="bg-gradient-to-r from-pink-500 to-violet-500 text-white border-0">
                               <Star className="h-3 w-3 mr-1" />
-                              Latest Version
+                              Última Versión
                             </Badge>
                           )}
                         </div>
@@ -119,7 +119,7 @@ const Changelog: React.FC = () => {
                             <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
                                 <Star className="h-4 w-4 text-pink-400" />
-                                <span className="font-semibold">New Features</span>
+                                <span className="font-semibold">Nuevas Características</span>
                                 <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.features.length}</Badge>
                               </div>
                             </AccordionTrigger>
@@ -141,7 +141,7 @@ const Changelog: React.FC = () => {
                             <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
                                 <Wrench className="h-4 w-4 text-violet-400" />
-                                <span className="font-semibold">Improvements</span>
+                                <span className="font-semibold">Mejoras</span>
                                 <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.improvements.length}</Badge>
                               </div>
                             </AccordionTrigger>
@@ -163,7 +163,7 @@ const Changelog: React.FC = () => {
                             <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
                                 <Wrench className="h-4 w-4 text-purple-400" />
-                                <span className="font-semibold">Technical Changes</span>
+                                <span className="font-semibold">Cambios Técnicos</span>
                                 <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.technical.length}</Badge>
                               </div>
                             </AccordionTrigger>
@@ -185,7 +185,7 @@ const Changelog: React.FC = () => {
                             <AccordionTrigger className="text-left hover:no-underline text-gray-200">
                               <div className="flex items-center gap-2">
                                 <Bug className="h-4 w-4 text-orange-400" />
-                                <span className="font-semibold">Bug Fixes</span>
+                                <span className="font-semibold">Corrección de Errores</span>
                                 <Badge variant="outline" className="border-gray-600 text-gray-300">{entry.fixes.length}</Badge>
                               </div>
                             </AccordionTrigger>
@@ -213,7 +213,7 @@ const Changelog: React.FC = () => {
               <Card className="bg-gray-900/80 backdrop-blur-md border border-gray-800 shadow-2xl">
                 <CardContent className="pt-6">
                   <p className="text-gray-400 text-sm">
-                    This changelog follows the format of{' '}
+                    Este registro de cambios sigue el formato de{' '}
                     <a
                       href="https://keepachangelog.com/en/1.0.0/"
                       target="_blank"
@@ -222,7 +222,7 @@ const Changelog: React.FC = () => {
                     >
                       Keep a Changelog
                     </a>
-                    {' '}and adheres to{' '}
+                    {' '}y se adhiere a{' '}
                     <a
                       href="https://semver.org/spec/v2.0.0.html"
                       target="_blank"

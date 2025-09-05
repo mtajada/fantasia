@@ -46,10 +46,10 @@ export default function SignupSuccess() {
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <CardTitle className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-                  Account Created! ✨
+                  ¡Cuenta Creada! ✨
                 </CardTitle>
                 <CardDescription className="text-gray-300 text-center text-lg">
-                  Welcome to your sensual adventure
+                  Bienvenido a tu aventura sensual
                 </CardDescription>
               </motion.div>
             </CardHeader>
@@ -63,17 +63,17 @@ export default function SignupSuccess() {
                 <Alert className="bg-violet-500/10 border-violet-500/20 text-violet-100">
                   <Mail className="h-5 w-5 text-violet-400" />
                   <AlertTitle className="text-violet-200 font-semibold mb-2">
-                    📧 Check Your Email - Important!
+                    📧 Revisa tu Email - ¡Importante!
                   </AlertTitle>
                   <AlertDescription className="text-violet-100/90 space-y-2">
                     <p className="font-medium">
-                      We've sent you a confirmation email. You <span className="text-pink-400 font-semibold">must verify your email</span> before you can sign in.
+                      Te hemos enviado un email de confirmación. <span className="text-pink-400 font-semibold">Debes verificar tu email</span> antes de poder iniciar sesión.
                     </p>
                     <p className="text-sm">
-                      🔍 Check your inbox (and spam folder) for the confirmation link.
+                      🔍 Revisa tu bandeja de entrada (y carpeta de spam) para el enlace de confirmación.
                     </p>
                     <p className="text-sm font-medium text-violet-300">
-                      Once confirmed, you'll be ready to explore! 🤫
+                      Una vez confirmado, ¡estarás liste para explorar! 🤫
                     </p>
                   </AlertDescription>
                 </Alert>
@@ -89,7 +89,7 @@ export default function SignupSuccess() {
                   onClick={() => navigate("/login")}
                   className="w-full py-4 rounded-2xl text-white text-lg font-semibold shadow-lg transition-all duration-200 bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 transform hover:scale-105 shadow-violet-500/25"
                 >
-                  Got it, let's continue
+                  Entendido, continuemos
                 </button>
               </motion.div>
             </CardContent>

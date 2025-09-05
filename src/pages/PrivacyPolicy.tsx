@@ -23,9 +23,9 @@ const PrivacyPolicy: React.FC = () => {
               className="text-center mb-8"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
-                PRIVACY POLICY
+                POLÍTICA DE PRIVACIDAD
               </h1>
-              <p className="text-sm text-gray-400 mt-2">Last updated: January 9, 2025</p>
+              <p className="text-sm text-gray-400 mt-2">Última actualización: 9 de enero, 2025</p>
             </motion.div>
 
             <motion.div 
@@ -35,148 +35,148 @@ const PrivacyPolicy: React.FC = () => {
               className="space-y-6 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl ring-1 ring-gray-700/50"
             >
               <p className="font-medium text-gray-200 text-lg leading-relaxed">
-                Privacy Summary: At Fantasia, we value your trust and are committed to protecting your personal data. We collect only the essential information needed to provide our AI-powered adult storytelling service, store it under strict security measures, and give you complete control over its use. Below, we explain clearly and transparently how we handle your data.
+                Resumen de Privacidad: En Fantasia, valoramos tu confianza y estamos comprometidos en proteger tus datos personales, cariño. Recopilamos únicamente la información esencial necesaria para brindarte nuestro servicio de historias sensuales impulsado por IA, la almacenamos bajo estrictas medidas de seguridad, y te damos control completo sobre su uso. A continuación, te explicamos clara y transparentemente cómo manejamos tu información.
               </p>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">1. DATA CONTROLLER</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">1. RESPONSABLE DEL TRATAMIENTO</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Fantasia (hereinafter, "Fantasia"), with address in San Francisco, CA, and contact email hello@fantasia.app, is the entity responsible for processing your personal data when you use the Fantasia platform.
+                  Fantasia (en adelante, "Fantasia"), con domicilio en San Francisco, CA, y correo de contacto hello@fantasia.app, es la entidad responsable del tratamiento de tus datos personales cuando usas la plataforma Fantasia, amor.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">2. WHAT DATA DO WE COLLECT AND WHY?</h2>
-                <p className="mt-2 font-medium text-gray-200">2.1 Data Provided by Users</p>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">2. ¿QUÉ DATOS RECOPILAMOS Y POR QUÉ?</h2>
+                <p className="mt-2 font-medium text-gray-200">2.1 Datos Proporcionados por Usuaries</p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Registration: name, email address, password.
+                  Registro: nombre, dirección de correo electrónico, contraseña.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Profile and preferences: adult content preferences, favorite themes, language, and story style.
+                  Perfil y preferencias: preferencias de contenido adulto, temas favoritos, idioma y estilo de historias sensuales.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Communication: messages or inquiries sent through our forms or email.
+                  Comunicación: mensajes o consultas enviadas a través de nuestros formularios o correo electrónico.
                 </p>
                 
-                <p className="mt-4 font-medium text-gray-200">2.2 Technical and Usage Data</p>
+                <p className="mt-4 font-medium text-gray-200">2.2 Datos Técnicos y de Uso</p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  IP address, browser type, device, operating system.
+                  Dirección IP, tipo de navegador, dispositivo, sistema operativo.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Pages visited, session duration, actions performed (story generation, editing, audio playback).
+                  Páginas visitadas, duración de la sesión, acciones realizadas (generación de historias, edición, reproducción de audio).
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Cookies and similar technologies to improve experience and personalize content.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">3. PURPOSES OF DATA PROCESSING</h2>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  We use your data to:
-                </p>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  Manage your account and access to Fantasia.
-                </p>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  Generate, save, and deliver the adult stories you request through our platform.
-                </p>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  Send email notifications about your creations, platform updates, and new features.
-                </p>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  Provide technical support and customer service.
-                </p>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  Comply with legal and security obligations.
+                  Cookies y tecnologías similares para mejorar la experiencia y personalizar el contenido.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">4. COOKIES AND SIMILAR TECHNOLOGIES</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">3. FINALIDADES DEL TRATAMIENTO DE DATOS</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  To optimize your experience and analyze Fantasia usage, we use our own and third-party cookies. You can manage or disable cookies through your browser settings; please note this may affect service functionality. Check our Cookie Policy for more information.
+                  Usamos tus datos para:
+                </p>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Gestionar tu cuenta y acceso a Fantasia.
+                </p>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Generar, guardar y entregarte las historias sensuales que solicitas a través de nuestra plataforma.
+                </p>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Enviar notificaciones por correo sobre tus creaciones, actualizaciones de la plataforma y nuevas funciones tentadoras.
+                </p>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Brindar soporte técnico y atención al cliente.
+                </p>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Cumplir con obligaciones legales y de seguridad.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">5. DATA SECURITY</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">4. COOKIES Y TECNOLOGÍAS SIMILARES</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  We implement technical and organizational measures (HTTPS encryption, access controls, backups) to protect your data against unauthorized access, alterations, or loss. We recommend logging out when using shared devices and keeping your password secure. Given the sensitive nature of adult content, we apply enhanced privacy protections.
+                  Para optimizar tu experiencia y analizar el uso de Fantasia, utilizamos cookies propias y de terceros. Puedes gestionar o desactivar las cookies a través de la configuración de tu navegador; ten en cuenta que esto puede afectar la funcionalidad del servicio. Consulta nuestra Política de Cookies para más información, cariño.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">6. THIRD-PARTY LINKS</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">5. SEGURIDAD DE DATOS</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Fantasia may include links to third-party websites or services. We are not responsible for the privacy practices or content of these external sites, so we advise you to read their own privacy policies.
+                  Implementamos medidas técnicas y organizativas (cifrado HTTPS, controles de acceso, copias de seguridad) para proteger tus datos contra accesos no autorizados, alteraciones o pérdidas. Te recomendamos cerrar sesión al usar dispositivos compartidos y mantener tu contraseña segura. Dada la naturaleza sensual de nuestro contenido, aplicamos protecciones de privacidad mejoradas para tu discreción, amor.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">7. YOUR RIGHTS AND HOW TO EXERCISE THEM</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">6. ENLACES A TERCEROS</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  You have the right to:
+                  Fantasia puede incluir enlaces a sitios web o servicios de terceros. No somos responsables de las prácticas de privacidad o contenido de estos sitios externos, por lo que te aconsejamos leer sus propias políticas de privacidad, cariño.
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">7. TUS DERECHOS Y CÓMO EJERCERLOS</h2>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Tienes derecho a:
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Access your personal data.
+                  Acceder a tus datos personales.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Rectify inaccurate or incomplete data.
+                  Rectificar datos inexactos o incompletos.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Delete your data (right to be forgotten).
+                  Eliminar tus datos (derecho al olvido).
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Limit or object to certain processing activities.
+                  Limitar u oponerte a ciertas actividades de tratamiento.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Data portability.
+                  Portabilidad de datos.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Withdraw your consent at any time, without affecting the lawfulness of previous processing.
+                  Retirar tu consentimiento en cualquier momento, sin afectar la legalidad del tratamiento previo.
                 </p>
                 <p className="mt-4 text-gray-300 leading-relaxed">
-                  To exercise these rights, you can:
+                  Para ejercer estos derechos, puedes:
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Access your profile and modify your data.
+                  Acceder a tu perfil y modificar tus datos.
                 </p>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  Send an email to hello@fantasia.app with subject "Data Protection" clearly indicating which right you wish to exercise.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">8. AGE RESTRICTIONS</h2>
-                <p className="mt-2 text-gray-300 leading-relaxed">
-                  Fantasia is designed exclusively for adults aged 18 and over. Our platform contains adult content and is not suitable for minors. By using our service, you confirm that you are at least 18 years old and legally able to access adult content in your jurisdiction.
+                  Enviar un correo a hello@fantasia.app con asunto "Protección de Datos" indicando claramente qué derecho deseas ejercer.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">9. DATA RETENTION</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">8. RESTRICCIONES DE EDAD</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  We will retain your data while you maintain an active account on Fantasia and, once cancelled, for the time necessary to comply with legal obligations (e.g., tax, legal requirements), unless you request deletion earlier.
+                  Fantasia está diseñada exclusivamente para adultos de 18 años en adelante. Nuestra plataforma contiene contenido sensual y no es apropiada para menores. Al usar nuestro servicio, confirmas que tienes al menos 18 años y puedes acceder legalmente a contenido adulto en tu jurisdicción, amor.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">10. CHANGES TO THIS POLICY</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">9. RETENCIÓN DE DATOS</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  We may update this Privacy Policy to adapt to legal changes or service improvements. We will inform you of relevant changes through a notice on the platform or by email before they take effect.
+                  Conservaremos tus datos mientras mantengas una cuenta activa en Fantasia y, una vez cancelada, por el tiempo necesario para cumplir con obligaciones legales (ej. fiscales, requisitos legales), a menos que solicites su eliminación antes, cariño.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-violet-400 mb-3">11. CONTACT AND COMPLAINTS</h2>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">10. CAMBIOS A ESTA POLÍTICA</h2>
                 <p className="mt-2 text-gray-300 leading-relaxed">
-                  If you have questions, inquiries, or complaints about data processing, you can write to us at hello@fantasia.app. You also have the right to file a complaint with the California Attorney General's Privacy Office if you believe your rights have not been properly addressed.
+                  Podemos actualizar esta Política de Privacidad para adaptarnos a cambios legales o mejoras del servicio. Te informaremos de cambios relevantes a través de un aviso en la plataforma o por correo antes de que entren en vigor.
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-bold text-violet-400 mb-3">11. CONTACTO Y QUEJAS</h2>
+                <p className="mt-2 text-gray-300 leading-relaxed">
+                  Si tienes preguntas, consultas o quejas sobre el tratamiento de datos, puedes escribirnos a hello@fantasia.app. También tienes derecho a presentar una queja ante la Oficina de Privacidad del Fiscal General de California si consideras que tus derechos no han sido atendidos adecuadamente.
                 </p>
               </div>
 
               <p className="italic text-gray-400 text-center mt-8">
-                Thank you for trusting Fantasia. Your privacy and discretion are our highest priorities.
+                Gracias por confiar en Fantasia, cariño. Tu privacidad y discreción son nuestras máximas prioridades.
               </p>
             </motion.div>
             
@@ -191,7 +191,7 @@ const PrivacyPolicy: React.FC = () => {
                 onClick={() => navigate(-1)}
                 className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg shadow-violet-500/25 transition-all hover:shadow-violet-500/40 hover:scale-105"
               >
-                Back
+                Volver
               </Button>
             </motion.div>
         </div>

@@ -10,14 +10,6 @@
 
 BEGIN;
 
--- =============================================================================
--- STEP 1: CLEANUP OF OBSOLETE TABLES
--- We remove tables related to "challenges", which no longer exist.
--- =============================================================================
-
-DROP TABLE IF EXISTS public.challenge_questions;
-DROP TABLE IF EXISTS public.challenges;
-
 
 -- =============================================================================
 -- STEP 2: CREATION OF CUSTOM DATA TYPES (ENUMS)
@@ -246,12 +238,43 @@ CREATE POLICY "Authenticated users can read active presets."
     TO authenticated
     USING (is_active = true);
 
+-- Policies for 'usage_events' (Users can only insert their own events, admins can read)
+DROP POLICY IF EXISTS "Users can insert their own usage events." ON public.usage_events;
+CREATE POLICY "Users can insert their own usage events."
+    ON public.usage_events FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read their own usage events." ON public.usage_events;
+CREATE POLICY "Users can read their own usage events."
+    ON public.usage_events FOR SELECT
+    TO authenticated
+    USING (auth.uid() = user_id);
+
 
 COMMIT;
 
 
 -- =============================================================================
 -- ||                 FINAL SQL FUNCTIONS FOR FANTASIA                        ||
+-- ||                                                                         ||
+-- || This section contains all SQL functions required for the Stripe         ||
+-- || integration and subscription management system.                         ||
+-- ||                                                                         ||
+-- || FEATURES IMPLEMENTED:                                                   ||
+-- || - Voice credit management (purchase, decrement, monthly allowance)     ||
+-- || - Monthly story generation limits (10 for free, unlimited for premium) ||
+-- || - Monthly voice generation limits (20 for premium, 0 for free)         ||
+-- || - Automated monthly counter resets via cron scheduler                  ||
+-- || - Subscription status management for webhooks                          ||
+-- || - User usage summary functions for UI display                          ||
+-- || - Admin utility functions for manual management                        ||
+-- ||                                                                         ||
+-- || SUBSCRIPTION LOGIC:                                                     ||
+-- || - Free users: 10 stories/month, 0 voice allowance, can buy credits    ||
+-- || - Premium users: unlimited stories, 20 voice/month, can buy credits   ||
+-- || - Voice credits are persistent and don't expire                        ||
+-- || - Monthly counters reset on 1st of each month at 00:00 UTC            ||
 -- =============================================================================
 
 -- Function to decrement voice credits when an audio is generated
@@ -302,20 +325,173 @@ CREATE OR REPLACE FUNCTION public.increment_voice_credits(user_uuid uuid, credit
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
   UPDATE public.profiles
-  SET voice_credits = COALESCE(voice_credits, 0) + credits_to_add
+  SET voice_credits = COALESCE(voice_credits, 0) + credits_to_add,
+      updated_at = now()
   WHERE id = user_uuid;
+  
+  RAISE LOG 'Added % voice credits to user %', credits_to_add, user_uuid;
 END;
 $$;
 
--- Scheduled function to reset usage counters for non-premium users
-CREATE OR REPLACE FUNCTION public.reset_monthly_counters()
+-- Function to check if user can generate a story (respects monthly limits)
+CREATE OR REPLACE FUNCTION public.can_generate_story(user_uuid uuid)
+RETURNS boolean LANGUAGE plpgsql SECURITY INVOKER AS $$
+DECLARE
+  user_profile RECORD;
+  FREE_STORY_LIMIT CONSTANT INTEGER := 10;
+BEGIN
+  SELECT subscription_status, monthly_stories_generated
+  INTO user_profile
+  FROM public.profiles
+  WHERE id = user_uuid;
+  
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+  
+  -- Premium users have unlimited stories
+  IF user_profile.subscription_status IN ('active', 'trialing') THEN
+    RETURN true;
+  END IF;
+  
+  -- Free users have monthly limit
+  RETURN COALESCE(user_profile.monthly_stories_generated, 0) < FREE_STORY_LIMIT;
+END;
+$$;
+
+-- Function to check if user can generate voice audio (respects monthly limits and credits)
+CREATE OR REPLACE FUNCTION public.can_generate_voice(user_uuid uuid)
+RETURNS boolean LANGUAGE plpgsql SECURITY INVOKER AS $$
+DECLARE
+  user_profile RECORD;
+  PREMIUM_MONTHLY_ALLOWANCE CONSTANT INTEGER := 20;
+BEGIN
+  SELECT subscription_status, monthly_voice_generations_used, voice_credits
+  INTO user_profile
+  FROM public.profiles
+  WHERE id = user_uuid;
+  
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+  
+  -- Premium users: Check monthly allowance first, then purchased credits
+  IF user_profile.subscription_status IN ('active', 'trialing') THEN
+    IF COALESCE(user_profile.monthly_voice_generations_used, 0) < PREMIUM_MONTHLY_ALLOWANCE THEN
+      RETURN true;
+    END IF;
+    -- If monthly allowance exceeded, check purchased credits
+    RETURN COALESCE(user_profile.voice_credits, 0) > 0;
+  END IF;
+  
+  -- Free users can only use purchased credits
+  RETURN COALESCE(user_profile.voice_credits, 0) > 0;
+END;
+$$;
+
+-- Function to update subscription status (used by webhooks)
+CREATE OR REPLACE FUNCTION public.update_subscription_status(
+  user_uuid uuid,
+  new_status text,
+  new_subscription_id text DEFAULT NULL,
+  new_period_end timestamp with time zone DEFAULT NULL
+)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
+  UPDATE public.profiles
+  SET subscription_status = new_status,
+      subscription_id = COALESCE(new_subscription_id, subscription_id),
+      current_period_end = COALESCE(new_period_end, current_period_end),
+      updated_at = now()
+  WHERE id = user_uuid;
+  
+  RAISE LOG 'Updated subscription status for user % to %', user_uuid, new_status;
+END;
+$$;
+
+-- Function to get user's current usage and limits (for UI display)
+CREATE OR REPLACE FUNCTION public.get_user_usage_summary(user_uuid uuid)
+RETURNS TABLE(
+  subscription_type text,
+  stories_used integer,
+  stories_limit integer,
+  voice_used integer,
+  voice_limit integer,
+  voice_credits integer,
+  period_end timestamp with time zone
+) LANGUAGE plpgsql SECURITY INVOKER AS $$
+DECLARE
+  user_profile RECORD;
+  FREE_STORY_LIMIT CONSTANT INTEGER := 10;
+  PREMIUM_VOICE_ALLOWANCE CONSTANT INTEGER := 20;
+BEGIN
+  SELECT subscription_status, monthly_stories_generated, monthly_voice_generations_used, 
+         voice_credits, current_period_end
+  INTO user_profile
+  FROM public.profiles
+  WHERE id = user_uuid;
+  
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+  
+  -- Determine subscription type and limits
+  IF user_profile.subscription_status IN ('active', 'trialing') THEN
+    subscription_type := 'premium';
+    stories_limit := -1; -- Unlimited
+    voice_limit := PREMIUM_VOICE_ALLOWANCE;
+  ELSE
+    subscription_type := 'free';
+    stories_limit := FREE_STORY_LIMIT;
+    voice_limit := 0; -- Free users don't get monthly voice allowance
+  END IF;
+  
+  stories_used := COALESCE(user_profile.monthly_stories_generated, 0);
+  voice_used := COALESCE(user_profile.monthly_voice_generations_used, 0);
+  voice_credits := COALESCE(user_profile.voice_credits, 0);
+  period_end := user_profile.current_period_end;
+  
+  RETURN NEXT;
+END;
+$$;
+
+-- Function to safely reset a specific user's monthly counters (for admin use)
+CREATE OR REPLACE FUNCTION public.reset_user_monthly_counters(user_uuid uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  UPDATE public.profiles
+  SET monthly_stories_generated = 0,
+      monthly_voice_generations_used = 0,
+      updated_at = now()
+  WHERE id = user_uuid;
+  
+  RAISE LOG 'Reset monthly counters for user %', user_uuid;
+END;
+$$;
+
+-- Scheduled function to reset usage counters for monthly limits
+CREATE OR REPLACE FUNCTION public.reset_monthly_counters()
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  free_users_reset INTEGER := 0;
+  voice_users_reset INTEGER := 0;
+BEGIN
+  -- Reset story counters for free users only (premium users have unlimited stories)
   UPDATE public.profiles
   SET monthly_stories_generated = 0
   WHERE (subscription_status IS NULL OR subscription_status NOT IN ('active', 'trialing'))
     AND monthly_stories_generated > 0;
-  RAISE LOG 'Monthly story counters for free users have been reset.';
+  
+  GET DIAGNOSTICS free_users_reset = ROW_COUNT;
+  
+  -- Reset voice generation counters for ALL users (both free and premium get monthly allowance)
+  UPDATE public.profiles
+  SET monthly_voice_generations_used = 0
+  WHERE monthly_voice_generations_used > 0;
+  
+  GET DIAGNOSTICS voice_users_reset = ROW_COUNT;
+  
+  RAISE LOG 'Monthly counters reset completed: % free users story counters reset, % users voice counters reset.', free_users_reset, voice_users_reset;
 END;
 $$;
 
@@ -359,47 +535,41 @@ CREATE TRIGGER trigger_user_voices_updated_at
     FOR EACH ROW EXECUTE FUNCTION public.update_modified_column();
 
 
+
 -- =============================================================================
--- ||                      CHARACTERS_DATA USAGE EXAMPLES                      ||
+-- ||                        AUTOMATED MONTHLY RESET SCHEDULER                  ||
 -- =============================================================================
 
--- IMPORTANT: The characters_data field was added via separate migration script.
--- It stores complete character arrays for stories with multiple characters (1-4).
+-- Enable the cron extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS pg_cron;
 
--- Example 1: Insert a story with multiple characters
--- INSERT INTO stories (user_id, title, content, characters_data, character_id, genre, story_format)
--- VALUES (
---     'user-uuid-here',
---     'My Story',
---     'Story content...',
---     '[
---         {"id": "char-1", "name": "Alice", "gender": "female", "description": "Beautiful", "is_preset": false},
---         {"id": "char-2", "name": "Valentina", "gender": "female", "description": "Sultry influencer", "is_preset": true}
---     ]'::jsonb,
---     'char-1',  -- Primary character for compatibility (NULL for preset-only stories)
---     'Romance',
---     'single'
--- );
+-- Remove existing schedule if it exists (for re-runs)
+SELECT cron.unschedule('monthly-counters-reset');
 
--- Example 2: Query stories by character name
--- SELECT * FROM stories 
--- WHERE characters_data @> '[{"name": "Valentina"}]';
+-- Schedule monthly reset function to run on the 1st of each month at 00:00 UTC
+-- This will reset monthly counters for both free and premium users
+SELECT cron.schedule(
+  'monthly-counters-reset',
+  '0 0 1 * *', -- Cron expression: minute hour day month day_of_week
+  $$SELECT reset_monthly_counters();$$
+);
 
--- Example 3: Query stories with preset characters
--- SELECT * FROM stories 
--- WHERE characters_data @> '[{"is_preset": true}]';
-
--- Example 4: Count characters in story
--- SELECT title, jsonb_array_length(characters_data) as character_count
--- FROM stories 
--- WHERE characters_data IS NOT NULL;
-
--- Example 5: Find stories with specific character combinations
--- SELECT title, characters_data
--- FROM stories 
--- WHERE characters_data @> '[{"name": "Akira"}]' 
---   AND characters_data @> '[{"name": "Elena"}]';
-
+-- Verify the schedule was created
+DO $$
+DECLARE
+  schedule_exists BOOLEAN;
+BEGIN
+  SELECT EXISTS (
+    SELECT 1 FROM cron.job 
+    WHERE jobname = 'monthly-counters-reset'
+  ) INTO schedule_exists;
+  
+  IF schedule_exists THEN
+    RAISE LOG 'Monthly reset scheduler configured successfully: Will run reset_monthly_counters() on 1st of each month at 00:00 UTC';
+  ELSE
+    RAISE WARNING 'Failed to create monthly reset scheduler. Please check pg_cron extension is enabled.';
+  END IF;
+END $$;
 
 -- =============================================================================
 -- ||                                END OF SCRIPT                              ||

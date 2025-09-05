@@ -53,13 +53,13 @@ export default function CharacterSelection() {
   // Load characters from Supabase directly
   useEffect(() => {
     const loadCharacters = async () => {
-      console.log("[DEBUG] CharacterSelection mounted - loading characters directly from Supabase");
+      console.log("[DEBUG] CharacterSelection montado - cargando protagonistas directamente desde Supabase");
       setIsLoading(true);
       setError(null);
 
       if (!user) {
-        console.error("[DEBUG] No authenticated user to load characters");
-        setError("No authenticated user");
+        console.error("[DEBUG] No hay un alma autenticada para cargarle protagonistas.");
+        setError("No hay usuario autenticado");
         setIsLoading(false);
         return;
       }
@@ -84,10 +84,10 @@ export default function CharacterSelection() {
         });
         
         setCharacters(sortedCharacters);
-        console.log(`[DEBUG] Loaded ${sortedCharacters.length} total characters (preset + user) for user ${user.id}`);
+        console.log(`[DEBUG] Se cargaron ${sortedCharacters.length} protagonistas en total (predefinidos + de usuario) para el usuario ${user.id}`);
       } catch (err) {
-        console.error("[DEBUG] Unexpected error loading characters:", err);
-        setError("Error loading characters");
+        console.error("[DEBUG] Error inesperado cargando protagonistas:", err);
+        setError("Error al cargar los protagonistas");
       } finally {
         setIsLoading(false);
       }
@@ -98,7 +98,7 @@ export default function CharacterSelection() {
 
   // Log available characters
   useEffect(() => {
-    console.log(`CharacterSelection has ${characters.length} available characters:`,
+    console.log(`CharacterSelection tiene ${characters.length} protagonistas disponibles:`,
       characters.map(char => `${char.name} (${char.id})`));
   }, [characters]);
 
@@ -112,14 +112,14 @@ export default function CharacterSelection() {
     const validation = charactersService.validateMultipleCharacterSelection(selectedCharacters);
 
     if (!validation.isValid) {
-      console.warn("Invalid selection:", validation.errors);
+      console.warn("Selección inválida:", validation.errors);
       return;
     }
 
     // Store selected characters in sessionStorage for the story generation flow
     sessionStorage.setItem('selectedCharacters', JSON.stringify(selectedCharacters));
-    console.log("🔍 DEBUG - Saved to sessionStorage:", selectedCharacters.length, "characters");
-    console.log("🔍 DEBUG - Characters saved:", selectedCharacters.map(c => `${c.name} (${c.id})`));
+    console.log("🔍 DEBUG - Guardado en sessionStorage:", selectedCharacters.length, "protagonistas");
+    console.log("🔍 DEBUG - Protagonistas guardados:", selectedCharacters.map(c => `${c.name} (${c.id})`));
     navigate("/story-genre");
   };
 
@@ -155,11 +155,11 @@ export default function CharacterSelection() {
 
         <div className="w-full max-w-2xl mx-auto px-4 py-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 font-heading bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-            Choose Your Characters
+            Elige a tus Protagonistas 😈
           </h1>
 
           <p className="text-lg text-gray-200 bg-gray-900/80 backdrop-blur-md border border-gray-800 rounded-xl px-4 py-2 text-center mb-6 font-medium shadow-lg">
-            ✨ Select up to 4 characters for your erotic story! For intimate tales, fewer characters create more passionate focus.
+            ✨ Elige hasta 4 protagonistas para tu fantasía erótica. Para historias más íntimas, menos personajes crean un enfoque más apasionado.
           </p>
 
           {/* Selection counter */}
@@ -168,7 +168,7 @@ export default function CharacterSelection() {
               <div className="flex items-center gap-3 px-4 py-2 bg-gray-900/90 backdrop-blur-md border border-violet-500/60 rounded-xl shadow-lg ring-1 ring-violet-500/20">
                 <Users size={20} className="text-violet-400" />
                 <span className="text-gray-200 font-medium">
-                  {selectedCharacters.length}/4 characters selected
+                  {selectedCharacters.length}/4 protagonistas elegidos
                 </span>
               </div>
             </div>
@@ -183,16 +183,16 @@ export default function CharacterSelection() {
 
           {isLoading ? (
             <div className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 shadow-lg mb-8">
-              <div className="text-violet-400 font-medium">Loading characters...</div>
+              <div className="text-violet-400 font-medium">Cargando tus creaciones...</div>
             </div>
           ) : error ? (
             <div className="text-center bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl p-4 shadow-lg mb-8">
-              <div className="text-red-400 font-medium">{error}</div>
+              <div className="text-red-400 font-medium">¡Ups! Algo salió mal al cargar.</div>
               <button 
                 onClick={() => window.location.reload()} 
                 className="mt-2 text-violet-400 underline hover:text-violet-300 transition-colors"
               >
-                Retry
+                Reintentar
               </button>
             </div>
           ) : (
@@ -212,7 +212,7 @@ export default function CharacterSelection() {
                       transition-all duration-300 shadow-md ring-1 ring-gray-700/50"
                   >
                     <Plus size={40} className="text-pink-400 mb-2" />
-                    <span className="text-gray-200 text-center font-medium">Create New</span>
+                    <span className="text-gray-200 text-center font-medium">Crear Nuevo</span>
                   </div>
                 </motion.div>
 
@@ -223,7 +223,7 @@ export default function CharacterSelection() {
                   
                   // Gender icon mapping
                   const genderIcon = character.gender === 'male' ? '♂' : character.gender === 'female' ? '♀' : '⚧';
-                  const genderText = character.gender === 'male' ? 'Male' : character.gender === 'female' ? 'Female' : 'Non-binary';
+                  const genderText = character.gender === 'male' ? 'Masculino' : character.gender === 'female' ? 'Femenino' : 'No binario';
 
                   // Define border and styling based on preset status
                   const borderColor = isPreset ? '#f59e0b' : '#6366f1'; // Amber for preset, indigo for user
@@ -318,7 +318,7 @@ export default function CharacterSelection() {
                             {genderIcon} {genderText}
                           </span>
                           <p className="text-gray-400 text-xs mt-1 line-clamp-2">
-                            {character.description || 'No description'}
+                            {character.description || 'Sin descripción'}
                           </p>
                         </div>
 
@@ -336,7 +336,7 @@ export default function CharacterSelection() {
 
               {characters.length === 0 && (
                 <div className="text-center bg-white/70 rounded-xl p-4 shadow-md mb-8">
-                  <div className="text-[#555] font-medium">No characters available. Create a new one to get started!</div>
+                  <div className="text-[#555] font-medium">No tienes protagonistas. ¡Crea uno para empezar la diversión!</div>
                 </div>
               )}
 
@@ -350,7 +350,7 @@ export default function CharacterSelection() {
                         className="px-4 py-2 text-sm bg-white/70 border border-[#7DC4E0]/60 rounded-lg
                           hover:bg-[#7DC4E0]/10 transition-all duration-200 text-[#555]"
                       >
-                        Clear Selection
+                        Limpiar selección
                       </button>
                     </div>
                   )}
@@ -359,14 +359,12 @@ export default function CharacterSelection() {
                   <div className="flex justify-center w-full">
                     <StoryButton
                       onClick={handleContinueWithSelection}
-                      isFullWidth={false}
                       disabled={selectedCharacters.length === 0}
-                      className="w-full max-w-xs py-4 rounded-2xl text-white text-lg font-semibold shadow-lg bg-[#BB79D1] hover:bg-[#BB79D1]/90 border-2 border-[#BB79D1]/50 transition-all duration-200"
+                      isFullWidth
                     >
-                      {selectedCharacters.length === 0
-                        ? "Select at least one character"
-                        : `Continue with ${selectedCharacters.length} character${selectedCharacters.length !== 1 ? 's' : ''}`
-                      }
+                      {selectedCharacters.length === 1
+                        ? "Continuar con 1 protagonista"
+                        : `Continuar con ${selectedCharacters.length} protagonistas`}
                     </StoryButton>
                   </div>
                 </div>

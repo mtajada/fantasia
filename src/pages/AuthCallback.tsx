@@ -68,13 +68,13 @@ export default function AuthCallback() {
           <>
             <h2 className="text-2xl font-bold text-white mb-4">Error de autenticación</h2>
             <p className="text-white/80 mb-4">{error}</p>
-            <p className="text-white/60">Redirigiendo al inicio de sesión...</p>
+            <p className="text-white/60">Te llevamos de vuelta al inicio en un momento...</p>
           </>
         ) : (
           <>
             <div className="animate-spin h-12 w-12 border-4 border-white rounded-full border-t-transparent mx-auto mb-6"></div>
-            <h2 className="text-2xl font-bold text-white mb-4">Autenticando...</h2>
-            <p className="text-white/80">Estamos verificando tu información</p>
+            <h2 className="text-2xl font-bold text-white mb-4">Verificando tu identidad...</h2>
+            <p className="text-white/80">Un momentito, cariño, estamos confirmando todo</p>
           </>
         )}
       </div>

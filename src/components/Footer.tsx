@@ -11,7 +11,7 @@ export default function Footer() {
 
         <div className="text-gray-400 text-xs text-center md:text-left mb-2 md:mb-0">
           <div>
-            &copy; {new Date().getFullYear()} Fantasia. All rights reserved.
+            &copy; {new Date().getFullYear()} Fantasia. Todos los derechos reservados.
           </div>
           <div className="text-gray-500 text-xs mt-1 text-center">
             v{APP_CONFIG.version}
@@ -19,10 +19,10 @@ export default function Footer() {
         </div>
 
         <div className="mt-2 md:mt-0 flex gap-4">
-          <Link to={APP_CONFIG.footerLinks.terms} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Terms</Link>
-          <Link to={APP_CONFIG.footerLinks.privacy} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Privacy</Link>
-          <Link to={APP_CONFIG.footerLinks.contact} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Contact</Link>
-          <Link to={APP_CONFIG.footerLinks.changelog} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Changelog</Link>
+          <Link to={APP_CONFIG.footerLinks.terms} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Términos</Link>
+          <Link to={APP_CONFIG.footerLinks.privacy} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Privacidad</Link>
+          <Link to={APP_CONFIG.footerLinks.contact} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Contacto</Link>
+          <Link to={APP_CONFIG.footerLinks.changelog} className="text-violet-400 hover:text-gray-50 transition-colors text-sm">Cambios</Link>
         </div>
       </div>
     </footer>

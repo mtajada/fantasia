@@ -164,11 +164,11 @@ export const useUserStore = createPersistentStore<UserState>(
 
     canGenerateVoice: () => {
       const settings = get().profileSettings;
-      console.log('[canGenerateVoice_DEBUG] Checking canGenerateVoice. Settings:', settings);
+      console.log('[canGenerateVoice_DEBUG] Verificando canGenerateVoice. Configuración:', settings);
 
       // a. Handle missing profile
       if (!settings) {
-        console.warn('[canGenerateVoice_DEBUG] No profile settings found. Denying voice generation.');
+        console.warn('[canGenerateVoice_DEBUG] No se encontró configuración de perfil. Denegando generación de voz.');
         return false;
       }
 
@@ -197,12 +197,9 @@ export const useUserStore = createPersistentStore<UserState>(
     },
 
     canContinueStory: (storyId: string) => {
-      if (get().isPremium()) return true; // Premium puede continuar ilimitadamente
-
-      // Gratuito: obtener capítulos y contar
-      const chapters = useChaptersStore.getState().getChaptersByStoryId(storyId);
-      // Permite si hay menos de 2 capítulos (Cap 1 inicial + 1 continuación)
-      return chapters.length < 2;
+      // Use the same monthly story limit logic as canCreateStory
+      // Both creating new stories and continuing stories count towards the 10/month limit
+      return get().getRemainingMonthlyStories() > 0;
     },
 
     checkAuth: async (): Promise<User | null> => {
