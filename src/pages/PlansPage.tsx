@@ -281,20 +281,13 @@ const PlansPage: React.FC = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                            {/* <button
-                                                onClick={() => handleCheckout('credits')}
-                                                disabled={isCheckoutLoading}
-                                                className="w-full py-4 px-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm"
+                                            <button
+                                                disabled={true}
+                                                className="w-full py-4 px-4 bg-gray-600 cursor-not-allowed text-white rounded-2xl font-medium flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm opacity-70"
                                             >
-                                                {isCheckoutLoading ? (
-                                                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                ) : (
-                                                    <>
-                                                        <CreditCard className="h-4 w-4" />
-                                                        <span>Comprar Más Créditos</span>
-                                                    </>
-                                                )}
-                                            </button> */}
+                                                <CreditCard className="h-4 w-4" />
+                                                <span>Próximamente</span>
+                                            </button>
                                         </div>
                                     </div>
                                     {/* Card: Manage Subscription */}
@@ -390,7 +383,7 @@ const PlansPage: React.FC = () => {
                                 <div className="mt-8 mb-14 text-center transition-all duration-300">
                                     <Link
                                         to="/home"
-                                        className="inline-block py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium flex items-center justify-center gap-2 shadow-lg transition-all duration-200 mx-auto min-h-[44px] text-base sm:text-sm"
+                                        className="inline-flex py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-medium items-center justify-center gap-2 shadow-lg transition-all duration-200 mx-auto min-h-[44px] text-base sm:text-sm"
                                     >
                                         <BookOpen className="h-5 w-5" />
                                         <span>Ir a la App</span>
@@ -452,19 +445,26 @@ const PlansPage: React.FC = () => {
                                             {activePlan === 'premium' ? (
                                                 <>
                                                     <p className="text-gray-300 mt-1 font-medium">Creatividad sin límites para tus fantasías</p>
-                                                    <div className="flex items-center mt-3 bg-gray-800/70 p-3 rounded-xl justify-between border border-violet-500">
+                                                    <div className="flex items-center mt-3 bg-gray-800/70 p-3 rounded-xl justify-between border border-orange-500/50">
                                                         <div className="flex items-center gap-2">
-                                                            <Euro className="h-5 w-5 text-violet-400" />
-                                                            <span className="text-gray-300 font-medium">Precio:</span>
+                                                            <Sparkles className="h-5 w-5 text-orange-400" />
+                                                            <span className="text-gray-300 font-medium">Estado:</span>
                                                         </div>
-                                                        <div className="font-bold text-xl text-violet-400 flex items-center gap-1">
-                                                            <span>9.98€</span>
-                                                            <span className="text-sm font-normal text-gray-300 opacity-80">/mes</span>
+                                                        <div className="font-bold text-lg text-orange-400 flex items-center gap-1">
+                                                            <span>Próximamente</span>
                                                         </div>
                                                     </div>
                                                 </>
                                             ) : (
-                                                <p className="text-gray-300 mt-1">Perfecto para comenzar a explorar</p>
+                                                <>
+                                                    <p className="text-gray-300 mt-1">Perfecto para comenzar a explorar</p>
+                                                    <div className="mt-3 bg-blue-500/20 border border-blue-500/40 p-3 rounded-xl">
+                                                        <div className="flex items-center gap-2">
+                                                            <Sparkles className="h-4 w-4 text-blue-400" />
+                                                            <span className="text-blue-300 font-medium text-sm">El plan Premium llegará pronto con funciones increíbles</span>
+                                                        </div>
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
 
@@ -472,20 +472,13 @@ const PlansPage: React.FC = () => {
                                         {activePlan === 'premium' && (
                                             <div className="p-6 pt-4 pb-0">
                                                 <button
-                                                    onClick={() => handleCheckout('premium')}
-                                                    disabled={isCheckoutLoading}
-                                                    className="w-full py-4 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm"
+                                                    disabled={true}
+                                                    className="w-full py-4 px-6 bg-gray-600 cursor-not-allowed text-white rounded-2xl font-bold flex justify-center items-center gap-2 shadow-lg transition-all duration-200 min-h-[44px] text-base sm:text-sm opacity-70"
                                                 >
-                                                    {isCheckoutLoading ? (
-                                                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <>
-                                                            <Star className="h-5 w-5" />
-                                                            <span>Obtener Premium Ahora 🌟</span>
-                                                        </>
-                                                    )}
+                                                    <Star className="h-5 w-5" />
+                                                    <span>Próximamente 🚀</span>
                                                 </button>
-                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">Unlock unlimited stories and premium features</p>
+                                                <p className="text-center text-sm text-gray-300 mt-3 font-medium">Estamos preparando algo increíble para ti</p>
                                             </div>
                                         )}
 
@@ -567,7 +560,7 @@ const PlansPage: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Plan navigation buttons - With space below */}
+                                {/* Plan navigation buttons - With space below */}
                             <div className="flex flex-col sm:flex-row justify-center gap-4 mb-10 px-4 sm:px-0">
                                 {activePlan === 'free' && (
                                     <button
@@ -575,7 +568,7 @@ const PlansPage: React.FC = () => {
                                         className="py-4 px-6 sm:px-8 bg-gradient-to-r from-pink-500 to-violet-500 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 transition-all duration-200 hover:from-pink-600 hover:to-violet-600 min-h-[44px] text-base sm:text-sm"
                                     >
                                         <Star className="h-5 w-5" />
-                                        <span>Ver Plan Premium</span>
+                                        <span>Ver Plan Premium (Próximamente)</span>
                                         <ChevronRight className="h-4 w-4" />
                                     </button>
                                 )}
